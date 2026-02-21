@@ -1,0 +1,40 @@
+@import './base.css';
+
+#app {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+  display: block;
+}
+
+.card-uploader {
+  position: static;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1280px;
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  #app {
+    display: block;
+    padding: 2rem;
+  }
+}
