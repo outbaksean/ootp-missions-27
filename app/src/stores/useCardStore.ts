@@ -33,14 +33,17 @@ export const useCardStore = defineStore('card', () => {
 
   async function uploadShopFile(file: File) {
     const text = await file.text()
-    Papa.parse(text, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results: { data: any[] }) => {
-        const data = results.data.map(parseShopCardRow)
-        await clearShopCards()
-        await addShopCards(data)
-      },
+    await new Promise<void>((resolve) => {
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: async (results: { data: any[] }) => {
+          const data = results.data.map(parseShopCardRow)
+          await clearShopCards()
+          await addShopCards(data)
+          resolve()
+        },
+      })
     })
   }
 
@@ -73,14 +76,17 @@ export const useCardStore = defineStore('card', () => {
       try {
         const response = await fetch('/ootp-missions-27/data/shop_cards.csv')
         const text = await response.text()
-        Papa.parse(text, {
-          header: true,
-          skipEmptyLines: true,
-          complete: async (results: { data: any[] }) => {
-            const data = results.data.map(parseShopCardRow)
-            await clearShopCards()
-            await addShopCards(data)
-          },
+        await new Promise<void>((resolve) => {
+          Papa.parse(text, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async (results: { data: any[] }) => {
+              const data = results.data.map(parseShopCardRow)
+              await clearShopCards()
+              await addShopCards(data)
+              resolve()
+            },
+          })
         })
       } catch (e) {
         console.error('Failed to load default shop cards', e)

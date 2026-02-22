@@ -15,7 +15,5 @@ app.use(createPinia())
 app.mount('#app')
 
 const cardStore = useCardStore()
-await cardStore.initialize()
-
 const missionStore = useMissionStore()
-await missionStore.initialize()
+await Promise.all([cardStore.initialize(), missionStore.initialize()])

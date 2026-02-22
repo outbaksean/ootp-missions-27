@@ -109,20 +109,7 @@ export const useMissionStore = defineStore('mission', () => {
     }
   }
 
-  async function initialize() {
-    loading.value = true
-
-    if (missions.value.length === 0) {
-      try {
-        const res = await fetch('/ootp-missions-27/data/missions.json')
-        missions.value = await res.json()
-      } catch (e) {
-        console.error('Failed to load missions', e)
-        loading.value = false
-        return
-      }
-    }
-
+  async function buildUserMissions() {
     const shopCards = await db.shopCards.toArray()
 
     userMissions.value = missions.value.map((mission) => {
@@ -186,7 +173,46 @@ export const useMissionStore = defineStore('mission', () => {
         remainingPrice: remainingPrice.totalPrice,
       }
     })
+  }
 
+  async function fetchAndCacheMissions(): Promise<Mission[]> {
+    const res = await fetch('/ootp-missions-27/data/missions.json')
+    const data: Mission[] = await res.json()
+    await db.missionsCache.put({ id: 1, data })
+    return data
+  }
+
+  async function initialize() {
+    loading.value = true
+
+    const cached = await db.missionsCache.get(1)
+    if (cached) {
+      missions.value = cached.data
+      await buildUserMissions()
+      loading.value = false
+      // Refresh cache in background without blocking the UI
+      fetchAndCacheMissions()
+        .then((fresh) => {
+          if (fresh.length !== missions.value.length) {
+            missions.value = fresh
+            buildUserMissions()
+          }
+        })
+        .catch(() => {
+          // Silently ignore — we already have cached data
+        })
+      return
+    }
+
+    try {
+      missions.value = await fetchAndCacheMissions()
+    } catch (e) {
+      console.error('Failed to load missions', e)
+      loading.value = false
+      return
+    }
+
+    await buildUserMissions()
     loading.value = false
   }
 
