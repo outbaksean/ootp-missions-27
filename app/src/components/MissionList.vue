@@ -1,50 +1,62 @@
 <template>
-  <ul class="list-group">
-    <li
+  <div class="mission-list">
+    <div
       v-for="mission in filteredMissions"
       :key="mission.id"
-      class="list-group-item d-flex flex-column align-items-start"
+      class="mission-card"
+      :class="{
+        'mission-card--complete': isMissionComplete(mission),
+        'mission-card--selected': selectedMission && selectedMission.id === mission.id,
+      }"
     >
-      <div class="d-flex justify-content-between w-100">
-        <div class="col text-start">
-          <strong>{{ mission.rawMission.name }}</strong>
-        </div>
-        <div class="col text-start">
-          <span
-            :class="{
-              'text-success': isMissionComplete(mission),
-              'text-danger': !isMissionComplete(mission),
-            }"
-          >
-            {{ mission.progressText }}
-          </span>
-        </div>
-        <div class="col text-start">
-          <span class="progress-text">{{ remainingPriceText(mission) }}</span>
-        </div>
-        <div class="col-auto">
-          <button
-            v-if="mission.progressText === 'Not Calculated'"
-            class="btn btn-secondary btn-sm"
-            @click="$emit('calculateMission', mission.id)"
-          >
-            Calculate
-          </button>
-          <button v-else class="btn btn-primary btn-sm" @click="selectMission(mission)">
-            Select
-          </button>
-        </div>
+      <!-- Name + status badge -->
+      <div class="card-header">
+        <strong class="card-name">{{ mission.rawMission.name }}</strong>
+        <span v-if="isMissionComplete(mission)" class="badge badge-done">✓ Done</span>
+        <span v-else-if="mission.progressText === 'Not Calculated'" class="badge badge-pending">
+          —
+        </span>
       </div>
-      <div class="reward-text">{{ mission.rawMission.reward }}</div>
-    </li>
-  </ul>
+
+      <!-- Reward -->
+      <div class="card-reward">{{ mission.rawMission.reward }}</div>
+
+      <!-- Progress -->
+      <div class="card-progress">
+        <div class="progress-track">
+          <div class="progress-fill" :style="{ width: progressPercent(mission) + '%' }"></div>
+        </div>
+        <span
+          class="progress-label"
+          :class="{ 'label-unknown': mission.progressText === 'Not Calculated' }"
+        >
+          {{ progressLabel(mission) }}
+        </span>
+      </div>
+
+      <!-- Footer: price + action -->
+      <div class="card-footer">
+        <span class="card-price">{{ remainingPriceText(mission) }}</span>
+        <button
+          v-if="mission.progressText === 'Not Calculated'"
+          class="btn-action btn-calculate"
+          @click="$emit('calculateMission', mission.id)"
+        >
+          Calculate
+        </button>
+        <button v-else class="btn-action btn-select" @click="selectMission(mission)">
+          Select
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue'
 import type { UserMission } from '../models/UserMission'
 
-defineProps({
+const props = defineProps({
   filteredMissions: {
     type: Array as PropType<UserMission[]>,
     required: true,
@@ -61,17 +73,188 @@ defineProps({
     type: Function as PropType<(mission: UserMission) => void>,
     required: true,
   },
+  selectedMission: {
+    type: Object as PropType<UserMission | null>,
+    default: null,
+  },
 })
+
+defineEmits<{ (e: 'calculateMission', id: number): void }>()
+
+function progressPercent(mission: UserMission): number {
+  if (mission.completed) return 100
+  if (mission.progressText === 'Not Calculated') return 0
+
+  const required = mission.rawMission.requiredCount
+  if (!required) return 0
+
+  if (mission.rawMission.type === 'count') {
+    const owned = mission.missionCards.filter((c) => c.owned).length
+    return Math.min(100, Math.round((owned / required) * 100))
+  }
+
+  // points / missions: parse leading number from progressText
+  const match = mission.progressText.match(/^([\d,]+)/)
+  if (match) {
+    const value = parseInt(match[1].replace(/,/g, ''), 10)
+    return Math.min(100, Math.round((value / required) * 100))
+  }
+
+  return 0
+}
+
+function progressLabel(mission: UserMission): string {
+  if (mission.completed) return 'Completed'
+  if (mission.progressText === 'Not Calculated') return 'Not calculated'
+  return mission.progressText
+}
 </script>
 
 <style scoped>
-.list-group-item {
-  font-size: 1.2rem;
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.reward-text {
-  margin-top: 5px;
-  font-size: 0.9rem;
-  color: #6c757d;
+.mission-card {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: var(--card-shadow);
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+
+.mission-card:hover {
+  box-shadow: var(--card-hover-shadow);
+}
+
+.mission-card--complete {
+  border-left: 3px solid var(--accent);
+  opacity: 0.72;
+}
+
+.mission-card--selected {
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18);
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.card-name {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  flex: 1;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.badge-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-pending {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+/* Reward */
+.card-reward {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+/* Progress */
+.card-progress {
+  margin-bottom: 0.5rem;
+}
+
+.progress-track {
+  height: 5px;
+  background: var(--progress-bg);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label-unknown {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Footer */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-price {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.btn-action {
+  border: none;
+  border-radius: 5px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-calculate {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-calculate:hover {
+  background: #e2e8f0;
+}
+
+.btn-select {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-select:hover {
+  background: var(--accent-hover);
 }
 </style>

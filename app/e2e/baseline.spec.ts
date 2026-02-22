@@ -7,27 +7,19 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 /**
- * OOTP Missions 27 — UI Baseline Tests (Feb 2026)
+ * OOTP Missions 27 — UI Baseline Tests (Feb 2026, post-redesign)
  *
- * Captures the pre-redesign UI structure. Run these after a UI overhaul to
- * verify all major features still work even if the visual layout changes.
- *
- * Current UI shape:
+ * Layout after redesign:
  *  - Nav bar (cratervar.com link) + WIP banner
- *  - Collapsed upload panel (Upload card data + Help buttons)
- *  - Two header rows of controls above the mission list
- *    Row 1: Missions heading | Use Sell Price | Hide Completed
- *    Row 2: Search box | Target Mission dropdown | Category dropdown | Calculate All
- *  - Full-width mission list rows: name | progress | price | button
- *  - Mission detail panel replaces list when a mission is selected
+ *  - Three-panel layout:
+ *    Left sidebar (230px): upload status/buttons, search, category dropdown,
+ *      target mission dropdown, Use Sell Price toggle, Hide Completed toggle,
+ *      Calculate All button
+ *    Main panel: scrollable mission card list
+ *    Detail panel (360px): appears when a mission is selected, shows cards/sub-missions
  *  - Footer with GitHub link
  *
- * DB name: OOTPMissions27DB (distinct from the archived v26 app's OOTPMissionsDB)
- *
  * Speed strategy: intercept the shop_cards.csv request and return a 5-row stub.
- * The real CSV has 5,500 rows; with 250 missions the calculation takes 13-15s.
- * With 5 rows it completes in under 2s. Each test also clears IndexedDB so the
- * stub is always used (never the 5,500-row cached version).
  */
 
 const minimalCsv = fs.readFileSync(
@@ -36,21 +28,21 @@ const minimalCsv = fs.readFileSync(
 )
 
 test.beforeEach(async ({ page }) => {
-  // Clear any cached shop cards so the intercepted CSV is always used
   await page.goto('/ootp-missions-27/')
-  await page.evaluate(() => new Promise<void>((resolve) => {
-    const req = indexedDB.deleteDatabase('OOTPMissions27DB')
-    req.onsuccess = () => resolve()
-    req.onerror = () => resolve()
-  }))
+  await page.evaluate(() =>
+    new Promise<void>((resolve) => {
+      const req = indexedDB.deleteDatabase('OOTPMissions27DB')
+      req.onsuccess = () => resolve()
+      req.onerror = () => resolve()
+    }),
+  )
 
-  // Intercept the default CSV request and return the 5-row stub
   await page.route('**/data/shop_cards.csv', (route) =>
     route.fulfill({ contentType: 'text/csv', body: minimalCsv }),
   )
 
   await page.reload()
-  await page.waitForSelector('.list-group-item', { timeout: 10000 })
+  await page.waitForSelector('.mission-card', { timeout: 10000 })
 })
 
 // ---------------------------------------------------------------------------
@@ -76,46 +68,42 @@ test.describe('Page shell', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Upload bar
+// Upload section (sidebar)
 // ---------------------------------------------------------------------------
 
-test.describe('Upload bar', () => {
-  test('"Upload card data" and "Help" buttons are visible', async ({ page }) => {
-    await expect(page.getByRole('button', { name: 'Upload card data' })).toBeVisible()
+test.describe('Upload section', () => {
+  test('"Upload" and "Help" buttons are visible in the sidebar', async ({ page }) => {
+    await expect(page.getByRole('button', { name: 'Upload' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Help' })).toBeVisible()
   })
 
-  test('shows "Shop cards are loaded." after default data initialises', async ({ page }) => {
-    await expect(page.getByText('Shop cards are loaded.')).toBeVisible()
+  test('shows loaded status after default data initialises', async ({ page }) => {
+    await expect(page.getByText('✓ Cards loaded')).toBeVisible()
   })
 
-  test('upload panel is collapsed by default', async ({ page }) => {
-    await expect(page.locator('#cardUploaderCollapse')).not.toBeVisible()
+  test('file inputs are hidden by default when cards are loaded', async ({ page }) => {
+    await expect(page.locator('#shopCardsFile')).not.toBeVisible()
+    await expect(page.locator('#userCardsFile')).not.toBeVisible()
   })
 
-  test('upload panel expands to show Shop Cards and User Cards inputs', async ({ page }) => {
-    await page.getByRole('button', { name: 'Upload card data' }).click()
-    await expect(page.getByText('Shop Cards:')).toBeVisible()
-    await expect(page.getByText('User Cards:')).toBeVisible()
+  test('clicking Upload reveals Shop Cards and User Cards inputs', async ({ page }) => {
+    await page.getByRole('button', { name: 'Upload' }).click()
+    await expect(page.locator('#shopCardsFile')).toBeVisible()
+    await expect(page.locator('#userCardsFile')).toBeVisible()
   })
 
   test('help modal opens and shows a close button', async ({ page }) => {
     await page.getByRole('button', { name: 'Help' }).click()
     await expect(page.getByRole('heading', { name: 'Help' })).toBeVisible()
-    // Modal has two close controls: ✕ icon and a text "Close" button
     await expect(page.locator('.modal.show .btn-secondary', { hasText: 'Close' })).toBeVisible()
   })
 })
 
 // ---------------------------------------------------------------------------
-// Mission controls
+// Sidebar controls
 // ---------------------------------------------------------------------------
 
-test.describe('Mission controls', () => {
-  test('Missions heading is visible', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Missions' })).toBeVisible()
-  })
-
+test.describe('Sidebar controls', () => {
   test('"Use Sell Price" and "Hide Completed" toggles are present', async ({ page }) => {
     await expect(page.getByText('Use Sell Price')).toBeVisible()
     await expect(page.getByText('Hide Completed')).toBeVisible()
@@ -141,7 +129,7 @@ test.describe('Mission controls', () => {
 
 test.describe('Mission list', () => {
   test('renders more than five missions', async ({ page }) => {
-    const count = await page.locator('.list-group-item').count()
+    const count = await page.locator('.mission-card').count()
     expect(count).toBeGreaterThan(5)
   })
 
@@ -151,63 +139,67 @@ test.describe('Mission list', () => {
     await expect(page.getByText('Immortal Relievers')).toBeVisible()
   })
 
-  test('each row has a bold name, progress indicator, price field, and action button', async ({
-    page,
-  }) => {
-    const row = page.locator('.list-group-item').first()
-    await expect(row.locator('strong')).not.toBeEmpty()
-    await expect(row.locator('.text-danger, .text-success')).toBeVisible()
-    await expect(row.locator('.progress-text')).toBeVisible()
-    await expect(row.locator('button')).toBeVisible()
+  test('each card has a name, progress bar, and action button', async ({ page }) => {
+    const card = page.locator('.mission-card').first()
+    await expect(card.locator('.card-name')).not.toBeEmpty()
+    await expect(card.locator('.progress-track')).toBeVisible()
+    await expect(card.locator('button')).toBeVisible()
   })
 
-  test('each row shows a reward line below the name', async ({ page }) => {
-    await expect(page.locator('.list-group-item').first().locator('.reward-text')).not.toBeEmpty()
+  test('each card shows a reward line', async ({ page }) => {
+    await expect(page.locator('.mission-card').first().locator('.card-reward')).not.toBeEmpty()
   })
 
-  test('count missions show "out of" progress immediately (no Calculate needed)', async ({
-    page,
-  }) => {
-    const row = page.locator('.list-group-item', { hasText: 'First Victims' })
-    await expect(row.locator('.text-danger, .text-success')).toContainText('out of')
+  test('count missions show progress text immediately (no Calculate needed)', async ({ page }) => {
+    const card = page.locator('.mission-card', { hasText: 'First Victims' })
+    await expect(card.locator('.progress-label')).not.toHaveText('Not calculated')
   })
 
   test('count missions have a Select button', async ({ page }) => {
-    const row = page.locator('.list-group-item', { hasText: 'First Victims' })
-    await expect(row.getByRole('button', { name: 'Select' })).toBeVisible()
+    const card = page.locator('.mission-card', { hasText: 'First Victims' })
+    await expect(card.getByRole('button', { name: 'Select' })).toBeVisible()
   })
 
-  test('points missions show "Not Calculated" and a Calculate button', async ({ page }) => {
-    const row = page.locator('.list-group-item', { hasText: 'Call-Ups' })
-    await expect(row.locator('.text-danger')).toHaveText('Not Calculated')
-    await expect(row.getByRole('button', { name: 'Calculate' })).toBeVisible()
+  test('points missions show "Not calculated" and a Calculate button', async ({ page }) => {
+    const card = page.locator('.mission-card', { hasText: 'Call-Ups' })
+    await expect(card.locator('.progress-label')).toHaveText('Not calculated')
+    await expect(card.getByRole('button', { name: 'Calculate' })).toBeVisible()
   })
 })
 
 // ---------------------------------------------------------------------------
-// Mission selection
+// Mission selection (side panel)
 // ---------------------------------------------------------------------------
 
 test.describe('Mission selection', () => {
-  test('clicking Select collapses the list and shows the detail panel', async ({ page }) => {
+  test('clicking Select shows the detail panel alongside the list', async ({ page }) => {
     await page
-      .locator('.list-group-item', { hasText: 'First Victims' })
+      .locator('.mission-card', { hasText: 'First Victims' })
       .getByRole('button', { name: 'Select' })
       .click()
 
-    await expect(page.locator('.toggle-icon')).toBeVisible()
-    await expect(page.locator('.mission-details')).toBeVisible()
-    await expect(page.locator('.mission-list')).not.toBeVisible()
+    await expect(page.locator('.detail-panel')).toBeVisible()
+    // List remains visible (side-by-side layout)
+    await expect(page.locator('.list-panel')).toBeVisible()
   })
 
-  test('clicking the toggle icon re-expands the mission list', async ({ page }) => {
+  test('detail panel shows the mission name', async ({ page }) => {
     await page
-      .locator('.list-group-item', { hasText: 'First Victims' })
+      .locator('.mission-card', { hasText: 'First Victims' })
       .getByRole('button', { name: 'Select' })
       .click()
 
-    await page.locator('.toggle-icon').click()
-    await expect(page.locator('.mission-list')).toBeVisible()
+    await expect(page.locator('.detail-panel')).toContainText('First Victims')
+  })
+
+  test('close button dismisses the detail panel', async ({ page }) => {
+    await page
+      .locator('.mission-card', { hasText: 'First Victims' })
+      .getByRole('button', { name: 'Select' })
+      .click()
+
+    await page.locator('.close-btn').click()
+    await expect(page.locator('.detail-panel')).not.toBeVisible()
   })
 })
 
@@ -217,19 +209,18 @@ test.describe('Mission selection', () => {
 
 test.describe('Filters', () => {
   test('search box narrows the mission list', async ({ page }) => {
-    const allCount = await page.locator('.list-group-item').count()
-    await page.getByPlaceholder('Search missions..').fill('Immortal')
-    const filteredCount = await page.locator('.list-group-item').count()
-    // Search matches on name OR category, so count should drop but not to zero
+    const allCount = await page.locator('.mission-card').count()
+    await page.getByPlaceholder('Search missions...').fill('Immortal')
+    const filteredCount = await page.locator('.mission-card').count()
     expect(filteredCount).toBeLessThan(allCount)
     expect(filteredCount).toBeGreaterThan(0)
   })
 
   test('clearing search restores the full list', async ({ page }) => {
-    const allCount = await page.locator('.list-group-item').count()
-    await page.getByPlaceholder('Search missions..').fill('Immortal')
-    await page.getByPlaceholder('Search missions..').fill('')
-    expect(await page.locator('.list-group-item').count()).toBe(allCount)
+    const allCount = await page.locator('.mission-card').count()
+    await page.getByPlaceholder('Search missions...').fill('Immortal')
+    await page.getByPlaceholder('Search missions...').fill('')
+    expect(await page.locator('.mission-card').count()).toBe(allCount)
   })
 
   test('category dropdown has "All Categories" plus at least one real category', async ({
@@ -241,18 +232,15 @@ test.describe('Filters', () => {
   })
 
   test('selecting a category filters the list', async ({ page }) => {
-    const allCount = await page.locator('.list-group-item').count()
+    const allCount = await page.locator('.mission-card').count()
     const secondOption = page.getByLabel('Category').locator('option').nth(1)
-    await page.getByLabel('Category').selectOption(await secondOption.getAttribute('value') ?? '')
-    expect(await page.locator('.list-group-item').count()).toBeLessThan(allCount)
+    await page.getByLabel('Category').selectOption((await secondOption.getAttribute('value')) ?? '')
+    expect(await page.locator('.mission-card').count()).toBeLessThan(allCount)
   })
 
   test('Hide Completed removes completed missions from the list', async ({ page }) => {
-    const allCount = await page.locator('.list-group-item').count()
-    await page
-      .locator('.form-check', { hasText: 'Hide Completed' })
-      .locator('input[type=checkbox]')
-      .check()
-    expect(await page.locator('.list-group-item').count()).toBeLessThanOrEqual(allCount)
+    const allCount = await page.locator('.mission-card').count()
+    await page.locator('.toggle-label', { hasText: 'Hide Completed' }).locator('input').check()
+    expect(await page.locator('.mission-card').count()).toBeLessThanOrEqual(allCount)
   })
 })
