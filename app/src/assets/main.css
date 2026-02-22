@@ -1,40 +1,51 @@
 @import './base.css';
 
-#app {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-  display: block;
+html,
+body {
+  height: 100%;
+  overflow: hidden;
 }
 
-.card-uploader {
-  position: static;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 1280px;
-  background-color: white;
-  padding: 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-weight: normal;
+}
+
+/* ── Design tokens ── */
+:root {
+  --sidebar-bg: #1a2332;
+  --sidebar-text: #cbd5e1;
+  --sidebar-muted: #64748b;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+
+  --card-border: #e2e8f0;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  --progress-bg: #e2e8f0;
+  --progress-fill: #22c55e;
+
+  --detail-bg: #f8fafc;
+
+  --text-primary: #1e293b;
+  --text-muted: #64748b;
+  --success-text: #16a34a;
 }
 
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  color: var(--accent);
+  transition: opacity 0.2s;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  #app {
-    display: block;
-    padding: 2rem;
+    opacity: 0.8;
   }
 }

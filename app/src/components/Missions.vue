@@ -1,74 +1,92 @@
 <template>
-  <div class="mission-container">
-    <div v-if="isLoading" class="spinner-container">
-      <div class="spinner"></div>
-    </div>
-    <div v-else>
-      <div class="mission-header">
-        <h2>Missions</h2>
-        <div class="form-check form-switch price-toggle">
+  <div class="missions-layout">
+    <!-- ─── SIDEBAR ─── -->
+    <aside class="sidebar">
+      <CardUploader />
+
+      <div class="sidebar-section">
+        <MissionSearch v-model="searchQuery" />
+      </div>
+
+      <div class="sidebar-section">
+        <label class="sidebar-label" for="category-dropdown">Category</label>
+        <select id="category-dropdown" v-model="selectedCategoryFilter" class="sidebar-select">
+          <option value="">All Categories</option>
+          <option v-for="category in missionCategories" :key="category" :value="category">
+            {{ category }}
+          </option>
+        </select>
+      </div>
+
+      <div class="sidebar-section">
+        <label class="sidebar-label" for="target-mission-dropdown">Target Mission</label>
+        <select
+          id="target-mission-dropdown"
+          v-model="selectedMissionFilter"
+          class="sidebar-select"
+        >
+          <option value="">All Missions</option>
+          <option v-for="mission in missionsOfTypeMissions" :key="mission.id" :value="mission.id">
+            {{ mission.rawMission.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="sidebar-divider" />
+
+      <div class="sidebar-section sidebar-toggles">
+        <label class="toggle-label">
           <input
             type="checkbox"
-            class="form-check-input"
-            role="switch"
+            class="toggle-input"
             v-model="useSellPrice"
             @change="updatePriceType"
           />
-          <span>Use Sell Price</span>
-        </div>
-        <div class="form-check form-switch price-toggle">
-          <input type="checkbox" class="form-check-input" role="switch" v-model="hideCompleted" />
-          <span>Hide Completed</span>
-        </div>
+          Use Sell Price
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" class="toggle-input" v-model="hideCompleted" />
+          Hide Completed
+        </label>
       </div>
-      <div class="mission-header">
-        <MissionSearch v-model="searchQuery" />
-        <div class="form-check form-switch price-toggle">
-          <label for="target-mission-dropdown">Target Mission</label>
-          <select
-            id="target-mission-dropdown"
-            v-model="selectedMissionFilter"
-            class="mission-dropdown"
-          >
-            <option value="">All Missions</option>
-            <option v-for="mission in missionsOfTypeMissions" :key="mission.id" :value="mission.id">
-              {{ mission.rawMission.name }} - {{ mission.rawMission.reward }}
-            </option>
-          </select>
-        </div>
-        <div class="form-check form-switch price-toggle">
-          <label for="category-dropdown">Category</label>
-          <select id="category-dropdown" v-model="selectedCategoryFilter" class="mission-dropdown">
-            <option value="">All Categories</option>
-            <option v-for="category in missionCategories" :key="category" :value="category">
-              {{ category }}
-            </option>
-          </select>
-        </div>
-        <div class="form-check form-switch price-toggle">
-          <button
-            @click="missionStore.calculateAllNotCalculatedMissions(filteredMissions.map((m) => m.id))"
-            class="btn btn-primary"
-          >
-            Calculate All (may take a while)
-          </button>
-        </div>
+
+      <div class="sidebar-divider" />
+
+      <div class="sidebar-section">
+        <button
+          class="btn-calc-all"
+          @click="missionStore.calculateAllNotCalculatedMissions(filteredMissions.map((m) => m.id))"
+        >
+          Calculate All
+        </button>
+        <span class="calc-hint">May take a moment</span>
       </div>
-      <div v-show="!isMissionListCollapsed" class="mission-list">
+    </aside>
+
+    <!-- ─── MAIN AREA ─── -->
+    <div class="main-area">
+      <section class="list-panel">
+        <div v-if="isLoading" class="spinner-container">
+          <div class="spinner"></div>
+        </div>
         <MissionList
+          v-else
           :filteredMissions="filteredMissions"
           :isMissionComplete="isMissionComplete"
           :remainingPriceText="remainingPriceText"
           :selectMission="selectMission"
+          :selectedMission="selectedMission"
           @calculateMission="missionStore.calculateMissionDetails"
         />
-      </div>
-      <div v-if="selectedMission" class="toggle-icon" @click="toggleMissionList">
-        {{ isMissionListCollapsed ? '▼' : '▲' }}
-      </div>
-      <div v-if="selectedMission !== null" class="mission-details">
+      </section>
+
+      <!-- ─── DETAIL PANEL ─── -->
+      <aside v-if="selectedMission" class="detail-panel">
+        <div class="detail-header">
+          <button class="close-btn" @click="selectedMission = null" aria-label="Close">✕</button>
+        </div>
         <MissionDetails :selectedMission="selectedMission" :missions="missions" />
-      </div>
+      </aside>
     </div>
   </div>
 </template>
@@ -76,6 +94,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useMissionStore } from '../stores/useMissionStore'
+import CardUploader from './CardUploader.vue'
 import MissionDetails from './MissionDetails.vue'
 import MissionList from './MissionList.vue'
 import MissionSearch from './MissionSearch.vue'
@@ -86,19 +105,15 @@ const missions = computed(() => missionStore.userMissions)
 const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === 'missions'),
 )
+
 const selectedMission = ref<UserMission | null>(null)
 const useSellPrice = ref(false)
 const searchQuery = ref('')
 const selectedMissionFilter = ref<string | null>(null)
 const hideCompleted = ref(false)
 const selectedCategoryFilter = ref<string | null>(null)
-const isMissionListCollapsed = ref(false)
 
 const isLoading = computed(() => missionStore.loading)
-
-const toggleMissionList = () => {
-  isMissionListCollapsed.value = !isMissionListCollapsed.value
-}
 
 const updatePriceType = () => {
   missionStore.selectedPriceType.sellPrice = useSellPrice.value
@@ -143,9 +158,9 @@ const filteredMissions = computed(() => {
 })
 
 const remainingPriceText = (mission: UserMission) => {
-  if (mission.completed) return 'Mission Completed'
-  if (mission.remainingPrice <= 0) return 'Remaining Price: Unknown'
-  return `Remaining Price: ${mission.remainingPrice.toLocaleString(undefined, {
+  if (mission.completed) return ''
+  if (mission.remainingPrice <= 0) return ''
+  return `${mission.remainingPrice.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })} PP`
@@ -155,7 +170,6 @@ const isMissionComplete = (mission: UserMission) => mission.completed
 
 const selectMission = (mission: UserMission) => {
   selectedMission.value = mission
-  isMissionListCollapsed.value = true
 }
 
 const missionCategories = computed(() => {
@@ -176,72 +190,178 @@ watch(
 </script>
 
 <style scoped>
-.mission-container {
+.missions-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  overflow: visible;
-  height: auto;
-  box-sizing: border-box;
 }
 
-.mission-list {
-  flex: none;
-  margin: 20px;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.mission-details {
-  flex: none;
-  margin: 20px;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.toggle-icon {
+.sidebar-section {
+  padding: 0.75rem 1rem;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.sidebar-divider {
+  border-top: 1px solid var(--sidebar-border);
+  margin: 0;
+}
+
+.sidebar-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sidebar-muted);
+  font-weight: 600;
+}
+
+.sidebar-select {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--sidebar-text);
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  width: 100%;
   cursor: pointer;
-  font-size: 1.5rem;
-  margin: 10px 0;
-  user-select: none;
 }
 
-.mission-header {
+.sidebar-select option {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.sidebar-toggles {
+  gap: 0.6rem;
+}
+
+.toggle-label {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  cursor: pointer;
 }
 
-.mission-dropdown {
-  margin-left: 20px;
-  flex: 1 1 auto;
-  min-width: 150px;
+.toggle-input {
+  accent-color: var(--accent);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
 }
 
+.btn-calc-all {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.btn-calc-all:hover {
+  background: var(--accent-hover);
+}
+
+.calc-hint {
+  font-size: 0.68rem;
+  color: var(--sidebar-muted);
+  text-align: center;
+}
+
+/* ─── MAIN AREA ─── */
+.main-area {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.list-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f1f5f9;
+  min-width: 0;
+}
+
+/* ─── DETAIL PANEL ─── */
+.detail-panel {
+  width: 360px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: var(--detail-bg);
+  border-left: 1px solid var(--card-border);
+}
+
+.detail-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--card-border);
+  position: sticky;
+  top: 0;
+  background: var(--detail-bg);
+  z-index: 1;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.close-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* ─── SPINNER ─── */
 .spinner-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  height: 200px;
 }
 
 .spinner {
-  border: 8px solid #f3f3f3;
-  border-top: 8px solid #3498db;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid var(--accent);
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 2s linear infinite;
+  width: 36px;
+  height: 36px;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
