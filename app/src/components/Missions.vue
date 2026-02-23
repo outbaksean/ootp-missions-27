@@ -71,7 +71,10 @@
           <input type="checkbox" class="toggle-input" v-model="showPositiveOnly" />
           Positive Value Only
         </label>
-        <label class="toggle-label">
+        <label
+          class="toggle-label"
+          title="Subtracts the sell value of owned cards you'd need to lock from the mission's net value"
+        >
           <input
             type="checkbox"
             class="toggle-input"
@@ -80,14 +83,17 @@
           />
           Include unlocked cards in net value
         </label>
-        <label class="toggle-label">
+        <label
+          class="toggle-label"
+          title="Compares owned card opportunity cost vs buying cheaper unowned cards to find the minimum-cost assignment"
+        >
           <input
             type="checkbox"
             class="toggle-input"
             :checked="settingsStore.optimizeCardSelection"
             @change="handleOptimizeChange($event)"
           />
-          Optimize card selection
+          Optimize card assignment
         </label>
       </div>
 
