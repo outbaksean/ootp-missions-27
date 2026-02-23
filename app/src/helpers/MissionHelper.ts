@@ -1,5 +1,6 @@
 import type { ShopCard } from '../models/ShopCard'
 import type { Mission } from '../models/Mission'
+import type { MissionReward } from '../models/MissionReward'
 
 interface PriceCalculationResult {
   totalPrice: number
@@ -140,6 +141,36 @@ export default class MissionHelper {
     }
 
     return { totalPrice: 0, includedCards: [] }
+  }
+
+  /**
+   * Returns the total PP value of a mission's structured rewards.
+   * Returns undefined when no rewards array is present (unstructured data → show "—").
+   * Pack rewards with no price set contribute 0 (user hasn't configured pack prices yet).
+   * Card rewards with cardId === 0 (not yet mapped) contribute 0.
+   */
+  static calculateRewardValue(
+    rewards: MissionReward[] | undefined,
+    packPrices: Map<string, number>,
+    shopCardsById: Map<number, ShopCard>,
+    useSellPrice: boolean,
+  ): number | undefined {
+    if (!rewards || rewards.length === 0) return undefined
+
+    let total = 0
+    for (const reward of rewards) {
+      if (reward.type === 'pack') {
+        total += (packPrices.get(reward.packType) ?? 0) * reward.count
+      } else if (reward.type === 'card') {
+        if (reward.cardId === 0) continue // Needs manual cardId — treat as 0
+        const card = shopCardsById.get(reward.cardId)
+        if (!card) continue
+        const price = useSellPrice && card.sellOrderLow > 0 ? card.sellOrderLow : card.lastPrice
+        total += price * (reward.count ?? 1)
+      }
+      // type:'other' → 0, no contribution
+    }
+    return total
   }
 
   static isMissionComplete(mission: Mission, shopCardsById: Map<number, ShopCard>): boolean {

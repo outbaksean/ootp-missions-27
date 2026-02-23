@@ -64,7 +64,14 @@
           "cardId": 72546
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 2,
@@ -151,7 +158,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 395
+      "totalPoints": 395,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 3,
@@ -254,7 +268,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1475
+      "totalPoints": 1475,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 4,
@@ -297,7 +318,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 660
+      "totalPoints": 660,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 5,
@@ -312,7 +340,13 @@
       ],
       "reward": "101 SP Jacob Misiorowski",
       "category": "Future Legends",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 6,
@@ -335,7 +369,13 @@
           "cardId": 74232
         }
       ],
-      "totalPoints": 4
+      "totalPoints": 4,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 7,
@@ -361,7 +401,13 @@
           "cardId": 73193
         }
       ],
-      "totalPoints": 5
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 8,
@@ -393,7 +439,13 @@
           "cardId": 73193
         }
       ],
-      "totalPoints": 7
+      "totalPoints": 7,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 9,
@@ -413,7 +465,13 @@
           "cardId": 73209
         }
       ],
-      "totalPoints": 3
+      "totalPoints": 3,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 10,
@@ -436,7 +494,13 @@
           "cardId": 74225
         }
       ],
-      "totalPoints": 4
+      "totalPoints": 4,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 11,
@@ -452,7 +516,14 @@
       ],
       "reward": "1 Historical Perfect Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 12,
@@ -484,7 +555,14 @@
           "cardId": 70456
         }
       ],
-      "totalPoints": 7
+      "totalPoints": 7,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 13,
@@ -552,7 +630,14 @@
           "cardId": 73909
         }
       ],
-      "totalPoints": 19
+      "totalPoints": 19,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 14,
@@ -593,7 +678,14 @@
           "cardId": 73227
         }
       ],
-      "totalPoints": 10
+      "totalPoints": 10,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 15,
@@ -637,7 +729,14 @@
           "cardId": 74474
         }
       ],
-      "totalPoints": 11
+      "totalPoints": 11,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 16,
@@ -678,7 +777,14 @@
           "cardId": 74425
         }
       ],
-      "totalPoints": 10
+      "totalPoints": 10,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 17,
@@ -809,7 +915,14 @@
           "cardId": 74428
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 18,
@@ -919,7 +1032,14 @@
           "cardId": 74476
         }
       ],
-      "totalPoints": 33
+      "totalPoints": 33,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 19,
@@ -937,7 +1057,14 @@
       ],
       "reward": "1 Diamond Pack",
       "category": "Pack Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 20,
@@ -992,7 +1119,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 540
+      "totalPoints": 540,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 21,
@@ -1043,7 +1177,14 @@
           "points": 50
         }
       ],
-      "totalPoints": 200
+      "totalPoints": 200,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 22,
@@ -1146,7 +1287,14 @@
           "points": 50
         }
       ],
-      "totalPoints": 345
+      "totalPoints": 345,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 23,
@@ -1209,7 +1357,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 350
+      "totalPoints": 350,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 24,
@@ -1276,7 +1431,14 @@
           "points": 50
         }
       ],
-      "totalPoints": 350
+      "totalPoints": 350,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 25,
@@ -1292,7 +1454,14 @@
       ],
       "reward": "1 Spotlight #Immortals Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Spotlight #Immortals",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 26,
@@ -1411,7 +1580,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 560
+      "totalPoints": 560,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 27,
@@ -1526,7 +1702,14 @@
           "points": 50
         }
       ],
-      "totalPoints": 335
+      "totalPoints": 335,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 28,
@@ -1649,7 +1832,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 640
+      "totalPoints": 640,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 29,
@@ -1764,7 +1954,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 545
+      "totalPoints": 545,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 30,
@@ -1863,7 +2060,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 590
+      "totalPoints": 590,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 31,
@@ -1958,7 +2162,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 635
+      "totalPoints": 635,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 32,
@@ -1975,7 +2186,14 @@
       ],
       "reward": "1 Spotlight #Immortals Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Spotlight #Immortals",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 33,
@@ -2070,7 +2288,14 @@
           "cardId": 73227
         }
       ],
-      "totalPoints": 28
+      "totalPoints": 28,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 34,
@@ -2144,7 +2369,14 @@
           "cardId": 73818
         }
       ],
-      "totalPoints": 21
+      "totalPoints": 21,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 35,
@@ -2195,7 +2427,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 725
+      "totalPoints": 725,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 36,
@@ -2294,7 +2533,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 350
+      "totalPoints": 350,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 37,
@@ -2389,7 +2635,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1595
+      "totalPoints": 1595,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 38,
@@ -2444,7 +2697,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 435
+      "totalPoints": 435,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 39,
@@ -2461,7 +2721,18 @@
       ],
       "reward": "101 CF Ken Griffey Jr., 2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 40,
@@ -2514,7 +2785,14 @@
           "cardId": 71808
         }
       ],
-      "totalPoints": 14
+      "totalPoints": 14,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 41,
@@ -2589,7 +2867,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 710
+      "totalPoints": 710,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 42,
@@ -2652,7 +2937,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 235
+      "totalPoints": 235,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 15
+        }
+      ]
     },
     {
       "id": 43,
@@ -2739,7 +3031,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 760
+      "totalPoints": 760,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 44,
@@ -2774,7 +3073,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 465
+      "totalPoints": 465,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 45,
@@ -2790,7 +3096,18 @@
       ],
       "reward": "101 SP Chris Sale CWS Peak, 2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 46,
@@ -2881,7 +3198,14 @@
           "points": 50
         }
       ],
-      "totalPoints": 124
+      "totalPoints": 124,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 47,
@@ -2948,7 +3272,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 543
+      "totalPoints": 543,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 25
+        }
+      ]
     },
     {
       "id": 48,
@@ -3043,7 +3374,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 475
+      "totalPoints": 475,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 49,
@@ -3096,7 +3434,14 @@
           "cardId": 71209
         }
       ],
-      "totalPoints": 14
+      "totalPoints": 14,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 8
+        }
+      ]
     },
     {
       "id": 50,
@@ -3191,7 +3536,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1985
+      "totalPoints": 1985,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 51,
@@ -3207,7 +3559,13 @@
       ],
       "reward": "100 SP Roy Halladay",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 52,
@@ -3278,7 +3636,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 550
+      "totalPoints": 550,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 53,
@@ -3369,7 +3734,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 656
+      "totalPoints": 656,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 54,
@@ -3448,7 +3820,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1160
+      "totalPoints": 1160,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 55,
@@ -3507,7 +3886,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 355
+      "totalPoints": 355,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 56,
@@ -3566,7 +3952,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 737
+      "totalPoints": 737,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 57,
@@ -3633,7 +4026,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 600
+      "totalPoints": 600,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 58,
@@ -3696,7 +4096,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 665
+      "totalPoints": 665,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 59,
@@ -3714,7 +4121,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 60,
@@ -3732,7 +4146,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 61,
@@ -3750,7 +4171,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 62,
@@ -3806,7 +4234,14 @@
           "cardId": 73559
         }
       ],
-      "totalPoints": 15
+      "totalPoints": 15,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 63,
@@ -3819,7 +4254,18 @@
       ],
       "reward": "88 LF Lou Brock, 2 Historical Gold Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 64,
@@ -3894,7 +4340,14 @@
           "points": 75
         }
       ],
-      "totalPoints": 220
+      "totalPoints": 220,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 65,
@@ -3907,7 +4360,18 @@
       ],
       "reward": "97 SP Roger Clemens, 5 Historical Gold Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 66,
@@ -3921,7 +4385,18 @@
       ],
       "reward": "100 C Mike Piazza, 2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 67,
@@ -3980,7 +4455,14 @@
           "cardId": 73015
         }
       ],
-      "totalPoints": 16
+      "totalPoints": 16,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 68,
@@ -4051,7 +4533,14 @@
           "cardId": 73113
         }
       ],
-      "totalPoints": 20
+      "totalPoints": 20,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 69,
@@ -4119,7 +4608,14 @@
           "cardId": 73040
         }
       ],
-      "totalPoints": 19
+      "totalPoints": 19,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 70,
@@ -4151,7 +4647,14 @@
           "cardId": 71764
         }
       ],
-      "totalPoints": 7
+      "totalPoints": 7,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 71,
@@ -4222,7 +4725,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1625
+      "totalPoints": 1625,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 72,
@@ -4317,7 +4827,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 580
+      "totalPoints": 580,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 73,
@@ -4416,7 +4933,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 700
+      "totalPoints": 700,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 74,
@@ -4495,7 +5019,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 395
+      "totalPoints": 395,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 75,
@@ -4554,7 +5085,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 595
+      "totalPoints": 595,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 76,
@@ -4669,7 +5207,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 765
+      "totalPoints": 765,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 77,
@@ -4788,7 +5333,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 625
+      "totalPoints": 625,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 78,
@@ -4935,7 +5487,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1435
+      "totalPoints": 1435,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 79,
@@ -4997,7 +5556,14 @@
           "cardId": 70521
         }
       ],
-      "totalPoints": 17
+      "totalPoints": 17,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 80,
@@ -5023,7 +5589,14 @@
           "cardId": 72874
         }
       ],
-      "totalPoints": 5
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 81,
@@ -5079,7 +5652,14 @@
           "cardId": 72732
         }
       ],
-      "totalPoints": 15
+      "totalPoints": 15,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 82,
@@ -5092,7 +5672,18 @@
       ],
       "reward": "83 LF Jackie Robinson, 1 Historical Gold Pack",
       "category": "Negro Leagues",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 83,
@@ -5112,7 +5703,18 @@
       ],
       "reward": "67 2B Dink Mothell, 1 Historical Gold Pack",
       "category": "Negro Leagues",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 84,
@@ -5133,7 +5735,18 @@
       ],
       "reward": "77 SS Pop Lloyd, 1 Historical Gold Pack",
       "category": "Negro Leagues",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 85,
@@ -5155,7 +5768,18 @@
       ],
       "reward": "83 SS Howard Easterling, 2 Historical Diamond Pack",
       "category": "Negro Leagues",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 86,
@@ -5178,7 +5802,18 @@
       ],
       "reward": "97 LF Roy Parnell, 3 Historical Diamond Pack",
       "category": "Negro Leagues",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 87,
@@ -5203,7 +5838,18 @@
       ],
       "reward": "100 SP Satchel Paige, 1 Perfect Pack",
       "category": "Negro Leagues",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 88,
@@ -5268,7 +5914,13 @@
           "cardId": 70846
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 89,
@@ -5327,7 +5979,13 @@
           "cardId": 71639
         }
       ],
-      "totalPoints": 16
+      "totalPoints": 16,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 90,
@@ -5368,7 +6026,13 @@
           "cardId": 70302
         }
       ],
-      "totalPoints": 10
+      "totalPoints": 10,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 91,
@@ -5424,7 +6088,13 @@
           "cardId": 68381
         }
       ],
-      "totalPoints": 15
+      "totalPoints": 15,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 92,
@@ -5480,7 +6150,13 @@
           "cardId": 71307
         }
       ],
-      "totalPoints": 15
+      "totalPoints": 15,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 93,
@@ -5542,7 +6218,13 @@
           "cardId": 71312
         }
       ],
-      "totalPoints": 17
+      "totalPoints": 17,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 94,
@@ -5604,7 +6286,13 @@
           "cardId": 70588
         }
       ],
-      "totalPoints": 17
+      "totalPoints": 17,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 95,
@@ -5657,7 +6345,13 @@
           "cardId": 72780
         }
       ],
-      "totalPoints": 14
+      "totalPoints": 14,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 96,
@@ -5744,7 +6438,13 @@
           "points": 15
         }
       ],
-      "totalPoints": 97
+      "totalPoints": 97,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 97,
@@ -5815,7 +6515,13 @@
           "points": 50
         }
       ],
-      "totalPoints": 137
+      "totalPoints": 137,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        }
+      ]
     },
     {
       "id": 98,
@@ -5898,7 +6604,14 @@
           "cardId": 74093
         }
       ],
-      "totalPoints": 24
+      "totalPoints": 24,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 99,
@@ -6035,7 +6748,14 @@
           "cardId": 74139
         }
       ],
-      "totalPoints": 42
+      "totalPoints": 42,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 100,
@@ -6112,7 +6832,14 @@
           "cardId": 74088
         }
       ],
-      "totalPoints": 22
+      "totalPoints": 22,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 101,
@@ -6228,7 +6955,14 @@
           "cardId": 73976
         }
       ],
-      "totalPoints": 35
+      "totalPoints": 35,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 102,
@@ -6305,7 +7039,14 @@
           "cardId": 73607
         }
       ],
-      "totalPoints": 22
+      "totalPoints": 22,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 103,
@@ -6391,7 +7132,14 @@
           "cardId": 70775
         }
       ],
-      "totalPoints": 25
+      "totalPoints": 25,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 6
+        }
+      ]
     },
     {
       "id": 104,
@@ -6495,7 +7243,14 @@
           "cardId": 73999
         }
       ],
-      "totalPoints": 31
+      "totalPoints": 31,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 6
+        }
+      ]
     },
     {
       "id": 105,
@@ -6638,7 +7393,14 @@
           "cardId": 74126
         }
       ],
-      "totalPoints": 44
+      "totalPoints": 44,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 106,
@@ -6769,7 +7531,14 @@
           "cardId": 74034
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 107,
@@ -6789,7 +7558,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Pack Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 108,
@@ -6935,7 +7711,18 @@
           "cardId": 72564
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 109,
@@ -7093,7 +7880,18 @@
           "cardId": 72614
         }
       ],
-      "totalPoints": 49
+      "totalPoints": 49,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 110,
@@ -7236,7 +8034,18 @@
           "cardId": 72658
         }
       ],
-      "totalPoints": 44
+      "totalPoints": 44,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 111,
@@ -7349,7 +8158,18 @@
           "cardId": 72675
         }
       ],
-      "totalPoints": 34
+      "totalPoints": 34,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 112,
@@ -7480,7 +8300,18 @@
           "cardId": 72594
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 113,
@@ -7496,7 +8327,18 @@
       ],
       "reward": "96 CF Steve Finley, 1 Gold Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 114,
@@ -7642,7 +8484,18 @@
           "cardId": 72564
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 115,
@@ -7800,7 +8653,18 @@
           "cardId": 72614
         }
       ],
-      "totalPoints": 49
+      "totalPoints": 49,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 116,
@@ -7943,7 +8807,18 @@
           "cardId": 72658
         }
       ],
-      "totalPoints": 44
+      "totalPoints": 44,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 117,
@@ -8056,7 +8931,18 @@
           "cardId": 72675
         }
       ],
-      "totalPoints": 34
+      "totalPoints": 34,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 118,
@@ -8187,7 +9073,18 @@
           "cardId": 72594
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 119,
@@ -8203,7 +9100,18 @@
       ],
       "reward": "98 SP Juan Marichal, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 120,
@@ -8328,7 +9236,18 @@
           "cardId": 72418
         }
       ],
-      "totalPoints": 38
+      "totalPoints": 38,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 121,
@@ -8462,7 +9381,18 @@
           "cardId": 72485
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 122,
@@ -8578,7 +9508,18 @@
           "cardId": 72524
         }
       ],
-      "totalPoints": 35
+      "totalPoints": 35,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 123,
@@ -8706,7 +9647,18 @@
           "cardId": 72442
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 124,
@@ -8867,7 +9819,18 @@
           "cardId": 72490
         }
       ],
-      "totalPoints": 50
+      "totalPoints": 50,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 125,
@@ -8883,7 +9846,18 @@
       ],
       "reward": "97 C Yadier Molina, 1 Gold Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 126,
@@ -9008,7 +9982,18 @@
           "cardId": 72418
         }
       ],
-      "totalPoints": 38
+      "totalPoints": 38,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 127,
@@ -9142,7 +10127,18 @@
           "cardId": 72485
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 128,
@@ -9258,7 +10254,18 @@
           "cardId": 72524
         }
       ],
-      "totalPoints": 35
+      "totalPoints": 35,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 129,
@@ -9386,7 +10393,18 @@
           "cardId": 72442
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 130,
@@ -9547,7 +10565,18 @@
           "cardId": 72490
         }
       ],
-      "totalPoints": 50
+      "totalPoints": 50,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 131,
@@ -9563,7 +10592,18 @@
       ],
       "reward": "99 2B joe Morgan, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 132,
@@ -9709,7 +10749,18 @@
           "cardId": 72314
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 133,
@@ -9828,7 +10879,18 @@
           "cardId": 72337
         }
       ],
-      "totalPoints": 36
+      "totalPoints": 36,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 134,
@@ -9959,7 +11021,18 @@
           "cardId": 72286
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 135,
@@ -10105,7 +11178,18 @@
           "cardId": 72247
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 136,
@@ -10242,7 +11326,18 @@
           "cardId": 72380
         }
       ],
-      "totalPoints": 42
+      "totalPoints": 42,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 137,
@@ -10258,7 +11353,18 @@
       ],
       "reward": "94 LF Rico Carty, 1 Gold Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 138,
@@ -10404,7 +11510,18 @@
           "cardId": 72314
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 139,
@@ -10523,7 +11640,18 @@
           "cardId": 72337
         }
       ],
-      "totalPoints": 36
+      "totalPoints": 36,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 140,
@@ -10654,7 +11782,18 @@
           "cardId": 72286
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 141,
@@ -10800,7 +11939,18 @@
           "cardId": 72247
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 142,
@@ -10937,7 +12087,18 @@
           "cardId": 72380
         }
       ],
-      "totalPoints": 42
+      "totalPoints": 42,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 143,
@@ -10953,7 +12114,18 @@
       ],
       "reward": "96 SP Tom Glavine, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 144,
@@ -11084,7 +12256,18 @@
           "cardId": 72221
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 145,
@@ -11218,7 +12401,18 @@
           "cardId": 72167
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 146,
@@ -11358,7 +12552,18 @@
           "cardId": 72111
         }
       ],
-      "totalPoints": 43
+      "totalPoints": 43,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 147,
@@ -11492,7 +12697,18 @@
           "cardId": 72195
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 148,
@@ -11653,7 +12869,18 @@
           "cardId": 73767
         }
       ],
-      "totalPoints": 50
+      "totalPoints": 50,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 149,
@@ -11669,7 +12896,18 @@
       ],
       "reward": "92 LF Frank Howard, 1 Gold Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 150,
@@ -11800,7 +13038,18 @@
           "cardId": 72221
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 151,
@@ -11934,7 +13183,18 @@
           "cardId": 72167
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 152,
@@ -12074,7 +13334,18 @@
           "cardId": 72111
         }
       ],
-      "totalPoints": 43
+      "totalPoints": 43,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 153,
@@ -12208,7 +13479,18 @@
           "cardId": 72195
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 154,
@@ -12369,7 +13651,18 @@
           "cardId": 73767
         }
       ],
-      "totalPoints": 50
+      "totalPoints": 50,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 155,
@@ -12385,7 +13678,18 @@
       ],
       "reward": "99 SP Mike Scott, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 156,
@@ -12525,7 +13829,18 @@
           "cardId": 72019
         }
       ],
-      "totalPoints": 43
+      "totalPoints": 43,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 157,
@@ -12659,7 +13974,18 @@
           "cardId": 72082
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 158,
@@ -12787,7 +14113,18 @@
           "cardId": 73149
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 159,
@@ -12921,7 +14258,18 @@
           "cardId": 71990
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 160,
@@ -13067,7 +14415,18 @@
           "cardId": 72467
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 161,
@@ -13083,7 +14442,18 @@
       ],
       "reward": "95 CF Torii Hunter, 1 Gold Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 162,
@@ -13223,7 +14593,18 @@
           "cardId": 72019
         }
       ],
-      "totalPoints": 43
+      "totalPoints": 43,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 163,
@@ -13357,7 +14738,18 @@
           "cardId": 72082
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 164,
@@ -13485,7 +14877,18 @@
           "cardId": 73149
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 165,
@@ -13619,7 +15022,18 @@
           "cardId": 71990
         }
       ],
-      "totalPoints": 41
+      "totalPoints": 41,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 166,
@@ -13765,7 +15179,18 @@
           "cardId": 72467
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 176,
@@ -13781,7 +15206,18 @@
       ],
       "reward": "99 SP Sam McDowell, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 177,
@@ -13909,7 +15345,18 @@
           "cardId": 71919
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 178,
@@ -14040,7 +15487,18 @@
           "cardId": 73703
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 179,
@@ -14186,7 +15644,18 @@
           "cardId": 71826
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 180,
@@ -14317,7 +15786,18 @@
           "cardId": 71891
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 181,
@@ -14469,7 +15949,18 @@
           "cardId": 71780
         }
       ],
-      "totalPoints": 47
+      "totalPoints": 47,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 182,
@@ -14485,7 +15976,18 @@
       ],
       "reward": "97 1B Jason Giambi, 1 Gold Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 183,
@@ -14613,7 +16115,18 @@
           "cardId": 71919
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 184,
@@ -14744,7 +16257,18 @@
           "cardId": 73703
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 185,
@@ -14890,7 +16414,18 @@
           "cardId": 71826
         }
       ],
-      "totalPoints": 45
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 186,
@@ -15021,7 +16556,18 @@
           "cardId": 71891
         }
       ],
-      "totalPoints": 40
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 187,
@@ -15173,7 +16719,18 @@
           "cardId": 71780
         }
       ],
-      "totalPoints": 47
+      "totalPoints": 47,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 188,
@@ -15189,7 +16746,18 @@
       ],
       "reward": "99 SS Reco Petrocelli, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 189,
@@ -15206,7 +16774,18 @@
       ],
       "reward": "100 SP Dave Stieb, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 190,
@@ -15224,7 +16803,18 @@
       ],
       "reward": "100 SS Honus Wagner, 1 Diamond Pack",
       "category": "Live Series",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 191,
@@ -15316,7 +16906,14 @@
           "cardId": 70538
         }
       ],
-      "totalPoints": 27
+      "totalPoints": 27,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 192,
@@ -15381,7 +16978,14 @@
           "cardId": 71556
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 193,
@@ -15449,7 +17053,14 @@
           "cardId": 71771
         }
       ],
-      "totalPoints": 19
+      "totalPoints": 19,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 194,
@@ -15514,7 +17125,14 @@
           "cardId": 70585
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 195,
@@ -15527,7 +17145,14 @@
       ],
       "reward": "1 Historical Rainbow Pack",
       "category": "Launch Plus",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Rainbow",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 196,
@@ -15541,7 +17166,14 @@
           "cardId": 72745
         }
       ],
-      "totalPoints": 1
+      "totalPoints": 1,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 197,
@@ -15663,7 +17295,14 @@
           "cardId": 71780
         }
       ],
-      "totalPoints": 37
+      "totalPoints": 37,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 198,
@@ -15800,7 +17439,14 @@
           "cardId": 70320
         }
       ],
-      "totalPoints": 42
+      "totalPoints": 42,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 199,
@@ -15901,7 +17547,14 @@
           "cardId": 70764
         }
       ],
-      "totalPoints": 30
+      "totalPoints": 30,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 200,
@@ -15975,7 +17628,14 @@
           "cardId": 70566
         }
       ],
-      "totalPoints": 21
+      "totalPoints": 21,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 201,
@@ -15990,7 +17650,14 @@
       ],
       "reward": "1 Historical Perfect Pack",
       "category": "Launch Plus",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 202,
@@ -16076,7 +17743,18 @@
           "cardId": 72805
         }
       ],
-      "totalPoints": 25
+      "totalPoints": 25,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 203,
@@ -16159,7 +17837,18 @@
           "cardId": 74139
         }
       ],
-      "totalPoints": 24
+      "totalPoints": 24,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 204,
@@ -16236,7 +17925,18 @@
           "cardId": 74602
         }
       ],
-      "totalPoints": 22
+      "totalPoints": 22,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 205,
@@ -16301,7 +18001,18 @@
           "cardId": 74575
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 206,
@@ -16345,7 +18056,18 @@
           "cardId": 74269
         }
       ],
-      "totalPoints": 11
+      "totalPoints": 11,
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 207,
@@ -16361,7 +18083,14 @@
       ],
       "reward": "1 Perfect Pack",
       "category": "Hall of Fame",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 208,
@@ -16420,7 +18149,14 @@
           "cardId": 73782
         }
       ],
-      "totalPoints": 16
+      "totalPoints": 16,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 209,
@@ -16473,7 +18209,14 @@
           "cardId": 73635
         }
       ],
-      "totalPoints": 14
+      "totalPoints": 14,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 210,
@@ -16553,7 +18296,14 @@
           "cardId": 72955
         }
       ],
-      "totalPoints": 23
+      "totalPoints": 23,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 211,
@@ -16615,7 +18365,14 @@
           "cardId": 73461
         }
       ],
-      "totalPoints": 17
+      "totalPoints": 17,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 212,
@@ -16680,7 +18437,14 @@
           "cardId": 73648
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 213,
@@ -16808,7 +18572,14 @@
           "cardId": 73579
         }
       ],
-      "totalPoints": 39
+      "totalPoints": 39,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 214,
@@ -16915,7 +18686,14 @@
           "cardId": 74415
         }
       ],
-      "totalPoints": 32
+      "totalPoints": 32,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 215,
@@ -16995,7 +18773,14 @@
           "cardId": 74584
         }
       ],
-      "totalPoints": 23
+      "totalPoints": 23,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 216,
@@ -17098,7 +18883,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 2935
+      "totalPoints": 2935,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 217,
@@ -17193,7 +18985,14 @@
           "points": 10
         }
       ],
-      "totalPoints": 950
+      "totalPoints": 950,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 218,
@@ -17260,7 +19059,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 805
+      "totalPoints": 805,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 219,
@@ -17387,7 +19193,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1795
+      "totalPoints": 1795,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 220,
@@ -17506,7 +19319,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 2035
+      "totalPoints": 2035,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 221,
@@ -17609,7 +19429,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 2210
+      "totalPoints": 2210,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 222,
@@ -17672,7 +19499,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1670
+      "totalPoints": 1670,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 223,
@@ -17698,7 +19532,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 224,
@@ -17712,7 +19553,14 @@
           "cardId": 72712
         }
       ],
-      "totalPoints": 1
+      "totalPoints": 1,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 225,
@@ -17725,7 +19573,12 @@
       ],
       "reward": "Variant 100 SP Dave Stieb",
       "category": "Bonus Rewards",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "other"
+        }
+      ]
     },
     {
       "id": 226,
@@ -17832,7 +19685,14 @@
           "cardId": 74292
         }
       ],
-      "totalPoints": 32
+      "totalPoints": 32,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 227,
@@ -17891,7 +19751,14 @@
           "cardId": 73936
         }
       ],
-      "totalPoints": 16
+      "totalPoints": 16,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 228,
@@ -17956,7 +19823,14 @@
           "cardId": 69273
         }
       ],
-      "totalPoints": 18
+      "totalPoints": 18,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 229,
@@ -18051,7 +19925,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 2825
+      "totalPoints": 2825,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 230,
@@ -18134,7 +20015,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1875
+      "totalPoints": 1875,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 231,
@@ -18149,7 +20037,18 @@
       ],
       "reward": "59 SP Scott Perry, 1 Historical Silver Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 232,
@@ -18164,7 +20063,18 @@
       ],
       "reward": "69 SP Greg Maddux, 1 Historical Silver Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 233,
@@ -18184,7 +20094,18 @@
       ],
       "reward": "91 C Rudy York, 1 Perfect Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 234,
@@ -18202,7 +20123,18 @@
       ],
       "reward": "73 SP Ricky Romero, 1 Historical Gold Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 235,
@@ -18220,7 +20152,18 @@
       ],
       "reward": "89 CF Willie Davis, 1 Historical Diamond Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 236,
@@ -18240,7 +20183,18 @@
       ],
       "reward": "102 SP Dazzy Vance, 1 Rainbow Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Rainbow",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 237,
@@ -18270,7 +20224,14 @@
       ],
       "reward": "1 Historical Rainbow Pack",
       "category": "Baseball Reference",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Rainbow",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 238,
@@ -18305,7 +20266,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 925
+      "totalPoints": 925,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 239,
@@ -18344,7 +20312,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 415
+      "totalPoints": 415,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 240,
@@ -18383,7 +20358,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1000
+      "totalPoints": 1000,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 241,
@@ -18442,7 +20424,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 730
+      "totalPoints": 730,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Gold",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 242,
@@ -18469,7 +20458,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 550
+      "totalPoints": 550,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 243,
@@ -18536,7 +20532,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 335
+      "totalPoints": 335,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Silver",
+          "count": 4
+        }
+      ]
     },
     {
       "id": 244,
@@ -18627,7 +20630,14 @@
           "points": 15
         }
       ],
-      "totalPoints": 185
+      "totalPoints": 185,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Silver",
+          "count": 5
+        }
+      ]
     },
     {
       "id": 245,
@@ -18702,7 +20712,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 775
+      "totalPoints": 775,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 20
+        }
+      ]
     },
     {
       "id": 246,
@@ -18785,7 +20802,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 1325
+      "totalPoints": 1325,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Standard",
+          "count": 20
+        }
+      ]
     },
     {
       "id": 247,
@@ -18860,7 +20884,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 750
+      "totalPoints": 750,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 248,
@@ -18927,7 +20958,14 @@
           "points": 200
         }
       ],
-      "totalPoints": 935
+      "totalPoints": 935,
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 3
+        }
+      ]
     },
     {
       "id": 249,
@@ -18940,7 +20978,14 @@
       ],
       "reward": "1 Historical Diamond Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 250,
@@ -18956,7 +21001,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 251,
@@ -18969,7 +21021,18 @@
       ],
       "reward": "101 1B Eric Thames, 2 Historical Diamond Packs",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 252,
@@ -18982,7 +21045,14 @@
       ],
       "reward": "1 Historical Diamond Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 253,
@@ -18998,7 +21068,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 254,
@@ -19011,7 +21088,18 @@
       ],
       "reward": "101 SS Cal Ripken, 2 Historical Diamond Packs",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 255,
@@ -19024,7 +21112,14 @@
       ],
       "reward": "1 Historical Diamond Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 256,
@@ -19040,7 +21135,14 @@
       ],
       "reward": "2 Historical Diamond Packs",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 257,
@@ -19053,7 +21155,18 @@
       ],
       "reward": "102 SP Jose Fernandez, 2 Historical Diamond Packs",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "card",
+          "cardId": 0
+        },
+        {
+          "type": "pack",
+          "packType": "Historical Diamond",
+          "count": 2
+        }
+      ]
     },
     {
       "id": 258,
@@ -19069,7 +21182,14 @@
       ],
       "reward": "1 Historical Perfect Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Perfect",
+          "count": 1
+        }
+      ]
     },
     {
       "id": 259,
@@ -19084,7 +21204,14 @@
       ],
       "reward": "1 Historical Rainbow Pack",
       "category": "Immortal Seasons",
-      "cards": []
+      "cards": [],
+      "rewards": [
+        {
+          "type": "pack",
+          "packType": "Historical Rainbow",
+          "count": 1
+        }
+      ]
     }
   ]
 }

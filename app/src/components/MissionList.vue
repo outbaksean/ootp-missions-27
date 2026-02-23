@@ -9,9 +9,19 @@
         <span class="group-chevron">{{ collapsed.has(group.label) ? '▶' : '▼' }}</span>
         <span class="group-label">{{ group.label }}</span>
         <span class="group-meta">{{ group.missions.length }} missions</span>
-        <span v-if="groupRemainingTotal(group.missions)" class="group-price">
-          {{ groupRemainingTotal(group.missions) }}
-        </span>
+        <div v-if="!groupHasUncalculated(group.missions)" class="group-stats">
+          <div v-if="groupRemainingTotal(group.missions)" class="group-stat-row">
+            <span class="group-stat-label">Cost</span>
+            <span class="group-stat-value">{{ groupRemainingTotal(group.missions) }}</span>
+          </div>
+          <div v-if="groupValueText(group.missions)" class="group-stat-row">
+            <span class="group-stat-label">Value</span>
+            <span
+              class="group-stat-value"
+              :class="groupValueIsPositive(group.missions) ? 'group-value--pos' : 'group-value--neg'"
+            >{{ groupValueText(group.missions) }}</span>
+          </div>
+        </div>
         <button
           v-if="groupHasUncalculated(group.missions)"
           class="group-calculate-btn"
@@ -56,9 +66,21 @@
             </span>
           </div>
 
-          <!-- Footer: price + action -->
+          <!-- Footer: cost + value + action -->
           <div class="card-footer">
-            <span class="card-price">{{ remainingPriceText(mission) }}</span>
+            <div class="card-footer-left">
+              <div v-if="remainingPriceText(mission)" class="card-stat-row">
+                <span class="card-stat-label">Cost</span>
+                <span class="card-price">{{ remainingPriceText(mission) }}</span>
+              </div>
+              <div v-if="mission.missionValue !== undefined" class="card-stat-row">
+                <span class="card-stat-label">Value</span>
+                <span
+                  class="card-value"
+                  :class="mission.missionValue >= 0 ? 'card-value--pos' : 'card-value--neg'"
+                >{{ mission.missionValue >= 0 ? '+' : '' }}{{ mission.missionValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+              </div>
+            </div>
             <button
               v-if="mission.progressText === 'Not Calculated'"
               class="btn-action btn-calculate"
@@ -131,6 +153,24 @@ function groupRemainingTotal(missions: UserMission[]): string {
   return (
     total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
   )
+}
+
+function groupValueText(missions: UserMission[]): string {
+  if (groupHasUncalculated(missions)) return ''
+  const withValue = missions.filter((m) => m.missionValue !== undefined)
+  if (withValue.length === 0) return ''
+  const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0)
+  const sign = total >= 0 ? '+' : ''
+  return (
+    sign +
+    total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) +
+    ' PP'
+  )
+}
+
+function groupValueIsPositive(missions: UserMission[]): boolean {
+  const withValue = missions.filter((m) => m.missionValue !== undefined)
+  return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0
 }
 
 function progressPercent(mission: UserMission): number {
@@ -230,12 +270,41 @@ function progressLabel(mission: UserMission): string {
   flex-shrink: 0;
 }
 
-.group-price {
+.group-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.group-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.group-stat-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.group-stat-value {
   font-size: 0.7rem;
   color: #475569;
   font-weight: 500;
-  flex-shrink: 0;
-  margin-left: 0.5rem;
+}
+
+.group-value--pos {
+  color: #16a34a;
+}
+
+.group-value--neg {
+  color: #dc2626;
 }
 
 /* ─── MISSION CARD ─── */
@@ -345,10 +414,44 @@ function progressLabel(mission: UserMission): string {
   justify-content: space-between;
 }
 
+.card-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.card-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.card-stat-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+  width: 2.4rem;
+}
+
 .card-price {
   font-size: 0.78rem;
   color: var(--text-muted);
   font-weight: 500;
+}
+
+.card-value {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.card-value--pos {
+  color: #16a34a;
+}
+
+.card-value--neg {
+  color: #dc2626;
 }
 
 .btn-action {
