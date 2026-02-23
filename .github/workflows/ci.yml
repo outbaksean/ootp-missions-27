@@ -3,6 +3,9 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'app/**'
+      - '!app/public/data/**'
 
 jobs:
   build:
