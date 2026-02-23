@@ -312,6 +312,16 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   border-color: #94a3b8;
 }
 
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.price-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 .price-overridden {
   border-color: #f59e0b;
   color: #b45309;
