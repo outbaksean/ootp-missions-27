@@ -232,6 +232,16 @@ export const useMissionStore = defineStore('mission', () => {
     loading.value = false
   }
 
+  function updateCardLockedState(cardId: number, locked: boolean) {
+    for (const mission of userMissions.value) {
+      for (const card of mission.missionCards) {
+        if (card.cardId === cardId) {
+          card.locked = locked
+        }
+      }
+    }
+  }
+
   async function calculateAllNotCalculatedMissions(missionIds: number[]) {
     loading.value = true
     const notCalculated = userMissions.value.filter(
@@ -249,6 +259,7 @@ export const useMissionStore = defineStore('mission', () => {
     loading,
     initialize,
     buildUserMissions,
+    updateCardLockedState,
     calculateMissionDetails,
     calculateAllNotCalculatedMissions,
   }
