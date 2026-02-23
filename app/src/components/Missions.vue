@@ -19,6 +19,15 @@
       </div>
 
       <div class="sidebar-section">
+        <label class="sidebar-label" for="group-by-select">Group by</label>
+        <select id="group-by-select" v-model="groupBy" class="sidebar-select">
+          <option value="none">None</option>
+          <option value="chain">Chain</option>
+          <option value="category">Category</option>
+        </select>
+      </div>
+
+      <div class="sidebar-section">
         <label class="sidebar-label" for="target-mission-dropdown">Target Mission</label>
         <select
           id="target-mission-dropdown"
@@ -104,12 +113,13 @@
             </template>
           </div>
           <MissionList
-            :filteredMissions="filteredMissions"
+            :groups="groupedMissions"
             :isMissionComplete="isMissionComplete"
             :remainingPriceText="remainingPriceText"
             :selectMission="selectMission"
             :selectedMission="selectedMission"
             @calculateMission="missionStore.calculateMissionDetails"
+            @calculateGroup="missionStore.calculateAllNotCalculatedMissions"
           />
         </template>
       </section>
@@ -150,6 +160,7 @@ const searchQuery = ref('')
 const selectedMissionFilter = ref<string | null>(null)
 const hideCompleted = ref(false)
 const selectedCategoryFilter = ref<string | null>(null)
+const groupBy = ref<'none' | 'chain' | 'category'>('category')
 
 const isLoading = computed(() => missionStore.loading)
 
@@ -193,6 +204,52 @@ const filteredMissions = computed(() => {
   }
 
   return result
+})
+
+const groupedMissions = computed((): Array<{ label: string; missions: UserMission[] }> => {
+  if (groupBy.value === 'none') {
+    return [{ label: '', missions: filteredMissions.value }]
+  }
+
+  if (groupBy.value === 'category') {
+    const groups = new Map<string, UserMission[]>()
+    for (const m of filteredMissions.value) {
+      const label = m.rawMission.category || 'Other'
+      if (!groups.has(label)) groups.set(label, [])
+      groups.get(label)!.push(m)
+    }
+    return Array.from(groups.entries()).map(([label, missions]) => ({ label, missions }))
+  }
+
+  if (groupBy.value === 'chain') {
+    // Collect all IDs that are sub-missions of any missions-type mission
+    const allSubIds = new Set<number>()
+    for (const m of missionStore.userMissions) {
+      if (m.rawMission.type === 'missions' && m.rawMission.missionIds) {
+        m.rawMission.missionIds.forEach((id) => allSubIds.add(id))
+      }
+    }
+    // Chain roots: missions-type missions that are not themselves a sub-mission
+    const chainRoots = filteredMissions.value.filter(
+      (m) => m.rawMission.type === 'missions' && !allSubIds.has(m.id),
+    )
+    const groups: Array<{ label: string; missions: UserMission[] }> = []
+    const assignedIds = new Set<number>()
+    for (const root of chainRoots) {
+      const subIds = new Set(root.rawMission.missionIds ?? [])
+      const members = filteredMissions.value.filter((m) => m.id === root.id || subIds.has(m.id))
+      members.forEach((m) => assignedIds.add(m.id))
+      groups.push({ label: root.rawMission.name, missions: members })
+    }
+    // Standalone: anything not in a chain
+    const standalone = filteredMissions.value.filter((m) => !assignedIds.has(m.id))
+    if (standalone.length > 0) {
+      groups.push({ label: 'Standalone', missions: standalone })
+    }
+    return groups
+  }
+
+  return [{ label: '', missions: filteredMissions.value }]
 })
 
 const remainingPriceText = (mission: UserMission) => {
