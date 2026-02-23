@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia'
 import MissionHelper from '@/helpers/MissionHelper'
 import type { Mission } from '@/models/Mission'
+import type { MissionsData } from '@/models/MissionsData'
 import type { UserMission } from '@/models/UserMission'
 import { ref } from 'vue'
 import type { PriceType } from '@/models/PriceType'
 import db from '@/data/indexedDB'
+import { useCardStore } from './useCardStore'
+
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 export const useMissionStore = defineStore('mission', () => {
   const loading = ref<boolean>(true)
@@ -12,12 +16,13 @@ export const useMissionStore = defineStore('mission', () => {
   const userMissions = ref<Array<UserMission>>([])
   const selectedMission = ref<UserMission | null>(null)
   const selectedPriceType = ref<PriceType>({ sellPrice: false })
+  const missionsVersion = ref<string>('')
 
   async function calculateMissionDetails(missionId: number, isSubMission = false) {
     if (!isSubMission) {
       loading.value = true
     }
-    const shopCards = await db.shopCards.toArray()
+    const shopCardsById = useCardStore().shopCardsById
     const userMission = userMissions.value.find((m) => m.id === missionId)
     if (!userMission || userMission.progressText !== 'Not Calculated') {
       return
@@ -28,13 +33,13 @@ export const useMissionStore = defineStore('mission', () => {
     if (mission.type === 'points') {
       const remainingPrice = MissionHelper.calculateTotalPriceOfNonOwnedCards(
         mission,
-        shopCards,
+        shopCardsById,
         selectedPriceType.value.sellPrice,
       )
-      const completed = MissionHelper.isMissionComplete(mission, shopCards)
+      const completed = MissionHelper.isMissionComplete(mission, shopCardsById)
       const missionCards = mission.cards
         .map((card) => {
-          const shopCard = shopCards.find((sc) => sc.cardId == card.cardId)
+          const shopCard = shopCardsById.get(card.cardId)
           if (!shopCard || shopCard.cardId === undefined) return null
 
           const price = selectedPriceType.value.sellPrice
@@ -62,11 +67,9 @@ export const useMissionStore = defineStore('mission', () => {
           return a.price - b.price
         })
 
-      const ownedPoints = shopCards.reduce((total, shopCard) => {
-        const card = mission.cards.find(
-          (mc) => mc.cardId == shopCard.cardId && shopCard.owned,
-        )
-        return total + (card?.points || 0)
+      const ownedPoints = mission.cards.reduce((total, mc) => {
+        const shopCard = shopCardsById.get(mc.cardId)
+        return total + (shopCard?.owned ? mc.points || 0 : 0)
       }, 0)
 
       const remainingCount = (mission.requiredCount ?? 0) - ownedPoints
@@ -109,8 +112,8 @@ export const useMissionStore = defineStore('mission', () => {
     }
   }
 
-  async function buildUserMissions() {
-    const shopCards = await db.shopCards.toArray()
+  function buildUserMissions() {
+    const shopCardsById = useCardStore().shopCardsById
 
     userMissions.value = missions.value.map((mission) => {
       if (mission.type === 'missions' || mission.type === 'points') {
@@ -126,13 +129,13 @@ export const useMissionStore = defineStore('mission', () => {
 
       const remainingPrice = MissionHelper.calculateTotalPriceOfNonOwnedCards(
         mission,
-        shopCards,
+        shopCardsById,
         selectedPriceType.value.sellPrice,
       )
-      const completed = MissionHelper.isMissionComplete(mission, shopCards)
+      const completed = MissionHelper.isMissionComplete(mission, shopCardsById)
       const missionCards = mission.cards
         .map((card) => {
-          const shopCard = shopCards.find((sc) => sc.cardId == card.cardId)
+          const shopCard = shopCardsById.get(card.cardId)
           if (!shopCard || shopCard.cardId === undefined) return null
 
           const price = selectedPriceType.value.sellPrice
@@ -160,9 +163,7 @@ export const useMissionStore = defineStore('mission', () => {
           return a.price - b.price
         })
 
-      const ownedCount = shopCards.filter((sc) =>
-        mission.cards.some((card) => card.cardId == sc.cardId && sc.owned),
-      ).length
+      const ownedCount = mission.cards.filter((card) => shopCardsById.get(card.cardId)?.owned).length
 
       return {
         id: mission.id,
@@ -175,10 +176,10 @@ export const useMissionStore = defineStore('mission', () => {
     })
   }
 
-  async function fetchAndCacheMissions(): Promise<Mission[]> {
+  async function fetchAndCacheMissions(): Promise<MissionsData> {
     const res = await fetch('/ootp-missions-27/data/missions.json')
-    const data: Mission[] = await res.json()
-    await db.missionsCache.put({ id: 1, data })
+    const data: MissionsData = await res.json()
+    await db.missionsCache.put({ id: 1, version: data.version, cachedAt: Date.now(), data: data.missions })
     return data
   }
 
@@ -186,15 +187,22 @@ export const useMissionStore = defineStore('mission', () => {
     loading.value = true
 
     const cached = await db.missionsCache.get(1)
-    if (cached) {
+    // Array.isArray guards against a corrupted entry where the envelope object
+    // { version, missions } was accidentally stored as `data` instead of the array.
+    const cacheUsable = cached != null && Array.isArray(cached.data)
+    const cacheExpired = !cacheUsable || (cached.cachedAt != null && Date.now() - cached.cachedAt > CACHE_TTL_MS)
+
+    if (cacheUsable && !cacheExpired) {
       missions.value = cached.data
-      await buildUserMissions()
+      missionsVersion.value = cached.version
+      buildUserMissions()
       loading.value = false
       // Refresh cache in background without blocking the UI
       fetchAndCacheMissions()
         .then((fresh) => {
-          if (fresh.length !== missions.value.length) {
-            missions.value = fresh
+          if (fresh.version !== missionsVersion.value) {
+            missions.value = fresh.missions
+            missionsVersion.value = fresh.version
             buildUserMissions()
           }
         })
@@ -205,14 +213,22 @@ export const useMissionStore = defineStore('mission', () => {
     }
 
     try {
-      missions.value = await fetchAndCacheMissions()
+      const fresh = await fetchAndCacheMissions()
+      missions.value = fresh.missions
+      missionsVersion.value = fresh.version
     } catch (e) {
       console.error('Failed to load missions', e)
-      loading.value = false
-      return
+      // Fall back to stale cache if available
+      if (cached) {
+        missions.value = cached.data
+        missionsVersion.value = cached.version
+      } else {
+        loading.value = false
+        return
+      }
     }
 
-    await buildUserMissions()
+    buildUserMissions()
     loading.value = false
   }
 
@@ -221,9 +237,7 @@ export const useMissionStore = defineStore('mission', () => {
     const notCalculated = userMissions.value.filter(
       (m) => m.progressText === 'Not Calculated' && missionIds.includes(m.id),
     )
-    for (const mission of notCalculated) {
-      await calculateMissionDetails(mission.id, true)
-    }
+    await Promise.all(notCalculated.map((m) => calculateMissionDetails(m.id, true)))
     loading.value = false
   }
 
@@ -231,6 +245,7 @@ export const useMissionStore = defineStore('mission', () => {
     userMissions,
     selectedMission,
     selectedPriceType,
+    missionsVersion,
     loading,
     initialize,
     calculateMissionDetails,

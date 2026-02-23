@@ -4,6 +4,8 @@ import Dexie from 'dexie'
 
 export interface MissionsCache {
   id: 1
+  version: string
+  cachedAt: number
   data: Mission[]
 }
 
