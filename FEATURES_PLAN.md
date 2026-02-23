@@ -69,7 +69,7 @@ const missionsUpdatedLabel = computed(() => {
 
 ## 3. Card cost overrides
 
-**Goal:** Let users set a manual price for any card that persists even across CSV re-uploads.
+**Goal:** Let users set a manual price for any card. Overrides are session-scoped and cleared when a new CSV is uploaded.
 
 ### Changes
 

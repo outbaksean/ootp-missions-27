@@ -22,7 +22,9 @@ export const useMissionStore = defineStore('mission', () => {
     if (!isSubMission) {
       loading.value = true
     }
-    const shopCardsById = useCardStore().shopCardsById
+    const cardStore = useCardStore()
+    const shopCardsById = cardStore.shopCardsById
+    const overrides = cardStore.cardPriceOverrides
     const userMission = userMissions.value.find((m) => m.id === missionId)
     if (!userMission || userMission.progressText !== 'Not Calculated') {
       return
@@ -35,6 +37,7 @@ export const useMissionStore = defineStore('mission', () => {
         mission,
         shopCardsById,
         selectedPriceType.value.sellPrice,
+        overrides,
       )
       const completed = MissionHelper.isMissionComplete(mission, shopCardsById)
       const missionCards = mission.cards
@@ -42,9 +45,10 @@ export const useMissionStore = defineStore('mission', () => {
           const shopCard = shopCardsById.get(card.cardId)
           if (!shopCard || shopCard.cardId === undefined) return null
 
-          const price = selectedPriceType.value.sellPrice
+          const basePrice = selectedPriceType.value.sellPrice
             ? shopCard.sellOrderLow || shopCard.lastPrice
             : shopCard.lastPrice
+          const price = overrides.get(card.cardId) ?? basePrice
 
           const highlighted =
             remainingPrice.totalPrice > 0 &&
@@ -113,7 +117,9 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function buildUserMissions() {
-    const shopCardsById = useCardStore().shopCardsById
+    const cardStore = useCardStore()
+    const shopCardsById = cardStore.shopCardsById
+    const overrides = cardStore.cardPriceOverrides
 
     userMissions.value = missions.value.map((mission) => {
       if (mission.type === 'missions' || mission.type === 'points') {
@@ -131,6 +137,7 @@ export const useMissionStore = defineStore('mission', () => {
         mission,
         shopCardsById,
         selectedPriceType.value.sellPrice,
+        overrides,
       )
       const completed = MissionHelper.isMissionComplete(mission, shopCardsById)
       const missionCards = mission.cards
@@ -138,9 +145,10 @@ export const useMissionStore = defineStore('mission', () => {
           const shopCard = shopCardsById.get(card.cardId)
           if (!shopCard || shopCard.cardId === undefined) return null
 
-          const price = selectedPriceType.value.sellPrice
+          const basePrice = selectedPriceType.value.sellPrice
             ? shopCard.sellOrderLow || shopCard.lastPrice
             : shopCard.lastPrice
+          const price = overrides.get(card.cardId) ?? basePrice
 
           const highlighted =
             remainingPrice.totalPrice > 0 &&
@@ -242,6 +250,20 @@ export const useMissionStore = defineStore('mission', () => {
     }
   }
 
+  async function handlePriceOverrideChanged() {
+    const prevId = selectedMission.value?.id
+    buildUserMissions()
+    if (prevId != null) {
+      const mission = userMissions.value.find((m) => m.id === prevId)
+      if (mission) {
+        selectedMission.value = mission
+        if (mission.progressText === 'Not Calculated') {
+          await calculateMissionDetails(prevId)
+        }
+      }
+    }
+  }
+
   async function calculateAllNotCalculatedMissions(missionIds: number[]) {
     loading.value = true
     const notCalculated = userMissions.value.filter(
@@ -260,6 +282,7 @@ export const useMissionStore = defineStore('mission', () => {
     initialize,
     buildUserMissions,
     updateCardLockedState,
+    handlePriceOverrideChanged,
     calculateMissionDetails,
     calculateAllNotCalculatedMissions,
   }
