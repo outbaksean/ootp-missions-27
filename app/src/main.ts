@@ -15,10 +15,13 @@ app.use(createPinia())
 app.mount('#app')
 
 const cardStore = useCardStore()
-await cardStore.initialize()
+await cardStore.loadFromCache()
 
-// missions.json is already being fetched via <link rel="preload"> in index.html,
-// so sequencing here doesn't add latency — it just guarantees cards are in memory
-// before buildUserMissions() runs, eliminating the first-load race condition.
 const missionStore = useMissionStore()
 await missionStore.initialize()
+
+// If no cached cards exist, fetch the default CSV in the background so the UI
+// is already rendered and interactive while the data loads.
+if (!cardStore.hasShopCards) {
+  cardStore.fetchDefaultCards().then(() => missionStore.buildUserMissions())
+}

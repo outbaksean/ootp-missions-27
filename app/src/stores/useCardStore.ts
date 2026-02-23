@@ -68,10 +68,12 @@ export const useCardStore = defineStore('card', () => {
               .map((row) => parseInt(row.CID, 10)),
           )
 
+          // Single pass: reset old locked flags and apply new ones
           const toWrite: ShopCard[] = []
           for (const card of shopCards.value) {
-            if (lockedIds.has(card.cardId) && !card.locked) {
-              card.locked = true
+            const shouldBeLocked = lockedIds.has(card.cardId)
+            if (card.locked !== shouldBeLocked) {
+              card.locked = shouldBeLocked
               toWrite.push(card)
             }
           }
@@ -86,32 +88,37 @@ export const useCardStore = defineStore('card', () => {
     })
   }
 
-  async function initialize() {
-    const existingShopCards = await db.shopCards.toArray()
-    shopCards.value = existingShopCards
+  async function loadFromCache() {
+    shopCards.value = await db.shopCards.toArray()
+  }
 
-    if (shopCards.value.length === 0) {
-      try {
-        const response = await fetch('/ootp-missions-27/data/shop_cards.csv')
-        const text = await response.text()
-        await new Promise<void>((resolve) => {
-          Papa.parse(text, {
-            header: true,
-            skipEmptyLines: true,
-            complete: async (results: { data: any[] }) => {
-              const data = results.data.map(parseShopCardRow)
-              await clearShopCards()
-              await addShopCards(data)
-              isDefaultData.value = true
-              localStorage.setItem(CARDS_SOURCE_KEY, 'default')
-              resolve()
-            },
-          })
+  async function fetchDefaultCards() {
+    if (shopCards.value.length > 0) return
+    try {
+      const response = await fetch('/ootp-missions-27/data/shop_cards.csv')
+      const text = await response.text()
+      await new Promise<void>((resolve) => {
+        Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          complete: async (results: { data: any[] }) => {
+            const data = results.data.map(parseShopCardRow)
+            await clearShopCards()
+            await addShopCards(data)
+            isDefaultData.value = true
+            localStorage.setItem(CARDS_SOURCE_KEY, 'default')
+            resolve()
+          },
         })
-      } catch (e) {
-        console.error('Failed to load default shop cards', e)
-      }
+      })
+    } catch (e) {
+      console.error('Failed to load default shop cards', e)
     }
+  }
+
+  async function initialize() {
+    await loadFromCache()
+    await fetchDefaultCards()
   }
 
   return {
@@ -122,6 +129,8 @@ export const useCardStore = defineStore('card', () => {
     clearShopCards,
     uploadShopFile,
     uploadUserFile,
+    loadFromCache,
+    fetchDefaultCards,
     initialize,
   }
 })
