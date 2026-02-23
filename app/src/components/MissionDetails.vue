@@ -13,16 +13,18 @@
         <li
           v-for="subMission in selectedMissionSubMissions"
           :key="subMission.id"
-          class="detail-item"
+          class="detail-item detail-item--sub"
         >
-          <span class="item-name">{{ subMission.rawMission.name }}</span>
-          <span
-            class="item-status"
-            :class="isMissionComplete(subMission) ? 'status-done' : 'status-pending'"
-          >
-            {{ subMission.progressText }}
-          </span>
-          <span v-if="remainingPriceText(subMission)" class="item-price">
+          <div class="sub-mission-info">
+            <span class="item-name">{{ subMission.rawMission.name }}</span>
+            <span
+              class="item-status"
+              :class="isMissionComplete(subMission) ? 'status-done' : 'status-pending'"
+            >
+              {{ subMission.progressText }}
+            </span>
+          </div>
+          <span v-if="remainingPriceText(subMission)" class="item-price-inline">
             {{ remainingPriceText(subMission) }}
           </span>
         </li>
@@ -264,10 +266,26 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   min-width: 0;
 }
 
+.detail-item--sub {
+  align-items: center;
+}
+
+.sub-mission-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
 .item-status {
   font-size: 0.72rem;
   font-weight: 500;
   flex-shrink: 0;
+}
+
+.sub-mission-info .item-status {
+  font-weight: 400;
 }
 
 .status-done {
@@ -278,10 +296,11 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   color: #dc2626;
 }
 
-.item-price {
-  font-size: 0.7rem;
+.item-price-inline {
+  font-size: 0.72rem;
   color: var(--text-muted);
-  width: 100%;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 
 .item-price-area {
