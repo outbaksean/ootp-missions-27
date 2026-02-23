@@ -17,17 +17,42 @@ function parseShopCardRow(row: any): ShopCard {
 }
 
 const CARDS_SOURCE_KEY = 'ootp-cards-source'
+const OWNED_OVERRIDES_KEY = 'ootp-owned-overrides'
+
+function loadOwnedOverrides(): Set<number> {
+  try {
+    const raw = localStorage.getItem(OWNED_OVERRIDES_KEY)
+    if (!raw) return new Set()
+    return new Set(JSON.parse(raw) as number[])
+  } catch {
+    return new Set()
+  }
+}
+
+function saveOwnedOverrides(ids: Set<number>): void {
+  localStorage.setItem(OWNED_OVERRIDES_KEY, JSON.stringify([...ids]))
+}
 
 export const useCardStore = defineStore('card', () => {
   const shopCards = ref<Array<ShopCard>>([])
   const isDefaultData = ref(localStorage.getItem(CARDS_SOURCE_KEY) !== 'user')
   const cardPriceOverrides = ref<Map<number, number>>(new Map())
+  const cardOwnedOverrides = ref<Set<number>>(loadOwnedOverrides())
 
   const hasShopCards = computed(() => shopCards.value.length > 0)
   const shopCardsById = computed(() => new Map(shopCards.value.map((c) => [c.cardId, c])))
 
+  function applyOwnedOverrides(cards: ShopCard[]): void {
+    for (const card of cards) {
+      if (cardOwnedOverrides.value.has(card.cardId)) {
+        card.owned = true
+      }
+    }
+  }
+
   async function addShopCards(data: ShopCard[]) {
     await db.shopCards.bulkAdd(data)
+    applyOwnedOverrides(data)
     // Always called on an empty array — assign directly to avoid spread call-stack limits
     shopCards.value = data
   }
@@ -37,6 +62,8 @@ export const useCardStore = defineStore('card', () => {
     shopCards.value = []
     isDefaultData.value = true
     localStorage.removeItem(CARDS_SOURCE_KEY)
+    cardOwnedOverrides.value = new Set()
+    localStorage.removeItem(OWNED_OVERRIDES_KEY)
   }
 
   function setCardPriceOverride(cardId: number, price: number) {
@@ -103,6 +130,7 @@ export const useCardStore = defineStore('card', () => {
 
   async function loadFromCache() {
     const cards = await db.shopCards.toArray()
+    applyOwnedOverrides(cards)
     shopCards.value = cards
     // If cards were loaded from IndexedDB but localStorage doesn't explicitly say
     // 'default', treat them as user-uploaded. This handles the case where localStorage
@@ -145,6 +173,21 @@ export const useCardStore = defineStore('card', () => {
     await db.shopCards.update(cardId, { locked: newLocked })
   }
 
+  function toggleCardOwnedOverride(cardId: number) {
+    const card = shopCardsById.value.get(cardId)
+    if (!card) return
+    const next = new Set(cardOwnedOverrides.value)
+    if (next.has(cardId)) {
+      next.delete(cardId)
+      card.owned = false
+    } else {
+      next.add(cardId)
+      card.owned = true
+    }
+    cardOwnedOverrides.value = next
+    saveOwnedOverrides(next)
+  }
+
   async function initialize() {
     await loadFromCache()
     await fetchDefaultCards()
@@ -156,10 +199,12 @@ export const useCardStore = defineStore('card', () => {
     hasShopCards,
     isDefaultData,
     cardPriceOverrides,
+    cardOwnedOverrides,
     clearShopCards,
     uploadShopFile,
     uploadUserFile,
     toggleCardLocked,
+    toggleCardOwnedOverride,
     setCardPriceOverride,
     clearCardPriceOverride,
     loadFromCache,

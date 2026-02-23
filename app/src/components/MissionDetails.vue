@@ -80,8 +80,27 @@
           <div class="item-badges">
             <span v-if="card.highlighted && !card.owned" class="pill pill-buy">Buy</span>
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
-            <button v-if="card.owned" class="btn-lock" :class="{ 'btn-lock--active': card.locked }" @click="toggleLock(card.cardId)">
+            <button
+              v-if="card.owned"
+              class="btn-lock"
+              :class="{ 'btn-lock--active': card.locked }"
+              @click="toggleLock(card.cardId)"
+            >
               {{ card.locked ? 'Locked' : 'Lock' }}
+            </button>
+            <button
+              v-if="card.owned && cardStore.cardOwnedOverrides.has(card.cardId)"
+              class="btn-own btn-own--active"
+              @click="toggleOwn(card.cardId)"
+            >
+              Unown
+            </button>
+            <button
+              v-if="!card.owned"
+              class="btn-own"
+              @click="toggleOwn(card.cardId)"
+            >
+              Own
             </button>
           </div>
         </li>
@@ -111,6 +130,16 @@ async function toggleLock(cardId: number) {
   await cardStore.toggleCardLocked(cardId)
   const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false
   missionStore.updateCardLockedState(cardId, locked)
+}
+
+function toggleOwn(cardId: number) {
+  cardStore.toggleCardOwnedOverride(cardId)
+  const shopCard = cardStore.shopCardsById.get(cardId)
+  if (shopCard && props.selectedMission) {
+    const mc = props.selectedMission.missionCards.find((c) => c.cardId === cardId)
+    if (mc) mc.owned = shopCard.owned
+  }
+  hasUnappliedChanges.value = true
 }
 
 function onPriceChange(card: MissionCard, event: Event) {
@@ -410,6 +439,36 @@ const isMissionComplete = (mission: UserMission) => mission.completed
 }
 
 .btn-lock--active:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-own {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #cbd5e1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-own:hover {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.btn-own--active {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-own--active:hover {
   background: #fee2e2;
   color: #dc2626;
   border-color: #fca5a5;
