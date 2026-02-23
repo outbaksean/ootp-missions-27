@@ -248,6 +248,7 @@ export const useMissionStore = defineStore('mission', () => {
     missionsVersion,
     loading,
     initialize,
+    buildUserMissions,
     calculateMissionDetails,
     calculateAllNotCalculatedMissions,
   }
