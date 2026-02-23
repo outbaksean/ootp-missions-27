@@ -14,6 +14,10 @@
 
 **Goal:** Add a persistent, unobtrusive indicator showing when mission data was last updated — including a warning when it looks stale. The PreRelease Status button stays for now and is removed at OOTP 27 launch (see `RELEASE_CHECKLIST.md`).
 
+### Status: Done (partial)
+
+`missionsVersion` is displayed in the sidebar as `Mission data: YYYY-MM-DD`. The formatted label proposed in the plan (`Missions updated Feb 22, 2026` via `toLocaleDateString`) was not implemented — the raw date string is shown as-is. The display is already reactive to background cache refreshes.
+
 ### Context
 
 - `missionsVersion` (a date string like `"2026-02-22"`) is already stored in `useMissionStore` and fetched from `missions.json`
@@ -49,6 +53,13 @@ const missionsUpdatedLabel = computed(() => {
 
 **Goal:** Toggle a card's locked status directly in MissionDetails without re-uploading a CSV.
 
+### Status: Done (merged PR #17)
+
+- **`useCardStore.ts`** — `toggleCardLocked(cardId)`: looks up card via `shopCardsById`, flips `locked` in-memory, writes updated field to IndexedDB via `db.shopCards.update`. Also fixed a `toRaw` bug in `bulkPut` in the same PR.
+- **`useMissionStore.ts`** — `updateCardLockedState(cardId, locked)`: walks all `userMissions` and updates matching `missionCard.locked` in-place, avoiding a full rebuild that would reset points/missions-type progress text.
+- **`MissionDetails.vue`** — Lock/Locked button on each owned card row (styled as a pill button; turns red on hover when active). Calls `toggleCardLocked` then `updateCardLockedState`.
+- **`Missions.vue`** — Updated `userMissions` watcher to keep the detail panel open after an in-place rebuild (finds the same mission by id instead of resetting to `null`).
+
 ### Changes
 
 - **`useCardStore.ts`** — add `toggleCardLocked(cardId: number)`:
@@ -70,6 +81,13 @@ const missionsUpdatedLabel = computed(() => {
 ## 3. Card cost overrides
 
 **Goal:** Let users set a manual price for any card. Overrides are session-scoped and cleared when a new CSV is uploaded.
+
+### Status: Done (this branch)
+
+- **`useCardStore.ts`** — `cardPriceOverrides` ref (`Map<number, number>`, in-memory only). `setCardPriceOverride(cardId, price)` and `clearCardPriceOverride(cardId)` replace the map reactively (new Map each time to trigger watchers). `uploadShopFile` resets the map to an empty `Map` when a new CSV is uploaded.
+- **`MissionHelper.ts`** — `calculateTotalPriceOfNonOwnedCards` accepts an optional `overrides: Map<number, number>` param; resolves price as `overrides.get(cardId) ?? basePrice`.
+- **`useMissionStore.ts`** — passes `cardStore.cardPriceOverrides` into all `MissionHelper` calls and applies the same override logic when building `missionCards` prices. New `handlePriceOverrideChanged()` rebuilds missions and re-selects the open mission (recalculating it if needed) after any override change.
+- **`MissionDetails.vue`** — inline number input on each non-owned card row: amber border + amber text when an override is active, a `×` clear button appears alongside it. Price moved out of the card title string (`missionCardTitle` no longer includes the price). Owned cards show a static price display instead. On blur/enter the override is saved; entering 0 or invalid clears it.
 
 ### Changes
 

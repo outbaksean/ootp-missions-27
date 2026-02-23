@@ -250,16 +250,12 @@ export const useMissionStore = defineStore('mission', () => {
     }
   }
 
-  async function handlePriceOverrideChanged() {
-    const prevId = selectedMission.value?.id
+  async function handlePriceOverrideChanged(missionId?: number) {
     buildUserMissions()
-    if (prevId != null) {
-      const mission = userMissions.value.find((m) => m.id === prevId)
-      if (mission) {
-        selectedMission.value = mission
-        if (mission.progressText === 'Not Calculated') {
-          await calculateMissionDetails(prevId)
-        }
+    if (missionId != null) {
+      const mission = userMissions.value.find((m) => m.id === missionId)
+      if (mission && mission.progressText === 'Not Calculated') {
+        await calculateMissionDetails(missionId)
       }
     }
   }

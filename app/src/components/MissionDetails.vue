@@ -38,6 +38,9 @@
         <p v-else-if="remainingPriceText(selectedMission)" class="detail-price">
           {{ remainingPriceText(selectedMission) }} remaining
         </p>
+        <button v-if="hasUnappliedChanges" class="btn-recalculate" @click="recalculate">
+          Recalculate
+        </button>
       </div>
       <ul class="detail-list">
         <li
@@ -58,7 +61,7 @@
                 :class="{ 'price-overridden': cardStore.cardPriceOverrides.has(card.cardId) }"
                 type="number"
                 min="0"
-                :value="card.price"
+                :value="cardStore.cardPriceOverrides.get(card.cardId) ?? card.price"
                 @focus="($event.target as HTMLInputElement).select()"
                 @blur="onPriceChange(card, $event)"
                 @keydown.enter="($event.target as HTMLInputElement).blur()"
@@ -86,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { UserMission } from '../models/UserMission'
 import type { MissionCard } from '@/models/MissionCard'
 import { useCardStore } from '@/stores/useCardStore'
@@ -100,13 +103,15 @@ const props = defineProps({
 const cardStore = useCardStore()
 const missionStore = useMissionStore()
 
+const hasUnappliedChanges = ref(false)
+
 async function toggleLock(cardId: number) {
   await cardStore.toggleCardLocked(cardId)
   const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false
   missionStore.updateCardLockedState(cardId, locked)
 }
 
-async function onPriceChange(card: MissionCard, event: Event) {
+function onPriceChange(card: MissionCard, event: Event) {
   const input = event.target as HTMLInputElement
   const raw = parseInt(input.value, 10)
   if (!isNaN(raw) && raw > 0) {
@@ -114,12 +119,17 @@ async function onPriceChange(card: MissionCard, event: Event) {
   } else {
     cardStore.clearCardPriceOverride(card.cardId)
   }
-  await missionStore.handlePriceOverrideChanged()
+  hasUnappliedChanges.value = true
 }
 
-async function clearOverride(cardId: number) {
+function clearOverride(cardId: number) {
   cardStore.clearCardPriceOverride(cardId)
-  await missionStore.handlePriceOverrideChanged()
+  hasUnappliedChanges.value = true
+}
+
+async function recalculate() {
+  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id)
+  hasUnappliedChanges.value = false
 }
 
 const formatPrice = (price: number) =>
@@ -196,6 +206,23 @@ const isMissionComplete = (mission: UserMission) => mission.completed
 }
 
 /* List */
+.btn-recalculate {
+  margin-top: 0.5rem;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  transition: background 0.15s;
+}
+
+.btn-recalculate:hover {
+  background: #fde68a;
+}
+
 .detail-list {
   list-style: none;
   padding: 0;
