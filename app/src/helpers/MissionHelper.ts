@@ -174,22 +174,59 @@ export default class MissionHelper {
   }
 
   /**
-   * Returns the total price of owned, unlocked mission cards — the opportunity
-   * cost of using them to complete the mission instead of selling them.
+   * Returns the opportunity cost of the owned, unlocked cards that would
+   * actually need to be locked to complete this mission — not necessarily
+   * all owned cards, just the minimum required subset.
+   *
+   * Count missions: cheapest min(ownedCount, requiredCount) owned+unlocked cards.
+   * Points missions: if owned points already exceed the target, use the DP to
+   *   find the minimum-cost subset that covers requiredCount points; otherwise
+   *   all owned cards are needed and their full price is returned.
    */
   static calculateUnlockedCardsPrice(
     mission: Mission,
     shopCardsById: Map<number, ShopCard>,
     useSellPrice: boolean,
     overrides?: Map<number, number>,
-  ): number {
-    return mission.cards.reduce((sum, card) => {
-      const shopCard = shopCardsById.get(card.cardId)
-      if (!shopCard || !shopCard.owned || shopCard.locked) return sum
-      const basePrice =
-        useSellPrice && shopCard.sellOrderLow > 0 ? shopCard.sellOrderLow : shopCard.lastPrice
-      return sum + (overrides?.get(card.cardId) ?? basePrice)
-    }, 0)
+  ): { totalPrice: number; includedCardIds: Set<number> } {
+    const ownedUnlocked = mission.cards
+      .map((card) => {
+        const shopCard = shopCardsById.get(card.cardId)
+        if (!shopCard || !shopCard.owned || shopCard.locked) return null
+        const basePrice =
+          useSellPrice && shopCard.sellOrderLow > 0 ? shopCard.sellOrderLow : shopCard.lastPrice
+        const price = overrides?.get(card.cardId) ?? basePrice
+        return { cardId: card.cardId, price, points: card.points || 0 }
+      })
+      .filter((c) => c !== null)
+
+    if (ownedUnlocked.length === 0) return { totalPrice: 0, includedCardIds: new Set() }
+
+    if (mission.type === 'count') {
+      const take = Math.min(ownedUnlocked.length, mission.requiredCount)
+      const included = ownedUnlocked.sort((a, b) => a.price - b.price).slice(0, take)
+      return {
+        totalPrice: included.reduce((sum, c) => sum + c.price, 0),
+        includedCardIds: new Set(included.map((c) => c.cardId)),
+      }
+    }
+
+    if (mission.type === 'points') {
+      const ownedPoints = ownedUnlocked.reduce((sum, c) => sum + c.points, 0)
+      if (ownedPoints <= mission.requiredCount) {
+        return {
+          totalPrice: ownedUnlocked.reduce((sum, c) => sum + c.price, 0),
+          includedCardIds: new Set(ownedUnlocked.map((c) => c.cardId)),
+        }
+      }
+      const result = this.calculatePriceDetailsPointsTypeDP(ownedUnlocked, mission.requiredCount)
+      return {
+        totalPrice: result.totalPrice,
+        includedCardIds: new Set(result.includedCards.map((c) => c.cardId)),
+      }
+    }
+
+    return { totalPrice: 0, includedCardIds: new Set() }
   }
 
   static isMissionComplete(mission: Mission, shopCardsById: Map<number, ShopCard>): boolean {

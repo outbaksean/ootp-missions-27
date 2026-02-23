@@ -6,4 +6,5 @@ export interface MissionCard {
   price: number
   points?: number
   highlighted: boolean
+  shouldLock: boolean
 }

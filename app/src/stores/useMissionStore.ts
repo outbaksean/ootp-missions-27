@@ -64,6 +64,7 @@ export const useMissionStore = defineStore('mission', () => {
             price,
             highlighted,
             points: card.points || 0,
+            shouldLock: false,
           }
         })
         .filter((card) => card !== null)
@@ -83,12 +84,16 @@ export const useMissionStore = defineStore('mission', () => {
         remainingCount <= 0
           ? `Completed with ${ownedPoints} points out of ${mission.requiredCount} of any ${mission.totalPoints} total`
           : `${ownedPoints} points out of ${mission.requiredCount} of any ${mission.totalPoints} total (${remainingCount} remaining)`
-      const unlockedCardsPricePoints = MissionHelper.calculateUnlockedCardsPrice(
-        mission,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-        overrides,
-      )
+      const { totalPrice: unlockedCardsPricePoints, includedCardIds: unlockedIds } =
+        MissionHelper.calculateUnlockedCardsPrice(
+          mission,
+          shopCardsById,
+          selectedPriceType.value.sellPrice,
+          overrides,
+        )
+      for (const mc of missionCards) {
+        mc.shouldLock = unlockedIds.has(mc.cardId)
+      }
       userMission.completed = completed
       userMission.missionCards = missionCards
       userMission.remainingPrice = remainingPrice.totalPrice
@@ -201,6 +206,7 @@ export const useMissionStore = defineStore('mission', () => {
             price,
             highlighted,
             points: card.points || 0,
+            shouldLock: false,
           }
         })
         .filter((card) => card !== null)
@@ -212,12 +218,16 @@ export const useMissionStore = defineStore('mission', () => {
 
       const ownedCount = mission.cards.filter((card) => shopCardsById.get(card.cardId)?.owned).length
 
-      const unlockedCardsPrice = MissionHelper.calculateUnlockedCardsPrice(
-        mission,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-        overrides,
-      )
+      const { totalPrice: unlockedCardsPrice, includedCardIds } =
+        MissionHelper.calculateUnlockedCardsPrice(
+          mission,
+          shopCardsById,
+          selectedPriceType.value.sellPrice,
+          overrides,
+        )
+      for (const mc of missionCards) {
+        mc.shouldLock = includedCardIds.has(mc.cardId)
+      }
 
       const rewardValue = MissionHelper.calculateRewardValue(
         mission.rewards,
@@ -336,12 +346,17 @@ export const useMissionStore = defineStore('mission', () => {
       if (mission.rawMission.type === 'missions') continue
       if (!mission.rawMission.cards.some((c) => c.cardId === cardId)) continue
 
-      mission.unlockedCardsPrice = MissionHelper.calculateUnlockedCardsPrice(
-        mission.rawMission,
-        cardStore.shopCardsById,
-        selectedPriceType.value.sellPrice,
-        cardStore.cardPriceOverrides,
-      )
+      const { totalPrice: ulPrice, includedCardIds: ulIds } =
+        MissionHelper.calculateUnlockedCardsPrice(
+          mission.rawMission,
+          cardStore.shopCardsById,
+          selectedPriceType.value.sellPrice,
+          cardStore.cardPriceOverrides,
+        )
+      mission.unlockedCardsPrice = ulPrice
+      for (const mc of mission.missionCards) {
+        mc.shouldLock = ulIds.has(mc.cardId)
+      }
       const rewardValue = MissionHelper.calculateRewardValue(
         mission.rawMission.rewards,
         settingsStore.packPrices,
@@ -426,6 +441,7 @@ export const useMissionStore = defineStore('mission', () => {
               price,
               highlighted,
               points: card.points || 0,
+              shouldLock: false,
             }
           })
           .filter((c) => c !== null)
@@ -440,12 +456,17 @@ export const useMissionStore = defineStore('mission', () => {
         mission.remainingPrice = rp.totalPrice
         mission.completed = MissionHelper.isMissionComplete(mission.rawMission, shopCardsById)
         mission.progressText = `${ownedCount} out of any ${mission.rawMission.requiredCount} of ${mission.rawMission.totalPoints} total`
-        mission.unlockedCardsPrice = MissionHelper.calculateUnlockedCardsPrice(
-          mission.rawMission,
-          shopCardsById,
-          selectedPriceType.value.sellPrice,
-          overrides,
-        )
+        const { totalPrice: ownedUlPrice, includedCardIds: ownedUlIds } =
+          MissionHelper.calculateUnlockedCardsPrice(
+            mission.rawMission,
+            shopCardsById,
+            selectedPriceType.value.sellPrice,
+            overrides,
+          )
+        mission.unlockedCardsPrice = ownedUlPrice
+        for (const mc of mission.missionCards) {
+          mc.shouldLock = ownedUlIds.has(mc.cardId)
+        }
         const rewardValue = MissionHelper.calculateRewardValue(
           mission.rawMission.rewards,
           settingsStore.packPrices,
@@ -554,6 +575,7 @@ export const useMissionStore = defineStore('mission', () => {
               price,
               highlighted,
               points: card.points || 0,
+              shouldLock: false,
             }
           })
           .filter((c) => c !== null)
@@ -563,12 +585,17 @@ export const useMissionStore = defineStore('mission', () => {
             return a.price - b.price
           })
         um.remainingPrice = rp.totalPrice
-        um.unlockedCardsPrice = MissionHelper.calculateUnlockedCardsPrice(
-          mission,
-          shopCardsById,
-          selectedPriceType.value.sellPrice,
-          overrides,
-        )
+        const { totalPrice: priceUl, includedCardIds: priceUlIds } =
+          MissionHelper.calculateUnlockedCardsPrice(
+            mission,
+            shopCardsById,
+            selectedPriceType.value.sellPrice,
+            overrides,
+          )
+        um.unlockedCardsPrice = priceUl
+        for (const mc of um.missionCards) {
+          mc.shouldLock = priceUlIds.has(mc.cardId)
+        }
         const rewardValue = MissionHelper.calculateRewardValue(
           mission.rewards,
           settingsStore.packPrices,
