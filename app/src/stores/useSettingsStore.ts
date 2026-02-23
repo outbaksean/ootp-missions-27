@@ -42,8 +42,13 @@ function saveToStorage(prices: Map<string, number>): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(prices)));
 }
 
+const SUBTRACT_UNLOCKED_KEY = "ootp-subtract-unlocked";
+
 export const useSettingsStore = defineStore("settings", () => {
   const packPrices = ref<Map<string, number>>(loadFromStorage());
+  const subtractUnlockedCards = ref<boolean>(
+    localStorage.getItem(SUBTRACT_UNLOCKED_KEY) !== "false",
+  );
 
   function setPackPrice(packType: string, value: number) {
     const next = new Map(packPrices.value);
@@ -56,5 +61,10 @@ export const useSettingsStore = defineStore("settings", () => {
     return packPrices.value.get(packType) ?? 0;
   }
 
-  return { packPrices, setPackPrice, getPackPrice };
+  function setSubtractUnlockedCards(value: boolean) {
+    subtractUnlockedCards.value = value;
+    localStorage.setItem(SUBTRACT_UNLOCKED_KEY, String(value));
+  }
+
+  return { packPrices, setPackPrice, getPackPrice, subtractUnlockedCards, setSubtractUnlockedCards };
 });

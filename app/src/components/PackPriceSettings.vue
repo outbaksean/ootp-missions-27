@@ -37,6 +37,7 @@ function handleChange(packType: string, event: Event) {
   settingsStore.setPackPrice(packType, isNaN(val) ? 0 : val)
   missionStore.recomputeMissionValues()
 }
+
 </script>
 
 <style scoped>
@@ -86,11 +87,6 @@ function handleChange(packType: string, event: Event) {
   color: var(--sidebar-muted);
   line-height: 1.4;
   margin: 0 0 0.25rem;
-}
-
-.pack-prices-empty {
-  font-size: 0.75rem;
-  color: var(--sidebar-muted);
 }
 
 .pack-price-row {

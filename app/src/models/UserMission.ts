@@ -8,5 +8,7 @@ export interface UserMission {
   completed: boolean
   missionCards: Array<MissionCard>
   remainingPrice: number
+  unlockedCardsPrice: number
+  rewardValue?: number
   missionValue?: number
 }

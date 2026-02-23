@@ -71,6 +71,15 @@
           <input type="checkbox" class="toggle-input" v-model="showPositiveOnly" />
           Positive Value Only
         </label>
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            class="toggle-input"
+            :checked="settingsStore.subtractUnlockedCards"
+            @change="handleIncludeUnlockedChange($event)"
+          />
+          Include unlocked cards in net value
+        </label>
       </div>
 
       <div class="sidebar-divider" />
@@ -160,10 +169,12 @@ import MissionDetails from './MissionDetails.vue'
 import MissionList from './MissionList.vue'
 import MissionSearch from './MissionSearch.vue'
 import PackPriceSettings from './PackPriceSettings.vue'
+import { useSettingsStore } from '../stores/useSettingsStore'
 import type { UserMission } from '../models/UserMission'
 
 const missionStore = useMissionStore()
 const cardStore = useCardStore()
+const settingsStore = useSettingsStore()
 const hasUserCards = computed(() => cardStore.hasShopCards && !cardStore.isDefaultData)
 const helpExpanded = ref(false)
 const missions = computed(() => missionStore.userMissions)
@@ -182,6 +193,11 @@ const sortBy = ref<'default' | 'price' | 'value' | 'name'>('default')
 const showPositiveOnly = ref(false)
 
 const isLoading = computed(() => missionStore.loading)
+
+const handleIncludeUnlockedChange = (event: Event) => {
+  settingsStore.setSubtractUnlockedCards((event.target as HTMLInputElement).checked)
+  missionStore.recomputeMissionValues()
+}
 
 const updatePriceType = () => {
   missionStore.selectedPriceType.sellPrice = useSellPrice.value
