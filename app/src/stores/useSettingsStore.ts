@@ -43,11 +43,15 @@ function saveToStorage(prices: Map<string, number>): void {
 }
 
 const SUBTRACT_UNLOCKED_KEY = "ootp-subtract-unlocked";
+const OPTIMIZE_SELECTION_KEY = "ootp-optimize-selection";
 
 export const useSettingsStore = defineStore("settings", () => {
   const packPrices = ref<Map<string, number>>(loadFromStorage());
   const subtractUnlockedCards = ref<boolean>(
     localStorage.getItem(SUBTRACT_UNLOCKED_KEY) !== "false",
+  );
+  const optimizeCardSelection = ref<boolean>(
+    localStorage.getItem(OPTIMIZE_SELECTION_KEY) === "true",
   );
 
   function setPackPrice(packType: string, value: number) {
@@ -72,5 +76,10 @@ export const useSettingsStore = defineStore("settings", () => {
     saveToStorage(defaults);
   }
 
-  return { packPrices, setPackPrice, getPackPrice, resetPackPrices, subtractUnlockedCards, setSubtractUnlockedCards };
+  function setOptimizeCardSelection(value: boolean) {
+    optimizeCardSelection.value = value;
+    localStorage.setItem(OPTIMIZE_SELECTION_KEY, String(value));
+  }
+
+  return { packPrices, setPackPrice, getPackPrice, resetPackPrices, subtractUnlockedCards, setSubtractUnlockedCards, optimizeCardSelection, setOptimizeCardSelection };
 });
