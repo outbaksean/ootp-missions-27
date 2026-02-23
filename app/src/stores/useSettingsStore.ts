@@ -66,5 +66,11 @@ export const useSettingsStore = defineStore("settings", () => {
     localStorage.setItem(SUBTRACT_UNLOCKED_KEY, String(value));
   }
 
-  return { packPrices, setPackPrice, getPackPrice, subtractUnlockedCards, setSubtractUnlockedCards };
+  function resetPackPrices() {
+    const defaults = new Map(Object.entries(PACK_TYPE_DEFAULTS));
+    packPrices.value = defaults;
+    saveToStorage(defaults);
+  }
+
+  return { packPrices, setPackPrice, getPackPrice, resetPackPrices, subtractUnlockedCards, setSubtractUnlockedCards };
 });
