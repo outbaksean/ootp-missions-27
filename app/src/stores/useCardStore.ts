@@ -57,22 +57,32 @@ export const useCardStore = defineStore('card', () => {
 
   async function uploadUserFile(file: File) {
     const text = await file.text()
-    Papa.parse(text, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results: { data: { CID: string; Lock: string }[] }) => {
-        for (const userCard of results.data) {
-          if (userCard.Lock === 'Yes') {
-            const cardId = parseInt(userCard.CID, 10)
-            const shopCard = await db.shopCards.get(cardId)
-            if (shopCard) {
-              shopCard.locked = true
-              await db.shopCards.put(shopCard)
+    await new Promise<void>((resolve) => {
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: async (results: { data: { CID: string; Lock: string }[] }) => {
+          const lockedIds = new Set(
+            results.data
+              .filter((row) => row.Lock === 'Yes')
+              .map((row) => parseInt(row.CID, 10)),
+          )
+
+          const toWrite: ShopCard[] = []
+          for (const card of shopCards.value) {
+            if (lockedIds.has(card.cardId) && !card.locked) {
+              card.locked = true
+              toWrite.push(card)
             }
           }
-        }
-        shopCards.value = await db.shopCards.toArray()
-      },
+
+          if (toWrite.length > 0) {
+            await db.shopCards.bulkPut(toWrite)
+          }
+
+          resolve()
+        },
+      })
     })
   }
 
