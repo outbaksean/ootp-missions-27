@@ -24,6 +24,11 @@ export class OOTPMissions27DB extends Dexie {
       missionsCache: 'id',
     })
 
+    // Fix typo: index was named 'lock' but the model field is 'locked'
+    this.version(3).stores({
+      shopCards: '++cardId, cardTitle, cardValue, sellOrderLow, lastPrice, owned, locked',
+    })
+
     this.shopCards = this.table('shopCards')
     this.missionsCache = this.table('missionsCache')
   }
