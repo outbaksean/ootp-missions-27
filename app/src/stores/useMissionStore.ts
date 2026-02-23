@@ -377,13 +377,126 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   async function handlePriceOverrideChanged(missionId?: number) {
-    buildUserMissions()
-    if (missionId != null) {
-      const mission = userMissions.value.find((m) => m.id === missionId)
-      if (mission && mission.progressText === 'Not Calculated') {
-        await calculateMissionDetails(missionId)
+    const cardStore = useCardStore()
+    const settingsStore = useSettingsStore()
+    const shopCardsById = cardStore.shopCardsById
+    const overrides = cardStore.cardPriceOverrides
+    const overriddenIds = new Set(overrides.keys())
+
+    loading.value = true
+
+    const modifiedIds = new Set<number>()
+    const toRecalculate: number[] = []
+
+    for (const um of userMissions.value) {
+      const mission = um.rawMission
+      if (mission.type === 'missions') continue
+
+      const isSelected = um.id === missionId
+      const hasOverriddenCard = mission.cards?.some((c) => overriddenIds.has(c.cardId)) ?? false
+      if (!isSelected && !hasOverriddenCard) continue
+
+      modifiedIds.add(um.id)
+
+      if (mission.type === 'count') {
+        const rp = MissionHelper.calculateTotalPriceOfNonOwnedCards(
+          mission,
+          shopCardsById,
+          selectedPriceType.value.sellPrice,
+          overrides,
+        )
+        um.missionCards = mission.cards
+          .map((card) => {
+            const shopCard = shopCardsById.get(card.cardId)
+            if (!shopCard || shopCard.cardId === undefined) return null
+            const basePrice = selectedPriceType.value.sellPrice
+              ? shopCard.sellOrderLow || shopCard.lastPrice
+              : shopCard.lastPrice
+            const price = overrides.get(card.cardId) ?? basePrice
+            const highlighted =
+              rp.totalPrice > 0 && rp.includedCards.some((c) => c.cardId === card.cardId)
+            return {
+              cardId: shopCard.cardId,
+              title: shopCard.cardTitle,
+              owned: shopCard.owned,
+              locked: shopCard.locked,
+              price,
+              highlighted,
+              points: card.points || 0,
+            }
+          })
+          .filter((c) => c !== null)
+          .sort((a, b) => {
+            if (a.owned !== b.owned) return a.owned ? 1 : -1
+            if (a.locked !== b.locked) return a.locked ? 1 : -1
+            return a.price - b.price
+          })
+        um.remainingPrice = rp.totalPrice
+        um.unlockedCardsPrice = MissionHelper.calculateUnlockedCardsPrice(
+          mission,
+          shopCardsById,
+          selectedPriceType.value.sellPrice,
+          overrides,
+        )
+        const rewardValue = MissionHelper.calculateRewardValue(
+          mission.rewards,
+          settingsStore.packPrices,
+          shopCardsById,
+          selectedPriceType.value.sellPrice,
+        )
+        um.rewardValue = rewardValue
+        const unlockedDeduction = settingsStore.subtractUnlockedCards ? um.unlockedCardsPrice : 0
+        um.missionValue =
+          rewardValue !== undefined ? rewardValue - um.remainingPrice - unlockedDeduction : undefined
+      } else {
+        // points: reset and queue for recalculation
+        um.progressText = 'Not Calculated'
+        um.completed = false
+        um.missionCards = []
+        um.remainingPrice = 0
+        um.unlockedCardsPrice = 0
+        um.rewardValue = undefined
+        um.missionValue = undefined
+        toRecalculate.push(um.id)
       }
     }
+
+    await Promise.all(toRecalculate.map((id) => calculateMissionDetails(id, true)))
+
+    // Re-aggregate missions-type parents whose sub-missions were modified
+    for (const um of userMissions.value) {
+      if (um.progressText === 'Not Calculated') continue
+      if (um.rawMission.type !== 'missions') continue
+      const subIds = um.rawMission.missionIds ?? []
+      if (!subIds.some((id) => modifiedIds.has(id))) continue
+
+      const subMissions = userMissions.value.filter((sub) =>
+        subIds.some((id) => id === sub.rawMission.id),
+      )
+      const completedCount = subMissions.filter((m) => m.completed).length
+      const remainingCount = um.rawMission.requiredCount - completedCount
+      um.remainingPrice = subMissions
+        .filter((m) => !m.completed)
+        .filter((m) => m.remainingPrice > 0)
+        .map((m) => m.remainingPrice)
+        .sort((a, b) => a - b)
+        .slice(0, remainingCount)
+        .reduce((sum, price) => sum + price, 0)
+      um.unlockedCardsPrice = subMissions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
+      um.completed = completedCount >= um.rawMission.requiredCount
+      const rewardValue = MissionHelper.calculateRewardValue(
+        um.rawMission.rewards,
+        settingsStore.packPrices,
+        shopCardsById,
+        selectedPriceType.value.sellPrice,
+      )
+      um.rewardValue = rewardValue
+      const unlockedDeduction = settingsStore.subtractUnlockedCards ? um.unlockedCardsPrice : 0
+      um.missionValue =
+        rewardValue !== undefined ? rewardValue - um.remainingPrice - unlockedDeduction : undefined
+    }
+
+    loading.value = false
   }
 
   async function calculateAllNotCalculatedMissions(missionIds: number[]) {

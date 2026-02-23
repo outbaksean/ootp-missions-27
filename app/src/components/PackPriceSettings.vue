@@ -120,4 +120,14 @@ function handleChange(packType: string, event: Event) {
   outline: none;
   border-color: var(--accent);
 }
+
+.pack-price-input::-webkit-outer-spin-button,
+.pack-price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pack-price-input[type='number'] {
+  -moz-appearance: textfield;
+}
 </style>
