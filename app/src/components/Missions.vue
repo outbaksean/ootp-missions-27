@@ -80,6 +80,15 @@
           />
           Include unlocked cards in net value
         </label>
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            class="toggle-input"
+            :checked="settingsStore.optimizeCardSelection"
+            @change="handleOptimizeChange($event)"
+          />
+          Optimize card selection
+        </label>
       </div>
 
       <div class="sidebar-divider" />
@@ -197,6 +206,11 @@ const isLoading = computed(() => missionStore.loading)
 const handleIncludeUnlockedChange = (event: Event) => {
   settingsStore.setSubtractUnlockedCards((event.target as HTMLInputElement).checked)
   missionStore.recomputeMissionValues()
+}
+
+const handleOptimizeChange = (event: Event) => {
+  settingsStore.setOptimizeCardSelection((event.target as HTMLInputElement).checked)
+  missionStore.buildUserMissions()
 }
 
 const updatePriceType = () => {
