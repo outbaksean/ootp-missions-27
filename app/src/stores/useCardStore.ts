@@ -16,10 +16,14 @@ function parseShopCardRow(row: any): ShopCard {
   }
 }
 
+const CARDS_SOURCE_KEY = 'ootp-cards-source'
+
 export const useCardStore = defineStore('card', () => {
   const shopCards = ref<Array<ShopCard>>([])
+  const isDefaultData = ref(localStorage.getItem(CARDS_SOURCE_KEY) !== 'user')
 
   const hasShopCards = computed(() => shopCards.value.length > 0)
+  const shopCardsById = computed(() => new Map(shopCards.value.map((c) => [c.cardId, c])))
 
   async function addShopCards(data: ShopCard[]) {
     await db.shopCards.bulkAdd(data)
@@ -29,6 +33,8 @@ export const useCardStore = defineStore('card', () => {
   async function clearShopCards() {
     await db.shopCards.clear()
     shopCards.value = []
+    isDefaultData.value = true
+    localStorage.removeItem(CARDS_SOURCE_KEY)
   }
 
   async function uploadShopFile(file: File) {
@@ -41,6 +47,8 @@ export const useCardStore = defineStore('card', () => {
           const data = results.data.map(parseShopCardRow)
           await clearShopCards()
           await addShopCards(data)
+          isDefaultData.value = false
+          localStorage.setItem(CARDS_SOURCE_KEY, 'user')
           resolve()
         },
       })
@@ -84,6 +92,8 @@ export const useCardStore = defineStore('card', () => {
               const data = results.data.map(parseShopCardRow)
               await clearShopCards()
               await addShopCards(data)
+              isDefaultData.value = true
+              localStorage.setItem(CARDS_SOURCE_KEY, 'default')
               resolve()
             },
           })
@@ -96,7 +106,9 @@ export const useCardStore = defineStore('card', () => {
 
   return {
     shopCards,
+    shopCardsById,
     hasShopCards,
+    isDefaultData,
     clearShopCards,
     uploadShopFile,
     uploadUserFile,

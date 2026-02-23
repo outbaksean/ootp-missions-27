@@ -2,9 +2,7 @@
   <div class="upload-section">
     <!-- Status row -->
     <div class="upload-status-row">
-      <span :class="hasShopCards ? 'status-loaded' : 'status-missing'">
-        {{ hasShopCards ? "✓ Cards loaded" : "⚠ No cards" }}
-      </span>
+      <span :class="statusClass">{{ statusText }}</span>
       <div class="upload-actions">
         <button
           class="sidebar-btn"
@@ -14,11 +12,7 @@
         >
           Help
         </button>
-        <button
-          class="sidebar-btn"
-          type="button"
-          @click="isExpanded = !isExpanded"
-        >
+        <button v-if="hasUserCards" class="sidebar-btn" type="button" @click="isExpanded = !isExpanded">
           {{ isExpanded ? "Hide" : "Upload" }}
         </button>
       </div>
@@ -35,7 +29,7 @@
     </div>
 
     <!-- File inputs -->
-    <div v-show="isExpanded || !hasShopCards" class="upload-form">
+    <div v-show="isExpanded || !hasUserCards" class="upload-form">
       <div class="upload-field">
         <label for="shopCardsFile">Shop Cards:</label>
         <input
@@ -223,7 +217,12 @@
   const missionStore = useMissionStore();
 
   const hasShopCards = computed(() => cardStore.hasShopCards);
+  const isDefaultData = computed(() => cardStore.isDefaultData);
+  const hasUserCards = computed(() => hasShopCards.value && !isDefaultData.value);
   const isExpanded = ref(false);
+
+  const statusClass = computed(() => (hasUserCards.value ? "status-loaded" : "status-missing"));
+  const statusText = computed(() => (hasUserCards.value ? "Cards loaded" : "No card data"));
 
   const handleShopCardsUpload = async (event: Event) => {
     const file = (event.target as HTMLInputElement).files?.[0];

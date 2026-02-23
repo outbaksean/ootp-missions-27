@@ -22,7 +22,7 @@ export const useMissionStore = defineStore('mission', () => {
     if (!isSubMission) {
       loading.value = true
     }
-    const shopCards = useCardStore().shopCards
+    const shopCardsById = useCardStore().shopCardsById
     const userMission = userMissions.value.find((m) => m.id === missionId)
     if (!userMission || userMission.progressText !== 'Not Calculated') {
       return
@@ -33,13 +33,13 @@ export const useMissionStore = defineStore('mission', () => {
     if (mission.type === 'points') {
       const remainingPrice = MissionHelper.calculateTotalPriceOfNonOwnedCards(
         mission,
-        shopCards,
+        shopCardsById,
         selectedPriceType.value.sellPrice,
       )
-      const completed = MissionHelper.isMissionComplete(mission, shopCards)
+      const completed = MissionHelper.isMissionComplete(mission, shopCardsById)
       const missionCards = mission.cards
         .map((card) => {
-          const shopCard = shopCards.find((sc) => sc.cardId == card.cardId)
+          const shopCard = shopCardsById.get(card.cardId)
           if (!shopCard || shopCard.cardId === undefined) return null
 
           const price = selectedPriceType.value.sellPrice
@@ -67,11 +67,9 @@ export const useMissionStore = defineStore('mission', () => {
           return a.price - b.price
         })
 
-      const ownedPoints = shopCards.reduce((total, shopCard) => {
-        const card = mission.cards.find(
-          (mc) => mc.cardId == shopCard.cardId && shopCard.owned,
-        )
-        return total + (card?.points || 0)
+      const ownedPoints = mission.cards.reduce((total, mc) => {
+        const shopCard = shopCardsById.get(mc.cardId)
+        return total + (shopCard?.owned ? mc.points || 0 : 0)
       }, 0)
 
       const remainingCount = (mission.requiredCount ?? 0) - ownedPoints
@@ -115,7 +113,7 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function buildUserMissions() {
-    const shopCards = useCardStore().shopCards
+    const shopCardsById = useCardStore().shopCardsById
 
     userMissions.value = missions.value.map((mission) => {
       if (mission.type === 'missions' || mission.type === 'points') {
@@ -131,13 +129,13 @@ export const useMissionStore = defineStore('mission', () => {
 
       const remainingPrice = MissionHelper.calculateTotalPriceOfNonOwnedCards(
         mission,
-        shopCards,
+        shopCardsById,
         selectedPriceType.value.sellPrice,
       )
-      const completed = MissionHelper.isMissionComplete(mission, shopCards)
+      const completed = MissionHelper.isMissionComplete(mission, shopCardsById)
       const missionCards = mission.cards
         .map((card) => {
-          const shopCard = shopCards.find((sc) => sc.cardId == card.cardId)
+          const shopCard = shopCardsById.get(card.cardId)
           if (!shopCard || shopCard.cardId === undefined) return null
 
           const price = selectedPriceType.value.sellPrice
@@ -165,9 +163,7 @@ export const useMissionStore = defineStore('mission', () => {
           return a.price - b.price
         })
 
-      const ownedCount = shopCards.filter((sc) =>
-        mission.cards.some((card) => card.cardId == sc.cardId && sc.owned),
-      ).length
+      const ownedCount = mission.cards.filter((card) => shopCardsById.get(card.cardId)?.owned).length
 
       return {
         id: mission.id,

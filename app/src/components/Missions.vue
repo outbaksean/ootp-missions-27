@@ -61,6 +61,12 @@
         </button>
         <span class="calc-hint">May take a moment</span>
       </div>
+
+      <div class="sidebar-spacer" />
+
+      <div v-if="missionStore.missionsVersion" class="sidebar-version">
+        Mission data: {{ missionStore.missionsVersion }}
+      </div>
     </aside>
 
     <!-- ─── MAIN AREA ─── -->
@@ -69,15 +75,43 @@
         <div v-if="isLoading" class="spinner-container">
           <div class="spinner"></div>
         </div>
-        <MissionList
-          v-else
-          :filteredMissions="filteredMissions"
-          :isMissionComplete="isMissionComplete"
-          :remainingPriceText="remainingPriceText"
-          :selectMission="selectMission"
-          :selectedMission="selectedMission"
-          @calculateMission="missionStore.calculateMissionDetails"
-        />
+        <template v-else>
+          <div v-if="!hasUserCards" class="upload-prompt">
+            <div class="upload-prompt-header">
+              <p class="upload-prompt-title">No card data loaded</p>
+              <button class="upload-prompt-toggle" @click="helpExpanded = !helpExpanded">
+                {{ helpExpanded ? 'Hide instructions' : 'Show instructions' }}
+              </button>
+            </div>
+            <template v-if="helpExpanded">
+              <p class="upload-prompt-body">
+                To get the latest price and ownership data, from the card shop, with no filters on,
+                click Export Card List to CSV and upload it using the sidebar.
+              </p>
+              <img src="/OotpExportShopCards.jpg" alt="Shop Cards Export Help" class="upload-prompt-img" />
+              <p class="upload-prompt-body">
+                To export your locked card data, add "PT Card ID" and "PT Lock" to a view and with no
+                filters click Report, Write report to csv. This is only for displaying locked cards —
+                owned cards come from the shop csv.
+              </p>
+              <p class="upload-prompt-note">
+                Note: If you have more than 8190 cards, exports will be paginated making it impossible
+                to export your full card inventory. Quicksell duplicates to get under the limit if
+                you want locked status displayed.
+              </p>
+              <img src="/OotpUserCardView.jpg" alt="User Card View Help" class="upload-prompt-img" />
+              <img src="/OotpExportUserCards.jpg" alt="User Cards Export Help" class="upload-prompt-img" />
+            </template>
+          </div>
+          <MissionList
+            :filteredMissions="filteredMissions"
+            :isMissionComplete="isMissionComplete"
+            :remainingPriceText="remainingPriceText"
+            :selectMission="selectMission"
+            :selectedMission="selectedMission"
+            @calculateMission="missionStore.calculateMissionDetails"
+          />
+        </template>
       </section>
 
       <!-- ─── DETAIL PANEL ─── -->
@@ -94,6 +128,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useMissionStore } from '../stores/useMissionStore'
+import { useCardStore } from '../stores/useCardStore'
 import CardUploader from './CardUploader.vue'
 import MissionDetails from './MissionDetails.vue'
 import MissionList from './MissionList.vue'
@@ -101,6 +136,9 @@ import MissionSearch from './MissionSearch.vue'
 import type { UserMission } from '../models/UserMission'
 
 const missionStore = useMissionStore()
+const cardStore = useCardStore()
+const hasUserCards = computed(() => cardStore.hasShopCards && !cardStore.isDefaultData)
+const helpExpanded = ref(false)
 const missions = computed(() => missionStore.userMissions)
 const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === 'missions'),
@@ -286,6 +324,17 @@ watch(
   text-align: center;
 }
 
+.sidebar-spacer {
+  flex: 1;
+}
+
+.sidebar-version {
+  padding: 0.5rem 1rem;
+  font-size: 0.65rem;
+  color: var(--sidebar-muted);
+  border-top: 1px solid var(--sidebar-border);
+}
+
 /* ─── MAIN AREA ─── */
 .main-area {
   flex: 1;
@@ -300,6 +349,66 @@ watch(
   padding: 1rem;
   background: #f1f5f9;
   min-width: 0;
+}
+
+.upload-prompt {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.upload-prompt-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.upload-prompt-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.upload-prompt-toggle {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  padding: 4px 12px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.upload-prompt-toggle:hover {
+  background: #e2e8f0;
+}
+
+.upload-prompt-body {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.upload-prompt-note {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.upload-prompt-img {
+  max-width: 100%;
+  width: auto;
+  align-self: flex-start;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
 }
 
 /* ─── DETAIL PANEL ─── */
