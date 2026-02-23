@@ -27,7 +27,8 @@ export const useCardStore = defineStore('card', () => {
 
   async function addShopCards(data: ShopCard[]) {
     await db.shopCards.bulkAdd(data)
-    shopCards.value.push(...data)
+    // Always called on an empty array — assign directly to avoid spread call-stack limits
+    shopCards.value = data
   }
 
   async function clearShopCards() {
@@ -103,7 +104,7 @@ export const useCardStore = defineStore('card', () => {
           skipEmptyLines: true,
           complete: async (results: { data: any[] }) => {
             const data = results.data.map(parseShopCardRow)
-            await clearShopCards()
+            // Skip clearShopCards — we know the array is empty (guarded above)
             await addShopCards(data)
             isDefaultData.value = true
             localStorage.setItem(CARDS_SOURCE_KEY, 'default')
