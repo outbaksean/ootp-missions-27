@@ -5,9 +5,12 @@
       <span class="pack-prices-chevron">{{ expanded ? '▲' : '▼' }}</span>
     </button>
     <div v-if="expanded" class="pack-prices-body">
-      <p class="pack-prices-hint">
-        Set the PP value of each pack type to calculate mission value.
-      </p>
+      <div class="pack-prices-hint-row">
+        <p class="pack-prices-hint">
+          Set the PP value of each pack type to calculate mission value.
+        </p>
+        <button class="btn-reset" @click="handleReset">Reset</button>
+      </div>
       <div v-for="packType in PACK_TYPES" :key="packType" class="pack-price-row">
         <label class="pack-price-label">{{ packType }}</label>
         <input
@@ -35,6 +38,11 @@ function handleChange(packType: string, event: Event) {
   const raw = (event.target as HTMLInputElement).value
   const val = parseInt(raw, 10)
   settingsStore.setPackPrice(packType, isNaN(val) ? 0 : val)
+  missionStore.recomputeMissionValues()
+}
+
+function handleReset() {
+  settingsStore.resetPackPrices()
   missionStore.recomputeMissionValues()
 }
 
@@ -82,11 +90,36 @@ function handleChange(packType: string, event: Event) {
   gap: 0.4rem;
 }
 
+.pack-prices-hint-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
 .pack-prices-hint {
   font-size: 0.68rem;
   color: var(--sidebar-muted);
   line-height: 1.4;
-  margin: 0 0 0.25rem;
+  margin: 0;
+}
+
+.btn-reset {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--sidebar-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--sidebar-text);
 }
 
 .pack-price-row {
