@@ -1,8 +1,15 @@
 import { ref, computed, toRaw } from 'vue'
 import { defineStore } from 'pinia'
-import type { ShopCard } from '@/models/ShopCard'
+import type { CardType, ShopCard } from '@/models/ShopCard'
 import db from '@/data/indexedDB'
 import Papa from 'papaparse'
+
+function parseCardType(row: any): CardType {
+  if (parseInt(row['Card Type'], 10) === 1) return 'live'
+  if (row['Card Badge'] === 'CS') return 'clubhouse'
+  if (row['Card Badge'] === 'ME') return 'nonpack'
+  return 'historical'
+}
 
 function parseShopCardRow(row: any): ShopCard {
   return {
@@ -13,6 +20,7 @@ function parseShopCardRow(row: any): ShopCard {
     lastPrice: parseInt(row['Last 10 Price'], 10) || 0,
     owned: parseInt(row['owned'], 10) > 0,
     locked: false,
+    cardType: parseCardType(row),
   }
 }
 
