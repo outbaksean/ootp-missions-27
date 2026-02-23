@@ -38,6 +38,9 @@
         <p v-else-if="remainingPriceText(selectedMission)" class="detail-price">
           {{ remainingPriceText(selectedMission) }} remaining
         </p>
+        <button v-if="hasUnappliedChanges" class="btn-recalculate" @click="recalculate">
+          Recalculate
+        </button>
       </div>
       <ul class="detail-list">
         <li
@@ -50,7 +53,28 @@
             'item-locked': card.locked,
           }"
         >
-          <span class="item-name">{{ missionCardDescription(card) }}</span>
+          <span class="item-name">{{ missionCardTitle(card) }}</span>
+          <div class="item-price-area">
+            <template v-if="!card.owned">
+              <input
+                class="price-input"
+                :class="{ 'price-overridden': cardStore.cardPriceOverrides.has(card.cardId) }"
+                type="number"
+                min="0"
+                :value="cardStore.cardPriceOverrides.get(card.cardId) ?? card.price"
+                @focus="($event.target as HTMLInputElement).select()"
+                @blur="onPriceChange(card, $event)"
+                @keydown.enter="($event.target as HTMLInputElement).blur()"
+              />
+              <button
+                v-if="cardStore.cardPriceOverrides.has(card.cardId)"
+                class="btn-clear-override"
+                title="Revert to CSV price"
+                @click="clearOverride(card.cardId)"
+              >×</button>
+            </template>
+            <span v-else class="price-display">{{ formatPrice(card.price) }} PP</span>
+          </div>
           <div class="item-badges">
             <span v-if="card.highlighted && !card.owned" class="pill pill-buy">Buy</span>
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
@@ -65,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { UserMission } from '../models/UserMission'
 import type { MissionCard } from '@/models/MissionCard'
 import { useCardStore } from '@/stores/useCardStore'
@@ -79,11 +103,37 @@ const props = defineProps({
 const cardStore = useCardStore()
 const missionStore = useMissionStore()
 
+const hasUnappliedChanges = ref(false)
+
 async function toggleLock(cardId: number) {
   await cardStore.toggleCardLocked(cardId)
   const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false
   missionStore.updateCardLockedState(cardId, locked)
 }
+
+function onPriceChange(card: MissionCard, event: Event) {
+  const input = event.target as HTMLInputElement
+  const raw = parseInt(input.value, 10)
+  if (!isNaN(raw) && raw > 0) {
+    cardStore.setCardPriceOverride(card.cardId, raw)
+  } else {
+    cardStore.clearCardPriceOverride(card.cardId)
+  }
+  hasUnappliedChanges.value = true
+}
+
+function clearOverride(cardId: number) {
+  cardStore.clearCardPriceOverride(cardId)
+  hasUnappliedChanges.value = true
+}
+
+async function recalculate() {
+  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id)
+  hasUnappliedChanges.value = false
+}
+
+const formatPrice = (price: number) =>
+  price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
 const selectedMissionSubMissions = computed(() => {
   if (props.selectedMission?.rawMission.type === 'missions' && props.missions) {
@@ -102,15 +152,11 @@ const remainingPriceText = (mission: UserMission) => {
   }) + ' PP'
 }
 
-const missionCardDescription = (card: MissionCard) => {
-  const price = card.price.toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })
+const missionCardTitle = (card: MissionCard) => {
   if (props.selectedMission?.rawMission.type === 'points') {
-    return `${card.title} — ${card.points} pts — ${price} PP`
+    return `${card.title} — ${card.points} pts`
   }
-  return `${card.title} — ${price} PP`
+  return card.title
 }
 
 const isMissionComplete = (mission: UserMission) => mission.completed
@@ -160,6 +206,23 @@ const isMissionComplete = (mission: UserMission) => mission.completed
 }
 
 /* List */
+.btn-recalculate {
+  margin-top: 0.5rem;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  transition: background 0.15s;
+}
+
+.btn-recalculate:hover {
+  background: #fde68a;
+}
+
 .detail-list {
   list-style: none;
   padding: 0;
@@ -219,6 +282,56 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   font-size: 0.7rem;
   color: var(--text-muted);
   width: 100%;
+}
+
+.item-price-area {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.price-display {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.price-input {
+  width: 5.5rem;
+  font-size: 0.75rem;
+  padding: 1px 4px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.price-input:focus {
+  outline: none;
+  border-color: #94a3b8;
+}
+
+.price-overridden {
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+.btn-clear-override {
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-clear-override:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .item-badges {

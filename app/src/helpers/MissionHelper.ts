@@ -97,6 +97,7 @@ export default class MissionHelper {
     mission: Mission,
     shopCardsById: Map<number, ShopCard>,
     useSellPrice: boolean,
+    overrides?: Map<number, number>,
   ): PriceCalculationResult {
     const nonOwnedCards = mission.cards
       .filter((card) => !shopCardsById.get(card.cardId)?.owned)
@@ -104,8 +105,9 @@ export default class MissionHelper {
         const shopCard = shopCardsById.get(card.cardId)
         if (!shopCard) return null
 
-        const price =
+        const basePrice =
           useSellPrice && shopCard.sellOrderLow > 0 ? shopCard.sellOrderLow : shopCard.lastPrice
+        const price = overrides?.get(card.cardId) ?? basePrice
 
         return { cardId: card.cardId, price }
       })

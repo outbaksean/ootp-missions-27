@@ -21,6 +21,7 @@ const CARDS_SOURCE_KEY = 'ootp-cards-source'
 export const useCardStore = defineStore('card', () => {
   const shopCards = ref<Array<ShopCard>>([])
   const isDefaultData = ref(localStorage.getItem(CARDS_SOURCE_KEY) !== 'user')
+  const cardPriceOverrides = ref<Map<number, number>>(new Map())
 
   const hasShopCards = computed(() => shopCards.value.length > 0)
   const shopCardsById = computed(() => new Map(shopCards.value.map((c) => [c.cardId, c])))
@@ -38,6 +39,16 @@ export const useCardStore = defineStore('card', () => {
     localStorage.removeItem(CARDS_SOURCE_KEY)
   }
 
+  function setCardPriceOverride(cardId: number, price: number) {
+    cardPriceOverrides.value = new Map(cardPriceOverrides.value).set(cardId, price)
+  }
+
+  function clearCardPriceOverride(cardId: number) {
+    const next = new Map(cardPriceOverrides.value)
+    next.delete(cardId)
+    cardPriceOverrides.value = next
+  }
+
   async function uploadShopFile(file: File) {
     const text = await file.text()
     await new Promise<void>((resolve) => {
@@ -48,6 +59,7 @@ export const useCardStore = defineStore('card', () => {
           const data = results.data.map(parseShopCardRow)
           await clearShopCards()
           await addShopCards(data)
+          cardPriceOverrides.value = new Map()
           isDefaultData.value = false
           localStorage.setItem(CARDS_SOURCE_KEY, 'user')
           resolve()
@@ -143,10 +155,13 @@ export const useCardStore = defineStore('card', () => {
     shopCardsById,
     hasShopCards,
     isDefaultData,
+    cardPriceOverrides,
     clearShopCards,
     uploadShopFile,
     uploadUserFile,
     toggleCardLocked,
+    setCardPriceOverride,
+    clearCardPriceOverride,
     loadFromCache,
     fetchDefaultCards,
     initialize,
