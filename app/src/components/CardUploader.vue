@@ -31,7 +31,7 @@
     <!-- File inputs -->
     <div v-show="isExpanded || !hasUserCards" class="upload-form">
       <div class="upload-field">
-        <label for="shopCardsFile">Shop Cards:</label>
+        <label for="shopCardsFile">User Cards:</label>
         <input
           type="file"
           id="shopCardsFile"
@@ -43,7 +43,7 @@
         </button>
       </div>
       <div class="upload-field">
-        <label for="userCardsFile">User Cards:</label>
+        <label for="userCardsFile">Card Locks:</label>
         <input
           type="file"
           id="userCardsFile"
@@ -222,7 +222,7 @@
   const isExpanded = ref(false);
 
   const statusClass = computed(() => (hasUserCards.value ? "status-loaded" : "status-missing"));
-  const statusText = computed(() => (hasUserCards.value ? "Cards loaded" : "No card data"));
+  const statusText = computed(() => (hasUserCards.value ? "Cards loaded" : "User data not imported"));
 
   const handleShopCardsUpload = async (event: Event) => {
     const file = (event.target as HTMLInputElement).files?.[0];

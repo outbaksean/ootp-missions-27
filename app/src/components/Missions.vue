@@ -78,7 +78,7 @@
         <template v-else>
           <div v-if="!hasUserCards" class="upload-prompt">
             <div class="upload-prompt-header">
-              <p class="upload-prompt-title">No card data loaded</p>
+              <p class="upload-prompt-title">User data not imported</p>
               <button class="upload-prompt-toggle" @click="helpExpanded = !helpExpanded">
                 {{ helpExpanded ? 'Hide instructions' : 'Show instructions' }}
               </button>

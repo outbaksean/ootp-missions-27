@@ -90,7 +90,15 @@ export const useCardStore = defineStore('card', () => {
   }
 
   async function loadFromCache() {
-    shopCards.value = await db.shopCards.toArray()
+    const cards = await db.shopCards.toArray()
+    shopCards.value = cards
+    // If cards were loaded from IndexedDB but localStorage doesn't explicitly say
+    // 'default', treat them as user-uploaded. This handles the case where localStorage
+    // was cleared (e.g. browser session reset) while IndexedDB persisted.
+    if (cards.length > 0 && localStorage.getItem(CARDS_SOURCE_KEY) !== 'default') {
+      isDefaultData.value = false
+      localStorage.setItem(CARDS_SOURCE_KEY, 'user')
+    }
   }
 
   async function fetchDefaultCards() {
