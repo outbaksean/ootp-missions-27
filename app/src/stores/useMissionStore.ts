@@ -7,6 +7,7 @@ import { ref } from 'vue'
 import type { PriceType } from '@/models/PriceType'
 import db from '@/data/indexedDB'
 import { useCardStore } from './useCardStore'
+import { useSettingsStore } from './useSettingsStore'
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
@@ -23,6 +24,7 @@ export const useMissionStore = defineStore('mission', () => {
       loading.value = true
     }
     const cardStore = useCardStore()
+    const settingsStore = useSettingsStore()
     const shopCardsById = cardStore.shopCardsById
     const overrides = cardStore.cardPriceOverrides
     const userMission = userMissions.value.find((m) => m.id === missionId)
@@ -84,6 +86,14 @@ export const useMissionStore = defineStore('mission', () => {
       userMission.completed = completed
       userMission.missionCards = missionCards
       userMission.remainingPrice = remainingPrice.totalPrice
+      const rewardValuePoints = MissionHelper.calculateRewardValue(
+        mission.rewards,
+        settingsStore.packPrices,
+        shopCardsById,
+        selectedPriceType.value.sellPrice,
+      )
+      userMission.missionValue =
+        rewardValuePoints !== undefined ? rewardValuePoints - remainingPrice.totalPrice : undefined
     }
 
     if (mission.type === 'missions') {
@@ -109,6 +119,16 @@ export const useMissionStore = defineStore('mission', () => {
       userMission.progressText = `${completedCount} out of ${mission.requiredCount} missions completed`
       userMission.remainingPrice = totalRemainingPrice
       userMission.completed = completedCount >= mission.requiredCount
+      const rewardValueMissions = MissionHelper.calculateRewardValue(
+        mission.rewards,
+        settingsStore.packPrices,
+        shopCardsById,
+        selectedPriceType.value.sellPrice,
+      )
+      userMission.missionValue =
+        rewardValueMissions !== undefined
+          ? rewardValueMissions - totalRemainingPrice
+          : undefined
     }
 
     if (!isSubMission) {
@@ -118,6 +138,7 @@ export const useMissionStore = defineStore('mission', () => {
 
   function buildUserMissions() {
     const cardStore = useCardStore()
+    const settingsStore = useSettingsStore()
     const shopCardsById = cardStore.shopCardsById
     const overrides = cardStore.cardPriceOverrides
 
@@ -130,6 +151,7 @@ export const useMissionStore = defineStore('mission', () => {
           completed: false,
           missionCards: [],
           remainingPrice: 0,
+          missionValue: undefined,
         }
       }
 
@@ -173,6 +195,13 @@ export const useMissionStore = defineStore('mission', () => {
 
       const ownedCount = mission.cards.filter((card) => shopCardsById.get(card.cardId)?.owned).length
 
+      const rewardValue = MissionHelper.calculateRewardValue(
+        mission.rewards,
+        settingsStore.packPrices,
+        shopCardsById,
+        selectedPriceType.value.sellPrice,
+      )
+
       return {
         id: mission.id,
         rawMission: mission,
@@ -180,8 +209,24 @@ export const useMissionStore = defineStore('mission', () => {
         completed,
         missionCards,
         remainingPrice: remainingPrice.totalPrice,
+        missionValue: rewardValue !== undefined ? rewardValue - remainingPrice.totalPrice : undefined,
       }
     })
+  }
+
+  function recomputeMissionValues() {
+    const cardStore = useCardStore()
+    const settingsStore = useSettingsStore()
+    for (const um of userMissions.value) {
+      if (um.progressText === 'Not Calculated') continue
+      const rewardValue = MissionHelper.calculateRewardValue(
+        um.rawMission.rewards,
+        settingsStore.packPrices,
+        cardStore.shopCardsById,
+        selectedPriceType.value.sellPrice,
+      )
+      um.missionValue = rewardValue !== undefined ? rewardValue - um.remainingPrice : undefined
+    }
   }
 
   async function fetchAndCacheMissions(): Promise<MissionsData> {
@@ -281,5 +326,6 @@ export const useMissionStore = defineStore('mission', () => {
     handlePriceOverrideChanged,
     calculateMissionDetails,
     calculateAllNotCalculatedMissions,
+    recomputeMissionValues,
   }
 })

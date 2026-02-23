@@ -41,6 +41,16 @@
         </select>
       </div>
 
+      <div class="sidebar-section">
+        <label class="sidebar-label" for="sort-by-select">Sort by</label>
+        <select id="sort-by-select" v-model="sortBy" class="sidebar-select">
+          <option value="default">Default</option>
+          <option value="price">Remaining Price</option>
+          <option value="value">Mission Value</option>
+          <option value="name">Name</option>
+        </select>
+      </div>
+
       <div class="sidebar-divider" />
 
       <div class="sidebar-section sidebar-toggles">
@@ -57,6 +67,10 @@
           <input type="checkbox" class="toggle-input" v-model="hideCompleted" />
           Hide Completed
         </label>
+        <label class="toggle-label">
+          <input type="checkbox" class="toggle-input" v-model="showPositiveOnly" />
+          Positive Value Only
+        </label>
       </div>
 
       <div class="sidebar-divider" />
@@ -70,6 +84,8 @@
         </button>
         <span class="calc-hint">May take a moment</span>
       </div>
+
+      <PackPriceSettings />
 
       <div class="sidebar-spacer" />
 
@@ -143,6 +159,7 @@ import CardUploader from './CardUploader.vue'
 import MissionDetails from './MissionDetails.vue'
 import MissionList from './MissionList.vue'
 import MissionSearch from './MissionSearch.vue'
+import PackPriceSettings from './PackPriceSettings.vue'
 import type { UserMission } from '../models/UserMission'
 
 const missionStore = useMissionStore()
@@ -161,6 +178,8 @@ const selectedMissionFilter = ref<string | null>(null)
 const hideCompleted = ref(false)
 const selectedCategoryFilter = ref<string | null>(null)
 const groupBy = ref<'none' | 'chain' | 'category'>('category')
+const sortBy = ref<'default' | 'price' | 'value' | 'name'>('default')
+const showPositiveOnly = ref(false)
 
 const isLoading = computed(() => missionStore.loading)
 
@@ -201,6 +220,23 @@ const filteredMissions = computed(() => {
         m.rawMission.name.toLowerCase().includes(q) ||
         m.rawMission.category.toLowerCase().includes(q),
     )
+  }
+
+  if (showPositiveOnly.value) {
+    result = result.filter((m) => m.missionValue !== undefined && m.missionValue > 0)
+  }
+
+  if (sortBy.value === 'price') {
+    result = [...result].sort((a, b) => a.remainingPrice - b.remainingPrice)
+  } else if (sortBy.value === 'value') {
+    result = [...result].sort((a, b) => {
+      if (a.missionValue === undefined && b.missionValue === undefined) return 0
+      if (a.missionValue === undefined) return 1
+      if (b.missionValue === undefined) return -1
+      return b.missionValue - a.missionValue
+    })
+  } else if (sortBy.value === 'name') {
+    result = [...result].sort((a, b) => a.rawMission.name.localeCompare(b.rawMission.name))
   }
 
   return result
