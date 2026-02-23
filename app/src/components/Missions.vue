@@ -220,10 +220,12 @@ const missionCategories = computed(() => {
 
 watch(
   () => missionStore.userMissions,
-  () => {
-    selectedMission.value = null
+  (newMissions) => {
+    if (!selectedMission.value) return
+    // Keep the panel open after a rebuild (e.g. lock toggle) by updating the reference.
+    // If the mission no longer exists (e.g. after a full reload), close the panel.
+    selectedMission.value = newMissions.find((m) => m.id === selectedMission.value!.id) ?? null
   },
-  { deep: true },
 )
 </script>
 

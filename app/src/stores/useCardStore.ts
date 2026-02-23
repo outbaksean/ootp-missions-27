@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import type { ShopCard } from '@/models/ShopCard'
 import db from '@/data/indexedDB'
@@ -80,7 +80,7 @@ export const useCardStore = defineStore('card', () => {
           }
 
           if (toWrite.length > 0) {
-            await db.shopCards.bulkPut(toWrite)
+            await db.shopCards.bulkPut(toWrite.map((c) => ({ ...toRaw(c) })))
           }
 
           resolve()
@@ -117,6 +117,14 @@ export const useCardStore = defineStore('card', () => {
     }
   }
 
+  async function toggleCardLocked(cardId: number) {
+    const card = shopCardsById.value.get(cardId)
+    if (!card) return
+    const newLocked = !card.locked
+    card.locked = newLocked
+    await db.shopCards.update(cardId, { locked: newLocked })
+  }
+
   async function initialize() {
     await loadFromCache()
     await fetchDefaultCards()
@@ -130,6 +138,7 @@ export const useCardStore = defineStore('card', () => {
     clearShopCards,
     uploadShopFile,
     uploadUserFile,
+    toggleCardLocked,
     loadFromCache,
     fetchDefaultCards,
     initialize,

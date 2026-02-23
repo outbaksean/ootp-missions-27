@@ -54,7 +54,9 @@
           <div class="item-badges">
             <span v-if="card.highlighted && !card.owned" class="pill pill-buy">Buy</span>
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
-            <span v-if="card.locked" class="pill pill-locked">Locked</span>
+            <button v-if="card.owned" class="btn-lock" :class="{ 'btn-lock--active': card.locked }" @click="toggleLock(card.cardId)">
+              {{ card.locked ? 'Locked' : 'Lock' }}
+            </button>
           </div>
         </li>
       </ul>
@@ -66,11 +68,22 @@
 import { computed } from 'vue'
 import type { UserMission } from '../models/UserMission'
 import type { MissionCard } from '@/models/MissionCard'
+import { useCardStore } from '@/stores/useCardStore'
+import { useMissionStore } from '@/stores/useMissionStore'
 
 const props = defineProps({
   selectedMission: Object as () => UserMission | null,
   missions: Array as () => UserMission[],
 })
+
+const cardStore = useCardStore()
+const missionStore = useMissionStore()
+
+async function toggleLock(cardId: number) {
+  await cardStore.toggleCardLocked(cardId)
+  const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false
+  missionStore.updateCardLockedState(cardId, locked)
+}
 
 const selectedMissionSubMissions = computed(() => {
   if (props.selectedMission?.rawMission.type === 'missions' && props.missions) {
@@ -231,8 +244,32 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   color: #166534;
 }
 
-.pill-locked {
+.btn-lock {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #cbd5e1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-lock:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.btn-lock--active {
   background: #f1f5f9;
   color: #64748b;
+  border-color: #cbd5e1;
+}
+
+.btn-lock--active:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 </style>
