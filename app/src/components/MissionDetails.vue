@@ -80,6 +80,7 @@
           <div class="item-badges">
             <span v-if="card.highlighted && !card.owned" class="pill pill-buy">Buy</span>
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
+            <span v-if="card.shouldLock && !card.locked" class="pill pill-use">Use</span>
             <button
               v-if="card.owned"
               class="btn-lock"
@@ -413,6 +414,11 @@ const isMissionComplete = (mission: UserMission) => mission.completed
 .pill-owned {
   background: #dcfce7;
   color: #166534;
+}
+
+.pill-use {
+  background: #dbeafe;
+  color: #1e40af;
 }
 
 .btn-lock {

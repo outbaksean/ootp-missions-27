@@ -188,7 +188,7 @@ export default class MissionHelper {
     shopCardsById: Map<number, ShopCard>,
     useSellPrice: boolean,
     overrides?: Map<number, number>,
-  ): number {
+  ): { totalPrice: number; includedCardIds: Set<number> } {
     const ownedUnlocked = mission.cards
       .map((card) => {
         const shopCard = shopCardsById.get(card.cardId)
@@ -200,27 +200,33 @@ export default class MissionHelper {
       })
       .filter((c) => c !== null)
 
-    if (ownedUnlocked.length === 0) return 0
+    if (ownedUnlocked.length === 0) return { totalPrice: 0, includedCardIds: new Set() }
 
     if (mission.type === 'count') {
       const take = Math.min(ownedUnlocked.length, mission.requiredCount)
-      return ownedUnlocked
-        .sort((a, b) => a.price - b.price)
-        .slice(0, take)
-        .reduce((sum, c) => sum + c.price, 0)
+      const included = ownedUnlocked.sort((a, b) => a.price - b.price).slice(0, take)
+      return {
+        totalPrice: included.reduce((sum, c) => sum + c.price, 0),
+        includedCardIds: new Set(included.map((c) => c.cardId)),
+      }
     }
 
     if (mission.type === 'points') {
       const ownedPoints = ownedUnlocked.reduce((sum, c) => sum + c.points, 0)
       if (ownedPoints <= mission.requiredCount) {
-        // Need every owned card — return full sum
-        return ownedUnlocked.reduce((sum, c) => sum + c.price, 0)
+        return {
+          totalPrice: ownedUnlocked.reduce((sum, c) => sum + c.price, 0),
+          includedCardIds: new Set(ownedUnlocked.map((c) => c.cardId)),
+        }
       }
-      // More owned points than needed — find minimum-cost subset covering requiredCount
-      return this.calculatePriceDetailsPointsTypeDP(ownedUnlocked, mission.requiredCount).totalPrice
+      const result = this.calculatePriceDetailsPointsTypeDP(ownedUnlocked, mission.requiredCount)
+      return {
+        totalPrice: result.totalPrice,
+        includedCardIds: new Set(result.includedCards.map((c) => c.cardId)),
+      }
     }
 
-    return 0
+    return { totalPrice: 0, includedCardIds: new Set() }
   }
 
   static isMissionComplete(mission: Mission, shopCardsById: Map<number, ShopCard>): boolean {
