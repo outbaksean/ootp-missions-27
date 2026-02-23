@@ -173,6 +173,25 @@ export default class MissionHelper {
     return total
   }
 
+  /**
+   * Returns the total price of owned, unlocked mission cards — the opportunity
+   * cost of using them to complete the mission instead of selling them.
+   */
+  static calculateUnlockedCardsPrice(
+    mission: Mission,
+    shopCardsById: Map<number, ShopCard>,
+    useSellPrice: boolean,
+    overrides?: Map<number, number>,
+  ): number {
+    return mission.cards.reduce((sum, card) => {
+      const shopCard = shopCardsById.get(card.cardId)
+      if (!shopCard || !shopCard.owned || shopCard.locked) return sum
+      const basePrice =
+        useSellPrice && shopCard.sellOrderLow > 0 ? shopCard.sellOrderLow : shopCard.lastPrice
+      return sum + (overrides?.get(card.cardId) ?? basePrice)
+    }, 0)
+  }
+
   static isMissionComplete(mission: Mission, shopCardsById: Map<number, ShopCard>): boolean {
     if (mission.type === 'count') {
       const ownedCount = mission.cards.filter((card) => shopCardsById.get(card.cardId)?.owned).length

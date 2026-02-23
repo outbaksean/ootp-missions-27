@@ -14,8 +14,16 @@
             <span class="group-stat-label">Cost</span>
             <span class="group-stat-value">{{ groupRemainingTotal(group.missions) }}</span>
           </div>
+          <div v-if="groupUnlockedTotal(group.missions)" class="group-stat-row">
+            <span class="group-stat-label">Unlocked</span>
+            <span class="group-stat-value">{{ groupUnlockedTotal(group.missions) }}</span>
+          </div>
+          <div v-if="groupRewardText(group.missions)" class="group-stat-row">
+            <span class="group-stat-label">Reward</span>
+            <span class="group-stat-value">{{ groupRewardText(group.missions) }}</span>
+          </div>
           <div v-if="groupValueText(group.missions)" class="group-stat-row">
-            <span class="group-stat-label">Value</span>
+            <span class="group-stat-label">Net</span>
             <span
               class="group-stat-value"
               :class="groupValueIsPositive(group.missions) ? 'group-value--pos' : 'group-value--neg'"
@@ -66,15 +74,23 @@
             </span>
           </div>
 
-          <!-- Footer: cost + value + action -->
+          <!-- Footer: cost + unlocked + value + action -->
           <div class="card-footer">
-            <div class="card-footer-left">
-              <div v-if="remainingPriceText(mission)" class="card-stat-row">
+            <div class="card-footer-stats">
+              <div v-if="remainingPriceText(mission)" class="card-stat-cell">
                 <span class="card-stat-label">Cost</span>
                 <span class="card-price">{{ remainingPriceText(mission) }}</span>
               </div>
-              <div v-if="mission.missionValue !== undefined" class="card-stat-row">
-                <span class="card-stat-label">Value</span>
+              <div v-if="mission.unlockedCardsPrice > 0" class="card-stat-cell">
+                <span class="card-stat-label">Unlocked</span>
+                <span class="card-price">{{ mission.unlockedCardsPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+              </div>
+              <div v-if="mission.rewardValue !== undefined" class="card-stat-cell">
+                <span class="card-stat-label">Reward</span>
+                <span class="card-price">{{ mission.rewardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+              </div>
+              <div v-if="mission.missionValue !== undefined" class="card-stat-cell">
+                <span class="card-stat-label">Net</span>
                 <span
                   class="card-value"
                   :class="mission.missionValue >= 0 ? 'card-value--pos' : 'card-value--neg'"
@@ -153,6 +169,22 @@ function groupRemainingTotal(missions: UserMission[]): string {
   return (
     total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
   )
+}
+
+function groupUnlockedTotal(missions: UserMission[]): string {
+  if (groupHasUncalculated(missions)) return ''
+  const total = missions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
+  if (total <= 0) return ''
+  return total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
+}
+
+function groupRewardText(missions: UserMission[]): string {
+  if (groupHasUncalculated(missions)) return ''
+  const withReward = missions.filter((m) => m.rewardValue !== undefined)
+  if (withReward.length === 0) return ''
+  const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0)
+  if (total <= 0) return ''
+  return total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
 }
 
 function groupValueText(missions: UserMission[]): string {
@@ -414,25 +446,25 @@ function progressLabel(mission: UserMission): string {
   justify-content: space-between;
 }
 
-.card-footer-left {
+.card-footer-stats {
   display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+  flex-direction: row;
+  gap: 0.9rem;
+  flex-wrap: wrap;
 }
 
-.card-stat-row {
+.card-stat-cell {
   display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
+  flex-direction: column;
+  gap: 0.05rem;
 }
 
 .card-stat-label {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #94a3b8;
   font-weight: 600;
-  width: 2.4rem;
 }
 
 .card-price {
