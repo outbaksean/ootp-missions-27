@@ -245,6 +245,24 @@ const hasUserCards = computed(
   () => cardStore.hasShopCards && !cardStore.isDefaultData,
 );
 const helpExpanded = ref(false);
+function collectDescendantIds(
+  rootId: number,
+  missionById: Map<number, UserMission>,
+): Set<number> {
+  const result = new Set<number>();
+  const queue = [rootId];
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    for (const subId of missionById.get(id)?.rawMission.missionIds ?? []) {
+      if (!result.has(subId)) {
+        result.add(subId);
+        queue.push(subId);
+      }
+    }
+  }
+  return result;
+}
+
 const missions = computed(() => missionStore.userMissions);
 const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === "missions"),
@@ -289,9 +307,13 @@ const filteredMissions = computed(() => {
       (m) => m.id === Number(selectedMissionFilter.value),
     );
     if (filteredMission) {
-      const missionIds = filteredMission.rawMission.missionIds || [];
+      const missionById = new Map(missions.value.map((m) => [m.id, m]));
+      const descendantIds = collectDescendantIds(
+        filteredMission.id,
+        missionById,
+      );
       result = missions.value.filter(
-        (m) => missionIds.includes(m.id) || m.id === filteredMission.id,
+        (m) => m.id === filteredMission.id || descendantIds.has(m.id),
       );
     } else {
       result = [];
@@ -362,6 +384,10 @@ const groupedMissions = computed(
     }
 
     if (groupBy.value === "chain") {
+      const missionById = new Map(
+        missionStore.userMissions.map((m) => [m.id, m]),
+      );
+
       // Collect all IDs that are sub-missions of any missions-type mission
       const allSubIds = new Set<number>();
       for (const m of missionStore.userMissions) {
@@ -376,7 +402,7 @@ const groupedMissions = computed(
       const groups: Array<{ label: string; missions: UserMission[] }> = [];
       const assignedIds = new Set<number>();
       for (const root of chainRoots) {
-        const subIds = new Set(root.rawMission.missionIds ?? []);
+        const subIds = collectDescendantIds(root.id, missionById);
         const members = filteredMissions.value.filter(
           (m) => m.id === root.id || subIds.has(m.id),
         );

@@ -32,7 +32,7 @@ Cards in `missions.json` that aren't in the uploaded CSV are filtered out with n
 **B8. [DONE] Lock file upload silently does nothing if shop cards aren't loaded yet**
 If the user uploads the lock file before uploading the shop CSV, the loop over `shopCards.value` (which is empty) runs zero iterations. No error or warning is shown — the file input just displays the filename as if it worked.
 
-**B9. Chain grouping only goes one level deep**
+**B9. [DONE] Chain grouping only goes one level deep**
 The "Group by Chain" logic collects a root mission's direct `missionIds` children. If a "missions"-type mission is itself a sub-mission of another "missions"-type mission, the grandchildren end up in "Standalone" instead.
 
 **B10. Group "Calculate" button queues the parent before sub-missions are done**
@@ -58,18 +58,21 @@ After overriding a card's price, other missions in the list containing that card
 Clicking "Calculate" on a single sub-mission doesn't trigger a recalculation of the "missions"-type parent that aggregates it. The parent stays "Not Calculated" until the user separately calculates it.
 
 **F5. Search doesn't match reward text**
+Consider
 Searching "Gold Pack" or "Diamond" returns nothing because `m.rawMission.reward` isn't included in the search filter.
 
 **F6. Sub-missions in the detail panel aren't clickable**
 When viewing a "missions"-type parent, the sub-mission list is static. You can't click a sub-mission to open its detail — you have to close the panel, find it in the list, and Select it manually.
 
 **F7. Group header Net stat mixes completed and pending missions**
+Combine with F10
 `groupRewardText` and `groupValueText` include completed missions in their totals. The "Net" figure becomes a blend of already-earned and still-earnable value with no distinction shown.
 
 **F8. No CSV export**
 Given the app already uses PapaParse, exporting the current filtered mission list (with calculated costs, reward values, net values) to CSV would be a natural addition.
 
 **F9. No event deadline / expiry tracking**
+Don't do
 No `expiresAt` field on missions and no filtering by urgency. Useful for time-limited events.
 
 **F10. Missions completion status enhancements**
@@ -80,3 +83,6 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 
 **F12. Allow resizing of columns**
 Allow the user to resize the mission column by dragging to the left
+
+**F13. Generate mission reward string from structured rewards**
+This could either be part of the mission update process or in the main application to automatically generate the reward string from the mission structured rewards. Include a combined reward string for groups.
