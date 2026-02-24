@@ -271,7 +271,7 @@ const missionsOfTypeMissions = computed(() =>
 const selectedMission = ref<UserMission | null>(null);
 const useSellPrice = ref(false);
 const searchQuery = ref("");
-const selectedMissionFilter = ref<string | null>(null);
+const selectedMissionFilter = ref<number | "">();
 const hideCompleted = ref(false);
 const selectedCategoryFilter = ref<string | null>(null);
 const groupBy = ref<"none" | "chain" | "category">("category");
@@ -304,7 +304,7 @@ const filteredMissions = computed(() => {
 
   if (selectedMissionFilter.value) {
     const filteredMission = missions.value.find(
-      (m) => m.id === Number(selectedMissionFilter.value),
+      (m) => m.id === selectedMissionFilter.value,
     );
     if (filteredMission) {
       const missionById = new Map(missions.value.map((m) => [m.id, m]));

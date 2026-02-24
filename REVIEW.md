@@ -38,7 +38,7 @@ The "Group by Chain" logic collects a root mission's direct `missionIds` childre
 **B10. [DONE] Group "Calculate" button queues the parent before sub-missions are done**
 "missions"-type parent missions aggregate from sub-mission costs. Clicking the group Calculate button will try to calculate the parent, but if sub-missions are also uncalculated, the parent will return zeros.
 
-**B11. `selectedMissionFilter` typed `string | null` but the select binds to `""`**
+**B11. [DONE] `selectedMissionFilter` typed `string | null` but the select binds to `""`**
 The initial `null` and the reset-to-all `""` are both falsy so it works, but the type is misleading and could cause issues in future edits.
 
 ---
