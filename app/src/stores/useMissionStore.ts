@@ -58,13 +58,16 @@ function computeMissionCostInfo(
 }
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const USE_SELL_PRICE_KEY = "ootp-use-sell-price";
 
 export const useMissionStore = defineStore("mission", () => {
   const loading = ref<boolean>(true);
   const missions = ref<Array<Mission>>([]); // cached from CDN
   const userMissions = ref<Array<UserMission>>([]);
   const selectedMission = ref<UserMission | null>(null);
-  const selectedPriceType = ref<PriceType>({ sellPrice: false });
+  const selectedPriceType = ref<PriceType>({
+    sellPrice: localStorage.getItem(USE_SELL_PRICE_KEY) === "true",
+  });
   const missionsVersion = ref<string>("");
 
   async function calculateMissionDetails(
@@ -842,6 +845,11 @@ export const useMissionStore = defineStore("mission", () => {
     loading.value = false;
   }
 
+  function setUseSellPrice(value: boolean) {
+    selectedPriceType.value.sellPrice = value;
+    localStorage.setItem(USE_SELL_PRICE_KEY, String(value));
+  }
+
   return {
     userMissions,
     selectedMission,
@@ -850,6 +858,7 @@ export const useMissionStore = defineStore("mission", () => {
     loading,
     initialize,
     buildUserMissions,
+    setUseSellPrice,
     updateCardLockedState,
     updateCardOwnedState,
     handlePriceOverrideChanged,

@@ -268,15 +268,47 @@ const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === "missions"),
 );
 
+function loadPref<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
+
 const selectedMission = ref<UserMission | null>(null);
-const useSellPrice = ref(false);
+const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
 const selectedMissionFilter = ref<number | "">();
-const hideCompleted = ref(false);
-const selectedCategoryFilter = ref<string | null>(null);
-const groupBy = ref<"none" | "chain" | "category">("category");
-const sortBy = ref<"default" | "price" | "value" | "name">("default");
-const showPositiveOnly = ref(false);
+const hideCompleted = ref(loadPref("ootp-display-hideCompleted", false));
+const selectedCategoryFilter = ref<string | null>(
+  loadPref("ootp-display-categoryFilter", null),
+);
+const groupBy = ref<"none" | "chain" | "category">(
+  loadPref("ootp-display-groupBy", "category"),
+);
+const sortBy = ref<"default" | "price" | "value" | "name">(
+  loadPref("ootp-display-sortBy", "default"),
+);
+const showPositiveOnly = ref(loadPref("ootp-display-showPositiveOnly", false));
+
+watch(hideCompleted, (v) =>
+  localStorage.setItem("ootp-display-hideCompleted", JSON.stringify(v)),
+);
+watch(selectedCategoryFilter, (v) =>
+  localStorage.setItem("ootp-display-categoryFilter", JSON.stringify(v)),
+);
+watch(groupBy, (v) =>
+  localStorage.setItem("ootp-display-groupBy", JSON.stringify(v)),
+);
+watch(sortBy, (v) =>
+  localStorage.setItem("ootp-display-sortBy", JSON.stringify(v)),
+);
+watch(showPositiveOnly, (v) =>
+  localStorage.setItem("ootp-display-showPositiveOnly", JSON.stringify(v)),
+);
 
 const isLoading = computed(() => missionStore.loading);
 
@@ -295,7 +327,7 @@ const handleOptimizeChange = (event: Event) => {
 };
 
 const updatePriceType = () => {
-  missionStore.selectedPriceType.sellPrice = useSellPrice.value;
+  missionStore.setUseSellPrice(useSellPrice.value);
   missionStore.buildUserMissions();
 };
 

@@ -45,10 +45,10 @@ The initial `null` and the reset-to-all `""` are both falsy so it works, but the
 
 ## Features / UX gaps
 
-**F1. Price overrides not persisted across page reloads**
+**F1. [DONE] Price overrides not persisted across page reloads**
 `cardOwnedOverrides` persists to localStorage; `cardPriceOverrides` does not. A page refresh wipes all manual price overrides.
 
-**F2. Sidebar filter/sort preferences not persisted**
+**F2. [DONE] Sidebar filter/sort preferences not persisted**
 `sortBy`, `groupBy`, `hideCompleted`, `showPositiveOnly`, `selectedCategoryFilter`, and `useSellPrice` all reset on reload.
 
 **F3. No stale-cost indicator after a price override**
