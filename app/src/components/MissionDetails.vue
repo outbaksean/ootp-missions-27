@@ -169,6 +169,31 @@
             >
               Own
             </button>
+            <button
+              v-if="otherMissionsForCard(card.cardId).length > 0"
+              class="shared-badge"
+              @click.stop="toggleSharedMissions(card.cardId)"
+            >
+              {{ otherMissionsForCard(card.cardId).length }}
+              {{
+                otherMissionsForCard(card.cardId).length === 1
+                  ? "other mission"
+                  : "other missions"
+              }}
+            </button>
+          </div>
+          <div
+            v-if="expandedSharedCardId === card.cardId"
+            class="shared-missions-list"
+          >
+            <button
+              v-for="mission in otherMissionsForCard(card.cardId)"
+              :key="mission.id"
+              class="shared-mission-link"
+              @click="$emit('selectMission', mission)"
+            >
+              {{ mission.rawMission.name }}
+            </button>
           </div>
         </li>
       </ul>
@@ -177,7 +202,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { MissionCard } from "@/models/MissionCard";
 import { useCardStore } from "@/stores/useCardStore";
@@ -196,6 +221,35 @@ defineEmits<{
 }>();
 
 const hasUnappliedChanges = ref(false);
+const expandedSharedCardId = ref<number | null>(null);
+
+const cardMissionMap = computed((): Map<number, UserMission[]> => {
+  const map = new Map<number, UserMission[]>();
+  for (const mission of props.missions ?? []) {
+    for (const card of mission.rawMission.cards ?? []) {
+      if (!map.has(card.cardId)) map.set(card.cardId, []);
+      map.get(card.cardId)!.push(mission);
+    }
+  }
+  return map;
+});
+
+function otherMissionsForCard(cardId: number): UserMission[] {
+  const all = cardMissionMap.value.get(cardId) ?? [];
+  return all.filter((m) => m.id !== props.selectedMission?.id);
+}
+
+function toggleSharedMissions(cardId: number) {
+  expandedSharedCardId.value =
+    expandedSharedCardId.value === cardId ? null : cardId;
+}
+
+watch(
+  () => props.selectedMission?.id,
+  () => {
+    expandedSharedCardId.value = null;
+  },
+);
 
 async function toggleLock(cardId: number) {
   await cardStore.toggleCardLocked(cardId);
@@ -625,5 +679,50 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   background: #fee2e2;
   color: #dc2626;
   border-color: #fca5a5;
+}
+
+.shared-badge {
+  font-size: 0.65rem;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #bfdbfe;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.shared-badge:hover {
+  background: #dbeafe;
+}
+
+.shared-missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.4rem 0.75rem 0.4rem 1rem;
+  background: #f8fafc;
+  border-left: 2px solid #bfdbfe;
+  margin: 0 0 0.25rem 0;
+  flex-basis: 100%;
+}
+
+.shared-mission-link {
+  font-size: 0.73rem;
+  color: #3b82f6;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.shared-mission-link:hover {
+  color: #1d4ed8;
 }
 </style>
