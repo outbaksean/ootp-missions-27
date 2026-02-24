@@ -12,7 +12,7 @@ Toggling "Use Sell Price" triggers a full `initialize()`, which re-fetches missi
 
 ### Medium
 
-**B3. Count mission `progressText` renders `"undefined"` for the total**
+**B3. [DONE] Count mission `progressText` renders `"undefined"` for the total**
 Count-type missions don't have a `totalPoints` field in `missions.json`, but the `progressText` template string uses `mission.totalPoints`, producing e.g. `"3 out of any 18 of undefined total"`.
 
 **B4. Zero-price cards silently excluded from cost calculation**
@@ -71,3 +71,6 @@ Given the app already uses PapaParse, exporting the current filtered mission lis
 
 **F9. No event deadline / expiry tracking**
 No `expiresAt` field on missions and no filtering by urgency. Useful for time-limited events.
+
+**F10. Missions completion status enhancements**
+Missions should not be marked complete unless the required cards are locked, not just owned. Users should be able to mark a mission complete. Mission Net should be 0 for all complete missions.
