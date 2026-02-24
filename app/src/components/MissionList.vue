@@ -62,6 +62,17 @@
         >
           Calculate
         </button>
+        <div
+          v-if="groupRewardItems(group.missions).length"
+          class="group-rewards-bar"
+        >
+          <span
+            v-for="item in groupRewardItems(group.missions)"
+            :key="item.label"
+            class="group-reward-chip"
+            >{{ item.count }}x {{ item.label }}</span
+          >
+        </div>
       </div>
 
       <template v-if="!group.label || !collapsed.has(group.label)">
@@ -303,6 +314,33 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0;
 }
 
+function groupRewardItems(
+  missions: UserMission[],
+): { label: string; count: number }[] {
+  const packCounts = new Map<string, number>();
+  let cardCount = 0;
+  for (const mission of missions) {
+    for (const reward of mission.rawMission.rewards ?? []) {
+      if (reward.type === "pack") {
+        packCounts.set(
+          reward.packType,
+          (packCounts.get(reward.packType) ?? 0) + reward.count,
+        );
+      } else if (reward.type === "card") {
+        cardCount += reward.count ?? 1;
+      }
+    }
+  }
+  const items: { label: string; count: number }[] = [];
+  for (const [packType, count] of packCounts) {
+    items.push({ label: packType, count });
+  }
+  if (cardCount > 0) {
+    items.push({ label: "Card", count: cardCount });
+  }
+  return items.sort((a, b) => b.count - a.count);
+}
+
 function progressPercent(mission: UserMission): number {
   if (mission.completed) return 100;
   if (mission.progressText === "Not Calculated") return 0;
@@ -343,6 +381,7 @@ function progressLabel(mission: UserMission): string {
 .group-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   width: 100%;
   background: #e2e8f0;
@@ -435,6 +474,26 @@ function progressLabel(mission: UserMission): string {
 
 .group-value--neg {
   color: #dc2626;
+}
+
+.group-rewards-bar {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid #cbd5e1;
+}
+
+.group-reward-chip {
+  font-size: 0.65rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
 }
 
 /* ─── MISSION CARD ─── */

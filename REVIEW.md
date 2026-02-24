@@ -78,7 +78,7 @@ No `expiresAt` field on missions and no filtering by urgency. Useful for time-li
 **F10. [DONE] Allow resizing of columns**
 Allow the user to resize the mission column by dragging to the left
 
-**F11. Include combined mission rewards in group**
+**F11. [DONE] Include combined mission rewards in group**
 This could either be part of the mission update process or in the main application to automatically generate the reward string from the mission structured rewards. Include a combined reward string for groups.
 
 **F12. Consider cards that are in multiple missions** — _Needs detailed plan_
@@ -97,17 +97,7 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 
 ## Backlog
 
-### 1. F11 — Combined reward string in group headers
-
-**Effort: Medium**
-The `Mission` model already has an optional `rewards?: MissionReward[]` structured field alongside the existing `reward` string. Two parts:
-
-- Generate a human-readable reward string from `rewards[]` when `reward` is empty or missing (useful for data quality).
-- In `MissionList.vue` group headers, aggregate the `rewards[]` arrays across all missions in the group and render a combined reward summary (e.g. "3x Diamond Pack, 2x Gold Pack").
-
-Files touched: `MissionList.vue`, possibly `MissionReward.ts` (helper), `missions.json` data audit.
-
-### 2. F12 — Cross-mission card value
+### 1. F12 — Cross-mission card value
 
 **Effort: High — needs planning session**
 When a card appears in multiple missions, buying it may be justified even if it's the most expensive option for a single mission. Ideas to explore:
