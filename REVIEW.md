@@ -114,7 +114,18 @@ The `Mission` model already has an optional `rewards?: MissionReward[]` structur
 
 Files touched: `MissionList.vue`, possibly `MissionReward.ts` (helper), `missions.json` data audit.
 
-### 2. F7 + F7b — Completion status overhaul
+### 2. F12 — Cross-mission card value
+
+**Effort: High — needs planning session**
+When a card appears in multiple missions, buying it may be justified even if it's the most expensive option for a single mission. Ideas to explore:
+
+- A "shared by N missions" indicator on cards in the detail panel.
+- A sort/filter option in the mission list that surfaces missions sharing high-value cards.
+- A separate "card overlap" view listing cards and which missions they satisfy.
+
+Requires agreement on what surface area to build before implementation.
+
+### 3. F7 + F7b — Completion status overhaul
 
 **Effort: High — needs planning session**
 Three interlocked changes:
@@ -125,17 +136,6 @@ Three interlocked changes:
 - **F7b**: Group Cost/Reward/Net stats should exclude already-completed missions so the group header reflects only outstanding work.
 
 Files touched: `useMissionStore.ts`, `MissionList.vue`, `MissionDetails.vue`, `UserMission.ts`, possibly `useCardStore.ts`.
-
-### 3. F12 — Cross-mission card value
-
-**Effort: High — needs planning session**
-When a card appears in multiple missions, buying it may be justified even if it's the most expensive option for a single mission. Ideas to explore:
-
-- A "shared by N missions" indicator on cards in the detail panel.
-- A sort/filter option in the mission list that surfaces missions sharing high-value cards.
-- A separate "card overlap" view listing cards and which missions they satisfy.
-
-Requires agreement on what surface area to build before implementation.
 
 ### Review
 
