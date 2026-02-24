@@ -1,49 +1,54 @@
 <template>
   <div class="upload-section">
-    <!-- Status row -->
-    <div class="upload-status-row">
-      <span :class="statusClass">{{ statusText }}</span>
-      <div class="upload-actions">
+    <!-- Section header: label + utility links -->
+    <div class="section-header">
+      <span class="section-label">Card Data</span>
+      <div class="section-links">
         <button
-          class="sidebar-btn"
+          class="link-btn"
           type="button"
           data-bs-toggle="modal"
           data-bs-target="#helpModal"
-        >
-          Help
-        </button>
-        <button v-if="hasUserCards" class="sidebar-btn" type="button" @click="isExpanded = !isExpanded">
+        >Help</button>
+        <button
+          class="link-btn"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#prereleaseStatusModal"
+        >PreRelease</button>
+      </div>
+    </div>
+
+    <!-- Status block: indicator + timestamp + upload toggle -->
+    <div class="status-block">
+      <div class="status-row">
+        <div class="status-indicator">
+          <span class="status-dot" :class="hasUserCards ? 'dot-green' : 'dot-red'"></span>
+          <span :class="statusClass">{{ statusText }}</span>
+        </div>
+        <button v-if="hasUserCards" class="action-btn" type="button" @click="isExpanded = !isExpanded">
           {{ isExpanded ? "Hide" : "Upload" }}
         </button>
       </div>
-    </div>
-    <div class="upload-status-row">
-      <button
-        class="sidebar-btn"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#prereleaseStatusModal"
-      >
-        PreRelease Status
-      </button>
+      <div v-if="hasUserCards && lastUploadedText" class="upload-time">
+        {{ lastUploadedText }}
+      </div>
     </div>
 
     <!-- File inputs -->
     <div v-show="isExpanded || !hasUserCards" class="upload-form">
       <div class="upload-field">
-        <label for="shopCardsFile">User Cards:</label>
+        <label for="shopCardsFile">User Cards</label>
         <input
           type="file"
           id="shopCardsFile"
           class="upload-file-input"
           @change="handleShopCardsUpload"
         />
-        <button v-if="hasShopCards" class="btn-clear" @click="clearShopCards">
-          Clear
-        </button>
+        <button v-if="hasShopCards" class="btn-clear" @click="clearShopCards">Clear</button>
       </div>
       <div class="upload-field">
-        <label for="userCardsFile">Card Locks:</label>
+        <label for="userCardsFile">Card Locks</label>
         <input
           type="file"
           id="userCardsFile"
@@ -224,6 +229,18 @@
   const statusClass = computed(() => (hasUserCards.value ? "status-loaded" : "status-missing"));
   const statusText = computed(() => (hasUserCards.value ? "Cards loaded" : "User data not imported"));
 
+  const lastUploadedText = computed(() => {
+    const iso = cardStore.lastUploadedAt;
+    if (!iso) return null;
+    return new Date(iso).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  });
+
   const handleShopCardsUpload = async (event: Event) => {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
@@ -248,15 +265,86 @@
 
 <style scoped>
   .upload-section {
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .upload-status-row {
+  /* ── Section header ── */
+  .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
+  }
+
+  .section-label {
+    font-size: 0.63rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--sidebar-muted);
+  }
+
+  .section-links {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.68rem;
+    color: var(--sidebar-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(100, 116, 139, 0.4);
+    transition: color 0.15s;
+  }
+
+  .link-btn:hover {
+    color: var(--sidebar-text);
+  }
+
+  /* ── Status block ── */
+  .status-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-green {
+    background: #4ade80;
+    box-shadow: 0 0 5px rgba(74, 222, 128, 0.45);
+  }
+
+  .dot-red {
+    background: #fca5a5;
+    box-shadow: 0 0 5px rgba(252, 165, 165, 0.45);
   }
 
   .status-loaded {
@@ -271,30 +359,35 @@
     font-weight: 500;
   }
 
-  .upload-actions {
-    display: flex;
-    gap: 0.25rem;
+  .upload-time {
+    font-size: 0.66rem;
+    color: var(--sidebar-muted);
+    padding-left: 0.95rem; /* align with status text, past the dot */
   }
 
-  .sidebar-btn {
-    background: rgba(255, 255, 255, 0.08);
+  .action-btn {
+    background: rgba(255, 255, 255, 0.07);
     color: var(--sidebar-text);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 4px;
     padding: 2px 8px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     cursor: pointer;
+    flex-shrink: 0;
     transition: background 0.15s;
   }
 
-  .sidebar-btn:hover {
-    background: rgba(255, 255, 255, 0.14);
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.13);
   }
 
+  /* ── Upload form ── */
   .upload-form {
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.5rem;
+    padding-top: 0.375rem;
+    border-top: 1px solid var(--sidebar-border);
   }
 
   .upload-field {
@@ -304,36 +397,36 @@
   }
 
   .upload-field label {
-    font-size: 0.72rem;
+    font-size: 0.63rem;
     color: var(--sidebar-muted);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.07em;
   }
 
   .upload-file-input {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--sidebar-text);
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
-    padding: 4px;
+    padding: 3px 4px;
     cursor: pointer;
+    width: 100%;
   }
 
   .btn-clear {
-    background: rgba(220, 38, 38, 0.18);
+    background: rgba(220, 38, 38, 0.15);
     color: #fca5a5;
-    border: 1px solid rgba(220, 38, 38, 0.28);
+    border: 1px solid rgba(220, 38, 38, 0.25);
     border-radius: 4px;
     padding: 2px 8px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     cursor: pointer;
     width: fit-content;
-    margin-top: 2px;
     transition: background 0.15s;
   }
 
   .btn-clear:hover {
-    background: rgba(220, 38, 38, 0.28);
+    background: rgba(220, 38, 38, 0.27);
   }
 </style>
