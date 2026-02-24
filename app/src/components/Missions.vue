@@ -1,7 +1,10 @@
 <template>
   <div class="missions-layout">
     <!-- ─── SIDEBAR ─── -->
-    <aside class="sidebar">
+    <aside
+      class="sidebar"
+      :class="{ 'sidebar--collapsed': isSidebarCollapsed }"
+    >
       <CardUploader />
 
       <div class="sidebar-section">
@@ -140,9 +143,22 @@
       </div>
     </aside>
 
+    <!-- ─── SIDEBAR TOGGLE ─── -->
+    <button
+      class="sidebar-toggle"
+      :class="{ 'sidebar-toggle--collapsed': isSidebarCollapsed }"
+      @click="toggleSidebar"
+      aria-label="Toggle sidebar"
+    />
+
     <!-- ─── MAIN AREA ─── -->
     <div class="main-area">
-      <section class="list-panel">
+      <section
+        class="list-panel"
+        :style="
+          selectedMission ? { width: listPanelWidth + 'px', flex: 'none' } : {}
+        "
+      >
         <div v-if="isLoading" class="spinner-container">
           <div class="spinner"></div>
         </div>
@@ -204,6 +220,13 @@
         </template>
       </section>
 
+      <!-- ─── RESIZE HANDLE ─── -->
+      <div
+        v-if="selectedMission"
+        class="resize-handle"
+        @mousedown="startResize"
+      />
+
       <!-- ─── DETAIL PANEL ─── -->
       <aside v-if="selectedMission" class="detail-panel">
         <div class="detail-header">
@@ -226,7 +249,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { useMissionStore } from "../stores/useMissionStore";
 import { useCardStore } from "../stores/useCardStore";
 import CardUploader from "./CardUploader.vue";
@@ -241,6 +264,50 @@ defineOptions({ name: "MissionsView" });
 
 const missionStore = useMissionStore();
 const cardStore = useCardStore();
+
+const SIDEBAR_COLLAPSED_KEY = "ootp-sidebar-collapsed";
+const isSidebarCollapsed = ref(
+  localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true",
+);
+
+function toggleSidebar() {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value;
+  localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isSidebarCollapsed.value));
+}
+
+const LIST_PANEL_WIDTH_KEY = "ootp-list-panel-width";
+const listPanelWidth = ref<number>(
+  parseInt(localStorage.getItem(LIST_PANEL_WIDTH_KEY) ?? "", 10) || 500,
+);
+
+let resizeStartX = 0;
+let resizeStartWidth = 0;
+
+function startResize(e: MouseEvent) {
+  resizeStartX = e.clientX;
+  resizeStartWidth = listPanelWidth.value;
+  document.addEventListener("mousemove", onResizeMove);
+  document.addEventListener("mouseup", stopResize);
+  e.preventDefault();
+}
+
+function onResizeMove(e: MouseEvent) {
+  listPanelWidth.value = Math.max(
+    200,
+    resizeStartWidth + (e.clientX - resizeStartX),
+  );
+}
+
+function stopResize() {
+  document.removeEventListener("mousemove", onResizeMove);
+  document.removeEventListener("mouseup", stopResize);
+  localStorage.setItem(LIST_PANEL_WIDTH_KEY, String(listPanelWidth.value));
+}
+
+onUnmounted(() => {
+  document.removeEventListener("mousemove", onResizeMove);
+  document.removeEventListener("mouseup", stopResize);
+});
 const settingsStore = useSettingsStore();
 const hasUserCards = computed(
   () => cardStore.hasShopCards && !cardStore.isDefaultData,
@@ -506,8 +573,46 @@ watch(
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  transition: width 0.2s ease;
+}
+
+.sidebar--collapsed {
+  width: 0;
+  overflow: hidden;
+}
+
+/* ─── SIDEBAR TOGGLE ─── */
+.sidebar-toggle {
+  width: 14px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border: none;
+  border-right: 1px solid var(--sidebar-border);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.sidebar-toggle:hover {
+  background: color-mix(in srgb, var(--sidebar-bg) 80%, white);
+}
+
+.sidebar-toggle::before {
+  content: "";
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #64748b;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle--collapsed::before {
+  transform: rotate(180deg);
 }
 
 .sidebar-section {
@@ -675,10 +780,24 @@ watch(
   border: 1px solid #e2e8f0;
 }
 
+/* ─── RESIZE HANDLE ─── */
+.resize-handle {
+  width: 4px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: var(--card-border);
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.resize-handle:hover {
+  background: #94a3b8;
+}
+
 /* ─── DETAIL PANEL ─── */
 .detail-panel {
-  width: 360px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 280px;
   overflow-y: auto;
   background: var(--detail-bg);
   border-left: 1px solid var(--card-border);

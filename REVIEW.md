@@ -67,7 +67,7 @@ When viewing a "missions"-type parent, the sub-mission list is static. You can't
 Combine with F10
 `groupRewardText` and `groupValueText` include completed missions in their totals. The "Net" figure becomes a blend of already-earned and still-earnable value with no distinction shown.
 
-**F8. No CSV export**
+**F8. [WONTDO] No CSV export**
 Given the app already uses PapaParse, exporting the current filtered mission list (with calculated costs, reward values, net values) to CSV would be a natural addition.
 
 **F9. [WONTDO] No event deadline / expiry tracking**
@@ -79,7 +79,7 @@ Missions should not be marked complete unless the required cards are locked, not
 **F11. Cleanup help text and tooltips**
 The upload help box can be cleaned up, an overall help button may be worth adding, distinct from the current help that only mentions uploading. Tooltips can be added and cleaned up.
 
-**F12. Allow resizing of columns**
+**F12. [DONE] Allow resizing of columns**
 Allow the user to resize the mission column by dragging to the left
 
 **F13. Generate mission reward string from structured rewards**
