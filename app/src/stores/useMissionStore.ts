@@ -823,9 +823,22 @@ export const useMissionStore = defineStore("mission", () => {
     const notCalculated = userMissions.value.filter(
       (m) => m.progressText === "Not Calculated" && missionIds.includes(m.id),
     );
-    await Promise.all(
-      notCalculated.map((m) => calculateMissionDetails(m.id, true)),
+    // Calculate leaf missions (count/points) first so parents aggregate
+    // from real values rather than the initial zeros.
+    const leaves = notCalculated.filter(
+      (m) => m.rawMission.type !== "missions",
     );
+    const parents = notCalculated.filter(
+      (m) => m.rawMission.type === "missions",
+    );
+    await Promise.all(leaves.map((m) => calculateMissionDetails(m.id, true)));
+    // Parents must be processed in ascending ID order: the data guarantees
+    // parent IDs are always higher than their children, so sorting ascending
+    // ensures each aggregation reads from already-completed sub-missions.
+    parents.sort((a, b) => a.id - b.id);
+    for (const parent of parents) {
+      await calculateMissionDetails(parent.id, true);
+    }
     loading.value = false;
   }
 

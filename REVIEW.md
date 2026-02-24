@@ -35,7 +35,7 @@ If the user uploads the lock file before uploading the shop CSV, the loop over `
 **B9. [DONE] Chain grouping only goes one level deep**
 The "Group by Chain" logic collects a root mission's direct `missionIds` children. If a "missions"-type mission is itself a sub-mission of another "missions"-type mission, the grandchildren end up in "Standalone" instead.
 
-**B10. Group "Calculate" button queues the parent before sub-missions are done**
+**B10. [DONE] Group "Calculate" button queues the parent before sub-missions are done**
 "missions"-type parent missions aggregate from sub-mission costs. Clicking the group Calculate button will try to calculate the parent, but if sub-missions are also uncalculated, the parent will return zeros.
 
 **B11. `selectedMissionFilter` typed `string | null` but the select binds to `""`**
@@ -57,8 +57,7 @@ After overriding a card's price, other missions in the list containing that card
 **F4. Calculating a leaf mission doesn't bubble up to its parent**
 Clicking "Calculate" on a single sub-mission doesn't trigger a recalculation of the "missions"-type parent that aggregates it. The parent stays "Not Calculated" until the user separately calculates it.
 
-**F5. Search doesn't match reward text**
-Consider
+**F5. [WONTDO] Search doesn't match reward text**
 Searching "Gold Pack" or "Diamond" returns nothing because `m.rawMission.reward` isn't included in the search filter.
 
 **F6. Sub-missions in the detail panel aren't clickable**
@@ -71,8 +70,7 @@ Combine with F10
 **F8. No CSV export**
 Given the app already uses PapaParse, exporting the current filtered mission list (with calculated costs, reward values, net values) to CSV would be a natural addition.
 
-**F9. No event deadline / expiry tracking**
-Don't do
+**F9. [WONTDO] No event deadline / expiry tracking**
 No `expiresAt` field on missions and no filtering by urgency. Useful for time-limited events.
 
 **F10. Missions completion status enhancements**
