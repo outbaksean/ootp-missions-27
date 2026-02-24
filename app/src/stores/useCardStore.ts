@@ -38,6 +38,24 @@ function parseShopCardRow(row: ShopCardRow): ShopCard {
 const CARDS_SOURCE_KEY = "ootp-cards-source";
 const OWNED_OVERRIDES_KEY = "ootp-owned-overrides";
 const CARDS_UPLOADED_AT_KEY = "ootp-cards-uploaded-at";
+const PRICE_OVERRIDES_KEY = "ootp-price-overrides";
+
+function loadPriceOverrides(): Map<number, number> {
+  try {
+    const raw = localStorage.getItem(PRICE_OVERRIDES_KEY);
+    if (!raw) return new Map();
+    return new Map(JSON.parse(raw) as [number, number][]);
+  } catch {
+    return new Map();
+  }
+}
+
+function savePriceOverrides(overrides: Map<number, number>): void {
+  localStorage.setItem(
+    PRICE_OVERRIDES_KEY,
+    JSON.stringify([...overrides.entries()]),
+  );
+}
 
 function loadOwnedOverrides(): Set<number> {
   try {
@@ -59,7 +77,7 @@ export const useCardStore = defineStore("card", () => {
   const lastUploadedAt = ref<string | null>(
     localStorage.getItem(CARDS_UPLOADED_AT_KEY),
   );
-  const cardPriceOverrides = ref<Map<number, number>>(new Map());
+  const cardPriceOverrides = ref<Map<number, number>>(loadPriceOverrides());
   const cardOwnedOverrides = ref<Set<number>>(loadOwnedOverrides());
 
   const hasShopCards = computed(() => shopCards.value.length > 0);
@@ -91,19 +109,21 @@ export const useCardStore = defineStore("card", () => {
     localStorage.removeItem(CARDS_UPLOADED_AT_KEY);
     cardOwnedOverrides.value = new Set();
     localStorage.removeItem(OWNED_OVERRIDES_KEY);
+    cardPriceOverrides.value = new Map();
+    localStorage.removeItem(PRICE_OVERRIDES_KEY);
   }
 
   function setCardPriceOverride(cardId: number, price: number) {
-    cardPriceOverrides.value = new Map(cardPriceOverrides.value).set(
-      cardId,
-      price,
-    );
+    const next = new Map(cardPriceOverrides.value).set(cardId, price);
+    cardPriceOverrides.value = next;
+    savePriceOverrides(next);
   }
 
   function clearCardPriceOverride(cardId: number) {
     const next = new Map(cardPriceOverrides.value);
     next.delete(cardId);
     cardPriceOverrides.value = next;
+    savePriceOverrides(next);
   }
 
   async function uploadShopFile(file: File) {
@@ -149,6 +169,7 @@ export const useCardStore = defineStore("card", () => {
           shopCards.value = toWrite;
 
           cardPriceOverrides.value = new Map();
+          localStorage.removeItem(PRICE_OVERRIDES_KEY);
           cardOwnedOverrides.value = new Set();
           localStorage.removeItem(OWNED_OVERRIDES_KEY);
           const uploadedAt = new Date().toISOString();
