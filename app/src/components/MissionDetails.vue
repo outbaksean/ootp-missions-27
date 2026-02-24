@@ -70,35 +70,47 @@
             'item-highlighted': card.highlighted,
             'item-owned': card.owned,
             'item-locked': card.locked,
+            'item-unavailable': !card.available,
           }"
         >
           <span class="item-name">{{ missionCardTitle(card) }}</span>
           <div class="item-price-area">
             <template v-if="!card.owned">
-              <input
-                class="price-input"
-                :class="{
-                  'price-overridden': cardStore.cardPriceOverrides.has(
-                    card.cardId,
-                  ),
-                }"
-                type="number"
-                min="0"
-                :value="
-                  cardStore.cardPriceOverrides.get(card.cardId) ?? card.price
+              <div class="price-input-wrap">
+                <input
+                  class="price-input"
+                  :class="{
+                    'price-overridden': cardStore.cardPriceOverrides.has(
+                      card.cardId,
+                    ),
+                  }"
+                  type="number"
+                  min="0"
+                  :value="
+                    cardStore.cardPriceOverrides.get(card.cardId) ?? card.price
+                  "
+                  @focus="($event.target as HTMLInputElement).select()"
+                  @blur="onPriceChange(card, $event)"
+                  @keydown.enter="($event.target as HTMLInputElement).blur()"
+                />
+                <button
+                  v-if="cardStore.cardPriceOverrides.has(card.cardId)"
+                  class="btn-clear-override"
+                  title="Revert to CSV price"
+                  @click="clearOverride(card.cardId)"
+                >
+                  ×
+                </button>
+              </div>
+              <span
+                v-if="
+                  !card.available &&
+                  !cardStore.cardPriceOverrides.has(card.cardId)
                 "
-                @focus="($event.target as HTMLInputElement).select()"
-                @blur="onPriceChange(card, $event)"
-                @keydown.enter="($event.target as HTMLInputElement).blur()"
-              />
-              <button
-                v-if="cardStore.cardPriceOverrides.has(card.cardId)"
-                class="btn-clear-override"
-                title="Revert to CSV price"
-                @click="clearOverride(card.cardId)"
+                class="price-unavailable"
               >
-                ×
-              </button>
+                Set price to include
+              </span>
             </template>
             <span v-else class="price-display"
               >{{ formatPrice(card.price) }} PP</span
@@ -128,7 +140,7 @@
               Unown
             </button>
             <button
-              v-if="!card.owned"
+              v-if="!card.owned && card.available"
               class="btn-own"
               @click="toggleOwn(card.cardId)"
             >
@@ -321,6 +333,17 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   opacity: 0.45;
 }
 
+.item-unavailable {
+  opacity: 0.5;
+  background: #f8fafc;
+}
+
+.price-unavailable {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
 .item-name {
   flex: 1;
   font-size: 0.78rem;
@@ -368,9 +391,16 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 
 .item-price-area {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.price-input-wrap {
+  display: flex;
   align-items: center;
   gap: 0.25rem;
-  flex-shrink: 0;
 }
 
 .price-display {
