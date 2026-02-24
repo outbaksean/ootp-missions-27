@@ -67,8 +67,12 @@
           type="file"
           id="userCardsFile"
           class="upload-file-input"
+          :disabled="isDefaultData"
           @change="handleUserCardsUpload"
         />
+        <span v-if="isDefaultData" class="field-hint">
+          Upload your card data first
+        </span>
       </div>
     </div>
 
@@ -430,6 +434,17 @@ const handleUserCardsUpload = async (event: Event) => {
   padding: 3px 4px;
   cursor: pointer;
   width: 100%;
+}
+
+.upload-file-input:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.field-hint {
+  font-size: 0.63rem;
+  color: var(--sidebar-muted);
+  font-style: italic;
 }
 
 .btn-clear {

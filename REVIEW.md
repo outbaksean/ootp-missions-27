@@ -29,7 +29,7 @@ Cards in `missions.json` that aren't in the uploaded CSV are filtered out with n
 **B7. [DONE] Inconsistent sell-price fallback logic between `MissionHelper` and `useMissionStore`**
 `MissionHelper` uses `sellOrderLow > 0` as the guard; the store uses `sellOrderLow || lastPrice` (JS truthy coercion). They produce the same result today but are a maintenance trap — the two paths should be identical.
 
-**B8. Lock file upload silently does nothing if shop cards aren't loaded yet**
+**B8. [DONE] Lock file upload silently does nothing if shop cards aren't loaded yet**
 If the user uploads the lock file before uploading the shop CSV, the loop over `shopCards.value` (which is empty) runs zero iterations. No error or warning is shown — the file input just displays the filename as if it worked.
 
 **B9. Chain grouping only goes one level deep**
