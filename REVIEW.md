@@ -63,10 +63,10 @@ Searching "Gold Pack" or "Diamond" returns nothing because `m.rawMission.reward`
 **F6. [DONE] Sub-missions in the detail panel aren't clickable**
 When viewing a "missions"-type parent, the sub-mission list is static. You can't click a sub-mission to open its detail — you have to close the panel, find it in the list, and Select it manually.
 
-**F7. Missions completion status enhancements** — *Needs detailed plan*
+**F7. Missions completion status enhancements** — _Needs detailed plan_
 Missions should not be marked complete unless the required cards are locked, not just owned. Users should be able to mark a mission complete. Mission Net should be 0 for all complete missions.
 
-**F7b. Group header Net stat mixes completed and pending missions** — *Needs detailed plan (combine with F7)*
+**F7b. Group header Net stat mixes completed and pending missions** — _Needs detailed plan (combine with F7)_
 `groupRewardText` and `groupValueText` include completed missions in their totals. The "Net" figure becomes a blend of already-earned and still-earnable value with no distinction shown.
 
 **F8. [WONTDO] No CSV export**
@@ -75,19 +75,22 @@ Given the app already uses PapaParse, exporting the current filtered mission lis
 **F9. [WONTDO] No event deadline / expiry tracking**
 No `expiresAt` field on missions and no filtering by urgency. Useful for time-limited events.
 
-**F12. [DONE] Allow resizing of columns**
+**F10. [DONE] Allow resizing of columns**
 Allow the user to resize the mission column by dragging to the left
 
-**F13. Include combined mission rewards in group**
+**F11. Include combined mission rewards in group**
 This could either be part of the mission update process or in the main application to automatically generate the reward string from the mission structured rewards. Include a combined reward string for groups.
 
-**F14. Consider cards that are in multiple missions** — *Needs detailed plan*
+**F12. Consider cards that are in multiple missions** — _Needs detailed plan_
 Give some indication or calcuation on when it makes sense to buy a more expensive card because it can be used for another mission
 
-**F15. [DONE] Add parent missions in mission details**
+**F13. [DONE] Add parent missions in mission details**
 In mission details for child missions, add parent mission details
 
-**F11. Cleanup help text and tooltips**
+**F14. Add discount for unlocked card value**
+Unlocked cards cannot be sold for the full price, there is at least a 10% discount. Add that discount with a 10% default and let the user override that.
+
+**F15. Cleanup help text and tooltips**
 The upload help box can be cleaned up, an overall help button may be worth adding, distinct from the current help that only mentions uploading. Tooltips can be added and cleaned up.
 
 ---
@@ -96,17 +99,26 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 
 Items remaining, in suggested order. F7/F7b and F14 need a planning session before implementation.
 
-### 1. F13 — Combined reward string in group headers
+### 1. F14 - Add discount for unlocked card value
+
+**Efort: Low-Medium**
+Unlocked cards cannot be sold for the full price, there is at least a 10% discount. Add that discount with a 10% default and let the user override that.
+
+### 2. F11 — Combined reward string in group headers
+
 **Effort: Medium**
 The `Mission` model already has an optional `rewards?: MissionReward[]` structured field alongside the existing `reward` string. Two parts:
+
 - Generate a human-readable reward string from `rewards[]` when `reward` is empty or missing (useful for data quality).
 - In `MissionList.vue` group headers, aggregate the `rewards[]` arrays across all missions in the group and render a combined reward summary (e.g. "3x Diamond Pack, 2x Gold Pack").
 
 Files touched: `MissionList.vue`, possibly `MissionReward.ts` (helper), `missions.json` data audit.
 
 ### 2. F7 + F7b — Completion status overhaul
+
 **Effort: High — needs planning session**
 Three interlocked changes:
+
 - **Lock-gated completion**: `mission.completed` should require all assigned cards to be locked, not just owned. This changes the `completed` computation in `useMissionStore`.
 - **Manual complete toggle**: Let the user override and mark a mission done regardless. Needs a new persisted flag (localStorage or IndexedDB).
 - **Net = 0 for complete missions**: Once complete, a mission's net value contribution should be treated as 0 in both the card view and group totals.
@@ -114,17 +126,21 @@ Three interlocked changes:
 
 Files touched: `useMissionStore.ts`, `MissionList.vue`, `MissionDetails.vue`, `UserMission.ts`, possibly `useCardStore.ts`.
 
-### 3. F14 — Cross-mission card value
+### 3. F12 — Cross-mission card value
+
 **Effort: High — needs planning session**
 When a card appears in multiple missions, buying it may be justified even if it's the most expensive option for a single mission. Ideas to explore:
+
 - A "shared by N missions" indicator on cards in the detail panel.
 - A sort/filter option in the mission list that surfaces missions sharing high-value cards.
 - A separate "card overlap" view listing cards and which missions they satisfy.
 
 Requires agreement on what surface area to build before implementation.
 
-### 4. F11 — Help text and tooltip cleanup
+### 4. F15 — Help text and tooltip cleanup
+
 **Effort: Low-Medium**
+
 - Consolidate and rewrite the upload help modal content (currently in `CardUploader.vue`).
 - Add a general help button in the sidebar (or top bar) separate from the upload-specific one.
 - Add tooltips to toggle labels that need explanation (e.g. "Include unlocked cards in net value", "Optimize card assignment").
