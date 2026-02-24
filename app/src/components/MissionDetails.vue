@@ -1,11 +1,18 @@
 <template>
   <div class="mission-details-panel">
     <!-- Sub-missions type -->
-    <template v-if="selectedMission && selectedMission.rawMission.type === 'missions'">
+    <template
+      v-if="selectedMission && selectedMission.rawMission.type === 'missions'"
+    >
       <div class="detail-mission-header">
-        <h3 class="detail-mission-name">{{ selectedMission.rawMission.name }}</h3>
+        <h3 class="detail-mission-name">
+          {{ selectedMission.rawMission.name }}
+        </h3>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <p class="detail-meta" :class="{ 'meta-complete': selectedMission.completed }">
+        <p
+          class="detail-meta"
+          :class="{ 'meta-complete': selectedMission.completed }"
+        >
           {{ selectedMission.progressText }}
         </p>
       </div>
@@ -19,7 +26,9 @@
             <span class="item-name">{{ subMission.rawMission.name }}</span>
             <span
               class="item-status"
-              :class="isMissionComplete(subMission) ? 'status-done' : 'status-pending'"
+              :class="
+                isMissionComplete(subMission) ? 'status-done' : 'status-pending'
+              "
             >
               {{ subMission.progressText }}
             </span>
@@ -34,13 +43,21 @@
     <!-- Cards type -->
     <template v-else-if="selectedMission">
       <div class="detail-mission-header">
-        <h3 class="detail-mission-name">{{ selectedMission.rawMission.name }}</h3>
+        <h3 class="detail-mission-name">
+          {{ selectedMission.rawMission.name }}
+        </h3>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <p v-if="selectedMission.completed" class="detail-meta meta-complete">Completed</p>
+        <p v-if="selectedMission.completed" class="detail-meta meta-complete">
+          Completed
+        </p>
         <p v-else-if="remainingPriceText(selectedMission)" class="detail-price">
           {{ remainingPriceText(selectedMission) }} remaining
         </p>
-        <button v-if="hasUnappliedChanges" class="btn-recalculate" @click="recalculate">
+        <button
+          v-if="hasUnappliedChanges"
+          class="btn-recalculate"
+          @click="recalculate"
+        >
           Recalculate
         </button>
       </div>
@@ -60,10 +77,16 @@
             <template v-if="!card.owned">
               <input
                 class="price-input"
-                :class="{ 'price-overridden': cardStore.cardPriceOverrides.has(card.cardId) }"
+                :class="{
+                  'price-overridden': cardStore.cardPriceOverrides.has(
+                    card.cardId,
+                  ),
+                }"
                 type="number"
                 min="0"
-                :value="cardStore.cardPriceOverrides.get(card.cardId) ?? card.price"
+                :value="
+                  cardStore.cardPriceOverrides.get(card.cardId) ?? card.price
+                "
                 @focus="($event.target as HTMLInputElement).select()"
                 @blur="onPriceChange(card, $event)"
                 @keydown.enter="($event.target as HTMLInputElement).blur()"
@@ -73,21 +96,29 @@
                 class="btn-clear-override"
                 title="Revert to CSV price"
                 @click="clearOverride(card.cardId)"
-              >×</button>
+              >
+                ×
+              </button>
             </template>
-            <span v-else class="price-display">{{ formatPrice(card.price) }} PP</span>
+            <span v-else class="price-display"
+              >{{ formatPrice(card.price) }} PP</span
+            >
           </div>
           <div class="item-badges">
-            <span v-if="card.highlighted && !card.owned" class="pill pill-buy">Buy</span>
+            <span v-if="card.highlighted && !card.owned" class="pill pill-buy"
+              >Buy</span
+            >
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
-            <span v-if="card.shouldLock && !card.locked" class="pill pill-use">Use</span>
+            <span v-if="card.shouldLock && !card.locked" class="pill pill-use"
+              >Use</span
+            >
             <button
               v-if="card.owned"
               class="btn-lock"
               :class="{ 'btn-lock--active': card.locked }"
               @click="toggleLock(card.cardId)"
             >
-              {{ card.locked ? 'Locked' : 'Lock' }}
+              {{ card.locked ? "Locked" : "Lock" }}
             </button>
             <button
               v-if="card.owned && cardStore.cardOwnedOverrides.has(card.cardId)"
@@ -111,87 +142,96 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { UserMission } from '../models/UserMission'
-import type { MissionCard } from '@/models/MissionCard'
-import { useCardStore } from '@/stores/useCardStore'
-import { useMissionStore } from '@/stores/useMissionStore'
+import { computed, ref } from "vue";
+import type { UserMission } from "../models/UserMission";
+import type { MissionCard } from "@/models/MissionCard";
+import { useCardStore } from "@/stores/useCardStore";
+import { useMissionStore } from "@/stores/useMissionStore";
 
 const props = defineProps({
   selectedMission: Object as () => UserMission | null,
   missions: Array as () => UserMission[],
-})
+});
 
-const cardStore = useCardStore()
-const missionStore = useMissionStore()
+const cardStore = useCardStore();
+const missionStore = useMissionStore();
 
-const hasUnappliedChanges = ref(false)
+const hasUnappliedChanges = ref(false);
 
 async function toggleLock(cardId: number) {
-  await cardStore.toggleCardLocked(cardId)
-  const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false
-  missionStore.updateCardLockedState(cardId, locked)
+  await cardStore.toggleCardLocked(cardId);
+  const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false;
+  missionStore.updateCardLockedState(cardId, locked);
 }
 
 function toggleOwn(cardId: number) {
-  cardStore.toggleCardOwnedOverride(cardId)
-  const shopCard = cardStore.shopCardsById.get(cardId)
+  cardStore.toggleCardOwnedOverride(cardId);
+  const shopCard = cardStore.shopCardsById.get(cardId);
   if (shopCard && props.selectedMission) {
-    const mc = props.selectedMission.missionCards.find((c) => c.cardId === cardId)
-    if (mc) mc.owned = shopCard.owned
+    const mc = props.selectedMission.missionCards.find(
+      (c) => c.cardId === cardId,
+    );
+    if (mc) mc.owned = shopCard.owned;
   }
-  hasUnappliedChanges.value = true
+  hasUnappliedChanges.value = true;
 }
 
 function onPriceChange(card: MissionCard, event: Event) {
-  const input = event.target as HTMLInputElement
-  const raw = parseInt(input.value, 10)
+  const input = event.target as HTMLInputElement;
+  const raw = parseInt(input.value, 10);
   if (!isNaN(raw) && raw > 0) {
-    cardStore.setCardPriceOverride(card.cardId, raw)
+    cardStore.setCardPriceOverride(card.cardId, raw);
   } else {
-    cardStore.clearCardPriceOverride(card.cardId)
+    cardStore.clearCardPriceOverride(card.cardId);
   }
-  hasUnappliedChanges.value = true
+  hasUnappliedChanges.value = true;
 }
 
 function clearOverride(cardId: number) {
-  cardStore.clearCardPriceOverride(cardId)
-  hasUnappliedChanges.value = true
+  cardStore.clearCardPriceOverride(cardId);
+  hasUnappliedChanges.value = true;
 }
 
 async function recalculate() {
-  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id)
-  hasUnappliedChanges.value = false
+  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id);
+  hasUnappliedChanges.value = false;
 }
 
 const formatPrice = (price: number) =>
-  price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-
-const selectedMissionSubMissions = computed(() => {
-  if (props.selectedMission?.rawMission.type === 'missions' && props.missions) {
-    const missionIds = props.selectedMission.rawMission.missionIds || []
-    return props.missions.filter((mission: UserMission) => missionIds.includes(mission.id))
-  }
-  return []
-})
-
-const remainingPriceText = (mission: UserMission) => {
-  if (mission.completed) return ''
-  if (mission.remainingPrice <= 0) return ''
-  return mission.remainingPrice.toLocaleString(undefined, {
+  price.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }) + ' PP'
-}
+  });
+
+const selectedMissionSubMissions = computed(() => {
+  if (props.selectedMission?.rawMission.type === "missions" && props.missions) {
+    const missionIds = props.selectedMission.rawMission.missionIds || [];
+    return props.missions.filter((mission: UserMission) =>
+      missionIds.includes(mission.id),
+    );
+  }
+  return [];
+});
+
+const remainingPriceText = (mission: UserMission) => {
+  if (mission.completed) return "";
+  if (mission.remainingPrice <= 0) return "";
+  return (
+    mission.remainingPrice.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }) + " PP"
+  );
+};
 
 const missionCardTitle = (card: MissionCard) => {
-  if (props.selectedMission?.rawMission.type === 'points') {
-    return `${card.title} — ${card.points} pts`
+  if (props.selectedMission?.rawMission.type === "points") {
+    return `${card.title} — ${card.points} pts`;
   }
-  return card.title
-}
+  return card.title;
+};
 
-const isMissionComplete = (mission: UserMission) => mission.completed
+const isMissionComplete = (mission: UserMission) => mission.completed;
 </script>
 
 <style scoped>
@@ -367,7 +407,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   margin: 0;
 }
 
-.price-input[type='number'] {
+.price-input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -430,7 +470,9 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   background: transparent;
   color: #94a3b8;
   border: 1px solid #cbd5e1;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .btn-lock:hover {
@@ -459,7 +501,9 @@ const isMissionComplete = (mission: UserMission) => mission.completed
   background: transparent;
   color: #94a3b8;
   border: 1px solid #cbd5e1;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .btn-own:hover {

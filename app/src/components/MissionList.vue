@@ -6,34 +6,59 @@
         class="group-header"
         @click="toggleGroup(group.label)"
       >
-        <span class="group-chevron">{{ collapsed.has(group.label) ? '▶' : '▼' }}</span>
+        <span class="group-chevron">{{
+          collapsed.has(group.label) ? "▶" : "▼"
+        }}</span>
         <span class="group-label">{{ group.label }}</span>
         <span class="group-meta">{{ group.missions.length }} missions</span>
         <div v-if="!groupHasUncalculated(group.missions)" class="group-stats">
-          <div v-if="groupRemainingTotal(group.missions)" class="group-stat-row">
+          <div
+            v-if="groupRemainingTotal(group.missions)"
+            class="group-stat-row"
+          >
             <span class="group-stat-label">Cost</span>
-            <span class="group-stat-value">{{ groupRemainingTotal(group.missions) }}</span>
+            <span class="group-stat-value">{{
+              groupRemainingTotal(group.missions)
+            }}</span>
           </div>
           <div v-if="groupUnlockedTotal(group.missions)" class="group-stat-row">
             <span class="group-stat-label">Unlocked</span>
-            <span class="group-stat-value">{{ groupUnlockedTotal(group.missions) }}</span>
+            <span class="group-stat-value">{{
+              groupUnlockedTotal(group.missions)
+            }}</span>
           </div>
           <div v-if="groupRewardText(group.missions)" class="group-stat-row">
             <span class="group-stat-label">Reward</span>
-            <span class="group-stat-value">{{ groupRewardText(group.missions) }}</span>
+            <span class="group-stat-value">{{
+              groupRewardText(group.missions)
+            }}</span>
           </div>
           <div v-if="groupValueText(group.missions)" class="group-stat-row">
             <span class="group-stat-label">Net</span>
             <span
               class="group-stat-value"
-              :class="groupValueIsPositive(group.missions) ? 'group-value--pos' : 'group-value--neg'"
-            >{{ groupValueText(group.missions) }}</span>
+              :class="
+                groupValueIsPositive(group.missions)
+                  ? 'group-value--pos'
+                  : 'group-value--neg'
+              "
+              >{{ groupValueText(group.missions) }}</span
+            >
           </div>
         </div>
         <button
           v-if="groupHasUncalculated(group.missions)"
           class="group-calculate-btn"
-          @click.stop="$emit('calculateGroup', group.missions.filter((m) => !m.completed && m.progressText === 'Not Calculated').map((m) => m.id))"
+          @click.stop="
+            $emit(
+              'calculateGroup',
+              group.missions
+                .filter(
+                  (m) => !m.completed && m.progressText === 'Not Calculated',
+                )
+                .map((m) => m.id),
+            )
+          "
         >
           Calculate
         </button>
@@ -46,14 +71,20 @@
           class="mission-card"
           :class="{
             'mission-card--complete': isMissionComplete(mission),
-            'mission-card--selected': selectedMission && selectedMission.id === mission.id,
+            'mission-card--selected':
+              selectedMission && selectedMission.id === mission.id,
           }"
         >
           <!-- Name + status badge -->
           <div class="card-header">
             <strong class="card-name">{{ mission.rawMission.name }}</strong>
-            <span v-if="isMissionComplete(mission)" class="badge badge-done">✓ Done</span>
-            <span v-else-if="mission.progressText === 'Not Calculated'" class="badge badge-pending">
+            <span v-if="isMissionComplete(mission)" class="badge badge-done"
+              >✓ Done</span
+            >
+            <span
+              v-else-if="mission.progressText === 'Not Calculated'"
+              class="badge badge-pending"
+            >
               —
             </span>
           </div>
@@ -64,11 +95,16 @@
           <!-- Progress -->
           <div class="card-progress">
             <div class="progress-track">
-              <div class="progress-fill" :style="{ width: progressPercent(mission) + '%' }"></div>
+              <div
+                class="progress-fill"
+                :style="{ width: progressPercent(mission) + '%' }"
+              ></div>
             </div>
             <span
               class="progress-label"
-              :class="{ 'label-unknown': mission.progressText === 'Not Calculated' }"
+              :class="{
+                'label-unknown': mission.progressText === 'Not Calculated',
+              }"
             >
               {{ progressLabel(mission) }}
             </span>
@@ -79,22 +115,58 @@
             <div class="card-footer-stats">
               <div v-if="remainingPriceText(mission)" class="card-stat-cell">
                 <span class="card-stat-label">Cost</span>
-                <span class="card-price">{{ remainingPriceText(mission) }}</span>
+                <span class="card-price">{{
+                  remainingPriceText(mission)
+                }}</span>
               </div>
               <div v-if="mission.unlockedCardsPrice > 0" class="card-stat-cell">
                 <span class="card-stat-label">Unlocked</span>
-                <span class="card-price">{{ mission.unlockedCardsPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+                <span class="card-price"
+                  >{{
+                    mission.unlockedCardsPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP</span
+                >
               </div>
-              <div v-if="mission.rewardValue !== undefined" class="card-stat-cell">
+              <div
+                v-if="mission.rewardValue !== undefined"
+                class="card-stat-cell"
+              >
                 <span class="card-stat-label">Reward</span>
-                <span class="card-price">{{ mission.rewardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+                <span class="card-price"
+                  >{{
+                    mission.rewardValue.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP</span
+                >
               </div>
-              <div v-if="mission.missionValue !== undefined" class="card-stat-cell">
+              <div
+                v-if="mission.missionValue !== undefined"
+                class="card-stat-cell"
+              >
                 <span class="card-stat-label">Net</span>
                 <span
                   class="card-value"
-                  :class="mission.missionValue >= 0 ? 'card-value--pos' : 'card-value--neg'"
-                >{{ mission.missionValue >= 0 ? '+' : '' }}{{ mission.missionValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+                  :class="
+                    mission.missionValue >= 0
+                      ? 'card-value--pos'
+                      : 'card-value--neg'
+                  "
+                  >{{ mission.missionValue >= 0 ? "+" : ""
+                  }}{{
+                    mission.missionValue.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP</span
+                >
               </div>
             </div>
             <button
@@ -104,7 +176,11 @@
             >
               Calculate
             </button>
-            <button v-else class="btn-action btn-select" @click="selectMission(mission)">
+            <button
+              v-else
+              class="btn-action btn-select"
+              @click="selectMission(mission)"
+            >
               Select
             </button>
           </div>
@@ -115,11 +191,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { PropType } from 'vue'
-import type { UserMission } from '../models/UserMission'
+import { ref } from "vue";
+import type { PropType } from "vue";
+import type { UserMission } from "../models/UserMission";
 
-const props = defineProps({
+defineProps({
   groups: {
     type: Array as PropType<Array<{ label: string; missions: UserMission[] }>>,
     required: true,
@@ -140,97 +216,119 @@ const props = defineProps({
     type: Object as PropType<UserMission | null>,
     default: null,
   },
-})
+});
 
 defineEmits<{
-  (e: 'calculateMission', id: number): void
-  (e: 'calculateGroup', ids: number[]): void
-}>()
+  (e: "calculateMission", id: number): void;
+  (e: "calculateGroup", ids: number[]): void;
+}>();
 
-const collapsed = ref<Set<string>>(new Set())
+const collapsed = ref<Set<string>>(new Set());
 
 function toggleGroup(label: string) {
-  const next = new Set(collapsed.value)
-  next.has(label) ? next.delete(label) : next.add(label)
-  collapsed.value = next
+  const next = new Set(collapsed.value);
+  if (next.has(label)) {
+    next.delete(label);
+  } else {
+    next.add(label);
+  }
+  collapsed.value = next;
 }
 
 function groupHasUncalculated(missions: UserMission[]): boolean {
-  return missions.some((m) => !m.completed && m.progressText === 'Not Calculated')
+  return missions.some(
+    (m) => !m.completed && m.progressText === "Not Calculated",
+  );
 }
 
 function groupRemainingTotal(missions: UserMission[]): string {
   // Only show total when all missions have been calculated
-  if (groupHasUncalculated(missions)) return ''
+  if (groupHasUncalculated(missions)) return "";
   const total = missions
     .filter((m) => !m.completed)
-    .reduce((sum, m) => sum + m.remainingPrice, 0)
-  if (total <= 0) return ''
+    .reduce((sum, m) => sum + m.remainingPrice, 0);
+  if (total <= 0) return "";
   return (
-    total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
-  )
+    total.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }) + " PP"
+  );
 }
 
 function groupUnlockedTotal(missions: UserMission[]): string {
-  if (groupHasUncalculated(missions)) return ''
-  const total = missions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
-  if (total <= 0) return ''
-  return total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
+  if (groupHasUncalculated(missions)) return "";
+  const total = missions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0);
+  if (total <= 0) return "";
+  return (
+    total.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }) + " PP"
+  );
 }
 
 function groupRewardText(missions: UserMission[]): string {
-  if (groupHasUncalculated(missions)) return ''
-  const withReward = missions.filter((m) => m.rewardValue !== undefined)
-  if (withReward.length === 0) return ''
-  const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0)
-  if (total <= 0) return ''
-  return total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' PP'
+  if (groupHasUncalculated(missions)) return "";
+  const withReward = missions.filter((m) => m.rewardValue !== undefined);
+  if (withReward.length === 0) return "";
+  const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
+  if (total <= 0) return "";
+  return (
+    total.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }) + " PP"
+  );
 }
 
 function groupValueText(missions: UserMission[]): string {
-  if (groupHasUncalculated(missions)) return ''
-  const withValue = missions.filter((m) => m.missionValue !== undefined)
-  if (withValue.length === 0) return ''
-  const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0)
-  const sign = total >= 0 ? '+' : ''
+  if (groupHasUncalculated(missions)) return "";
+  const withValue = missions.filter((m) => m.missionValue !== undefined);
+  if (withValue.length === 0) return "";
+  const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0);
+  const sign = total >= 0 ? "+" : "";
   return (
     sign +
-    total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) +
-    ' PP'
-  )
+    total.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }) +
+    " PP"
+  );
 }
 
 function groupValueIsPositive(missions: UserMission[]): boolean {
-  const withValue = missions.filter((m) => m.missionValue !== undefined)
-  return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0
+  const withValue = missions.filter((m) => m.missionValue !== undefined);
+  return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0;
 }
 
 function progressPercent(mission: UserMission): number {
-  if (mission.completed) return 100
-  if (mission.progressText === 'Not Calculated') return 0
+  if (mission.completed) return 100;
+  if (mission.progressText === "Not Calculated") return 0;
 
-  const required = mission.rawMission.requiredCount
-  if (!required) return 0
+  const required = mission.rawMission.requiredCount;
+  if (!required) return 0;
 
-  if (mission.rawMission.type === 'count') {
-    const owned = mission.missionCards.filter((c) => c.owned).length
-    return Math.min(100, Math.round((owned / required) * 100))
+  if (mission.rawMission.type === "count") {
+    const owned = mission.missionCards.filter((c) => c.owned).length;
+    return Math.min(100, Math.round((owned / required) * 100));
   }
 
   // points / missions: parse leading number from progressText
-  const match = mission.progressText.match(/^([\d,]+)/)
+  const match = mission.progressText.match(/^([\d,]+)/);
   if (match) {
-    const value = parseInt(match[1].replace(/,/g, ''), 10)
-    return Math.min(100, Math.round((value / required) * 100))
+    const value = parseInt(match[1].replace(/,/g, ""), 10);
+    return Math.min(100, Math.round((value / required) * 100));
   }
 
-  return 0
+  return 0;
 }
 
 function progressLabel(mission: UserMission): string {
-  if (mission.completed) return 'Completed'
-  if (mission.progressText === 'Not Calculated') return 'Not calculated'
-  return mission.progressText
+  if (mission.completed) return "Completed";
+  if (mission.progressText === "Not Calculated") return "Not calculated";
+  return mission.progressText;
 }
 </script>
 

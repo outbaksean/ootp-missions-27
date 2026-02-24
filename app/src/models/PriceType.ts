@@ -1,3 +1,3 @@
 export interface PriceType {
-  sellPrice: boolean
+  sellPrice: boolean;
 }

@@ -10,9 +10,17 @@
 
       <div class="sidebar-section">
         <label class="sidebar-label" for="category-dropdown">Category</label>
-        <select id="category-dropdown" v-model="selectedCategoryFilter" class="sidebar-select">
+        <select
+          id="category-dropdown"
+          v-model="selectedCategoryFilter"
+          class="sidebar-select"
+        >
           <option value="">All Categories</option>
-          <option v-for="category in missionCategories" :key="category" :value="category">
+          <option
+            v-for="category in missionCategories"
+            :key="category"
+            :value="category"
+          >
             {{ category }}
           </option>
         </select>
@@ -28,14 +36,20 @@
       </div>
 
       <div class="sidebar-section">
-        <label class="sidebar-label" for="target-mission-dropdown">Target Mission</label>
+        <label class="sidebar-label" for="target-mission-dropdown"
+          >Target Mission</label
+        >
         <select
           id="target-mission-dropdown"
           v-model="selectedMissionFilter"
           class="sidebar-select"
         >
           <option value="">All Missions</option>
-          <option v-for="mission in missionsOfTypeMissions" :key="mission.id" :value="mission.id">
+          <option
+            v-for="mission in missionsOfTypeMissions"
+            :key="mission.id"
+            :value="mission.id"
+          >
             {{ mission.rawMission.name }}
           </option>
         </select>
@@ -68,7 +82,11 @@
           Hide Completed
         </label>
         <label class="toggle-label">
-          <input type="checkbox" class="toggle-input" v-model="showPositiveOnly" />
+          <input
+            type="checkbox"
+            class="toggle-input"
+            v-model="showPositiveOnly"
+          />
           Positive Value Only
         </label>
         <label
@@ -102,7 +120,11 @@
       <div class="sidebar-section">
         <button
           class="btn-calc-all"
-          @click="missionStore.calculateAllNotCalculatedMissions(filteredMissions.map((m) => m.id))"
+          @click="
+            missionStore.calculateAllNotCalculatedMissions(
+              filteredMissions.map((m) => m.id),
+            )
+          "
         >
           Calculate All
         </button>
@@ -128,28 +150,46 @@
           <div v-if="!hasUserCards" class="upload-prompt">
             <div class="upload-prompt-header">
               <p class="upload-prompt-title">User data not imported</p>
-              <button class="upload-prompt-toggle" @click="helpExpanded = !helpExpanded">
-                {{ helpExpanded ? 'Hide instructions' : 'Show instructions' }}
+              <button
+                class="upload-prompt-toggle"
+                @click="helpExpanded = !helpExpanded"
+              >
+                {{ helpExpanded ? "Hide instructions" : "Show instructions" }}
               </button>
             </div>
             <template v-if="helpExpanded">
               <p class="upload-prompt-body">
-                To get the latest price and ownership data, from the card shop, with no filters on,
-                click Export Card List to CSV and upload it using the sidebar.
+                To get the latest price and ownership data, from the card shop,
+                with no filters on, click Export Card List to CSV and upload it
+                using the sidebar.
               </p>
-              <img src="/OotpExportShopCards.jpg" alt="Shop Cards Export Help" class="upload-prompt-img" />
+              <img
+                src="/OotpExportShopCards.jpg"
+                alt="Shop Cards Export Help"
+                class="upload-prompt-img"
+              />
               <p class="upload-prompt-body">
-                To export your locked card data, add "PT Card ID" and "PT Lock" to a view and with no
-                filters click Report, Write report to csv. This is only for displaying locked cards —
-                owned cards come from the shop csv.
+                To export your locked card data, add "PT Card ID" and "PT Lock"
+                to a view and with no filters click Report, Write report to csv.
+                This is only for displaying locked cards — owned cards come from
+                the shop csv.
               </p>
               <p class="upload-prompt-note">
-                Note: If you have more than 8190 cards, exports will be paginated making it impossible
-                to export your full card inventory. Quicksell duplicates to get under the limit if
-                you want locked status displayed.
+                Note: If you have more than 8190 cards, exports will be
+                paginated making it impossible to export your full card
+                inventory. Quicksell duplicates to get under the limit if you
+                want locked status displayed.
               </p>
-              <img src="/OotpUserCardView.jpg" alt="User Card View Help" class="upload-prompt-img" />
-              <img src="/OotpExportUserCards.jpg" alt="User Cards Export Help" class="upload-prompt-img" />
+              <img
+                src="/OotpUserCardView.jpg"
+                alt="User Card View Help"
+                class="upload-prompt-img"
+              />
+              <img
+                src="/OotpExportUserCards.jpg"
+                alt="User Cards Export Help"
+                class="upload-prompt-img"
+              />
             </template>
           </div>
           <MissionList
@@ -167,195 +207,229 @@
       <!-- ─── DETAIL PANEL ─── -->
       <aside v-if="selectedMission" class="detail-panel">
         <div class="detail-header">
-          <button class="close-btn" @click="selectedMission = null" aria-label="Close">✕</button>
+          <button
+            class="close-btn"
+            @click="selectedMission = null"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
-        <MissionDetails :selectedMission="selectedMission" :missions="missions" />
+        <MissionDetails
+          :selectedMission="selectedMission"
+          :missions="missions"
+        />
       </aside>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useMissionStore } from '../stores/useMissionStore'
-import { useCardStore } from '../stores/useCardStore'
-import CardUploader from './CardUploader.vue'
-import MissionDetails from './MissionDetails.vue'
-import MissionList from './MissionList.vue'
-import MissionSearch from './MissionSearch.vue'
-import PackPriceSettings from './PackPriceSettings.vue'
-import { useSettingsStore } from '../stores/useSettingsStore'
-import type { UserMission } from '../models/UserMission'
+import { computed, ref, watch } from "vue";
+import { useMissionStore } from "../stores/useMissionStore";
+import { useCardStore } from "../stores/useCardStore";
+import CardUploader from "./CardUploader.vue";
+import MissionDetails from "./MissionDetails.vue";
+import MissionList from "./MissionList.vue";
+import MissionSearch from "./MissionSearch.vue";
+import PackPriceSettings from "./PackPriceSettings.vue";
+import { useSettingsStore } from "../stores/useSettingsStore";
+import type { UserMission } from "../models/UserMission";
 
-const missionStore = useMissionStore()
-const cardStore = useCardStore()
-const settingsStore = useSettingsStore()
-const hasUserCards = computed(() => cardStore.hasShopCards && !cardStore.isDefaultData)
-const helpExpanded = ref(false)
-const missions = computed(() => missionStore.userMissions)
+defineOptions({ name: "MissionsView" });
+
+const missionStore = useMissionStore();
+const cardStore = useCardStore();
+const settingsStore = useSettingsStore();
+const hasUserCards = computed(
+  () => cardStore.hasShopCards && !cardStore.isDefaultData,
+);
+const helpExpanded = ref(false);
+const missions = computed(() => missionStore.userMissions);
 const missionsOfTypeMissions = computed(() =>
-  missionStore.userMissions.filter((m) => m.rawMission.type === 'missions'),
-)
+  missionStore.userMissions.filter((m) => m.rawMission.type === "missions"),
+);
 
-const selectedMission = ref<UserMission | null>(null)
-const useSellPrice = ref(false)
-const searchQuery = ref('')
-const selectedMissionFilter = ref<string | null>(null)
-const hideCompleted = ref(false)
-const selectedCategoryFilter = ref<string | null>(null)
-const groupBy = ref<'none' | 'chain' | 'category'>('category')
-const sortBy = ref<'default' | 'price' | 'value' | 'name'>('default')
-const showPositiveOnly = ref(false)
+const selectedMission = ref<UserMission | null>(null);
+const useSellPrice = ref(false);
+const searchQuery = ref("");
+const selectedMissionFilter = ref<string | null>(null);
+const hideCompleted = ref(false);
+const selectedCategoryFilter = ref<string | null>(null);
+const groupBy = ref<"none" | "chain" | "category">("category");
+const sortBy = ref<"default" | "price" | "value" | "name">("default");
+const showPositiveOnly = ref(false);
 
-const isLoading = computed(() => missionStore.loading)
+const isLoading = computed(() => missionStore.loading);
 
 const handleIncludeUnlockedChange = (event: Event) => {
-  settingsStore.setSubtractUnlockedCards((event.target as HTMLInputElement).checked)
-  missionStore.recomputeMissionValues()
-}
+  settingsStore.setSubtractUnlockedCards(
+    (event.target as HTMLInputElement).checked,
+  );
+  missionStore.recomputeMissionValues();
+};
 
 const handleOptimizeChange = (event: Event) => {
-  settingsStore.setOptimizeCardSelection((event.target as HTMLInputElement).checked)
-  missionStore.buildUserMissions()
-}
+  settingsStore.setOptimizeCardSelection(
+    (event.target as HTMLInputElement).checked,
+  );
+  missionStore.buildUserMissions();
+};
 
 const updatePriceType = () => {
-  missionStore.selectedPriceType.sellPrice = useSellPrice.value
-  missionStore.initialize()
-}
+  missionStore.selectedPriceType.sellPrice = useSellPrice.value;
+  missionStore.initialize();
+};
 
 const filteredMissions = computed(() => {
-  let result = missions.value
+  let result = missions.value;
 
   if (selectedMissionFilter.value) {
     const filteredMission = missions.value.find(
       (m) => m.id === Number(selectedMissionFilter.value),
-    )
+    );
     if (filteredMission) {
-      const missionIds = filteredMission.rawMission.missionIds || []
+      const missionIds = filteredMission.rawMission.missionIds || [];
       result = missions.value.filter(
         (m) => missionIds.includes(m.id) || m.id === filteredMission.id,
-      )
+      );
     } else {
-      result = []
+      result = [];
     }
   }
 
   if (hideCompleted.value) {
-    result = result.filter((m) => !m.completed)
+    result = result.filter((m) => !m.completed);
   }
 
   if (selectedCategoryFilter.value) {
-    result = result.filter((m) => m.rawMission.category === selectedCategoryFilter.value)
+    result = result.filter(
+      (m) => m.rawMission.category === selectedCategoryFilter.value,
+    );
   }
 
   if (searchQuery.value.trim()) {
-    const q = searchQuery.value.trim().toLowerCase()
+    const q = searchQuery.value.trim().toLowerCase();
     result = result.filter(
       (m) =>
         m.rawMission.name.toLowerCase().includes(q) ||
         m.rawMission.category.toLowerCase().includes(q),
-    )
+    );
   }
 
   if (showPositiveOnly.value) {
-    result = result.filter((m) => m.missionValue !== undefined && m.missionValue > 0)
+    result = result.filter(
+      (m) => m.missionValue !== undefined && m.missionValue > 0,
+    );
   }
 
-  if (sortBy.value === 'price') {
-    result = [...result].sort((a, b) => a.remainingPrice - b.remainingPrice)
-  } else if (sortBy.value === 'value') {
+  if (sortBy.value === "price") {
+    result = [...result].sort((a, b) => a.remainingPrice - b.remainingPrice);
+  } else if (sortBy.value === "value") {
     result = [...result].sort((a, b) => {
-      if (a.missionValue === undefined && b.missionValue === undefined) return 0
-      if (a.missionValue === undefined) return 1
-      if (b.missionValue === undefined) return -1
-      return b.missionValue - a.missionValue
-    })
-  } else if (sortBy.value === 'name') {
-    result = [...result].sort((a, b) => a.rawMission.name.localeCompare(b.rawMission.name))
+      if (a.missionValue === undefined && b.missionValue === undefined)
+        return 0;
+      if (a.missionValue === undefined) return 1;
+      if (b.missionValue === undefined) return -1;
+      return b.missionValue - a.missionValue;
+    });
+  } else if (sortBy.value === "name") {
+    result = [...result].sort((a, b) =>
+      a.rawMission.name.localeCompare(b.rawMission.name),
+    );
   }
 
-  return result
-})
+  return result;
+});
 
-const groupedMissions = computed((): Array<{ label: string; missions: UserMission[] }> => {
-  if (groupBy.value === 'none') {
-    return [{ label: '', missions: filteredMissions.value }]
-  }
-
-  if (groupBy.value === 'category') {
-    const groups = new Map<string, UserMission[]>()
-    for (const m of filteredMissions.value) {
-      const label = m.rawMission.category || 'Other'
-      if (!groups.has(label)) groups.set(label, [])
-      groups.get(label)!.push(m)
+const groupedMissions = computed(
+  (): Array<{ label: string; missions: UserMission[] }> => {
+    if (groupBy.value === "none") {
+      return [{ label: "", missions: filteredMissions.value }];
     }
-    return Array.from(groups.entries()).map(([label, missions]) => ({ label, missions }))
-  }
 
-  if (groupBy.value === 'chain') {
-    // Collect all IDs that are sub-missions of any missions-type mission
-    const allSubIds = new Set<number>()
-    for (const m of missionStore.userMissions) {
-      if (m.rawMission.type === 'missions' && m.rawMission.missionIds) {
-        m.rawMission.missionIds.forEach((id) => allSubIds.add(id))
+    if (groupBy.value === "category") {
+      const groups = new Map<string, UserMission[]>();
+      for (const m of filteredMissions.value) {
+        const label = m.rawMission.category || "Other";
+        if (!groups.has(label)) groups.set(label, []);
+        groups.get(label)!.push(m);
       }
+      return Array.from(groups.entries()).map(([label, missions]) => ({
+        label,
+        missions,
+      }));
     }
-    // Chain roots: missions-type missions that are not themselves a sub-mission
-    const chainRoots = filteredMissions.value.filter(
-      (m) => m.rawMission.type === 'missions' && !allSubIds.has(m.id),
-    )
-    const groups: Array<{ label: string; missions: UserMission[] }> = []
-    const assignedIds = new Set<number>()
-    for (const root of chainRoots) {
-      const subIds = new Set(root.rawMission.missionIds ?? [])
-      const members = filteredMissions.value.filter((m) => m.id === root.id || subIds.has(m.id))
-      members.forEach((m) => assignedIds.add(m.id))
-      groups.push({ label: root.rawMission.name, missions: members })
-    }
-    // Standalone: anything not in a chain
-    const standalone = filteredMissions.value.filter((m) => !assignedIds.has(m.id))
-    if (standalone.length > 0) {
-      groups.push({ label: 'Standalone', missions: standalone })
-    }
-    return groups
-  }
 
-  return [{ label: '', missions: filteredMissions.value }]
-})
+    if (groupBy.value === "chain") {
+      // Collect all IDs that are sub-missions of any missions-type mission
+      const allSubIds = new Set<number>();
+      for (const m of missionStore.userMissions) {
+        if (m.rawMission.type === "missions" && m.rawMission.missionIds) {
+          m.rawMission.missionIds.forEach((id) => allSubIds.add(id));
+        }
+      }
+      // Chain roots: missions-type missions that are not themselves a sub-mission
+      const chainRoots = filteredMissions.value.filter(
+        (m) => m.rawMission.type === "missions" && !allSubIds.has(m.id),
+      );
+      const groups: Array<{ label: string; missions: UserMission[] }> = [];
+      const assignedIds = new Set<number>();
+      for (const root of chainRoots) {
+        const subIds = new Set(root.rawMission.missionIds ?? []);
+        const members = filteredMissions.value.filter(
+          (m) => m.id === root.id || subIds.has(m.id),
+        );
+        members.forEach((m) => assignedIds.add(m.id));
+        groups.push({ label: root.rawMission.name, missions: members });
+      }
+      // Standalone: anything not in a chain
+      const standalone = filteredMissions.value.filter(
+        (m) => !assignedIds.has(m.id),
+      );
+      if (standalone.length > 0) {
+        groups.push({ label: "Standalone", missions: standalone });
+      }
+      return groups;
+    }
+
+    return [{ label: "", missions: filteredMissions.value }];
+  },
+);
 
 const remainingPriceText = (mission: UserMission) => {
-  if (mission.completed) return ''
-  if (mission.remainingPrice <= 0) return ''
+  if (mission.completed) return "";
+  if (mission.remainingPrice <= 0) return "";
   return `${mission.remainingPrice.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  })} PP`
-}
+  })} PP`;
+};
 
-const isMissionComplete = (mission: UserMission) => mission.completed
+const isMissionComplete = (mission: UserMission) => mission.completed;
 
 const selectMission = (mission: UserMission) => {
-  selectedMission.value = mission
-}
+  selectedMission.value = mission;
+};
 
 const missionCategories = computed(() => {
-  const categories = new Set<string>()
+  const categories = new Set<string>();
   missions.value.forEach((m) => {
-    if (m.rawMission.category) categories.add(m.rawMission.category)
-  })
-  return Array.from(categories)
-})
+    if (m.rawMission.category) categories.add(m.rawMission.category);
+  });
+  return Array.from(categories);
+});
 
 watch(
   () => missionStore.userMissions,
   (newMissions) => {
-    if (!selectedMission.value) return
+    if (!selectedMission.value) return;
     // Keep the panel open after a rebuild (e.g. lock toggle) by updating the reference.
     // If the mission no longer exists (e.g. after a full reload), close the panel.
-    selectedMission.value = newMissions.find((m) => m.id === selectedMission.value!.id) ?? null
+    selectedMission.value =
+      newMissions.find((m) => m.id === selectedMission.value!.id) ?? null;
   },
-)
+);
 </script>
 
 <style scoped>
@@ -571,7 +645,9 @@ watch(
   padding: 3px 7px;
   border-radius: 4px;
   line-height: 1;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .close-btn:hover {
