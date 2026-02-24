@@ -131,11 +131,8 @@ export const useMissionStore = defineStore("mission", () => {
         return total + (shopCard?.owned ? mc.points || 0 : 0);
       }, 0);
 
-      const remainingCount = (mission.requiredCount ?? 0) - ownedPoints;
-      userMission.progressText =
-        remainingCount <= 0
-          ? `Completed with ${ownedPoints} points out of ${mission.requiredCount} of any ${mission.totalPoints} total`
-          : `${ownedPoints} points out of ${mission.requiredCount} of any ${mission.totalPoints} total (${remainingCount} remaining)`;
+      const remainingPoints = mission.requiredCount - ownedPoints;
+      userMission.progressText = `${ownedPoints.toLocaleString()} / ${mission.requiredCount.toLocaleString()} pts (${remainingPoints.toLocaleString()} remaining, ${mission.totalPoints?.toLocaleString()} total)`;
       for (const mc of missionCards) {
         mc.shouldLock = costInfo.lockIds.has(mc.cardId);
       }
@@ -189,7 +186,7 @@ export const useMissionStore = defineStore("mission", () => {
         (sum, m) => sum + m.unlockedCardsPrice,
         0,
       );
-      userMission.progressText = `${completedCount} out of ${mission.requiredCount} missions completed`;
+      userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
       userMission.remainingPrice = totalRemainingPrice;
       userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
       userMission.completed = completedCount >= mission.requiredCount;
@@ -299,7 +296,7 @@ export const useMissionStore = defineStore("mission", () => {
       return {
         id: mission.id,
         rawMission: mission,
-        progressText: `${ownedCount} out of any ${mission.requiredCount} of ${mission.totalPoints} total`,
+        progressText: `${ownedCount} / ${mission.requiredCount} owned (${mission.cards.length} total)`,
         completed,
         missionCards,
         remainingPrice: costInfo.remainingPrice,
@@ -551,7 +548,7 @@ export const useMissionStore = defineStore("mission", () => {
           mission.rawMission,
           shopCardsById,
         );
-        mission.progressText = `${ownedCount} out of any ${mission.rawMission.requiredCount} of ${mission.rawMission.totalPoints} total`;
+        mission.progressText = `${ownedCount} / ${mission.rawMission.requiredCount} owned (${mission.rawMission.cards.length} total)`;
         mission.unlockedCardsPrice = costInfo4.unlockedCardsPrice;
         for (const mc of mission.missionCards) {
           mc.shouldLock = costInfo4.lockIds.has(mc.cardId);
