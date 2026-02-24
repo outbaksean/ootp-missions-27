@@ -218,6 +218,7 @@
         <MissionDetails
           :selectedMission="selectedMission"
           :missions="missions"
+          @selectMission="selectMission"
         />
       </aside>
     </div>
