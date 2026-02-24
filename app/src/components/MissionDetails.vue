@@ -20,7 +20,8 @@
         <li
           v-for="subMission in selectedMissionSubMissions"
           :key="subMission.id"
-          class="detail-item detail-item--sub"
+          class="detail-item detail-item--sub detail-item--clickable"
+          @click="$emit('selectMission', subMission)"
         >
           <div class="sub-mission-info">
             <span class="item-name">{{ subMission.rawMission.name }}</span>
@@ -167,6 +168,10 @@ const props = defineProps({
 
 const cardStore = useCardStore();
 const missionStore = useMissionStore();
+
+defineEmits<{
+  (e: "selectMission", mission: UserMission): void;
+}>();
 
 const hasUnappliedChanges = ref(false);
 
@@ -354,6 +359,15 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 
 .detail-item--sub {
   align-items: center;
+}
+
+.detail-item--clickable {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.detail-item--clickable:hover {
+  background: #f1f5f9;
 }
 
 .sub-mission-info {

@@ -51,16 +51,16 @@ The initial `null` and the reset-to-all `""` are both falsy so it works, but the
 **F2. [DONE] Sidebar filter/sort preferences not persisted**
 `sortBy`, `groupBy`, `hideCompleted`, `showPositiveOnly`, `selectedCategoryFilter`, and `useSellPrice` all reset on reload.
 
-**F3. No stale-cost indicator after a price override**
+**F3. [WONTDO] No stale-cost indicator after a price override**
 After overriding a card's price, other missions in the list containing that card show the old calculated cost with no visual indicator that the number is stale.
 
-**F4. Calculating a leaf mission doesn't bubble up to its parent**
+**F4. [WONTDO] Calculating a leaf mission doesn't bubble up to its parent**
 Clicking "Calculate" on a single sub-mission doesn't trigger a recalculation of the "missions"-type parent that aggregates it. The parent stays "Not Calculated" until the user separately calculates it.
 
 **F5. [WONTDO] Search doesn't match reward text**
 Searching "Gold Pack" or "Diamond" returns nothing because `m.rawMission.reward` isn't included in the search filter.
 
-**F6. Sub-missions in the detail panel aren't clickable**
+**F6. [DONE] Sub-missions in the detail panel aren't clickable**
 When viewing a "missions"-type parent, the sub-mission list is static. You can't click a sub-mission to open its detail — you have to close the panel, find it in the list, and Select it manually.
 
 **F7. Group header Net stat mixes completed and pending missions**
@@ -84,3 +84,9 @@ Allow the user to resize the mission column by dragging to the left
 
 **F13. Generate mission reward string from structured rewards**
 This could either be part of the mission update process or in the main application to automatically generate the reward string from the mission structured rewards. Include a combined reward string for groups.
+
+**F14. Consider cards that are in multiple missions**
+Give some indication or calcuation on when it makes sense to buy a more expensive card because it can be used for another mission
+
+**F15. Add parent missions in mission details**
+In mission details for child missions, add parent mission details
