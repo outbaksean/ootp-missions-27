@@ -16,6 +16,7 @@ function computeMissionCostInfo(
   sellPrice: boolean,
   overrides: Map<number, number>,
   optimize: boolean,
+  discount: number,
 ): {
   remainingPrice: number;
   unlockedCardsPrice: number;
@@ -28,6 +29,7 @@ function computeMissionCostInfo(
       shopCardsById,
       sellPrice,
       overrides,
+      discount,
     );
     return {
       remainingPrice: r.remainingPrice,
@@ -48,6 +50,7 @@ function computeMissionCostInfo(
       shopCardsById,
       sellPrice,
       overrides,
+      discount,
     );
   return {
     remainingPrice: rp.totalPrice,
@@ -95,6 +98,7 @@ export const useMissionStore = defineStore("mission", () => {
         selectedPriceType.value.sellPrice,
         overrides,
         settingsStore.optimizeCardSelection,
+        settingsStore.unlockedCardDiscount,
       );
       const completed = MissionHelper.isMissionComplete(mission, shopCardsById);
       const missionCards = mission.cards
@@ -258,6 +262,7 @@ export const useMissionStore = defineStore("mission", () => {
         selectedPriceType.value.sellPrice,
         overrides,
         settingsStore.optimizeCardSelection,
+        settingsStore.unlockedCardDiscount,
       );
       const completed = MissionHelper.isMissionComplete(mission, shopCardsById);
       const missionCards = mission.cards
@@ -454,6 +459,7 @@ export const useMissionStore = defineStore("mission", () => {
         selectedPriceType.value.sellPrice,
         cardStore.cardPriceOverrides,
         settingsStore.optimizeCardSelection,
+        settingsStore.unlockedCardDiscount,
       );
       mission.unlockedCardsPrice = costInfo3.unlockedCardsPrice;
       if (settingsStore.optimizeCardSelection) {
@@ -544,6 +550,7 @@ export const useMissionStore = defineStore("mission", () => {
           selectedPriceType.value.sellPrice,
           overrides,
           settingsStore.optimizeCardSelection,
+          settingsStore.unlockedCardDiscount,
         );
         mission.missionCards = mission.rawMission.cards
           .map((card) => {
@@ -698,6 +705,7 @@ export const useMissionStore = defineStore("mission", () => {
           selectedPriceType.value.sellPrice,
           overrides,
           settingsStore.optimizeCardSelection,
+          settingsStore.unlockedCardDiscount,
         );
         um.missionCards = mission.cards
           .map((card) => {

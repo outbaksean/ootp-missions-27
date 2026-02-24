@@ -87,7 +87,7 @@ Give some indication or calcuation on when it makes sense to buy a more expensiv
 **F13. [DONE] Add parent missions in mission details**
 In mission details for child missions, add parent mission details
 
-**F14. Add discount for unlocked card value**
+**F14. [DONE] Add discount for unlocked card value**
 Unlocked cards cannot be sold for the full price, there is at least a 10% discount. Add that discount with a 10% default and let the user override that.
 
 **F15. Cleanup help text and tooltips**
@@ -97,14 +97,7 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 
 ## Backlog
 
-Items remaining, in suggested order. F7/F7b and F14 need a planning session before implementation.
-
-### 1. F14 - Add discount for unlocked card value
-
-**Efort: Low-Medium**
-Unlocked cards cannot be sold for the full price, there is at least a 10% discount. Add that discount with a 10% default and let the user override that.
-
-### 2. F11 — Combined reward string in group headers
+### 1. F11 — Combined reward string in group headers
 
 **Effort: Medium**
 The `Mission` model already has an optional `rewards?: MissionReward[]` structured field alongside the existing `reward` string. Two parts:
