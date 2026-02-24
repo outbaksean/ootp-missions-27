@@ -7,7 +7,7 @@
 **B1. [DONE] `toggleOwn` in `MissionDetails.vue` never propagates to other missions**
 When you toggle a card's owned state in the detail panel, `missionStore.updateCardOwnedState(cardId)` is never called. Only the single `MissionCard` object in the currently open mission is patched manually. Every other mission containing that card stays stale — wrong progress bars, wrong completion badges, wrong sort order. The `hasUnappliedChanges` flag and Recalculate button are a workaround but don't fix the other missions.
 
-**B2. `updatePriceType` calls `missionStore.initialize()` instead of `buildUserMissions()`**
+**B2. [DONE] `updatePriceType` calls `missionStore.initialize()` instead of `buildUserMissions()`**
 Toggling "Use Sell Price" triggers a full `initialize()`, which re-fetches missions.json from the CDN/cache, resets `loading = true`, and flashes the spinner. It should just call `buildUserMissions()` — the same pattern used by the "Optimize card assignment" toggle.
 
 ### Medium

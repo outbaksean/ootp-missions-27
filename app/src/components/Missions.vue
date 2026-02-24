@@ -278,7 +278,7 @@ const handleOptimizeChange = (event: Event) => {
 
 const updatePriceType = () => {
   missionStore.selectedPriceType.sellPrice = useSellPrice.value;
-  missionStore.initialize();
+  missionStore.buildUserMissions();
 };
 
 const filteredMissions = computed(() => {
