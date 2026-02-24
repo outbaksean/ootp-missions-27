@@ -63,15 +63,34 @@
           Calculate
         </button>
         <div
-          v-if="groupRewardItems(group.missions).length"
+          v-if="
+            groupRemainingRewardItems(group.missions).length ||
+            groupCompletedRewardItems(group.missions).length
+          "
           class="group-rewards-bar"
         >
-          <span
-            v-for="item in groupRewardItems(group.missions)"
-            :key="item.label"
-            class="group-reward-chip"
-            >{{ item.count }}x {{ item.label }}</span
-          >
+          <template v-if="groupRemainingRewardItems(group.missions).length">
+            <span
+              v-if="groupCompletedRewardItems(group.missions).length"
+              class="group-rewards-section-label"
+              >Remaining</span
+            >
+            <span
+              v-for="item in groupRemainingRewardItems(group.missions)"
+              :key="'remaining-' + item.label"
+              class="group-reward-chip"
+              >{{ item.count }}x {{ item.label }}</span
+            >
+          </template>
+          <template v-if="groupCompletedRewardItems(group.missions).length">
+            <span class="group-rewards-section-label">Done</span>
+            <span
+              v-for="item in groupCompletedRewardItems(group.missions)"
+              :key="'done-' + item.label"
+              class="group-reward-chip group-reward-chip--done"
+              >{{ item.count }}x {{ item.label }}</span
+            >
+          </template>
         </div>
       </div>
 
@@ -345,12 +364,12 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0;
 }
 
-function groupRewardItems(
+function collectRewardItems(
   missions: UserMission[],
 ): { label: string; count: number }[] {
   const packCounts = new Map<string, number>();
   let cardCount = 0;
-  for (const mission of missions.filter((m) => !m.completed)) {
+  for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
       if (reward.type === "pack") {
         packCounts.set(
@@ -370,6 +389,18 @@ function groupRewardItems(
     items.push({ label: "Card", count: cardCount });
   }
   return items.sort((a, b) => b.count - a.count);
+}
+
+function groupRemainingRewardItems(
+  missions: UserMission[],
+): { label: string; count: number }[] {
+  return collectRewardItems(missions.filter((m) => !m.completed));
+}
+
+function groupCompletedRewardItems(
+  missions: UserMission[],
+): { label: string; count: number }[] {
+  return collectRewardItems(missions.filter((m) => m.completed));
 }
 
 function missionCanMarkComplete(mission: UserMission): boolean {
@@ -539,6 +570,20 @@ function progressLabel(mission: UserMission): string {
   border-top: 1px solid #cbd5e1;
 }
 
+.group-rewards-section-label {
+  width: 100%;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.group-rewards-section-label:first-child {
+  margin-top: 0;
+}
+
 .group-reward-chip {
   font-size: 0.65rem;
   padding: 1px 8px;
@@ -548,6 +593,12 @@ function progressLabel(mission: UserMission): string {
   font-weight: 500;
   border: 1px solid #cbd5e1;
   white-space: nowrap;
+}
+
+.group-reward-chip--done {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
 }
 
 /* ─── MISSION CARD ─── */
