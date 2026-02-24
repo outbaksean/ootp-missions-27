@@ -15,7 +15,7 @@ Toggling "Use Sell Price" triggers a full `initialize()`, which re-fetches missi
 **B3. [DONE] Count mission `progressText` renders `"undefined"` for the total**
 Count-type missions don't have a `totalPoints` field in `missions.json`, but the `progressText` template string uses `mission.totalPoints`, producing e.g. `"3 out of any 18 of undefined total"`.
 
-**B4. Zero-price cards silently excluded from cost calculation**
+**B4. [DONE] Zero-price cards silently excluded from cost calculation**
 Cards with `price === 0` are filtered out of the optimizer and `remainingPrice`. The mission can show $0 remaining while still being incomplete, with un-highlighted unowned cards in the detail panel and no signal about what to actually acquire.
 
 **B5. Missing cards (not in the shop CSV) are silently dropped**
@@ -74,3 +74,6 @@ No `expiresAt` field on missions and no filtering by urgency. Useful for time-li
 
 **F10. Missions completion status enhancements**
 Missions should not be marked complete unless the required cards are locked, not just owned. Users should be able to mark a mission complete. Mission Net should be 0 for all complete missions.
+
+** F11. Cleanup help text and tooltips**
+The upload help box can be cleaned up, an overall help button may be worth adding, distinct from the current help that only mentions uploading. Tooltips can be added and cleaned up.

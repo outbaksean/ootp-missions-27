@@ -3,6 +3,7 @@ export interface MissionCard {
   title: string;
   owned: boolean;
   locked: boolean;
+  available: boolean;
   price: number;
   points?: number;
   highlighted: boolean;
