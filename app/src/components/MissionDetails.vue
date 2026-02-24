@@ -166,14 +166,7 @@ async function toggleLock(cardId: number) {
 
 function toggleOwn(cardId: number) {
   cardStore.toggleCardOwnedOverride(cardId);
-  const shopCard = cardStore.shopCardsById.get(cardId);
-  if (shopCard && props.selectedMission) {
-    const mc = props.selectedMission.missionCards.find(
-      (c) => c.cardId === cardId,
-    );
-    if (mc) mc.owned = shopCard.owned;
-  }
-  hasUnappliedChanges.value = true;
+  missionStore.updateCardOwnedState(cardId);
 }
 
 function onPriceChange(card: MissionCard, event: Event) {
