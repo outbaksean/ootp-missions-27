@@ -81,7 +81,7 @@ Allow the user to resize the mission column by dragging to the left
 **F11. [DONE] Include combined mission rewards in group**
 This could either be part of the mission update process or in the main application to automatically generate the reward string from the mission structured rewards. Include a combined reward string for groups.
 
-**F12. Consider cards that are in multiple missions** — _Needs detailed plan_
+**F12. [DONE] Consider cards that are in multiple missions**
 Give some indication or calcuation on when it makes sense to buy a more expensive card because it can be used for another mission
 
 **F13. [DONE] Add parent missions in mission details**
@@ -96,17 +96,6 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 ---
 
 ## Backlog
-
-### 1. F12 — Cross-mission card value
-
-**Effort: High — needs planning session**
-When a card appears in multiple missions, buying it may be justified even if it's the most expensive option for a single mission. Ideas to explore:
-
-- A "shared by N missions" indicator on cards in the detail panel.
-- A sort/filter option in the mission list that surfaces missions sharing high-value cards.
-- A separate "card overlap" view listing cards and which missions they satisfy.
-
-Requires agreement on what surface area to build before implementation.
 
 ### 3. F7 + F7b — Completion status overhaul
 
