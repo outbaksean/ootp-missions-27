@@ -63,10 +63,10 @@ Searching "Gold Pack" or "Diamond" returns nothing because `m.rawMission.reward`
 **F6. [DONE] Sub-missions in the detail panel aren't clickable**
 When viewing a "missions"-type parent, the sub-mission list is static. You can't click a sub-mission to open its detail — you have to close the panel, find it in the list, and Select it manually.
 
-**F7. Missions completion status enhancements** — _Needs detailed plan_
+**F7. [DONE] Missions completion status enhancements** — _Needs detailed plan_
 Missions should not be marked complete unless the required cards are locked, not just owned. Users should be able to mark a mission complete. Mission Net should be 0 for all complete missions.
 
-**F7b. Group header Net stat mixes completed and pending missions** — _Needs detailed plan (combine with F7)_
+**F7b. [DONE] Group header Net stat mixes completed and pending missions** — _Needs detailed plan (combine with F7)_
 `groupRewardText` and `groupValueText` include completed missions in their totals. The "Net" figure becomes a blend of already-earned and still-earnable value with no distinction shown.
 
 **F8. [WONTDO] No CSV export**
@@ -96,22 +96,6 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 ---
 
 ## Backlog
-
-### 3. F7 + F7b — Completion status overhaul
-
-**Effort: High — needs planning session**
-Three interlocked changes:
-
-- **Lock-gated completion**: `mission.completed` should require all assigned cards to be locked, not just owned. This changes the `completed` computation in `useMissionStore`.
-- **Manual complete toggle**: Let the user override and mark a mission done regardless. Needs a new persisted flag (localStorage or IndexedDB).
-- **Net = 0 for complete missions**: Once complete, a mission's net value contribution should be treated as 0 in both the card view and group totals.
-- **F7b**: Group Cost/Reward/Net stats should exclude already-completed missions so the group header reflects only outstanding work.
-
-Files touched: `useMissionStore.ts`, `MissionList.vue`, `MissionDetails.vue`, `UserMission.ts`, possibly `useCardStore.ts`.
-
-### Review
-
-When all other feature work is done, before doing help cleanup do another thorough review of potential bugs and new features
 
 ### 4. F15 — Help text and tooltip cleanup
 

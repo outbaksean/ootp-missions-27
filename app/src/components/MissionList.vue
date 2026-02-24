@@ -63,15 +63,34 @@
           Calculate
         </button>
         <div
-          v-if="groupRewardItems(group.missions).length"
+          v-if="
+            groupRemainingRewardItems(group.missions).length ||
+            groupCompletedRewardItems(group.missions).length
+          "
           class="group-rewards-bar"
         >
-          <span
-            v-for="item in groupRewardItems(group.missions)"
-            :key="item.label"
-            class="group-reward-chip"
-            >{{ item.count }}x {{ item.label }}</span
-          >
+          <template v-if="groupRemainingRewardItems(group.missions).length">
+            <span
+              v-if="groupCompletedRewardItems(group.missions).length"
+              class="group-rewards-section-label"
+              >Remaining</span
+            >
+            <span
+              v-for="item in groupRemainingRewardItems(group.missions)"
+              :key="'remaining-' + item.label"
+              class="group-reward-chip"
+              >{{ item.count }}x {{ item.label }}</span
+            >
+          </template>
+          <template v-if="groupCompletedRewardItems(group.missions).length">
+            <span class="group-rewards-section-label">Done</span>
+            <span
+              v-for="item in groupCompletedRewardItems(group.missions)"
+              :key="'done-' + item.label"
+              class="group-reward-chip group-reward-chip--done"
+              >{{ item.count }}x {{ item.label }}</span
+            >
+          </template>
         </div>
       </div>
 
@@ -158,7 +177,7 @@
                 >
               </div>
               <div
-                v-if="mission.missionValue !== undefined"
+                v-if="mission.missionValue !== undefined && !mission.completed"
                 class="card-stat-cell"
               >
                 <span class="card-stat-label">Net</span>
@@ -180,20 +199,40 @@
                 >
               </div>
             </div>
-            <button
-              v-if="mission.progressText === 'Not Calculated'"
-              class="btn-action btn-calculate"
-              @click="$emit('calculateMission', mission.id)"
-            >
-              Calculate
-            </button>
-            <button
-              v-else
-              class="btn-action btn-select"
-              @click="selectMission(mission)"
-            >
-              Select
-            </button>
+            <div class="card-footer-actions">
+              <button
+                v-if="mission.progressText === 'Not Calculated'"
+                class="btn-action btn-calculate"
+                @click="$emit('calculateMission', mission.id)"
+              >
+                Calculate
+              </button>
+              <button
+                v-else
+                class="btn-action btn-select"
+                @click="selectMission(mission)"
+              >
+                Select
+              </button>
+              <button
+                v-if="
+                  missionStore.manualCompleteOverrides.has(mission.id) ||
+                  missionCanMarkComplete(mission)
+                "
+                class="btn-mark-done"
+                :class="{
+                  'btn-mark-done--active':
+                    missionStore.manualCompleteOverrides.has(mission.id),
+                }"
+                @click="missionStore.toggleMissionComplete(mission.id)"
+              >
+                {{
+                  missionStore.manualCompleteOverrides.has(mission.id)
+                    ? "Set Not Completed"
+                    : "Set Completed"
+                }}
+              </button>
+            </div>
           </div>
         </div>
       </template>
@@ -205,6 +244,7 @@
 import { ref } from "vue";
 import type { PropType } from "vue";
 import type { UserMission } from "../models/UserMission";
+import { useMissionStore } from "@/stores/useMissionStore";
 
 defineProps({
   groups: {
@@ -233,6 +273,8 @@ defineEmits<{
   (e: "calculateMission", id: number): void;
   (e: "calculateGroup", ids: number[]): void;
 }>();
+
+const missionStore = useMissionStore();
 
 const collapsed = ref<Set<string>>(new Set());
 
@@ -269,7 +311,9 @@ function groupRemainingTotal(missions: UserMission[]): string {
 
 function groupUnlockedTotal(missions: UserMission[]): string {
   if (groupHasUncalculated(missions)) return "";
-  const total = missions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0);
+  const total = missions
+    .filter((m) => !m.completed)
+    .reduce((sum, m) => sum + m.unlockedCardsPrice, 0);
   if (total <= 0) return "";
   return (
     total.toLocaleString(undefined, {
@@ -281,7 +325,9 @@ function groupUnlockedTotal(missions: UserMission[]): string {
 
 function groupRewardText(missions: UserMission[]): string {
   if (groupHasUncalculated(missions)) return "";
-  const withReward = missions.filter((m) => m.rewardValue !== undefined);
+  const withReward = missions.filter(
+    (m) => !m.completed && m.rewardValue !== undefined,
+  );
   if (withReward.length === 0) return "";
   const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
   if (total <= 0) return "";
@@ -295,7 +341,9 @@ function groupRewardText(missions: UserMission[]): string {
 
 function groupValueText(missions: UserMission[]): string {
   if (groupHasUncalculated(missions)) return "";
-  const withValue = missions.filter((m) => m.missionValue !== undefined);
+  const withValue = missions.filter(
+    (m) => !m.completed && m.missionValue !== undefined,
+  );
   if (withValue.length === 0) return "";
   const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0);
   const sign = total >= 0 ? "+" : "";
@@ -310,11 +358,13 @@ function groupValueText(missions: UserMission[]): string {
 }
 
 function groupValueIsPositive(missions: UserMission[]): boolean {
-  const withValue = missions.filter((m) => m.missionValue !== undefined);
+  const withValue = missions.filter(
+    (m) => !m.completed && m.missionValue !== undefined,
+  );
   return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0;
 }
 
-function groupRewardItems(
+function collectRewardItems(
   missions: UserMission[],
 ): { label: string; count: number }[] {
   const packCounts = new Map<string, number>();
@@ -339,6 +389,41 @@ function groupRewardItems(
     items.push({ label: "Card", count: cardCount });
   }
   return items.sort((a, b) => b.count - a.count);
+}
+
+function groupRemainingRewardItems(
+  missions: UserMission[],
+): { label: string; count: number }[] {
+  return collectRewardItems(missions.filter((m) => !m.completed));
+}
+
+function groupCompletedRewardItems(
+  missions: UserMission[],
+): { label: string; count: number }[] {
+  return collectRewardItems(missions.filter((m) => m.completed));
+}
+
+function missionCanMarkComplete(mission: UserMission): boolean {
+  const rawMission = mission.rawMission;
+  if (rawMission.type === "count") {
+    if (mission.progressText === "Not Calculated") return false;
+    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
+    return ownedCount >= rawMission.requiredCount;
+  }
+  if (rawMission.type === "points") {
+    if (mission.progressText === "Not Calculated") return false;
+    const ownedPoints = mission.missionCards
+      .filter((c) => c.owned)
+      .reduce((sum, c) => sum + (c.points ?? 0), 0);
+    return ownedPoints >= rawMission.requiredCount;
+  }
+  if (rawMission.type === "missions") {
+    const subs = missionStore.userMissions.filter((um) =>
+      rawMission.missionIds?.includes(um.rawMission.id),
+    );
+    return subs.filter((s) => s.completed).length >= rawMission.requiredCount;
+  }
+  return false;
 }
 
 function progressPercent(mission: UserMission): number {
@@ -485,6 +570,20 @@ function progressLabel(mission: UserMission): string {
   border-top: 1px solid #cbd5e1;
 }
 
+.group-rewards-section-label {
+  width: 100%;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.group-rewards-section-label:first-child {
+  margin-top: 0;
+}
+
 .group-reward-chip {
   font-size: 0.65rem;
   padding: 1px 8px;
@@ -494,6 +593,12 @@ function progressLabel(mission: UserMission): string {
   font-weight: 500;
   border: 1px solid #cbd5e1;
   white-space: nowrap;
+}
+
+.group-reward-chip--done {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
 }
 
 /* ─── MISSION CARD ─── */
@@ -643,6 +748,14 @@ function progressLabel(mission: UserMission): string {
   color: #dc2626;
 }
 
+.card-footer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
 .btn-action {
   border: none;
   border-radius: 5px;
@@ -651,6 +764,39 @@ function progressLabel(mission: UserMission): string {
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s;
+}
+
+.btn-mark-done {
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-mark-done:hover {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-mark-done--active {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-mark-done--active:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .btn-calculate {

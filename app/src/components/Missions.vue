@@ -147,6 +147,16 @@
           Calculate All
         </button>
         <span class="calc-hint">May take a moment</span>
+        <button class="btn-mark-all-complete" @click="markAllComplete">
+          Set All Complete
+        </button>
+        <span class="calc-hint">Marks missions with enough owned cards</span>
+        <button
+          class="btn-unmark-all-complete"
+          @click="missionStore.clearAllManualCompletions()"
+        >
+          Unset All Complete
+        </button>
       </div>
 
       <PackPriceSettings />
@@ -546,6 +556,37 @@ const groupedMissions = computed(
   },
 );
 
+function missionCanMarkComplete(mission: UserMission): boolean {
+  const rawMission = mission.rawMission;
+  if (rawMission.type === "count") {
+    if (mission.progressText === "Not Calculated") return false;
+    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
+    return ownedCount >= rawMission.requiredCount;
+  }
+  if (rawMission.type === "points") {
+    if (mission.progressText === "Not Calculated") return false;
+    const ownedPoints = mission.missionCards
+      .filter((c) => c.owned)
+      .reduce((sum, c) => sum + (c.points ?? 0), 0);
+    return ownedPoints >= rawMission.requiredCount;
+  }
+  if (rawMission.type === "missions") {
+    const subs = missionStore.userMissions.filter((um) =>
+      rawMission.missionIds?.includes(um.rawMission.id),
+    );
+    return subs.filter((s) => s.completed).length >= rawMission.requiredCount;
+  }
+  return false;
+}
+
+function markAllComplete() {
+  for (const mission of filteredMissions.value) {
+    if (!mission.completed && missionCanMarkComplete(mission)) {
+      missionStore.toggleMissionComplete(mission.id);
+    }
+  }
+}
+
 const remainingPriceText = (mission: UserMission) => {
   if (mission.completed) return "";
   if (mission.remainingPrice <= 0) return "";
@@ -708,6 +749,46 @@ watch(
 
 .btn-calc-all:hover {
   background: var(--accent-hover);
+}
+
+.btn-mark-all-complete {
+  background: transparent;
+  color: #86efac;
+  border: 1px solid #4ade80;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  width: 100%;
+}
+
+.btn-mark-all-complete:hover {
+  background: #166534;
+  color: #dcfce7;
+}
+
+.btn-unmark-all-complete {
+  background: transparent;
+  color: #fca5a5;
+  border: 1px solid #f87171;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  width: 100%;
+}
+
+.btn-unmark-all-complete:hover {
+  background: #7f1d1d;
+  color: #fee2e2;
 }
 
 .calc-hint {
