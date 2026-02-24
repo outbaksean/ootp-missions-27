@@ -26,6 +26,7 @@ function parseShopCardRow(row: any): ShopCard {
 
 const CARDS_SOURCE_KEY = 'ootp-cards-source'
 const OWNED_OVERRIDES_KEY = 'ootp-owned-overrides'
+const CARDS_UPLOADED_AT_KEY = 'ootp-cards-uploaded-at'
 
 function loadOwnedOverrides(): Set<number> {
   try {
@@ -44,6 +45,7 @@ function saveOwnedOverrides(ids: Set<number>): void {
 export const useCardStore = defineStore('card', () => {
   const shopCards = ref<Array<ShopCard>>([])
   const isDefaultData = ref(localStorage.getItem(CARDS_SOURCE_KEY) !== 'user')
+  const lastUploadedAt = ref<string | null>(localStorage.getItem(CARDS_UPLOADED_AT_KEY))
   const cardPriceOverrides = ref<Map<number, number>>(new Map())
   const cardOwnedOverrides = ref<Set<number>>(loadOwnedOverrides())
 
@@ -70,6 +72,8 @@ export const useCardStore = defineStore('card', () => {
     shopCards.value = []
     isDefaultData.value = true
     localStorage.removeItem(CARDS_SOURCE_KEY)
+    lastUploadedAt.value = null
+    localStorage.removeItem(CARDS_UPLOADED_AT_KEY)
     cardOwnedOverrides.value = new Set()
     localStorage.removeItem(OWNED_OVERRIDES_KEY)
   }
@@ -95,8 +99,11 @@ export const useCardStore = defineStore('card', () => {
           await clearShopCards()
           await addShopCards(data)
           cardPriceOverrides.value = new Map()
+          const uploadedAt = new Date().toISOString()
           isDefaultData.value = false
           localStorage.setItem(CARDS_SOURCE_KEY, 'user')
+          lastUploadedAt.value = uploadedAt
+          localStorage.setItem(CARDS_UPLOADED_AT_KEY, uploadedAt)
           resolve()
         },
       })
@@ -206,6 +213,7 @@ export const useCardStore = defineStore('card', () => {
     shopCardsById,
     hasShopCards,
     isDefaultData,
+    lastUploadedAt,
     cardPriceOverrides,
     cardOwnedOverrides,
     clearShopCards,
