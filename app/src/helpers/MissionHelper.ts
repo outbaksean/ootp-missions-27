@@ -217,6 +217,7 @@ export default class MissionHelper {
     shopCardsById: Map<number, ShopCard>,
     useSellPrice: boolean,
     overrides?: Map<number, number>,
+    discount = 0,
   ): { totalPrice: number; includedCardIds: Set<number> } {
     const ownedUnlocked = mission.cards
       .map((card) => {
@@ -226,7 +227,8 @@ export default class MissionHelper {
           useSellPrice && shopCard.sellOrderLow > 0
             ? shopCard.sellOrderLow
             : shopCard.lastPrice;
-        const price = overrides?.get(card.cardId) ?? basePrice;
+        const rawPrice = overrides?.get(card.cardId) ?? basePrice;
+        const price = rawPrice * (1 - discount);
         return { cardId: card.cardId, price, points: card.points || 0 };
       })
       .filter((c) => c !== null);
@@ -276,6 +278,7 @@ export default class MissionHelper {
     shopCardsById: Map<number, ShopCard>,
     useSellPrice: boolean,
     overrides?: Map<number, number>,
+    discount = 0,
   ): {
     remainingPrice: number;
     unlockedCardsPrice: number;
@@ -337,9 +340,13 @@ export default class MissionHelper {
           lockCardIds: new Set(),
         };
       }
-      const pool = [...unlockedOwned, ...unowned].sort(
-        (a, b) => a.price - b.price,
-      );
+      const pool = [
+        ...unlockedOwned.map((c) => ({
+          ...c,
+          price: c.price * (1 - discount),
+        })),
+        ...unowned,
+      ].sort((a, b) => a.price - b.price);
       const chosen = pool.slice(0, needed);
       const unownedIdSet = new Set(unowned.map((c) => c.cardId));
       const buyCardIds = new Set(
@@ -371,7 +378,10 @@ export default class MissionHelper {
       };
     }
 
-    const pool = [...unlockedOwned, ...unowned].filter((c) => c.points > 0);
+    const pool = [
+      ...unlockedOwned.map((c) => ({ ...c, price: c.price * (1 - discount) })),
+      ...unowned,
+    ].filter((c) => c.points > 0);
     if (pool.length === 0) {
       return {
         remainingPrice: 0,
