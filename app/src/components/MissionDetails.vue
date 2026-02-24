@@ -5,6 +5,17 @@
       v-if="selectedMission && selectedMission.rawMission.type === 'missions'"
     >
       <div class="detail-mission-header">
+        <div v-if="parentMissions.length" class="parent-missions">
+          <span class="parent-label">Part of</span>
+          <button
+            v-for="parent in parentMissions"
+            :key="parent.id"
+            class="parent-link"
+            @click="$emit('selectMission', parent)"
+          >
+            {{ parent.rawMission.name }}
+          </button>
+        </div>
         <h3 class="detail-mission-name">
           {{ selectedMission.rawMission.name }}
         </h3>
@@ -44,6 +55,17 @@
     <!-- Cards type -->
     <template v-else-if="selectedMission">
       <div class="detail-mission-header">
+        <div v-if="parentMissions.length" class="parent-missions">
+          <span class="parent-label">Part of</span>
+          <button
+            v-for="parent in parentMissions"
+            :key="parent.id"
+            class="parent-link"
+            @click="$emit('selectMission', parent)"
+          >
+            {{ parent.rawMission.name }}
+          </button>
+        </div>
         <h3 class="detail-mission-name">
           {{ selectedMission.rawMission.name }}
         </h3>
@@ -223,6 +245,16 @@ const selectedMissionSubMissions = computed(() => {
   return [];
 });
 
+const parentMissions = computed(() => {
+  if (!props.selectedMission || !props.missions) return [];
+  const id = props.selectedMission.id;
+  return props.missions.filter(
+    (m) =>
+      m.rawMission.type === "missions" &&
+      (m.rawMission.missionIds ?? []).includes(id),
+  );
+});
+
 const remainingPriceText = (mission: UserMission) => {
   if (mission.completed) return "";
   if (mission.remainingPrice <= 0) return "";
@@ -253,6 +285,40 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--card-border);
+}
+
+.parent-missions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.parent-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.parent-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.72rem;
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(59, 130, 246, 0.4);
+  transition: color 0.15s;
+}
+
+.parent-link:hover {
+  color: #2563eb;
 }
 
 .detail-mission-name {

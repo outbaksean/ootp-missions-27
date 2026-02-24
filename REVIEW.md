@@ -63,8 +63,10 @@ Searching "Gold Pack" or "Diamond" returns nothing because `m.rawMission.reward`
 **F6. [DONE] Sub-missions in the detail panel aren't clickable**
 When viewing a "missions"-type parent, the sub-mission list is static. You can't click a sub-mission to open its detail — you have to close the panel, find it in the list, and Select it manually.
 
-**F7. Group header Net stat mixes completed and pending missions**
-Combine with F10
+**F7. Missions completion status enhancements**
+Missions should not be marked complete unless the required cards are locked, not just owned. Users should be able to mark a mission complete. Mission Net should be 0 for all complete missions.
+
+**F7b. Group header Net stat mixes completed and pending missions**
 `groupRewardText` and `groupValueText` include completed missions in their totals. The "Net" figure becomes a blend of already-earned and still-earnable value with no distinction shown.
 
 **F8. [WONTDO] No CSV export**
@@ -73,20 +75,17 @@ Given the app already uses PapaParse, exporting the current filtered mission lis
 **F9. [WONTDO] No event deadline / expiry tracking**
 No `expiresAt` field on missions and no filtering by urgency. Useful for time-limited events.
 
-**F10. Missions completion status enhancements**
-Missions should not be marked complete unless the required cards are locked, not just owned. Users should be able to mark a mission complete. Mission Net should be 0 for all complete missions.
-
-**F11. Cleanup help text and tooltips**
-The upload help box can be cleaned up, an overall help button may be worth adding, distinct from the current help that only mentions uploading. Tooltips can be added and cleaned up.
-
 **F12. [DONE] Allow resizing of columns**
 Allow the user to resize the mission column by dragging to the left
 
-**F13. Generate mission reward string from structured rewards**
+**F13. Include combined mission rewards in group**
 This could either be part of the mission update process or in the main application to automatically generate the reward string from the mission structured rewards. Include a combined reward string for groups.
 
 **F14. Consider cards that are in multiple missions**
 Give some indication or calcuation on when it makes sense to buy a more expensive card because it can be used for another mission
 
-**F15. Add parent missions in mission details**
+**F15. [DONE] Add parent missions in mission details**
 In mission details for child missions, add parent mission details
+
+**F11. Cleanup help text and tooltips**
+The upload help box can be cleaned up, an overall help button may be worth adding, distinct from the current help that only mentions uploading. Tooltips can be added and cleaned up.
