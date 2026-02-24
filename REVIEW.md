@@ -26,7 +26,7 @@ Cards in `missions.json` that aren't in the uploaded CSV are filtered out with n
 
 ### Low
 
-**B7. Inconsistent sell-price fallback logic between `MissionHelper` and `useMissionStore`**
+**B7. [DONE] Inconsistent sell-price fallback logic between `MissionHelper` and `useMissionStore`**
 `MissionHelper` uses `sellOrderLow > 0` as the guard; the store uses `sellOrderLow || lastPrice` (JS truthy coercion). They produce the same result today but are a maintenance trap — the two paths should be identical.
 
 **B8. Lock file upload silently does nothing if shop cards aren't loaded yet**

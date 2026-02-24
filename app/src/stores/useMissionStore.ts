@@ -112,7 +112,9 @@ export const useMissionStore = defineStore("mission", () => {
           }
 
           const basePrice = selectedPriceType.value.sellPrice
-            ? shopCard.sellOrderLow || shopCard.lastPrice
+            ? shopCard.sellOrderLow > 0
+              ? shopCard.sellOrderLow
+              : shopCard.lastPrice
             : shopCard.lastPrice;
           const price = overrides.get(card.cardId) ?? basePrice;
 
@@ -273,7 +275,9 @@ export const useMissionStore = defineStore("mission", () => {
           }
 
           const basePrice = selectedPriceType.value.sellPrice
-            ? shopCard.sellOrderLow || shopCard.lastPrice
+            ? shopCard.sellOrderLow > 0
+              ? shopCard.sellOrderLow
+              : shopCard.lastPrice
             : shopCard.lastPrice;
           const price = overrides.get(card.cardId) ?? basePrice;
 
@@ -555,7 +559,9 @@ export const useMissionStore = defineStore("mission", () => {
               };
             }
             const basePrice = selectedPriceType.value.sellPrice
-              ? shopCard.sellOrderLow || shopCard.lastPrice
+              ? shopCard.sellOrderLow > 0
+                ? shopCard.sellOrderLow
+                : shopCard.lastPrice
               : shopCard.lastPrice;
             const price = overrides.get(card.cardId) ?? basePrice;
             const highlighted =
@@ -707,7 +713,9 @@ export const useMissionStore = defineStore("mission", () => {
               };
             }
             const basePrice = selectedPriceType.value.sellPrice
-              ? shopCard.sellOrderLow || shopCard.lastPrice
+              ? shopCard.sellOrderLow > 0
+                ? shopCard.sellOrderLow
+                : shopCard.lastPrice
               : shopCard.lastPrice;
             const price = overrides.get(card.cardId) ?? basePrice;
             const highlighted =
