@@ -2,7 +2,7 @@
   <div class="pack-prices">
     <button class="pack-prices-toggle" @click="expanded = !expanded">
       <span class="pack-prices-title">Pack Prices</span>
-      <span class="pack-prices-chevron">{{ expanded ? '▲' : '▼' }}</span>
+      <span class="pack-prices-chevron">{{ expanded ? "▲" : "▼" }}</span>
     </button>
     <div v-if="expanded" class="pack-prices-body">
       <div class="pack-prices-hint-row">
@@ -11,7 +11,11 @@
         </p>
         <button class="btn-reset" @click="handleReset">Reset</button>
       </div>
-      <div v-for="packType in PACK_TYPES" :key="packType" class="pack-price-row">
+      <div
+        v-for="packType in PACK_TYPES"
+        :key="packType"
+        class="pack-price-row"
+      >
         <label class="pack-price-label">{{ packType }}</label>
         <input
           type="number"
@@ -26,26 +30,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useMissionStore } from '../stores/useMissionStore'
-import { useSettingsStore, PACK_TYPES } from '../stores/useSettingsStore'
+import { ref } from "vue";
+import { useMissionStore } from "../stores/useMissionStore";
+import { useSettingsStore, PACK_TYPES } from "../stores/useSettingsStore";
 
-const settingsStore = useSettingsStore()
-const missionStore = useMissionStore()
-const expanded = ref(false)
+const settingsStore = useSettingsStore();
+const missionStore = useMissionStore();
+const expanded = ref(false);
 
 function handleChange(packType: string, event: Event) {
-  const raw = (event.target as HTMLInputElement).value
-  const val = parseInt(raw, 10)
-  settingsStore.setPackPrice(packType, isNaN(val) ? 0 : val)
-  missionStore.recomputeMissionValues()
+  const raw = (event.target as HTMLInputElement).value;
+  const val = parseInt(raw, 10);
+  settingsStore.setPackPrice(packType, isNaN(val) ? 0 : val);
+  missionStore.recomputeMissionValues();
 }
 
 function handleReset() {
-  settingsStore.resetPackPrices()
-  missionStore.recomputeMissionValues()
+  settingsStore.resetPackPrices();
+  missionStore.recomputeMissionValues();
 }
-
 </script>
 
 <style scoped>
@@ -114,7 +117,9 @@ function handleReset() {
   background: transparent;
   color: var(--sidebar-muted);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .btn-reset:hover {
@@ -160,7 +165,7 @@ function handleReset() {
   margin: 0;
 }
 
-.pack-price-input[type='number'] {
+.pack-price-input[type="number"] {
   -moz-appearance: textfield;
 }
 </style>

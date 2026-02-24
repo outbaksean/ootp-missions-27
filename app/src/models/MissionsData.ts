@@ -1,6 +1,6 @@
-import type { Mission } from './Mission'
+import type { Mission } from "./Mission";
 
 export interface MissionsData {
-  version: string
-  missions: Mission[]
+  version: string;
+  missions: Mission[];
 }

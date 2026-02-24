@@ -33,7 +33,7 @@ function loadFromStorage(): Map<string, number> {
       merged.set(k, v);
     }
     return merged;
-  } catch (_) {
+  } catch {
     return new Map(Object.entries(PACK_TYPE_DEFAULTS));
   }
 }
@@ -81,5 +81,14 @@ export const useSettingsStore = defineStore("settings", () => {
     localStorage.setItem(OPTIMIZE_SELECTION_KEY, String(value));
   }
 
-  return { packPrices, setPackPrice, getPackPrice, resetPackPrices, subtractUnlockedCards, setSubtractUnlockedCards, optimizeCardSelection, setOptimizeCardSelection };
+  return {
+    packPrices,
+    setPackPrice,
+    getPackPrice,
+    resetPackPrices,
+    subtractUnlockedCards,
+    setSubtractUnlockedCards,
+    optimizeCardSelection,
+    setOptimizeCardSelection,
+  };
 });

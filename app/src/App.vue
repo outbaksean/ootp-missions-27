@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Missions from './components/Missions.vue'
+import Missions from "./components/Missions.vue";
 
-const moonSvgUrl = import.meta.env.BASE_URL + 'moon.svg'
+const moonSvgUrl = import.meta.env.BASE_URL + "moon.svg";
 </script>
 
 <template>
@@ -12,7 +12,8 @@ const moonSvgUrl = import.meta.env.BASE_URL + 'moon.svg'
     </a>
   </nav>
   <div class="wip-banner">
-    Work in progress — currently using OOTP 26 data with only a partial mission list.
+    Work in progress — currently using OOTP 26 data with only a partial mission
+    list.
   </div>
   <Missions />
   <footer>

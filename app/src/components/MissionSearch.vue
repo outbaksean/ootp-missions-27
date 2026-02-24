@@ -4,13 +4,15 @@
     class="sidebar-search"
     placeholder="Search missions..."
     :value="modelValue"
-    @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+    @input="
+      $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+    "
   />
 </template>
 
 <script setup lang="ts">
-defineProps<{ modelValue: string }>()
-defineEmits<{ 'update:modelValue': [value: string] }>()
+defineProps<{ modelValue: string }>();
+defineEmits<{ "update:modelValue": [value: string] }>();
 </script>
 
 <style scoped>
