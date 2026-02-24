@@ -97,7 +97,19 @@ export const useMissionStore = defineStore("mission", () => {
       const missionCards = mission.cards
         .map((card) => {
           const shopCard = shopCardsById.get(card.cardId);
-          if (!shopCard || shopCard.cardId === undefined) return null;
+          if (!shopCard || shopCard.cardId === undefined) {
+            return {
+              cardId: card.cardId,
+              title: `Card #${card.cardId}`,
+              owned: false,
+              locked: false,
+              available: false,
+              price: 0,
+              points: card.points || 0,
+              highlighted: false,
+              shouldLock: false,
+            };
+          }
 
           const basePrice = selectedPriceType.value.sellPrice
             ? shopCard.sellOrderLow || shopCard.lastPrice
@@ -246,7 +258,19 @@ export const useMissionStore = defineStore("mission", () => {
       const missionCards = mission.cards
         .map((card) => {
           const shopCard = shopCardsById.get(card.cardId);
-          if (!shopCard || shopCard.cardId === undefined) return null;
+          if (!shopCard || shopCard.cardId === undefined) {
+            return {
+              cardId: card.cardId,
+              title: `Card #${card.cardId}`,
+              owned: false,
+              locked: false,
+              available: false,
+              price: 0,
+              points: card.points || 0,
+              highlighted: false,
+              shouldLock: false,
+            };
+          }
 
           const basePrice = selectedPriceType.value.sellPrice
             ? shopCard.sellOrderLow || shopCard.lastPrice
@@ -517,7 +541,19 @@ export const useMissionStore = defineStore("mission", () => {
         mission.missionCards = mission.rawMission.cards
           .map((card) => {
             const shopCard = shopCardsById.get(card.cardId);
-            if (!shopCard || shopCard.cardId === undefined) return null;
+            if (!shopCard || shopCard.cardId === undefined) {
+              return {
+                cardId: card.cardId,
+                title: `Card #${card.cardId}`,
+                owned: false,
+                locked: false,
+                available: false,
+                price: 0,
+                points: card.points || 0,
+                highlighted: false,
+                shouldLock: false,
+              };
+            }
             const basePrice = selectedPriceType.value.sellPrice
               ? shopCard.sellOrderLow || shopCard.lastPrice
               : shopCard.lastPrice;
@@ -657,7 +693,19 @@ export const useMissionStore = defineStore("mission", () => {
         um.missionCards = mission.cards
           .map((card) => {
             const shopCard = shopCardsById.get(card.cardId);
-            if (!shopCard || shopCard.cardId === undefined) return null;
+            if (!shopCard || shopCard.cardId === undefined) {
+              return {
+                cardId: card.cardId,
+                title: `Card #${card.cardId}`,
+                owned: false,
+                locked: false,
+                available: false,
+                price: 0,
+                points: card.points || 0,
+                highlighted: false,
+                shouldLock: false,
+              };
+            }
             const basePrice = selectedPriceType.value.sellPrice
               ? shopCard.sellOrderLow || shopCard.lastPrice
               : shopCard.lastPrice;

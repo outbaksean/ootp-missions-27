@@ -113,10 +113,44 @@ export const useCardStore = defineStore("card", () => {
         header: true,
         skipEmptyLines: true,
         complete: async (results: { data: ShopCardRow[] }) => {
-          const data = results.data.map(parseShopCardRow);
-          await clearShopCards();
-          await addShopCards(data);
+          const uploadedCards = results.data.map(parseShopCardRow);
+          const uploadedById = new Map(uploadedCards.map((c) => [c.cardId, c]));
+
+          // Read existing DB records so we can preserve titles and lock state
+          const existingCards = await db.shopCards.toArray();
+          const existingById = new Map(existingCards.map((c) => [c.cardId, c]));
+
+          const toWrite: ShopCard[] = [];
+
+          // Cards in the user's CSV: update data, preserve locked from DB
+          for (const card of uploadedCards) {
+            toWrite.push({
+              ...card,
+              locked: existingById.get(card.cardId)?.locked ?? false,
+            });
+          }
+
+          // Cards not in the user's CSV: keep record with base title,
+          // zero prices so they appear as unavailable
+          for (const existing of existingCards) {
+            if (!uploadedById.has(existing.cardId)) {
+              toWrite.push({
+                ...existing,
+                lastPrice: 0,
+                sellOrderLow: 0,
+                cardValue: 0,
+                owned: false,
+              });
+            }
+          }
+
+          await db.shopCards.bulkPut(toWrite);
+          applyOwnedOverrides(toWrite);
+          shopCards.value = toWrite;
+
           cardPriceOverrides.value = new Map();
+          cardOwnedOverrides.value = new Set();
+          localStorage.removeItem(OWNED_OVERRIDES_KEY);
           const uploadedAt = new Date().toISOString();
           isDefaultData.value = false;
           localStorage.setItem(CARDS_SOURCE_KEY, "user");
