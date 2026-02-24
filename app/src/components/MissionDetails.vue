@@ -26,6 +26,14 @@
         >
           {{ selectedMission.progressText }}
         </p>
+        <button
+          v-if="isManuallyComplete || canMarkComplete"
+          class="btn-manual-complete"
+          :class="{ 'btn-manual-complete--active': isManuallyComplete }"
+          @click="onToggleMissionComplete"
+        >
+          {{ isManuallyComplete ? "Set Not Completed" : "Set Completed" }}
+        </button>
       </div>
       <ul class="detail-list">
         <li
@@ -82,6 +90,14 @@
           @click="recalculate"
         >
           Recalculate
+        </button>
+        <button
+          v-if="isManuallyComplete || canMarkComplete"
+          class="btn-manual-complete"
+          :class="{ 'btn-manual-complete--active': isManuallyComplete }"
+          @click="onToggleMissionComplete"
+        >
+          {{ isManuallyComplete ? "Set Not Completed" : "Set Completed" }}
         </button>
       </div>
       <ul class="detail-list">
@@ -222,6 +238,42 @@ defineEmits<{
 
 const hasUnappliedChanges = ref(false);
 const expandedSharedCardId = ref<number | null>(null);
+
+const isManuallyComplete = computed(() =>
+  props.selectedMission
+    ? missionStore.manualCompleteOverrides.has(props.selectedMission.id)
+    : false,
+);
+
+const canMarkComplete = computed(() => {
+  if (!props.selectedMission) return false;
+  const mission = props.selectedMission;
+  if (mission.progressText === "Not Calculated") return false;
+  const rawMission = mission.rawMission;
+  if (rawMission.type === "count") {
+    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
+    return ownedCount >= rawMission.requiredCount;
+  }
+  if (rawMission.type === "points") {
+    const ownedPoints = mission.missionCards
+      .filter((c) => c.owned)
+      .reduce((sum, c) => sum + (c.points ?? 0), 0);
+    return ownedPoints >= rawMission.requiredCount;
+  }
+  if (rawMission.type === "missions") {
+    const completedCount = selectedMissionSubMissions.value.filter(
+      (m) => m.completed,
+    ).length;
+    return completedCount >= rawMission.requiredCount;
+  }
+  return false;
+});
+
+function onToggleMissionComplete() {
+  if (props.selectedMission) {
+    missionStore.toggleMissionComplete(props.selectedMission.id);
+  }
+}
 
 const cardMissionMap = computed((): Map<number, UserMission[]> => {
   const map = new Map<number, UserMission[]>();
@@ -423,6 +475,39 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 
 .btn-recalculate:hover {
   background: #fde68a;
+}
+
+.btn-manual-complete {
+  margin-top: 0.5rem;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.btn-manual-complete:hover {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-manual-complete--active {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-manual-complete--active:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .detail-list {

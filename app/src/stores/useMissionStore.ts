@@ -3,7 +3,8 @@ import MissionHelper from "@/helpers/MissionHelper";
 import type { Mission } from "@/models/Mission";
 import type { MissionsData } from "@/models/MissionsData";
 import type { UserMission } from "@/models/UserMission";
-import { ref } from "vue";
+import { readonly, ref } from "vue";
+import type { MissionCard } from "@/models/MissionCard";
 import type { PriceType } from "@/models/PriceType";
 import type { ShopCard } from "@/models/ShopCard";
 import db from "@/data/indexedDB";
@@ -62,6 +63,7 @@ function computeMissionCostInfo(
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const USE_SELL_PRICE_KEY = "ootp-use-sell-price";
+const MANUAL_COMPLETE_KEY = "ootp-manual-complete";
 
 export const useMissionStore = defineStore("mission", () => {
   const loading = ref<boolean>(true);
@@ -72,6 +74,47 @@ export const useMissionStore = defineStore("mission", () => {
     sellPrice: localStorage.getItem(USE_SELL_PRICE_KEY) === "true",
   });
   const missionsVersion = ref<string>("");
+
+  function loadManualCompleteOverrides(): Set<number> {
+    try {
+      const stored = localStorage.getItem(MANUAL_COMPLETE_KEY);
+      return stored ? new Set(JSON.parse(stored) as number[]) : new Set();
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveManualCompleteOverrides() {
+    localStorage.setItem(
+      MANUAL_COMPLETE_KEY,
+      JSON.stringify([...manualCompleteOverrides.value]),
+    );
+  }
+
+  const manualCompleteOverrides = ref<Set<number>>(
+    loadManualCompleteOverrides(),
+  );
+
+  function computeCompleted(
+    missionId: number,
+    rawMission: Mission,
+    missionCards: MissionCard[],
+  ): boolean {
+    if (manualCompleteOverrides.value.has(missionId)) return true;
+    if (rawMission.type === "count") {
+      const lockedCount = missionCards.filter(
+        (c) => c.owned && c.locked,
+      ).length;
+      return lockedCount >= rawMission.requiredCount;
+    }
+    if (rawMission.type === "points") {
+      const lockedPoints = missionCards
+        .filter((c) => c.owned && c.locked)
+        .reduce((sum, c) => sum + (c.points ?? 0), 0);
+      return lockedPoints >= rawMission.requiredCount;
+    }
+    return false; // missions-type handled separately
+  }
 
   async function calculateMissionDetails(
     missionId: number,
@@ -100,7 +143,6 @@ export const useMissionStore = defineStore("mission", () => {
         settingsStore.optimizeCardSelection,
         settingsStore.unlockedCardDiscount,
       );
-      const completed = MissionHelper.isMissionComplete(mission, shopCardsById);
       const missionCards = mission.cards
         .map((card) => {
           const shopCard = shopCardsById.get(card.cardId);
@@ -158,6 +200,7 @@ export const useMissionStore = defineStore("mission", () => {
       for (const mc of missionCards) {
         mc.shouldLock = costInfo.lockIds.has(mc.cardId);
       }
+      const completed = computeCompleted(mission.id, mission, missionCards);
       userMission.completed = completed;
       userMission.missionCards = missionCards;
       userMission.remainingPrice = costInfo.remainingPrice;
@@ -211,7 +254,9 @@ export const useMissionStore = defineStore("mission", () => {
       userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
       userMission.remainingPrice = totalRemainingPrice;
       userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
-      userMission.completed = completedCount >= mission.requiredCount;
+      userMission.completed =
+        manualCompleteOverrides.value.has(mission.id) ||
+        completedCount >= mission.requiredCount;
       const rewardValueMissions = MissionHelper.calculateRewardValue(
         mission.rewards,
         settingsStore.packPrices,
@@ -264,7 +309,6 @@ export const useMissionStore = defineStore("mission", () => {
         settingsStore.optimizeCardSelection,
         settingsStore.unlockedCardDiscount,
       );
-      const completed = MissionHelper.isMissionComplete(mission, shopCardsById);
       const missionCards = mission.cards
         .map((card) => {
           const shopCard = shopCardsById.get(card.cardId);
@@ -320,6 +364,8 @@ export const useMissionStore = defineStore("mission", () => {
         mc.shouldLock = costInfo.lockIds.has(mc.cardId);
       }
 
+      const completed = computeCompleted(mission.id, mission, missionCards);
+
       const rewardValue = MissionHelper.calculateRewardValue(
         mission.rewards,
         settingsStore.packPrices,
@@ -346,6 +392,19 @@ export const useMissionStore = defineStore("mission", () => {
             : undefined,
       };
     });
+
+    // Propagate sub-mission completion up to missions-type parents.
+    // Missions are in ascending ID order so children are always visited before parents.
+    for (const um of userMissions.value) {
+      if (um.rawMission.type !== "missions") continue;
+      const subs = userMissions.value.filter((sub) =>
+        um.rawMission.missionIds?.includes(sub.rawMission.id),
+      );
+      const completedCount = subs.filter((s) => s.completed).length;
+      um.completed =
+        manualCompleteOverrides.value.has(um.id) ||
+        completedCount >= um.rawMission.requiredCount;
+    }
   }
 
   function recomputeMissionValues() {
@@ -487,6 +546,11 @@ export const useMissionStore = defineStore("mission", () => {
         rewardValue !== undefined
           ? rewardValue - mission.remainingPrice - unlockedDeduction
           : undefined;
+      mission.completed = computeCompleted(
+        mission.id,
+        mission.rawMission,
+        mission.missionCards,
+      );
     }
 
     // Re-aggregate missions-type missions from their updated sub-missions.
@@ -515,6 +579,23 @@ export const useMissionStore = defineStore("mission", () => {
         rewardValue !== undefined
           ? rewardValue - mission.remainingPrice - unlockedDeduction
           : undefined;
+      const completedCount = subMissions.filter((m) => m.completed).length;
+      mission.completed =
+        manualCompleteOverrides.value.has(mission.id) ||
+        completedCount >= mission.rawMission.requiredCount;
+    }
+
+    // Also update completed for uncalculated missions-type missions.
+    for (const mission of userMissions.value) {
+      if (mission.progressText !== "Not Calculated") continue;
+      if (mission.rawMission.type !== "missions") continue;
+      const subMissions = userMissions.value.filter((um) =>
+        mission.rawMission.missionIds?.some((id) => id === um.rawMission.id),
+      );
+      const completedCount = subMissions.filter((m) => m.completed).length;
+      mission.completed =
+        manualCompleteOverrides.value.has(mission.id) ||
+        completedCount >= mission.rawMission.requiredCount;
     }
   }
 
@@ -599,10 +680,6 @@ export const useMissionStore = defineStore("mission", () => {
           (c) => shopCardsById.get(c.cardId)?.owned,
         ).length;
         mission.remainingPrice = costInfo4.remainingPrice;
-        mission.completed = MissionHelper.isMissionComplete(
-          mission.rawMission,
-          shopCardsById,
-        );
         mission.progressText = `${ownedCount} / ${mission.rawMission.requiredCount} owned (${mission.rawMission.cards.length} total)`;
         mission.unlockedCardsPrice = costInfo4.unlockedCardsPrice;
         for (const mc of mission.missionCards) {
@@ -622,6 +699,11 @@ export const useMissionStore = defineStore("mission", () => {
           rewardValue !== undefined
             ? rewardValue - mission.remainingPrice - unlockedDeduction
             : undefined;
+        mission.completed = computeCompleted(
+          mission.id,
+          mission.rawMission,
+          mission.missionCards,
+        );
       } else {
         // points: reset to Not Calculated so user can recalculate
         mission.progressText = "Not Calculated";
@@ -646,7 +728,9 @@ export const useMissionStore = defineStore("mission", () => {
         0,
       );
       const completedCount = subMissions.filter((m) => m.completed).length;
-      mission.completed = completedCount >= mission.rawMission.requiredCount;
+      mission.completed =
+        manualCompleteOverrides.value.has(mission.id) ||
+        completedCount >= mission.rawMission.requiredCount;
       const remainingCount = mission.rawMission.requiredCount - completedCount;
       mission.remainingPrice = subMissions
         .filter((m) => !m.completed)
@@ -669,6 +753,19 @@ export const useMissionStore = defineStore("mission", () => {
         rewardValue !== undefined
           ? rewardValue - mission.remainingPrice - unlockedDeduction
           : undefined;
+    }
+
+    // Also update completed for uncalculated missions-type missions.
+    for (const mission of userMissions.value) {
+      if (mission.progressText !== "Not Calculated") continue;
+      if (mission.rawMission.type !== "missions") continue;
+      const subMissions = userMissions.value.filter((um) =>
+        mission.rawMission.missionIds?.some((id) => id === um.rawMission.id),
+      );
+      const completedCount = subMissions.filter((m) => m.completed).length;
+      mission.completed =
+        manualCompleteOverrides.value.has(mission.id) ||
+        completedCount >= mission.rawMission.requiredCount;
     }
   }
 
@@ -858,12 +955,65 @@ export const useMissionStore = defineStore("mission", () => {
     localStorage.setItem(USE_SELL_PRICE_KEY, String(value));
   }
 
+  function recomputeCompletedForMission(missionId: number) {
+    const mission = userMissions.value.find((m) => m.id === missionId);
+    if (!mission) return;
+
+    if (mission.rawMission.type === "missions") {
+      const subs = userMissions.value.filter((um) =>
+        mission.rawMission.missionIds?.includes(um.rawMission.id),
+      );
+      const count = subs.filter((m) => m.completed).length;
+      mission.completed =
+        manualCompleteOverrides.value.has(missionId) ||
+        count >= mission.rawMission.requiredCount;
+    } else {
+      mission.completed = computeCompleted(
+        missionId,
+        mission.rawMission,
+        mission.missionCards,
+      );
+    }
+
+    // Propagate to any missions-type parents (including uncalculated ones)
+    for (const parent of userMissions.value) {
+      if (parent.rawMission.type !== "missions") continue;
+      if (!parent.rawMission.missionIds?.includes(missionId)) continue;
+      const subs = userMissions.value.filter((um) =>
+        parent.rawMission.missionIds?.includes(um.rawMission.id),
+      );
+      const count = subs.filter((m) => m.completed).length;
+      parent.completed =
+        manualCompleteOverrides.value.has(parent.id) ||
+        count >= parent.rawMission.requiredCount;
+    }
+  }
+
+  function toggleMissionComplete(missionId: number) {
+    const next = new Set(manualCompleteOverrides.value);
+    if (next.has(missionId)) next.delete(missionId);
+    else next.add(missionId);
+    manualCompleteOverrides.value = next;
+    saveManualCompleteOverrides();
+    recomputeCompletedForMission(missionId);
+  }
+
+  function clearAllManualCompletions() {
+    const affectedIds = [...manualCompleteOverrides.value];
+    manualCompleteOverrides.value = new Set();
+    saveManualCompleteOverrides();
+    for (const id of affectedIds) {
+      recomputeCompletedForMission(id);
+    }
+  }
+
   return {
     userMissions,
     selectedMission,
     selectedPriceType,
     missionsVersion,
     loading,
+    manualCompleteOverrides: readonly(manualCompleteOverrides),
     initialize,
     buildUserMissions,
     setUseSellPrice,
@@ -873,5 +1023,7 @@ export const useMissionStore = defineStore("mission", () => {
     calculateMissionDetails,
     calculateAllNotCalculatedMissions,
     recomputeMissionValues,
+    toggleMissionComplete,
+    clearAllManualCompletions,
   };
 });
