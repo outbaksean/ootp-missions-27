@@ -137,6 +137,10 @@ When a card appears in multiple missions, buying it may be justified even if it'
 
 Requires agreement on what surface area to build before implementation.
 
+### Review
+
+When all other feature work is done, before doing help cleanup do another thorough review of potential bugs and new features
+
 ### 4. F15 — Help text and tooltip cleanup
 
 **Effort: Low-Medium**
