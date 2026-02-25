@@ -160,9 +160,9 @@
             ></button>
           </div>
           <div class="modal-body">
-            <div data-v-31773649="" class="card-body">
+            <div class="card-body">
               <h3>Current Status</h3>
-              <p>Latest update 2/22/2026</p>
+              <p>Updated 2/25/2026</p>
               <ul>
                 <li>
                   Currently using OOTP 26 data with plans to migrate to OOTP 27
@@ -172,8 +172,32 @@
                   Updated mission calculation algorithm for a major performance
                   boost, removed greedy mode toggle
                 </li>
-                <li>Added Mission Search</li>
-                <li>UI Overhaul Done</li>
+                <li>
+                  Added optimize card selection mode - this will change the
+                  algorithm to show which unlocked cards you own but should not
+                  lock because there's more value in buying other cards and
+                  selling the owned one.
+                </li>
+                <li>
+                  Added ability to set cards as owned or locked in the ui and
+                  the ability to override prices. Imported card shop data is
+                  still preferred but no longer needed.
+                </li>
+                <li>Highlights cards that are in multiple missions.</li>
+                <li>
+                  The date missions were last uploaded is now shown on the site.
+                </li>
+                <li>
+                  Added reward value, value of unlocked owned cards, and net
+                  value to complete for missions and groups.
+                </li>
+                <li>Added grouping by mission chain.</li>
+                <li>Added combined remaining mission rewards to groups.</li>
+                <li>Added Mission Search.</li>
+                <li>
+                  UI Overhauled including responsive ui, this works on phones
+                  now.
+                </li>
               </ul>
               <h3>In Season Updates</h3>
               <ul>
@@ -194,32 +218,6 @@
                     <li>
                       I'm going to look into using OCR to get mission data
                     </li>
-                  </ul>
-                </li>
-              </ul>
-              <hr />
-              <h3>Working Notes</h3>
-              <ul>
-                <li>Continue with first load time performance work</li>
-                <li>Cleanup warnings and tests</li>
-                <li>Plan for OCR to get mission data</li>
-              </ul>
-              <h4>Planned New Features</h4>
-              <ul>
-                <li>
-                  Find a way to calculate mission value - Non-Locked plus
-                  remaining card value minus reward value
-                  <ul>
-                    <li>Set default pack value and allow overrides</li>
-                    <li>Allow lock selection in ui</li>
-                    <li>Include sorting and filters</li>
-                  </ul>
-                </li>
-                <li>Allow overrides of card cost</li>
-                <li>
-                  Group missions by reward visually in mission list
-                  <ul>
-                    <li>Allow alternative groups, category etc.</li>
                   </ul>
                 </li>
               </ul>

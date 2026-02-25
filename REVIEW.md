@@ -135,7 +135,7 @@ Identical eligibility logic lives in both `MissionList.vue:406–427` and `Missi
 
 ## Round 2 Maintenance
 
-**M1. PreRelease Status modal content is stale and contains orphaned markup**
+**M1. [Done] PreRelease Status modal content is stale and contains orphaned markup**
 `CardUploader.vue:163` has an orphaned `data-v-31773649=""` attribute (copy-paste from an old scoped component). The modal body still references "OOTP 26 data", lists features that are now shipped (card value sorting, lock selection, price overrides), and exposes developer working-notes as public UI. Should be refreshed or removed before the production launch.
 
 **M2. [WONTFIX] "Done" badge and collapse chevrons violate the UI symbol convention**
