@@ -71,30 +71,36 @@
       <div class="sidebar-divider" />
 
       <div class="sidebar-section sidebar-toggles">
-        <label class="toggle-label">
+        <label
+          class="toggle-label"
+          title="Uses the lowest active sell order price instead of the last completed sale price. More accurate for cards you can buy right now."
+        >
           <input
             type="checkbox"
             class="toggle-input"
             v-model="useSellPrice"
             @change="updatePriceType"
           />
-          Use Sell Price
+          Use Sell Price <span class="tooltip-hint">(?)</span>
         </label>
         <label class="toggle-label">
           <input type="checkbox" class="toggle-input" v-model="hideCompleted" />
           Hide Completed
         </label>
-        <label class="toggle-label">
+        <label
+          class="toggle-label"
+          title="Only shows missions where the reward value exceeds the cost to complete them."
+        >
           <input
             type="checkbox"
             class="toggle-input"
             v-model="showPositiveOnly"
           />
-          Positive Value Only
+          Positive Value Only <span class="tooltip-hint">(?)</span>
         </label>
         <label
           class="toggle-label"
-          title="Subtracts the sell value of owned cards you'd need to lock from the mission's net value"
+          title="Locking owned cards means you can no longer sell them. This deducts their sell value from net value to reflect the full cost of completing the mission."
         >
           <input
             type="checkbox"
@@ -103,10 +109,11 @@
             @change="handleIncludeUnlockedChange($event)"
           />
           Include unlocked cards in net value
+          <span class="tooltip-hint">(?)</span>
         </label>
         <label
           class="toggle-label"
-          title="Compares owned card opportunity cost vs buying cheaper unowned cards to find the minimum-cost assignment"
+          title="Instead of always buying unowned cards, finds the cheapest combination of buying new cards and locking ones you already own."
         >
           <input
             type="checkbox"
@@ -114,10 +121,15 @@
             :checked="settingsStore.optimizeCardSelection"
             @change="handleOptimizeChange($event)"
           />
-          Optimize card assignment
+          Optimize card assignment <span class="tooltip-hint">(?)</span>
         </label>
-        <div class="discount-row">
-          <span class="discount-label">Sell - Buy difference</span>
+        <div
+          class="discount-row"
+          title="How much less you receive selling a card vs its listed price (market spread). Applied when calculating the opportunity cost of locking cards you own."
+        >
+          <span class="discount-label"
+            >Sell - Buy difference <span class="tooltip-hint">(?)</span></span
+          >
           <div class="discount-input-wrap">
             <input
               id="sell-discount-input"
@@ -752,6 +764,12 @@ watch(
   width: 14px;
   height: 14px;
   cursor: pointer;
+}
+
+.tooltip-hint {
+  font-size: 0.75em;
+  opacity: 0.5;
+  cursor: help;
 }
 
 .btn-mark-all-complete {

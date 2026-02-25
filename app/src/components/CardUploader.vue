@@ -8,7 +8,7 @@
           class="link-btn"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#helpModal"
+          data-bs-target="#appHelpModal"
         >
           Help
         </button>
@@ -34,7 +34,6 @@
           <span :class="statusClass">{{ statusText }}</span>
         </div>
         <button
-          v-if="hasUserCards"
           class="action-btn"
           type="button"
           @click="isExpanded = !isExpanded"
@@ -48,7 +47,15 @@
     </div>
 
     <!-- File inputs -->
-    <div v-show="isExpanded || !hasUserCards" class="upload-form">
+    <div v-show="isExpanded" class="upload-form">
+      <button
+        class="action-btn upload-help-link"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#uploadHelpModal"
+      >
+        Upload Help
+      </button>
       <div class="upload-field">
         <label for="shopCardsFile">User Cards</label>
         <input
@@ -76,18 +83,18 @@
       </div>
     </div>
 
-    <!-- Help Modal (Bootstrap JS) -->
+    <!-- Upload Help Modal -->
     <div
       class="modal fade"
-      id="helpModal"
+      id="uploadHelpModal"
       tabindex="-1"
-      aria-labelledby="helpModalLabel"
+      aria-labelledby="uploadHelpModalLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="helpModalLabel">Help</h5>
+            <h5 class="modal-title" id="uploadHelpModalLabel">Upload Help</h5>
             <button
               type="button"
               class="btn-close"
@@ -136,6 +143,165 @@
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Help Modal -->
+    <div
+      class="modal fade"
+      id="appHelpModal"
+      tabindex="-1"
+      aria-labelledby="appHelpModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="appHelpModalLabel">How it works</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body help-body">
+            <h6>Calculation</h6>
+            <p>
+              Click Calculate on a mission to compute its cost, or use Calculate
+              All in the sidebar to process everything at once. For count
+              missions the app picks the cheapest unowned cards to hit the
+              required number. For points missions it uses a knapsack solver to
+              find the minimum-cost card combination that meets the required
+              point total. Chain missions sum the cheapest incomplete
+              sub-mission costs.
+            </p>
+            <p>
+              Cards not in your uploaded data are excluded. Cards with no price
+              show "Set price to include" in the detail panel — enter a price to
+              add them to the calculation.
+            </p>
+
+            <h6>Mission list columns</h6>
+            <ul>
+              <li>
+                <strong>Remaining</strong> — cost to acquire the cards flagged
+                Buy in the detail panel.
+              </li>
+              <li>
+                <strong>Unlock Cost</strong> — sell value of the owned cards
+                flagged Use. These cards would need to be locked, giving up the
+                option to sell them.
+              </li>
+              <li>
+                <strong>Reward</strong> — market value of the mission prize.
+                Configure pack prices in the sidebar for missions that pay out
+                packs.
+              </li>
+              <li>
+                <strong>Net</strong> — Reward minus Remaining. With Include
+                unlocked cards enabled, Unlock Cost is also subtracted.
+              </li>
+            </ul>
+
+            <h6>Mission detail panel</h6>
+            <p>
+              Cards are sorted unowned first (cheapest to most expensive), then
+              owned unlocked, then locked.
+            </p>
+            <ul>
+              <li>
+                <strong>Buy</strong> — this card is included in the calculated
+                cost. Acquire it to complete the mission.
+              </li>
+              <li>
+                <strong>Use</strong> — with Optimize on, an owned card the
+                solver recommends locking rather than buying a cheaper
+                alternative.
+              </li>
+              <li>
+                <strong>Owned / Locked</strong> — current status badges. Use the
+                Lock and Own buttons to update status without re-uploading.
+                Changes persist across reloads.
+              </li>
+              <li>
+                <strong>Price field</strong> — click to override the card's
+                price. Highlighted when overridden. Persists across reloads.
+              </li>
+              <li>
+                <strong>N other missions</strong> — this card appears in other
+                missions. Click to expand the list.
+              </li>
+              <li>
+                <strong>Recalculate</strong> — appears when owned or lock status
+                has changed. Click to update the mission cost.
+              </li>
+              <li>
+                <strong>Set Completed</strong> — manually mark a mission done.
+                Available when you own enough cards. The mission also
+                auto-completes once enough cards are locked.
+              </li>
+            </ul>
+
+            <h6>Sidebar options</h6>
+            <ul>
+              <li>
+                <strong>Group by</strong> — None: flat list. Chain: grouped
+                under parent chain missions. Category: grouped by in-game
+                mission category.
+              </li>
+              <li>
+                <strong>Target Mission</strong> — filters the list to only
+                missions that contribute to a selected chain mission.
+              </li>
+              <li>
+                <strong>Sort by</strong> — Default: data order. Remaining Price:
+                cheapest to complete first. Mission Value: best net value first.
+                Name: alphabetical.
+              </li>
+              <li>
+                <strong>Use Sell Price</strong> — use the lowest active sell
+                order price instead of the last completed sale price.
+              </li>
+              <li>
+                <strong>Hide Completed</strong> — hides missions marked
+                complete.
+              </li>
+              <li>
+                <strong>Positive Value Only</strong> — shows only missions where
+                reward value exceeds the cost to complete them.
+              </li>
+              <li>
+                <strong>Include unlocked cards in net value</strong> — deducts
+                the sell value of cards you would need to lock from net value.
+              </li>
+              <li>
+                <strong>Optimize card assignment</strong> — instead of always
+                buying unowned cards, finds the cheapest mix of buying new cards
+                and locking ones you already own.
+              </li>
+              <li>
+                <strong>Sell - Buy difference</strong> — the percentage spread
+                between a card's price and what you'd receive selling it.
+                Applied to the opportunity cost of locking owned cards.
+              </li>
+              <li>
+                <strong>Pack Prices</strong> — set the PP value of each pack
+                type so reward value can be calculated for missions that pay out
+                packs.
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
@@ -240,7 +406,7 @@ const missionStore = useMissionStore();
 const hasShopCards = computed(() => cardStore.hasShopCards);
 const isDefaultData = computed(() => cardStore.isDefaultData);
 const hasUserCards = computed(() => hasShopCards.value && !isDefaultData.value);
-const isExpanded = ref(false);
+const isExpanded = ref(!hasUserCards.value);
 
 const statusClass = computed(() =>
   hasUserCards.value ? "status-loaded" : "status-missing",
@@ -410,6 +576,11 @@ const handleUserCardsUpload = async (event: Event) => {
   border-top: 1px solid var(--sidebar-border);
 }
 
+.upload-help-link {
+  width: 100%;
+  text-align: center;
+}
+
 .upload-field {
   display: flex;
   flex-direction: column;
@@ -459,5 +630,21 @@ const handleUserCardsUpload = async (event: Event) => {
 
 .btn-clear:hover {
   background: rgba(220, 38, 38, 0.27);
+}
+
+.help-body h6 {
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.help-body h6:first-child {
+  margin-top: 0;
+}
+
+.help-body p,
+.help-body ul {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
 }
 </style>
