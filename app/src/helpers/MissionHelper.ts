@@ -410,26 +410,4 @@ export default class MissionHelper {
     );
     return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds };
   }
-
-  static isMissionComplete(
-    mission: Mission,
-    shopCardsById: Map<number, ShopCard>,
-  ): boolean {
-    if (mission.type === "count") {
-      const ownedCount = mission.cards.filter(
-        (card) => shopCardsById.get(card.cardId)?.owned,
-      ).length;
-      return ownedCount >= mission.requiredCount;
-    }
-
-    if (mission.type === "points") {
-      const ownedPoints = mission.cards.reduce((sum, card) => {
-        const shopCard = shopCardsById.get(card.cardId);
-        return sum + (shopCard?.owned ? card.points || 0 : 0);
-      }, 0);
-      return ownedPoints >= mission.requiredCount;
-    }
-
-    return false;
-  }
 }
