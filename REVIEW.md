@@ -101,20 +101,25 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 
 **B12. [DONE] `handlePriceOverrideChanged` drops manual completion for missions-type parents**
 In `useMissionStore.ts:909`, the re-aggregation loop inside `handlePriceOverrideChanged` sets:
+
 ```
 um.completed = completedCount >= um.rawMission.requiredCount;
 ```
+
 Every other `mission.completed` assignment in the codebase (e.g. lines 404-406, 583-585, 596-598, 731-733, 966-968) prepends `manualCompleteOverrides.value.has(um.id) ||`. This one spot is the sole exception. Reproducer: manually mark a missions-type parent Done, then change a price override on any sub-mission, and the parent loses its Done badge.
 
 ### Medium
 
-**B13. `progressText` and progress bar track "owned" but completion requires "locked"**
+**B13. [REVISIT] `progressText` and progress bar track "owned" but completion requires "locked"**
 Count missions build their `progressText` as `"X / Y owned (Z total)"` using `ownedCount` (lines 383, 683 in `useMissionStore.ts`). Points missions likewise track `ownedPoints` (line 199). `progressPercent` in `MissionList.vue:437` also uses owned count. But `computeCompleted` (line 104–114) requires `owned && locked` for the Done badge. Result: users can see "2/2 owned" with a full progress bar and no Done badge, with no indication that locking the cards is the missing step.
 
 ### Low
 
-**B14. `updateCardLockedState` doesn't re-sort `missionCards` after a lock toggle**
+**B14. [WONTFIX] `updateCardLockedState` doesn't re-sort `missionCards` after a lock toggle**
 `updateCardOwnedState` re-sorts `mission.missionCards` after updating the owned flag (line 614–618). `updateCardLockedState` updates locked flags and recomputes costs but never re-sorts. Cards don't move to their correct position (locked cards sort after unlocked ones in the detail panel list) until the mission is re-calculated or the panel is closed and reopened.
+
+**B15. [DONE] Owning a card in the detail panel blanks the panel for points missions**
+`updateCardOwnedState` reset points missions to `"Not Calculated"` and cleared `missionCards = []`, causing the detail panel to go blank. The user had to navigate to the mission list and click Calculate to restore it. Fix: keep `missionCards` intact on reset (owned flag is already updated by the first loop), and auto-recalculate the open mission in `toggleOwn` when it transitions to `"Not Calculated"`.
 
 ---
 

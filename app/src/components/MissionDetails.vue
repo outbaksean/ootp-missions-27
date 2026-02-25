@@ -309,9 +309,12 @@ async function toggleLock(cardId: number) {
   missionStore.updateCardLockedState(cardId, locked);
 }
 
-function toggleOwn(cardId: number) {
+async function toggleOwn(cardId: number) {
   cardStore.toggleCardOwnedOverride(cardId);
   missionStore.updateCardOwnedState(cardId);
+  if (props.selectedMission?.progressText === "Not Calculated") {
+    await missionStore.calculateMissionDetails(props.selectedMission.id, true);
+  }
 }
 
 function onPriceChange(card: MissionCard, event: Event) {
