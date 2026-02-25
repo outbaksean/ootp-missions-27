@@ -190,13 +190,13 @@ export const useMissionStore = defineStore("mission", () => {
           return a.price - b.price;
         });
 
-      const ownedPoints = mission.cards.reduce((total, mc) => {
-        const shopCard = shopCardsById.get(mc.cardId);
-        return total + (shopCard?.owned ? mc.points || 0 : 0);
-      }, 0);
-
-      const remainingPoints = mission.requiredCount - ownedPoints;
-      userMission.progressText = `${ownedPoints.toLocaleString()} / ${mission.requiredCount.toLocaleString()} pts (${remainingPoints.toLocaleString()} remaining, ${mission.totalPoints?.toLocaleString()} total)`;
+      const lockedPoints = missionCards
+        .filter((c) => c.owned && c.locked)
+        .reduce((sum, c) => sum + (c.points ?? 0), 0);
+      const ownedPoints = missionCards
+        .filter((c) => c.owned)
+        .reduce((sum, c) => sum + (c.points ?? 0), 0);
+      userMission.progressText = `${lockedPoints.toLocaleString()} / ${mission.requiredCount.toLocaleString()} pts locked (${ownedPoints.toLocaleString()} pts owned)`;
       for (const mc of missionCards) {
         mc.shouldLock = costInfo.lockIds.has(mc.cardId);
       }
@@ -356,9 +356,10 @@ export const useMissionStore = defineStore("mission", () => {
           return a.price - b.price;
         });
 
-      const ownedCount = mission.cards.filter(
-        (card) => shopCardsById.get(card.cardId)?.owned,
+      const lockedCount = missionCards.filter(
+        (c) => c.owned && c.locked,
       ).length;
+      const ownedCount = missionCards.filter((c) => c.owned).length;
 
       for (const mc of missionCards) {
         mc.shouldLock = costInfo.lockIds.has(mc.cardId);
@@ -380,7 +381,7 @@ export const useMissionStore = defineStore("mission", () => {
       return {
         id: mission.id,
         rawMission: mission,
-        progressText: `${ownedCount} / ${mission.requiredCount} owned (${mission.cards.length} total)`,
+        progressText: `${lockedCount} / ${mission.requiredCount} locked (${ownedCount} owned)`,
         completed,
         missionCards,
         remainingPrice: costInfo.remainingPrice,
@@ -551,6 +552,21 @@ export const useMissionStore = defineStore("mission", () => {
         mission.rawMission,
         mission.missionCards,
       );
+      if (mission.rawMission.type === "count") {
+        const lockedCount = mission.missionCards.filter(
+          (c) => c.owned && c.locked,
+        ).length;
+        const ownedCount = mission.missionCards.filter((c) => c.owned).length;
+        mission.progressText = `${lockedCount} / ${mission.rawMission.requiredCount} locked (${ownedCount} owned)`;
+      } else if (mission.rawMission.type === "points") {
+        const lockedPts = mission.missionCards
+          .filter((c) => c.owned && c.locked)
+          .reduce((sum, c) => sum + (c.points ?? 0), 0);
+        const ownedPts = mission.missionCards
+          .filter((c) => c.owned)
+          .reduce((sum, c) => sum + (c.points ?? 0), 0);
+        mission.progressText = `${lockedPts.toLocaleString()} / ${mission.rawMission.requiredCount.toLocaleString()} pts locked (${ownedPts.toLocaleString()} pts owned)`;
+      }
     }
 
     // Re-aggregate missions-type missions from their updated sub-missions.
@@ -676,11 +692,12 @@ export const useMissionStore = defineStore("mission", () => {
             if (a.locked !== b.locked) return a.locked ? 1 : -1;
             return a.price - b.price;
           });
-        const ownedCount = mission.rawMission.cards.filter(
-          (c) => shopCardsById.get(c.cardId)?.owned,
+        const lockedCount = mission.missionCards.filter(
+          (c) => c.owned && c.locked,
         ).length;
+        const ownedCount = mission.missionCards.filter((c) => c.owned).length;
         mission.remainingPrice = costInfo4.remainingPrice;
-        mission.progressText = `${ownedCount} / ${mission.rawMission.requiredCount} owned (${mission.rawMission.cards.length} total)`;
+        mission.progressText = `${lockedCount} / ${mission.rawMission.requiredCount} locked (${ownedCount} owned)`;
         mission.unlockedCardsPrice = costInfo4.unlockedCardsPrice;
         for (const mc of mission.missionCards) {
           mc.shouldLock = costInfo4.lockIds.has(mc.cardId);
@@ -852,6 +869,11 @@ export const useMissionStore = defineStore("mission", () => {
         for (const mc of um.missionCards) {
           mc.shouldLock = costInfo5.lockIds.has(mc.cardId);
         }
+        const lockedCount = um.missionCards.filter(
+          (c) => c.owned && c.locked,
+        ).length;
+        const ownedCount = um.missionCards.filter((c) => c.owned).length;
+        um.progressText = `${lockedCount} / ${mission.requiredCount} locked (${ownedCount} owned)`;
         const rewardValue = MissionHelper.calculateRewardValue(
           mission.rewards,
           settingsStore.packPrices,

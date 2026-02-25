@@ -434,8 +434,10 @@ function progressPercent(mission: UserMission): number {
   if (!required) return 0;
 
   if (mission.rawMission.type === "count") {
-    const owned = mission.missionCards.filter((c) => c.owned).length;
-    return Math.min(100, Math.round((owned / required) * 100));
+    const locked = mission.missionCards.filter(
+      (c) => c.owned && c.locked,
+    ).length;
+    return Math.min(100, Math.round((locked / required) * 100));
   }
 
   // points / missions: parse leading number from progressText
