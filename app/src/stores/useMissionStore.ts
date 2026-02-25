@@ -705,10 +705,11 @@ export const useMissionStore = defineStore("mission", () => {
           mission.missionCards,
         );
       } else {
-        // points: reset to Not Calculated so user can recalculate
+        // points: reset to Not Calculated so user can recalculate.
+        // Keep missionCards intact (owned flag already updated by the first
+        // loop above) so the detail panel doesn't blank out.
         mission.progressText = "Not Calculated";
         mission.completed = false;
-        mission.missionCards = [];
         mission.remainingPrice = 0;
         mission.unlockedCardsPrice = 0;
         mission.rewardValue = undefined;
