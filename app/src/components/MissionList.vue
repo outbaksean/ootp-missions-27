@@ -217,7 +217,7 @@
               <button
                 v-if="
                   missionStore.manualCompleteOverrides.has(mission.id) ||
-                  missionCanMarkComplete(mission)
+                  missionStore.missionCanMarkComplete(mission)
                 "
                 class="btn-mark-done"
                 :class="{
@@ -401,29 +401,6 @@ function groupCompletedRewardItems(
   missions: UserMission[],
 ): { label: string; count: number }[] {
   return collectRewardItems(missions.filter((m) => m.completed));
-}
-
-function missionCanMarkComplete(mission: UserMission): boolean {
-  const rawMission = mission.rawMission;
-  if (rawMission.type === "count") {
-    if (mission.progressText === "Not Calculated") return false;
-    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
-    return ownedCount >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "points") {
-    if (mission.progressText === "Not Calculated") return false;
-    const ownedPoints = mission.missionCards
-      .filter((c) => c.owned)
-      .reduce((sum, c) => sum + (c.points ?? 0), 0);
-    return ownedPoints >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "missions") {
-    const subs = missionStore.userMissions.filter((um) =>
-      rawMission.missionIds?.includes(um.rawMission.id),
-    );
-    return subs.filter((s) => s.completed).length >= rawMission.requiredCount;
-  }
-  return false;
 }
 
 function progressPercent(mission: UserMission): number {
