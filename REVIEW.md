@@ -110,7 +110,7 @@ Every other `mission.completed` assignment in the codebase (e.g. lines 404-406, 
 
 ### Medium
 
-**B13. [REVISIT] `progressText` and progress bar track "owned" but completion requires "locked"**
+**B13. [WONTFIX] `progressText` and progress bar track "owned" but completion requires "locked"**
 Count missions build their `progressText` as `"X / Y owned (Z total)"` using `ownedCount` (lines 383, 683 in `useMissionStore.ts`). Points missions likewise track `ownedPoints` (line 199). `progressPercent` in `MissionList.vue:437` also uses owned count. But `computeCompleted` (line 104–114) requires `owned && locked` for the Done badge. Result: users can see "2/2 owned" with a full progress bar and no Done badge, with no indication that locking the cards is the missing step.
 
 ### Low
@@ -138,7 +138,7 @@ Identical eligibility logic lives in both `MissionList.vue:406–427` and `Missi
 **M1. PreRelease Status modal content is stale and contains orphaned markup**
 `CardUploader.vue:163` has an orphaned `data-v-31773649=""` attribute (copy-paste from an old scoped component). The modal body still references "OOTP 26 data", lists features that are now shipped (card value sorting, lock selection, price overrides), and exposes developer working-notes as public UI. Should be refreshed or removed before the production launch.
 
-**M2. "Done" badge and collapse chevrons violate the UI symbol convention**
+**M2. [WONTFIX] "Done" badge and collapse chevrons violate the UI symbol convention**
 `MissionList.vue:112` renders a checkmark character before "Done" and `MissionList.vue:10` renders arrow characters as collapse indicators. The project convention is "No icons, emojis, checkboxes, or symbol characters in UI text or code." The Done badge should use plain text only; the chevrons should be replaced with CSS-only indicators or plain text (e.g. "+" / "-").
 
 ---
