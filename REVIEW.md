@@ -125,7 +125,7 @@ Count missions build their `progressText` as `"X / Y owned (Z total)"` using `ow
 
 ## Round 2 Code Quality
 
-**Q1. `MissionHelper.isMissionComplete` is dead code with wrong logic**
+**Q1. [DONE] `MissionHelper.isMissionComplete` is dead code with wrong logic**
 The static method at `MissionHelper.ts:414` is never called anywhere in the codebase. It also uses the pre-F7 logic (checks `owned` only, not `owned && locked`). Should be removed to avoid confusion if someone tries to use it in the future.
 
 **Q2. `missionCanMarkComplete` logic duplicated across two components**
