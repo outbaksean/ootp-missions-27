@@ -168,6 +168,13 @@
       </div>
     </aside>
 
+    <!-- ─── SIDEBAR BACKDROP (mobile) ─── -->
+    <div
+      v-if="isMobile && !isSidebarCollapsed"
+      class="sidebar-backdrop"
+      @click="toggleSidebar"
+    />
+
     <!-- ─── SIDEBAR TOGGLE ─── -->
     <button
       class="sidebar-toggle"
@@ -181,7 +188,9 @@
       <section
         class="list-panel"
         :style="
-          selectedMission ? { width: listPanelWidth + 'px', flex: 'none' } : {}
+          selectedMission && !isMobile
+            ? { width: listPanelWidth + 'px', flex: 'none' }
+            : {}
         "
       >
         <div v-if="isLoading" class="spinner-container">
@@ -274,7 +283,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useMissionStore } from "../stores/useMissionStore";
 import { useCardStore } from "../stores/useCardStore";
 import CardUploader from "./CardUploader.vue";
@@ -299,6 +308,26 @@ function toggleSidebar() {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
   localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isSidebarCollapsed.value));
 }
+
+const isMobile = ref(window.innerWidth < 768);
+
+function onWindowResize() {
+  const wasDesktop = !isMobile.value;
+  isMobile.value = window.innerWidth < 768;
+  // When crossing into mobile, collapse the sidebar so the list is immediately
+  // usable and the toggle shows the "open" affordance rather than "close".
+  if (isMobile.value && wasDesktop && !isSidebarCollapsed.value) {
+    isSidebarCollapsed.value = true;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("resize", onWindowResize);
+  // On mobile, default to sidebar collapsed if the user has never set a preference
+  if (isMobile.value && localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === null) {
+    isSidebarCollapsed.value = true;
+  }
+});
 
 const LIST_PANEL_WIDTH_KEY = "ootp-list-panel-width";
 const listPanelWidth = ref<number>(
@@ -332,6 +361,7 @@ function stopResize() {
 onUnmounted(() => {
   document.removeEventListener("mousemove", onResizeMove);
   document.removeEventListener("mouseup", stopResize);
+  window.removeEventListener("resize", onWindowResize);
 });
 const settingsStore = useSettingsStore();
 const hasUserCards = computed(
@@ -1013,5 +1043,65 @@ watch(
 .discount-pct {
   font-size: 0.8rem;
   color: var(--sidebar-muted);
+}
+
+/* ─── MOBILE ─── */
+@media (max-width: 767px) {
+  /* Needed so absolute children are scoped to this area, not the viewport */
+  .missions-layout {
+    position: relative;
+  }
+
+  /* Sidebar becomes a slide-in overlay drawer */
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: min(300px, 82vw);
+    z-index: 200;
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+    /* Offset content so it doesn't hide behind the toggle strip */
+    padding-left: 36px;
+  }
+
+  /* On mobile, slide off-screen rather than collapsing width to 0 */
+  .sidebar--collapsed {
+    width: min(300px, 82vw);
+    overflow: hidden;
+    transform: translateX(-100%);
+  }
+
+  /* Dimming overlay behind open sidebar */
+  .sidebar-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 149;
+  }
+
+  /* Toggle stays in flow as the leftmost flex item; give it a tappable width
+     and stack it above the backdrop so it remains reachable */
+  .sidebar-toggle {
+    position: relative;
+    z-index: 201;
+    width: 36px;
+  }
+
+  /* Detail panel: full-screen overlay so the list panel stays untouched.
+     z-index above sidebar-toggle (201) so it covers the full width. */
+  .detail-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 210;
+    min-width: 0;
+    border-left: none;
+  }
+
+  /* Resize handle is mouse-only */
+  .resize-handle {
+    display: none;
+  }
 }
 </style>
