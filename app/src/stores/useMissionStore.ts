@@ -906,7 +906,9 @@ export const useMissionStore = defineStore("mission", () => {
         (sum, m) => sum + m.unlockedCardsPrice,
         0,
       );
-      um.completed = completedCount >= um.rawMission.requiredCount;
+      um.completed =
+        manualCompleteOverrides.value.has(um.id) ||
+        completedCount >= um.rawMission.requiredCount;
       const rewardValue = MissionHelper.calculateRewardValue(
         um.rawMission.rewards,
         settingsStore.packPrices,
