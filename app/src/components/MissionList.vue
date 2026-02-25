@@ -241,580 +241,582 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import type { PropType } from "vue";
-import type { UserMission } from "../models/UserMission";
-import { useMissionStore } from "@/stores/useMissionStore";
+  import { ref } from "vue";
+  import type { PropType } from "vue";
+  import type { UserMission } from "../models/UserMission";
+  import { useMissionStore } from "@/stores/useMissionStore";
 
-defineProps({
-  groups: {
-    type: Array as PropType<Array<{ label: string; missions: UserMission[] }>>,
-    required: true,
-  },
-  isMissionComplete: {
-    type: Function as PropType<(mission: UserMission) => boolean>,
-    required: true,
-  },
-  remainingPriceText: {
-    type: Function as PropType<(mission: UserMission) => string>,
-    required: true,
-  },
-  selectMission: {
-    type: Function as PropType<(mission: UserMission) => void>,
-    required: true,
-  },
-  selectedMission: {
-    type: Object as PropType<UserMission | null>,
-    default: null,
-  },
-});
+  defineProps({
+    groups: {
+      type: Array as PropType<
+        Array<{ label: string; missions: UserMission[] }>
+      >,
+      required: true,
+    },
+    isMissionComplete: {
+      type: Function as PropType<(mission: UserMission) => boolean>,
+      required: true,
+    },
+    remainingPriceText: {
+      type: Function as PropType<(mission: UserMission) => string>,
+      required: true,
+    },
+    selectMission: {
+      type: Function as PropType<(mission: UserMission) => void>,
+      required: true,
+    },
+    selectedMission: {
+      type: Object as PropType<UserMission | null>,
+      default: null,
+    },
+  });
 
-defineEmits<{
-  (e: "calculateMission", id: number): void;
-  (e: "calculateGroup", ids: number[]): void;
-}>();
+  defineEmits<{
+    (e: "calculateMission", id: number): void;
+    (e: "calculateGroup", ids: number[]): void;
+  }>();
 
-const missionStore = useMissionStore();
+  const missionStore = useMissionStore();
 
-const collapsed = ref<Set<string>>(new Set());
+  const collapsed = ref<Set<string>>(new Set());
 
-function toggleGroup(label: string) {
-  const next = new Set(collapsed.value);
-  if (next.has(label)) {
-    next.delete(label);
-  } else {
-    next.add(label);
+  function toggleGroup(label: string) {
+    const next = new Set(collapsed.value);
+    if (next.has(label)) {
+      next.delete(label);
+    } else {
+      next.add(label);
+    }
+    collapsed.value = next;
   }
-  collapsed.value = next;
-}
 
-function groupHasUncalculated(missions: UserMission[]): boolean {
-  return missions.some(
-    (m) => !m.completed && m.progressText === "Not Calculated",
-  );
-}
+  function groupHasUncalculated(missions: UserMission[]): boolean {
+    return missions.some(
+      (m) => !m.completed && m.progressText === "Not Calculated",
+    );
+  }
 
-function groupRemainingTotal(missions: UserMission[]): string {
-  // Only show total when all missions have been calculated
-  if (groupHasUncalculated(missions)) return "";
-  const total = missions
-    .filter((m) => !m.completed)
-    .reduce((sum, m) => sum + m.remainingPrice, 0);
-  if (total <= 0) return "";
-  return (
-    total.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }) + " PP"
-  );
-}
+  function groupRemainingTotal(missions: UserMission[]): string {
+    // Only show total when all missions have been calculated
+    if (groupHasUncalculated(missions)) return "";
+    const total = missions
+      .filter((m) => !m.completed)
+      .reduce((sum, m) => sum + m.remainingPrice, 0);
+    if (total <= 0) return "";
+    return (
+      total.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) + " PP"
+    );
+  }
 
-function groupUnlockedTotal(missions: UserMission[]): string {
-  if (groupHasUncalculated(missions)) return "";
-  const total = missions
-    .filter((m) => !m.completed)
-    .reduce((sum, m) => sum + m.unlockedCardsPrice, 0);
-  if (total <= 0) return "";
-  return (
-    total.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }) + " PP"
-  );
-}
+  function groupUnlockedTotal(missions: UserMission[]): string {
+    if (groupHasUncalculated(missions)) return "";
+    const total = missions
+      .filter((m) => !m.completed)
+      .reduce((sum, m) => sum + m.unlockedCardsPrice, 0);
+    if (total <= 0) return "";
+    return (
+      total.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) + " PP"
+    );
+  }
 
-function groupRewardText(missions: UserMission[]): string {
-  if (groupHasUncalculated(missions)) return "";
-  const withReward = missions.filter(
-    (m) => !m.completed && m.rewardValue !== undefined,
-  );
-  if (withReward.length === 0) return "";
-  const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
-  if (total <= 0) return "";
-  return (
-    total.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }) + " PP"
-  );
-}
+  function groupRewardText(missions: UserMission[]): string {
+    if (groupHasUncalculated(missions)) return "";
+    const withReward = missions.filter(
+      (m) => !m.completed && m.rewardValue !== undefined,
+    );
+    if (withReward.length === 0) return "";
+    const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
+    if (total <= 0) return "";
+    return (
+      total.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) + " PP"
+    );
+  }
 
-function groupValueText(missions: UserMission[]): string {
-  if (groupHasUncalculated(missions)) return "";
-  const withValue = missions.filter(
-    (m) => !m.completed && m.missionValue !== undefined,
-  );
-  if (withValue.length === 0) return "";
-  const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0);
-  const sign = total >= 0 ? "+" : "";
-  return (
-    sign +
-    total.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }) +
-    " PP"
-  );
-}
+  function groupValueText(missions: UserMission[]): string {
+    if (groupHasUncalculated(missions)) return "";
+    const withValue = missions.filter(
+      (m) => !m.completed && m.missionValue !== undefined,
+    );
+    if (withValue.length === 0) return "";
+    const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0);
+    const sign = total >= 0 ? "+" : "";
+    return (
+      sign +
+      total.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) +
+      " PP"
+    );
+  }
 
-function groupValueIsPositive(missions: UserMission[]): boolean {
-  const withValue = missions.filter(
-    (m) => !m.completed && m.missionValue !== undefined,
-  );
-  return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0;
-}
+  function groupValueIsPositive(missions: UserMission[]): boolean {
+    const withValue = missions.filter(
+      (m) => !m.completed && m.missionValue !== undefined,
+    );
+    return withValue.reduce((sum, m) => sum + m.missionValue!, 0) >= 0;
+  }
 
-function collectRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
-  const packCounts = new Map<string, number>();
-  let cardCount = 0;
-  for (const mission of missions) {
-    for (const reward of mission.rawMission.rewards ?? []) {
-      if (reward.type === "pack") {
-        packCounts.set(
-          reward.packType,
-          (packCounts.get(reward.packType) ?? 0) + reward.count,
-        );
-      } else if (reward.type === "card") {
-        cardCount += reward.count ?? 1;
+  function collectRewardItems(
+    missions: UserMission[],
+  ): { label: string; count: number }[] {
+    const packCounts = new Map<string, number>();
+    let cardCount = 0;
+    for (const mission of missions) {
+      for (const reward of mission.rawMission.rewards ?? []) {
+        if (reward.type === "pack") {
+          packCounts.set(
+            reward.packType,
+            (packCounts.get(reward.packType) ?? 0) + reward.count,
+          );
+        } else if (reward.type === "card") {
+          cardCount += reward.count ?? 1;
+        }
       }
     }
-  }
-  const items: { label: string; count: number }[] = [];
-  for (const [packType, count] of packCounts) {
-    items.push({ label: packType, count });
-  }
-  if (cardCount > 0) {
-    items.push({ label: "Card", count: cardCount });
-  }
-  return items.sort((a, b) => b.count - a.count);
-}
-
-function groupRemainingRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
-  return collectRewardItems(missions.filter((m) => !m.completed));
-}
-
-function groupCompletedRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
-  return collectRewardItems(missions.filter((m) => m.completed));
-}
-
-function missionCanMarkComplete(mission: UserMission): boolean {
-  const rawMission = mission.rawMission;
-  if (rawMission.type === "count") {
-    if (mission.progressText === "Not Calculated") return false;
-    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
-    return ownedCount >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "points") {
-    if (mission.progressText === "Not Calculated") return false;
-    const ownedPoints = mission.missionCards
-      .filter((c) => c.owned)
-      .reduce((sum, c) => sum + (c.points ?? 0), 0);
-    return ownedPoints >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "missions") {
-    const subs = missionStore.userMissions.filter((um) =>
-      rawMission.missionIds?.includes(um.rawMission.id),
-    );
-    return subs.filter((s) => s.completed).length >= rawMission.requiredCount;
-  }
-  return false;
-}
-
-function progressPercent(mission: UserMission): number {
-  if (mission.completed) return 100;
-  if (mission.progressText === "Not Calculated") return 0;
-
-  const required = mission.rawMission.requiredCount;
-  if (!required) return 0;
-
-  if (mission.rawMission.type === "count") {
-    const owned = mission.missionCards.filter((c) => c.owned).length;
-    return Math.min(100, Math.round((owned / required) * 100));
+    const items: { label: string; count: number }[] = [];
+    for (const [packType, count] of packCounts) {
+      items.push({ label: packType, count });
+    }
+    if (cardCount > 0) {
+      items.push({ label: "Card", count: cardCount });
+    }
+    return items.sort((a, b) => b.count - a.count);
   }
 
-  // points / missions: parse leading number from progressText
-  const match = mission.progressText.match(/^([\d,]+)/);
-  if (match) {
-    const value = parseInt(match[1].replace(/,/g, ""), 10);
-    return Math.min(100, Math.round((value / required) * 100));
+  function groupRemainingRewardItems(
+    missions: UserMission[],
+  ): { label: string; count: number }[] {
+    return collectRewardItems(missions.filter((m) => !m.completed));
   }
 
-  return 0;
-}
+  function groupCompletedRewardItems(
+    missions: UserMission[],
+  ): { label: string; count: number }[] {
+    return collectRewardItems(missions.filter((m) => m.completed));
+  }
 
-function progressLabel(mission: UserMission): string {
-  if (mission.completed) return "Completed";
-  if (mission.progressText === "Not Calculated") return "Not calculated";
-  return mission.progressText;
-}
+  function missionCanMarkComplete(mission: UserMission): boolean {
+    const rawMission = mission.rawMission;
+    if (rawMission.type === "count") {
+      if (mission.progressText === "Not Calculated") return false;
+      const ownedCount = mission.missionCards.filter((c) => c.owned).length;
+      return ownedCount >= rawMission.requiredCount;
+    }
+    if (rawMission.type === "points") {
+      if (mission.progressText === "Not Calculated") return false;
+      const ownedPoints = mission.missionCards
+        .filter((c) => c.owned)
+        .reduce((sum, c) => sum + (c.points ?? 0), 0);
+      return ownedPoints >= rawMission.requiredCount;
+    }
+    if (rawMission.type === "missions") {
+      const subs = missionStore.userMissions.filter((um) =>
+        rawMission.missionIds?.includes(um.rawMission.id),
+      );
+      return subs.filter((s) => s.completed).length >= rawMission.requiredCount;
+    }
+    return false;
+  }
+
+  function progressPercent(mission: UserMission): number {
+    if (mission.completed) return 100;
+    if (mission.progressText === "Not Calculated") return 0;
+
+    const required = mission.rawMission.requiredCount;
+    if (!required) return 0;
+
+    if (mission.rawMission.type === "count") {
+      const owned = mission.missionCards.filter((c) => c.owned).length;
+      return Math.min(100, Math.round((owned / required) * 100));
+    }
+
+    // points / missions: parse leading number from progressText
+    const match = mission.progressText.match(/^([\d,]+)/);
+    if (match) {
+      const value = parseInt(match[1].replace(/,/g, ""), 10);
+      return Math.min(100, Math.round((value / required) * 100));
+    }
+
+    return 0;
+  }
+
+  function progressLabel(mission: UserMission): string {
+    if (mission.completed) return "Completed";
+    if (mission.progressText === "Not Calculated") return "Not calculated";
+    return mission.progressText;
+  }
 </script>
 
 <style scoped>
-.mission-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+  .mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-/* ─── GROUP HEADER ─── */
-.group-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  width: 100%;
-  background: #e2e8f0;
-  border-radius: 6px;
-  padding: 0.45rem 0.75rem;
-  cursor: pointer;
-  transition: background 0.15s;
-  margin-top: 0.25rem;
-  user-select: none;
-}
+  /* ─── GROUP HEADER ─── */
+  .group-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    background: #e2e8f0;
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 0.25rem;
+    user-select: none;
+  }
 
-.group-header:first-child {
-  margin-top: 0;
-}
+  .group-header:first-child {
+    margin-top: 0;
+  }
 
-.group-header:hover {
-  background: #cbd5e1;
-}
+  .group-header:hover {
+    background: #cbd5e1;
+  }
 
-.group-calculate-btn {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 2px 10px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-  flex-shrink: 0;
-  margin-left: auto;
-}
+  .group-calculate-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
 
-.group-calculate-btn:hover {
-  background: var(--accent-hover);
-}
+  .group-calculate-btn:hover {
+    background: var(--accent-hover);
+  }
 
-.group-chevron {
-  font-size: 0.6rem;
-  color: #64748b;
-  flex-shrink: 0;
-  width: 0.75rem;
-}
+  .group-chevron {
+    font-size: 0.6rem;
+    color: #64748b;
+    flex-shrink: 0;
+    width: 0.75rem;
+  }
 
-.group-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #334155;
-  flex: 1;
-}
+  .group-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #334155;
+    flex: 1;
+  }
 
-.group-meta {
-  font-size: 0.7rem;
-  color: #64748b;
-  flex-shrink: 0;
-}
+  .group-meta {
+    font-size: 0.7rem;
+    color: #64748b;
+    flex-shrink: 0;
+  }
 
-.group-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  flex-shrink: 0;
-  text-align: right;
-}
+  .group-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
 
-.group-stat-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  justify-content: flex-end;
-}
+  .group-stat-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    justify-content: flex-end;
+  }
 
-.group-stat-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #94a3b8;
-  font-weight: 600;
-}
+  .group-stat-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    font-weight: 600;
+  }
 
-.group-stat-value {
-  font-size: 0.7rem;
-  color: #475569;
-  font-weight: 500;
-}
+  .group-stat-value {
+    font-size: 0.7rem;
+    color: #475569;
+    font-weight: 500;
+  }
 
-.group-value--pos {
-  color: #16a34a;
-}
+  .group-value--pos {
+    color: #16a34a;
+  }
 
-.group-value--neg {
-  color: #dc2626;
-}
+  .group-value--neg {
+    color: #dc2626;
+  }
 
-.group-rewards-bar {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  padding-top: 0.3rem;
-  border-top: 1px solid #cbd5e1;
-}
+  .group-rewards-bar {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid #cbd5e1;
+  }
 
-.group-rewards-section-label {
-  width: 100%;
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #94a3b8;
-  font-weight: 600;
-  margin-top: 0.15rem;
-}
+  .group-rewards-section-label {
+    width: 100%;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
 
-.group-rewards-section-label:first-child {
-  margin-top: 0;
-}
+  .group-rewards-section-label:first-child {
+    margin-top: 0;
+  }
 
-.group-reward-chip {
-  font-size: 0.65rem;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #475569;
-  font-weight: 500;
-  border: 1px solid #cbd5e1;
-  white-space: nowrap;
-}
+  .group-reward-chip {
+    font-size: 0.65rem;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 500;
+    border: 1px solid #cbd5e1;
+    white-space: nowrap;
+  }
 
-.group-reward-chip--done {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
-}
+  .group-reward-chip--done {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+  }
 
-/* ─── MISSION CARD ─── */
-.mission-card {
-  background: #fff;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  box-shadow: var(--card-shadow);
-  transition:
-    box-shadow 0.15s,
-    border-color 0.15s;
-}
+  /* ─── MISSION CARD ─── */
+  .mission-card {
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: var(--card-shadow);
+    transition:
+      box-shadow 0.15s,
+      border-color 0.15s;
+  }
 
-.mission-card:hover {
-  box-shadow: var(--card-hover-shadow);
-}
+  .mission-card:hover {
+    box-shadow: var(--card-hover-shadow);
+  }
 
-.mission-card--complete {
-  border-left: 3px solid var(--accent);
-  opacity: 0.72;
-}
+  .mission-card--complete {
+    border-left: 3px solid var(--accent);
+    opacity: 0.72;
+  }
 
-.mission-card--selected {
-  border-color: #94a3b8;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18);
-}
+  .mission-card--selected {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18);
+  }
 
-/* Header */
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.2rem;
-}
+  /* Header */
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
 
-.card-name {
-  font-size: 0.92rem;
-  color: var(--text-primary);
-  flex: 1;
-  font-weight: 600;
-}
+  .card-name {
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    flex: 1;
+    font-weight: 600;
+  }
 
-.badge {
-  font-size: 0.68rem;
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
+  .badge {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
 
-.badge-done {
-  background: #dcfce7;
-  color: #166534;
-}
+  .badge-done {
+    background: #dcfce7;
+    color: #166534;
+  }
 
-.badge-pending {
-  background: #f1f5f9;
-  color: #94a3b8;
-}
+  .badge-pending {
+    background: #f1f5f9;
+    color: #94a3b8;
+  }
 
-/* Reward */
-.card-reward {
-  font-size: 0.76rem;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
-}
+  /* Reward */
+  .card-reward {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
 
-/* Progress */
-.card-progress {
-  margin-bottom: 0.5rem;
-}
+  /* Progress */
+  .card-progress {
+    margin-bottom: 0.5rem;
+  }
 
-.progress-track {
-  height: 5px;
-  background: var(--progress-bg);
-  border-radius: 999px;
-  overflow: hidden;
-  margin-bottom: 0.3rem;
-}
+  .progress-track {
+    height: 5px;
+    background: var(--progress-bg);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 0.3rem;
+  }
 
-.progress-fill {
-  height: 100%;
-  background: var(--progress-fill);
-  border-radius: 999px;
-  transition: width 0.3s ease;
-}
+  .progress-fill {
+    height: 100%;
+    background: var(--progress-fill);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
 
-.progress-label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  .progress-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-.label-unknown {
-  color: #94a3b8;
-  font-style: italic;
-}
+  .label-unknown {
+    color: #94a3b8;
+    font-style: italic;
+  }
 
-/* Footer */
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+  /* Footer */
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-.card-footer-stats {
-  display: flex;
-  flex-direction: row;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-}
+  .card-footer-stats {
+    display: flex;
+    flex-direction: row;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+  }
 
-.card-stat-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-}
+  .card-stat-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+  }
 
-.card-stat-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #94a3b8;
-  font-weight: 600;
-}
+  .card-stat-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    font-weight: 600;
+  }
 
-.card-price {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
+  .card-price {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
 
-.card-value {
-  font-size: 0.72rem;
-  font-weight: 600;
-}
+  .card-value {
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
 
-.card-value--pos {
-  color: #16a34a;
-}
+  .card-value--pos {
+    color: #16a34a;
+  }
 
-.card-value--neg {
-  color: #dc2626;
-}
+  .card-value--neg {
+    color: #dc2626;
+  }
 
-.card-footer-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
+  .card-footer-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
 
-.btn-action {
-  border: none;
-  border-radius: 5px;
-  padding: 4px 14px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
+  .btn-action {
+    border: none;
+    border-radius: 5px;
+    padding: 4px 14px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
 
-.btn-mark-done {
-  padding: 2px 8px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-  background: transparent;
-  color: #64748b;
-  border: 1px solid #cbd5e1;
-  transition:
-    background 0.15s,
-    color 0.15s;
-  white-space: nowrap;
-}
+  .btn-mark-done {
+    padding: 2px 8px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    transition:
+      background 0.15s,
+      color 0.15s;
+    white-space: nowrap;
+  }
 
-.btn-mark-done:hover {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
-}
+  .btn-mark-done:hover {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+  }
 
-.btn-mark-done--active {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
-}
+  .btn-mark-done--active {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+  }
 
-.btn-mark-done--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
+  .btn-mark-done--active:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
 
-.btn-calculate {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-}
+  .btn-calculate {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+  }
 
-.btn-calculate:hover {
-  background: #e2e8f0;
-}
+  .btn-calculate:hover {
+    background: #e2e8f0;
+  }
 
-.btn-select {
-  background: var(--accent);
-  color: #fff;
-}
+  .btn-select {
+    background: var(--accent);
+    color: #fff;
+  }
 
-.btn-select:hover {
-  background: var(--accent-hover);
-}
+  .btn-select:hover {
+    background: var(--accent-hover);
+  }
 </style>

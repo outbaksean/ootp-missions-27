@@ -218,599 +218,606 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import type { UserMission } from "../models/UserMission";
-import type { MissionCard } from "@/models/MissionCard";
-import { useCardStore } from "@/stores/useCardStore";
-import { useMissionStore } from "@/stores/useMissionStore";
+  import { computed, ref, watch } from "vue";
+  import type { UserMission } from "../models/UserMission";
+  import type { MissionCard } from "@/models/MissionCard";
+  import { useCardStore } from "@/stores/useCardStore";
+  import { useMissionStore } from "@/stores/useMissionStore";
 
-const props = defineProps({
-  selectedMission: Object as () => UserMission | null,
-  missions: Array as () => UserMission[],
-});
-
-const cardStore = useCardStore();
-const missionStore = useMissionStore();
-
-defineEmits<{
-  (e: "selectMission", mission: UserMission): void;
-}>();
-
-const hasUnappliedChanges = ref(false);
-const expandedSharedCardId = ref<number | null>(null);
-
-const isManuallyComplete = computed(() =>
-  props.selectedMission
-    ? missionStore.manualCompleteOverrides.has(props.selectedMission.id)
-    : false,
-);
-
-const canMarkComplete = computed(() => {
-  if (!props.selectedMission) return false;
-  const mission = props.selectedMission;
-  if (mission.progressText === "Not Calculated") return false;
-  const rawMission = mission.rawMission;
-  if (rawMission.type === "count") {
-    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
-    return ownedCount >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "points") {
-    const ownedPoints = mission.missionCards
-      .filter((c) => c.owned)
-      .reduce((sum, c) => sum + (c.points ?? 0), 0);
-    return ownedPoints >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "missions") {
-    const completedCount = selectedMissionSubMissions.value.filter(
-      (m) => m.completed,
-    ).length;
-    return completedCount >= rawMission.requiredCount;
-  }
-  return false;
-});
-
-function onToggleMissionComplete() {
-  if (props.selectedMission) {
-    missionStore.toggleMissionComplete(props.selectedMission.id);
-  }
-}
-
-const cardMissionMap = computed((): Map<number, UserMission[]> => {
-  const map = new Map<number, UserMission[]>();
-  for (const mission of props.missions ?? []) {
-    for (const card of mission.rawMission.cards ?? []) {
-      if (!map.has(card.cardId)) map.set(card.cardId, []);
-      map.get(card.cardId)!.push(mission);
-    }
-  }
-  return map;
-});
-
-function otherMissionsForCard(cardId: number): UserMission[] {
-  const all = cardMissionMap.value.get(cardId) ?? [];
-  return all.filter((m) => m.id !== props.selectedMission?.id);
-}
-
-function toggleSharedMissions(cardId: number) {
-  expandedSharedCardId.value =
-    expandedSharedCardId.value === cardId ? null : cardId;
-}
-
-watch(
-  () => props.selectedMission?.id,
-  () => {
-    expandedSharedCardId.value = null;
-  },
-);
-
-async function toggleLock(cardId: number) {
-  await cardStore.toggleCardLocked(cardId);
-  const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false;
-  missionStore.updateCardLockedState(cardId, locked);
-}
-
-async function toggleOwn(cardId: number) {
-  cardStore.toggleCardOwnedOverride(cardId);
-  missionStore.updateCardOwnedState(cardId);
-  if (props.selectedMission?.progressText === "Not Calculated") {
-    await missionStore.calculateMissionDetails(props.selectedMission.id, true);
-  }
-}
-
-function onPriceChange(card: MissionCard, event: Event) {
-  const input = event.target as HTMLInputElement;
-  const raw = parseInt(input.value, 10);
-  if (!isNaN(raw) && raw > 0) {
-    cardStore.setCardPriceOverride(card.cardId, raw);
-  } else {
-    cardStore.clearCardPriceOverride(card.cardId);
-  }
-  hasUnappliedChanges.value = true;
-}
-
-function clearOverride(cardId: number) {
-  cardStore.clearCardPriceOverride(cardId);
-  hasUnappliedChanges.value = true;
-}
-
-async function recalculate() {
-  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id);
-  hasUnappliedChanges.value = false;
-}
-
-const formatPrice = (price: number) =>
-  price.toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+  const props = defineProps({
+    selectedMission: Object as () => UserMission | null,
+    missions: Array as () => UserMission[],
   });
 
-const selectedMissionSubMissions = computed(() => {
-  if (props.selectedMission?.rawMission.type === "missions" && props.missions) {
-    const missionIds = props.selectedMission.rawMission.missionIds || [];
-    return props.missions.filter((mission: UserMission) =>
-      missionIds.includes(mission.id),
-    );
-  }
-  return [];
-});
+  const cardStore = useCardStore();
+  const missionStore = useMissionStore();
 
-const parentMissions = computed(() => {
-  if (!props.selectedMission || !props.missions) return [];
-  const id = props.selectedMission.id;
-  return props.missions.filter(
-    (m) =>
-      m.rawMission.type === "missions" &&
-      (m.rawMission.missionIds ?? []).includes(id),
+  defineEmits<{
+    (e: "selectMission", mission: UserMission): void;
+  }>();
+
+  const hasUnappliedChanges = ref(false);
+  const expandedSharedCardId = ref<number | null>(null);
+
+  const isManuallyComplete = computed(() =>
+    props.selectedMission
+      ? missionStore.manualCompleteOverrides.has(props.selectedMission.id)
+      : false,
   );
-});
 
-const remainingPriceText = (mission: UserMission) => {
-  if (mission.completed) return "";
-  if (mission.remainingPrice <= 0) return "";
-  return (
-    mission.remainingPrice.toLocaleString(undefined, {
+  const canMarkComplete = computed(() => {
+    if (!props.selectedMission) return false;
+    const mission = props.selectedMission;
+    if (mission.progressText === "Not Calculated") return false;
+    const rawMission = mission.rawMission;
+    if (rawMission.type === "count") {
+      const ownedCount = mission.missionCards.filter((c) => c.owned).length;
+      return ownedCount >= rawMission.requiredCount;
+    }
+    if (rawMission.type === "points") {
+      const ownedPoints = mission.missionCards
+        .filter((c) => c.owned)
+        .reduce((sum, c) => sum + (c.points ?? 0), 0);
+      return ownedPoints >= rawMission.requiredCount;
+    }
+    if (rawMission.type === "missions") {
+      const completedCount = selectedMissionSubMissions.value.filter(
+        (m) => m.completed,
+      ).length;
+      return completedCount >= rawMission.requiredCount;
+    }
+    return false;
+  });
+
+  function onToggleMissionComplete() {
+    if (props.selectedMission) {
+      missionStore.toggleMissionComplete(props.selectedMission.id);
+    }
+  }
+
+  const cardMissionMap = computed((): Map<number, UserMission[]> => {
+    const map = new Map<number, UserMission[]>();
+    for (const mission of props.missions ?? []) {
+      for (const card of mission.rawMission.cards ?? []) {
+        if (!map.has(card.cardId)) map.set(card.cardId, []);
+        map.get(card.cardId)!.push(mission);
+      }
+    }
+    return map;
+  });
+
+  function otherMissionsForCard(cardId: number): UserMission[] {
+    const all = cardMissionMap.value.get(cardId) ?? [];
+    return all.filter((m) => m.id !== props.selectedMission?.id);
+  }
+
+  function toggleSharedMissions(cardId: number) {
+    expandedSharedCardId.value =
+      expandedSharedCardId.value === cardId ? null : cardId;
+  }
+
+  watch(
+    () => props.selectedMission?.id,
+    () => {
+      expandedSharedCardId.value = null;
+    },
+  );
+
+  async function toggleLock(cardId: number) {
+    await cardStore.toggleCardLocked(cardId);
+    const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false;
+    missionStore.updateCardLockedState(cardId, locked);
+  }
+
+  async function toggleOwn(cardId: number) {
+    cardStore.toggleCardOwnedOverride(cardId);
+    missionStore.updateCardOwnedState(cardId);
+    if (props.selectedMission?.progressText === "Not Calculated") {
+      await missionStore.calculateMissionDetails(
+        props.selectedMission.id,
+        true,
+      );
+    }
+  }
+
+  function onPriceChange(card: MissionCard, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const raw = parseInt(input.value, 10);
+    if (!isNaN(raw) && raw > 0) {
+      cardStore.setCardPriceOverride(card.cardId, raw);
+    } else {
+      cardStore.clearCardPriceOverride(card.cardId);
+    }
+    hasUnappliedChanges.value = true;
+  }
+
+  function clearOverride(cardId: number) {
+    cardStore.clearCardPriceOverride(cardId);
+    hasUnappliedChanges.value = true;
+  }
+
+  async function recalculate() {
+    await missionStore.handlePriceOverrideChanged(props.selectedMission?.id);
+    hasUnappliedChanges.value = false;
+  }
+
+  const formatPrice = (price: number) =>
+    price.toLocaleString(undefined, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }) + " PP"
-  );
-};
+    });
 
-const missionCardTitle = (card: MissionCard) => {
-  if (props.selectedMission?.rawMission.type === "points") {
-    return `${card.title} — ${card.points} pts`;
-  }
-  return card.title;
-};
+  const selectedMissionSubMissions = computed(() => {
+    if (
+      props.selectedMission?.rawMission.type === "missions" &&
+      props.missions
+    ) {
+      const missionIds = props.selectedMission.rawMission.missionIds || [];
+      return props.missions.filter((mission: UserMission) =>
+        missionIds.includes(mission.id),
+      );
+    }
+    return [];
+  });
 
-const isMissionComplete = (mission: UserMission) => mission.completed;
+  const parentMissions = computed(() => {
+    if (!props.selectedMission || !props.missions) return [];
+    const id = props.selectedMission.id;
+    return props.missions.filter(
+      (m) =>
+        m.rawMission.type === "missions" &&
+        (m.rawMission.missionIds ?? []).includes(id),
+    );
+  });
+
+  const remainingPriceText = (mission: UserMission) => {
+    if (mission.completed) return "";
+    if (mission.remainingPrice <= 0) return "";
+    return (
+      mission.remainingPrice.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) + " PP"
+    );
+  };
+
+  const missionCardTitle = (card: MissionCard) => {
+    if (props.selectedMission?.rawMission.type === "points") {
+      return `${card.title} — ${card.points} pts`;
+    }
+    return card.title;
+  };
+
+  const isMissionComplete = (mission: UserMission) => mission.completed;
 </script>
 
 <style scoped>
-.mission-details-panel {
-  padding: 1rem;
-}
+  .mission-details-panel {
+    padding: 1rem;
+  }
 
-.detail-mission-header {
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--card-border);
-}
+  .detail-mission-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--card-border);
+  }
 
-.parent-missions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem;
-  margin-bottom: 0.4rem;
-}
+  .parent-missions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-bottom: 0.4rem;
+  }
 
-.parent-label {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  font-weight: 600;
-  flex-shrink: 0;
-}
+  .parent-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
 
-.parent-link {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 0.72rem;
-  color: #3b82f6;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-color: rgba(59, 130, 246, 0.4);
-  transition: color 0.15s;
-}
+  .parent-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.72rem;
+    color: #3b82f6;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(59, 130, 246, 0.4);
+    transition: color 0.15s;
+  }
 
-.parent-link:hover {
-  color: #2563eb;
-}
+  .parent-link:hover {
+    color: #2563eb;
+  }
 
-.detail-mission-name {
-  font-size: 0.97rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  line-height: 1.35;
-}
+  .detail-mission-name {
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.35;
+  }
 
-.detail-reward {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-bottom: 0.3rem;
-}
+  .detail-reward {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
 
-.detail-price {
-  font-size: 0.83rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
+  .detail-price {
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
 
-.detail-meta {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin: 0;
-}
+  .detail-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
 
-.meta-complete {
-  color: var(--success-text);
-  font-weight: 500;
-}
+  .meta-complete {
+    color: var(--success-text);
+    font-weight: 500;
+  }
 
-/* List */
-.btn-recalculate {
-  margin-top: 0.5rem;
-  padding: 3px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
-  transition: background 0.15s;
-}
+  /* List */
+  .btn-recalculate {
+    margin-top: 0.5rem;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    transition: background 0.15s;
+  }
 
-.btn-recalculate:hover {
-  background: #fde68a;
-}
+  .btn-recalculate:hover {
+    background: #fde68a;
+  }
 
-.btn-manual-complete {
-  margin-top: 0.5rem;
-  padding: 3px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-  background: transparent;
-  color: #64748b;
-  border: 1px solid #cbd5e1;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
+  .btn-manual-complete {
+    margin-top: 0.5rem;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
 
-.btn-manual-complete:hover {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
-}
+  .btn-manual-complete:hover {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+  }
 
-.btn-manual-complete--active {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
-}
+  .btn-manual-complete--active {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+  }
 
-.btn-manual-complete--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
+  .btn-manual-complete--active:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
 
-.detail-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
+  .detail-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
 
-.detail-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.45rem 0.65rem;
-  border-radius: 6px;
-  background: #fff;
-  border: 1px solid var(--card-border);
-  flex-wrap: wrap;
-}
+  .detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    flex-wrap: wrap;
+  }
 
-.item-highlighted {
-  background: #fefce8;
-  border-color: #fde047;
-}
+  .item-highlighted {
+    background: #fefce8;
+    border-color: #fde047;
+  }
 
-.item-owned {
-  opacity: 0.55;
-}
+  .item-owned {
+    opacity: 0.55;
+  }
 
-.item-locked {
-  opacity: 0.45;
-}
+  .item-locked {
+    opacity: 0.45;
+  }
 
-.item-unavailable {
-  opacity: 0.5;
-  background: #f8fafc;
-}
+  .item-unavailable {
+    opacity: 0.5;
+    background: #f8fafc;
+  }
 
-.price-unavailable {
-  font-size: 0.7rem;
-  color: #94a3b8;
-  font-style: italic;
-}
+  .price-unavailable {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
 
-.item-name {
-  flex: 1;
-  font-size: 0.78rem;
-  color: var(--text-primary);
-  word-break: break-word;
-  min-width: 0;
-}
+  .item-name {
+    flex: 1;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    word-break: break-word;
+    min-width: 0;
+  }
 
-.detail-item--sub {
-  align-items: center;
-}
+  .detail-item--sub {
+    align-items: center;
+  }
 
-.detail-item--clickable {
-  cursor: pointer;
-  transition: background 0.12s;
-}
+  .detail-item--clickable {
+    cursor: pointer;
+    transition: background 0.12s;
+  }
 
-.detail-item--clickable:hover {
-  background: #f1f5f9;
-}
+  .detail-item--clickable:hover {
+    background: #f1f5f9;
+  }
 
-.sub-mission-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
+  .sub-mission-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
 
-.item-status {
-  font-size: 0.72rem;
-  font-weight: 500;
-  flex-shrink: 0;
-}
+  .item-status {
+    font-size: 0.72rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
 
-.sub-mission-info .item-status {
-  font-weight: 400;
-}
+  .sub-mission-info .item-status {
+    font-weight: 400;
+  }
 
-.status-done {
-  color: var(--success-text);
-}
+  .status-done {
+    color: var(--success-text);
+  }
 
-.status-pending {
-  color: #dc2626;
-}
+  .status-pending {
+    color: #dc2626;
+  }
 
-.item-price-inline {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  flex-shrink: 0;
-}
+  .item-price-inline {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
 
-.item-price-area {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  flex-shrink: 0;
-}
+  .item-price-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    flex-shrink: 0;
+  }
 
-.price-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
+  .price-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
 
-.price-display {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
+  .price-display {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
 
-.price-input {
-  width: 5.5rem;
-  font-size: 0.75rem;
-  padding: 1px 4px;
-  border: 1px solid var(--card-border);
-  border-radius: 4px;
-  background: #fff;
-  color: var(--text-primary);
-  text-align: right;
-}
+  .price-input {
+    width: 5.5rem;
+    font-size: 0.75rem;
+    padding: 1px 4px;
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text-primary);
+    text-align: right;
+  }
 
-.price-input:focus {
-  outline: none;
-  border-color: #94a3b8;
-}
+  .price-input:focus {
+    outline: none;
+    border-color: #94a3b8;
+  }
 
-.price-input::-webkit-outer-spin-button,
-.price-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+  .price-input::-webkit-outer-spin-button,
+  .price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
-.price-input[type="number"] {
-  -moz-appearance: textfield;
-}
+  .price-input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
 
-.price-overridden {
-  border-color: #f59e0b;
-  color: #b45309;
-}
+  .price-overridden {
+    border-color: #f59e0b;
+    color: #b45309;
+  }
 
-.btn-clear-override {
-  font-size: 0.7rem;
-  line-height: 1;
-  padding: 1px 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  background: transparent;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
-}
+  .btn-clear-override {
+    font-size: 0.7rem;
+    line-height: 1;
+    padding: 1px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+  }
 
-.btn-clear-override:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
+  .btn-clear-override:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
 
-.item-badges {
-  display: flex;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
+  .item-badges {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
 
-.pill {
-  font-size: 0.62rem;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-weight: 600;
-}
+  .pill {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
 
-.pill-buy {
-  background: #fef9c3;
-  color: #854d0e;
-}
+  .pill-buy {
+    background: #fef9c3;
+    color: #854d0e;
+  }
 
-.pill-owned {
-  background: #dcfce7;
-  color: #166534;
-}
+  .pill-owned {
+    background: #dcfce7;
+    color: #166534;
+  }
 
-.pill-use {
-  background: #dbeafe;
-  color: #1e40af;
-}
+  .pill-use {
+    background: #dbeafe;
+    color: #1e40af;
+  }
 
-.btn-lock {
-  font-size: 0.62rem;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
+  .btn-lock {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
 
-.btn-lock:hover {
-  background: #f1f5f9;
-  color: #475569;
-}
+  .btn-lock:hover {
+    background: #f1f5f9;
+    color: #475569;
+  }
 
-.btn-lock--active {
-  background: #f1f5f9;
-  color: #64748b;
-  border-color: #cbd5e1;
-}
+  .btn-lock--active {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: #cbd5e1;
+  }
 
-.btn-lock--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
+  .btn-lock--active:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
 
-.btn-own {
-  font-size: 0.62rem;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
+  .btn-own {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
 
-.btn-own:hover {
-  background: #dcfce7;
-  color: #166534;
-  border-color: #86efac;
-}
+  .btn-own:hover {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
 
-.btn-own--active {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
-}
+  .btn-own--active {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+  }
 
-.btn-own--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
+  .btn-own--active:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
 
-.shared-badge {
-  font-size: 0.65rem;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #3b82f6;
-  border: 1px solid #bfdbfe;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
+  .shared-badge {
+    font-size: 0.65rem;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
 
-.shared-badge:hover {
-  background: #dbeafe;
-}
+  .shared-badge:hover {
+    background: #dbeafe;
+  }
 
-.shared-missions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.4rem 0.75rem 0.4rem 1rem;
-  background: #f8fafc;
-  border-left: 2px solid #bfdbfe;
-  margin: 0 0 0.25rem 0;
-  flex-basis: 100%;
-}
+  .shared-missions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.4rem 0.75rem 0.4rem 1rem;
+    background: #f8fafc;
+    border-left: 2px solid #bfdbfe;
+    margin: 0 0 0.25rem 0;
+    flex-basis: 100%;
+  }
 
-.shared-mission-link {
-  font-size: 0.73rem;
-  color: #3b82f6;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
+  .shared-mission-link {
+    font-size: 0.73rem;
+    color: #3b82f6;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 
-.shared-mission-link:hover {
-  color: #1d4ed8;
-}
+  .shared-mission-link:hover {
+    color: #1d4ed8;
+  }
 </style>
