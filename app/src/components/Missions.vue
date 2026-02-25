@@ -157,6 +157,14 @@
         >
           Unset All Complete
         </button>
+        <button
+          class="btn-generate-report"
+          :disabled="!allMissionsCalculated"
+          :title="allMissionsCalculated ? '' : 'Calculate all missions first'"
+          @click="openReportModal"
+        >
+          Generate Report
+        </button>
       </div>
 
       <PackPriceSettings />
@@ -247,28 +255,44 @@
 
       <!-- ─── RESIZE HANDLE ─── -->
       <div
-        v-if="selectedMission"
+        v-if="activeReport || selectedMission"
         class="resize-handle"
         @mousedown="startResize"
       />
 
       <!-- ─── DETAIL PANEL ─── -->
-      <aside v-if="selectedMission" class="detail-panel">
+      <aside v-if="activeReport || selectedMission" class="detail-panel">
         <div class="detail-header">
           <button
             class="close-btn"
-            @click="selectedMission = null"
+            @click="closeDetailPanel"
             aria-label="Close"
           >
             ✕
           </button>
         </div>
+        <MissionReport
+          v-if="activeReport"
+          :config="activeReport"
+          :allUserMissions="missionStore.userMissions"
+          @clear="clearReport"
+          @selectMission="onReportSelectMission"
+        />
         <MissionDetails
+          v-else-if="selectedMission"
           :selectedMission="selectedMission"
           :missions="missions"
           @selectMission="selectMission"
         />
       </aside>
+
+      <!-- ─── REPORT MODAL ─── -->
+      <ReportModal
+        v-if="reportModalOpen"
+        :chainOptions="chainOptions"
+        @generate="onReportGenerate"
+        @close="reportModalOpen = false"
+      />
     </div>
   </div>
 </template>
@@ -282,8 +306,11 @@ import MissionDetails from "./MissionDetails.vue";
 import MissionList from "./MissionList.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
+import ReportModal from "./ReportModal.vue";
+import MissionReport from "./MissionReport.vue";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import type { UserMission } from "../models/UserMission";
+import type { ReportConfig } from "../helpers/ReportHelper";
 
 defineOptions({ name: "MissionsView" });
 
@@ -600,7 +627,50 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 
 const selectMission = (mission: UserMission) => {
   selectedMission.value = mission;
+  activeReport.value = null;
 };
+
+// ─── REPORT ───
+const allMissionsCalculated = computed(
+  () =>
+    missionStore.userMissions.length > 0 &&
+    missionStore.userMissions.every(
+      (m) => m.completed || m.progressText !== "Not Calculated",
+    ),
+);
+
+const reportModalOpen = ref(false);
+const activeReport = ref<ReportConfig | null>(null);
+
+const chainOptions = computed(() =>
+  missionStore.userMissions.filter(
+    (m) => m.rawMission.type === "missions" && !m.completed,
+  ),
+);
+
+function openReportModal() {
+  reportModalOpen.value = true;
+}
+
+function onReportGenerate(config: ReportConfig) {
+  activeReport.value = config;
+  reportModalOpen.value = false;
+  selectedMission.value = null;
+}
+
+function clearReport() {
+  activeReport.value = null;
+}
+
+function onReportSelectMission(mission: UserMission) {
+  activeReport.value = null;
+  selectedMission.value = mission;
+}
+
+function closeDetailPanel() {
+  selectedMission.value = null;
+  activeReport.value = null;
+}
 
 const missionCategories = computed(() => {
   const categories = new Set<string>();
@@ -789,6 +859,31 @@ watch(
 .btn-unmark-all-complete:hover {
   background: #7f1d1d;
   color: #fee2e2;
+}
+
+.btn-generate-report {
+  background: transparent;
+  color: #93c5fd;
+  border: 1px solid #60a5fa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  width: 100%;
+}
+
+.btn-generate-report:hover:not(:disabled) {
+  background: #1e3a5f;
+  color: #dbeafe;
+}
+
+.btn-generate-report:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .calc-hint {
