@@ -128,7 +128,7 @@ Count missions build their `progressText` as `"X / Y owned (Z total)"` using `ow
 **Q1. [DONE] `MissionHelper.isMissionComplete` is dead code with wrong logic**
 The static method at `MissionHelper.ts:414` is never called anywhere in the codebase. It also uses the pre-F7 logic (checks `owned` only, not `owned && locked`). Should be removed to avoid confusion if someone tries to use it in the future.
 
-**Q2. `missionCanMarkComplete` logic duplicated across two components**
+**Q2. [DONE] `missionCanMarkComplete` logic duplicated across two components**
 Identical eligibility logic lives in both `MissionList.vue:406–427` and `Missions.vue:559–580`. The `MissionList.vue` copy adds a `progressText === "Not Calculated"` guard that the `Missions.vue` copy lacks. Either extract to the store or make `MissionList.vue` accept the function as a prop (consistent with how `isMissionComplete` is passed).
 
 ---
