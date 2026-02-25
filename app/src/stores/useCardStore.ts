@@ -111,6 +111,8 @@ export const useCardStore = defineStore("card", () => {
     localStorage.removeItem(OWNED_OVERRIDES_KEY);
     cardPriceOverrides.value = new Map();
     localStorage.removeItem(PRICE_OVERRIDES_KEY);
+
+    await fetchDefaultCards();
   }
 
   function setCardPriceOverride(cardId: number, price: number) {
