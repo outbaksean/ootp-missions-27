@@ -95,6 +95,49 @@ The upload help box can be cleaned up, an overall help button may be worth addin
 
 ---
 
+## Round 2 Bugs
+
+### High
+
+**B12. [DONE] `handlePriceOverrideChanged` drops manual completion for missions-type parents**
+In `useMissionStore.ts:909`, the re-aggregation loop inside `handlePriceOverrideChanged` sets:
+```
+um.completed = completedCount >= um.rawMission.requiredCount;
+```
+Every other `mission.completed` assignment in the codebase (e.g. lines 404-406, 583-585, 596-598, 731-733, 966-968) prepends `manualCompleteOverrides.value.has(um.id) ||`. This one spot is the sole exception. Reproducer: manually mark a missions-type parent Done, then change a price override on any sub-mission, and the parent loses its Done badge.
+
+### Medium
+
+**B13. `progressText` and progress bar track "owned" but completion requires "locked"**
+Count missions build their `progressText` as `"X / Y owned (Z total)"` using `ownedCount` (lines 383, 683 in `useMissionStore.ts`). Points missions likewise track `ownedPoints` (line 199). `progressPercent` in `MissionList.vue:437` also uses owned count. But `computeCompleted` (line 104–114) requires `owned && locked` for the Done badge. Result: users can see "2/2 owned" with a full progress bar and no Done badge, with no indication that locking the cards is the missing step.
+
+### Low
+
+**B14. `updateCardLockedState` doesn't re-sort `missionCards` after a lock toggle**
+`updateCardOwnedState` re-sorts `mission.missionCards` after updating the owned flag (line 614–618). `updateCardLockedState` updates locked flags and recomputes costs but never re-sorts. Cards don't move to their correct position (locked cards sort after unlocked ones in the detail panel list) until the mission is re-calculated or the panel is closed and reopened.
+
+---
+
+## Round 2 Code Quality
+
+**Q1. `MissionHelper.isMissionComplete` is dead code with wrong logic**
+The static method at `MissionHelper.ts:414` is never called anywhere in the codebase. It also uses the pre-F7 logic (checks `owned` only, not `owned && locked`). Should be removed to avoid confusion if someone tries to use it in the future.
+
+**Q2. `missionCanMarkComplete` logic duplicated across two components**
+Identical eligibility logic lives in both `MissionList.vue:406–427` and `Missions.vue:559–580`. The `MissionList.vue` copy adds a `progressText === "Not Calculated"` guard that the `Missions.vue` copy lacks. Either extract to the store or make `MissionList.vue` accept the function as a prop (consistent with how `isMissionComplete` is passed).
+
+---
+
+## Round 2 Maintenance
+
+**M1. PreRelease Status modal content is stale and contains orphaned markup**
+`CardUploader.vue:163` has an orphaned `data-v-31773649=""` attribute (copy-paste from an old scoped component). The modal body still references "OOTP 26 data", lists features that are now shipped (card value sorting, lock selection, price overrides), and exposes developer working-notes as public UI. Should be refreshed or removed before the production launch.
+
+**M2. "Done" badge and collapse chevrons violate the UI symbol convention**
+`MissionList.vue:112` renders a checkmark character before "Done" and `MissionList.vue:10` renders arrow characters as collapse indicators. The project convention is "No icons, emojis, checkboxes, or symbol characters in UI text or code." The Done badge should use plain text only; the chevrons should be replaced with CSS-only indicators or plain text (e.g. "+" / "-").
+
+---
+
 ## Backlog
 
 ### 4. F15 — Help text and tooltip cleanup
