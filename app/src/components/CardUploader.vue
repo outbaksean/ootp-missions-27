@@ -168,131 +168,154 @@
             ></button>
           </div>
           <div class="modal-body help-body">
-            <h6>Calculation</h6>
-            <p>
-              Click Calculate on a mission to compute its cost, or use Calculate
-              All in the sidebar to process everything at once. For count
-              missions the app picks the cheapest unowned cards to hit the
-              required number. For points missions it uses a knapsack solver to
-              find the minimum-cost card combination that meets the required
-              point total. Chain missions sum the cheapest incomplete
-              sub-mission costs.
-            </p>
-            <p>
-              Cards not in your uploaded data are excluded. Cards with no price
-              show "Set price to include" in the detail panel — enter a price to
-              add them to the calculation.
-            </p>
+            <details open>
+              <summary>Overview</summary>
+              <p>
+                This app helps you plan the cheapest path to completing OOTP
+                Perfect Team missions. Upload your card shop export (and
+                optional lock export), then calculate mission costs, compare
+                rewards, and decide which missions are worth finishing. The
+                app can also account for the opportunity cost of locking owned
+                cards and can optimize which cards to buy vs lock.
+              </p>
+              <p>
+                All calculations are local to your browser. Data is stored in
+                your browser so your custom prices and lock status persist
+                between visits.
+              </p>
+            </details>
 
-            <h6>Mission list columns</h6>
-            <ul>
-              <li>
-                <strong>Remaining</strong> — cost to acquire the cards flagged
-                Buy in the detail panel.
-              </li>
-              <li>
-                <strong>Unlock Cost</strong> — sell value of the owned cards
-                flagged Use. These cards would need to be locked, giving up the
-                option to sell them.
-              </li>
-              <li>
-                <strong>Reward</strong> — market value of the mission prize.
-                Configure pack prices in the sidebar for missions that pay out
-                packs.
-              </li>
-              <li>
-                <strong>Net</strong> — Reward minus Remaining. With Include
-                unlocked cards enabled, Unlock Cost is also subtracted.
-              </li>
-            </ul>
+            <details open>
+              <summary>Uploading data</summary>
+              <p>
+                Start by exporting your card shop list with no filters and
+                upload the CSV under User Cards. This provides prices and owned
+                status. If you want lock status displayed, also export your
+                locked card report with PT Card ID and PT Lock columns and
+                upload it under Card Locks.
+              </p>
+              <p>
+                You can manually set prices and owned and locked status in the mission
+                details panel without any uploads, but uploads are recommended
+                for accurate prices and faster setup.
+              </p>
+              <ul>
+                <li>
+                  User Cards: required for accurate prices and ownership.
+                </li>
+                <li>
+                  Card Locks: optional, adds locked status and unlock cost.
+                </li>
+                <li>
+                  Large inventories may be paginated by the game; if you are
+                  missing cards, reduce your total cards before exporting. This applies to export for locked cards, owned cards come from the shop export which doesn't have this issue.
+                </li>
+              </ul>
+            </details>
 
-            <h6>Mission detail panel</h6>
-            <p>
-              Cards are sorted unowned first (cheapest to most expensive), then
-              owned unlocked, then locked.
-            </p>
-            <ul>
-              <li>
-                <strong>Buy</strong> — this card is included in the calculated
-                cost. Acquire it to complete the mission.
-              </li>
-              <li>
-                <strong>Use</strong> — with Optimize on, an owned card the
-                solver recommends locking rather than buying a cheaper
-                alternative.
-              </li>
-              <li>
-                <strong>Owned / Locked</strong> — current status badges. Use the
-                Lock and Own buttons to update status without re-uploading.
-                Changes persist across reloads.
-              </li>
-              <li>
-                <strong>Price field</strong> — click to override the card's
-                price. Highlighted when overridden. Persists across reloads.
-              </li>
-              <li>
-                <strong>N other missions</strong> — this card appears in other
-                missions. Click to expand the list.
-              </li>
-              <li>
-                <strong>Recalculate</strong> — appears when owned or lock status
-                has changed. Click to update the mission cost.
-              </li>
-              <li>
-                <strong>Set Completed</strong> — manually mark a mission done.
-                Available when you own enough cards. The mission also
-                auto-completes once enough cards are locked.
-              </li>
-            </ul>
+            <details open>
+              <summary>Mission list</summary>
+              <p>
+                Each row shows an overview of mission completion cost and value.
+                Calculations update automatically as data and settings change.
+              </p>
+              <ul>
+                <li>
+                  Remaining: cost to acquire cards marked Buy in details.
+                </li>
+                <li>
+                  Unlock Cost: sell value of owned cards marked Use.
+                </li>
+                <li>
+                  Reward: market value of the mission prize. Set pack prices in
+                  the sidebar to value pack rewards.
+                </li>
+                <li>
+                  Net: Reward minus Remaining. When Include unlocked cards is
+                  enabled, Unlock Cost is also subtracted.
+                </li>
+                <li>
+                  Group rows summarize totals for the visible missions when
+                  grouped by chain or category.
+                </li>
+              </ul>
+            </details>
 
-            <h6>Sidebar options</h6>
-            <ul>
-              <li>
-                <strong>Group by</strong> — None: flat list. Chain: grouped
-                under parent chain missions. Category: grouped by in-game
-                mission category.
-              </li>
-              <li>
-                <strong>Target Mission</strong> — filters the list to only
-                missions that contribute to a selected chain mission.
-              </li>
-              <li>
-                <strong>Sort by</strong> — Default: data order. Remaining Price:
-                cheapest to complete first. Mission Value: best net value first.
-                Name: alphabetical.
-              </li>
-              <li>
-                <strong>Use Sell Price</strong> — use the lowest active sell
-                order price instead of the last completed sale price.
-              </li>
-              <li>
-                <strong>Hide Completed</strong> — hides missions marked
-                complete.
-              </li>
-              <li>
-                <strong>Positive Value Only</strong> — shows only missions where
-                reward value exceeds the cost to complete them.
-              </li>
-              <li>
-                <strong>Include unlocked cards in net value</strong> — deducts
-                the sell value of cards you would need to lock from net value.
-              </li>
-              <li>
-                <strong>Optimize card assignment</strong> — instead of always
-                buying unowned cards, finds the cheapest mix of buying new cards
-                and locking ones you already own.
-              </li>
-              <li>
-                <strong>Sell - Buy difference</strong> — the percentage spread
-                between a card's price and what you'd receive selling it.
-                Applied to the opportunity cost of locking owned cards.
-              </li>
-              <li>
-                <strong>Pack Prices</strong> — set the PP value of each pack
-                type so reward value can be calculated for missions that pay out
-                packs.
-              </li>
-            </ul>
+            <details open>
+              <summary>Mission details</summary>
+              <p>
+                The detail panel shows every card in the mission, sorted
+                unowned (cheapest first), then owned unlocked, then locked.
+              </p>
+              <ul>
+                <li>
+                  Buy: card is included in the calculated purchase list.
+                </li>
+                <li>
+                  Use: card is owned and the optimizer recommends locking it.
+                </li>
+                <li>
+                  Owned / Locked: current status badges with quick actions.
+                </li>
+                <li>
+                  Price field: override a card price to include it in
+                  calculations or adjust value.
+                </li>
+                <li>
+                  N other missions: shows where else the card appears.
+                </li>
+                <li>
+                  Set Completed: manual completion for missions you can finish.
+                  This does not change the lock status of any cards.
+                </li>
+              </ul>
+            </details>
+
+            <details open>
+              <summary>Preferences</summary>
+              <p>
+                Use the sidebar toggles and selectors to control how missions
+                are filtered and how costs are calculated.
+              </p>
+              <ul>
+                <li>
+                  Group by: None (flat list), Chain (parent mission groups), or
+                  Category (in-game category).
+                </li>
+                <li>
+                  Target Mission: limits the list to missions that feed a
+                  selected chain.
+                </li>
+                <li>
+                  Sort by: Default, Remaining Price, Mission Value, or Name.
+                </li>
+                <li>
+                  Use Sell Price: uses lowest active sell order instead of last
+                  10 price.
+                </li>
+                <li>
+                  Hide Completed: removes finished missions from the list.
+                </li>
+                <li>
+                  Positive Value Only: shows only missions with positive net.
+                </li>
+                <li>
+                  Include unlocked cards in net value: subtracts unlock cost
+                  from net to reflect the full cost of locking owned cards.
+                </li>
+                <li>
+                  Optimize card assignment: finds the cheapest mix of buying
+                  and locking instead of always buying unowned cards.
+                </li>
+                <li>
+                  Sell - Buy difference: adjusts the opportunity cost of
+                  locking owned cards based on tax and market spread.
+                </li>
+                <li>
+                  Pack Prices: set PP values for reward calculation.
+                </li>
+              </ul>
+            </details>
           </div>
           <div class="modal-footer">
             <button
@@ -646,6 +669,45 @@ const handleUserCardsUpload = async (event: Event) => {
 .help-body ul {
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
+}
+
+.help-body details {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.35);
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.help-body details[open] {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.help-body summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #f1f5f9;
+  list-style: none;
+}
+
+.help-body summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-body summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1rem;
+  color: #94a3b8;
+  margin-right: 0.35rem;
+}
+
+.help-body details[open] summary::before {
+  content: "-";
+}
+
+.help-body details > *:not(summary) {
+  margin-top: 0.6rem;
 }
 
 /* ── Modal styling ── */
