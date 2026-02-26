@@ -67,5 +67,6 @@ project.fragment.lock.json
 artifacts/
 
 # OCR working directories
-ocr/output/
+# ocr/output/
 ocr/screenshots/
+mission-pipeline/screenshots/

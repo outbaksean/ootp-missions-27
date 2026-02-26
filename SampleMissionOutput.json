@@ -1,0 +1,789 @@
+{
+  "version": "2026-02-26-ocr-extracted",
+  "note": "Card IDs are not available from OCR - would need manual entry or card image recognition",
+  "missions": [
+    {
+      "id": 1,
+      "name": "The Next Generation",
+      "type": "points",
+      "requiredCount": 450,
+      "reward": "3x Historical Diamond Pack",
+      "category": "Future Legends",
+      "cards": []
+    },
+    {
+      "id": 2,
+      "name": "Debut Heat",
+      "type": "count",
+      "requiredCount": 4,
+      "reward": "Future Legend Call-Ups SP Jacob Misiorowski MIL",
+      "category": "Future Legends",
+      "cards": []
+    },
+    {
+      "id": 3,
+      "name": "Call-Ups",
+      "type": "points",
+      "requiredCount": 305,
+      "reward": "2x Historical Diamond Pack",
+      "category": "Future Legends",
+      "cards": []
+    },
+    {
+      "id": 4,
+      "name": "In the Era",
+      "type": "points",
+      "requiredCount": 85,
+      "reward": "20x Standard Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 5,
+      "name": "Cake Day 3",
+      "type": "count",
+      "requiredCount": 25,
+      "reward": "Rainbow Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 6,
+      "name": "October Missions",
+      "type": "count",
+      "requiredCount": 4,
+      "reward": "Hardware Heroes CF Stan Musial STL 1952, Perfect Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 7,
+      "name": "Platform on screen doors",
+      "type": "count",
+      "requiredCount": 60,
+      "reward": "Historical Diamond Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 8,
+      "name": "Highlight Reel",
+      "type": "count",
+      "requiredCount": 33,
+      "reward": "4x Historical Diamond Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 9,
+      "name": "Sports Spotlight - Clemente",
+      "type": "count",
+      "requiredCount": 8,
+      "reward": "Arriba - October Missions RF Roberto Clemente PIT Peak, Rainbow Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 10,
+      "name": "Bludgers 3",
+      "type": "points",
+      "requiredCount": 570,
+      "reward": "Historical Perfect Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 11,
+      "name": "Lumberjacks",
+      "type": "points",
+      "requiredCount": 215,
+      "reward": "15x Standard Pack",
+      "category": "World Series Start",
+      "cards": []
+    },
+    {
+      "id": 12,
+      "name": "To you",
+      "type": "count",
+      "requiredCount": 8,
+      "reward": "2x Historical Diamond Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 13,
+      "name": "And your family",
+      "type": "count",
+      "requiredCount": 10,
+      "reward": "Rainbow Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 14,
+      "name": "Peanut Brittle",
+      "type": "count",
+      "requiredCount": 3,
+      "reward": "Stocking Stuffers 2 - Hardware Heroes SS Joe Sewell CLE 1922, 2x Standard Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 15,
+      "name": "Sugar Cookies",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "Stocking Stuffers 2 - Future Legend 3B Corstall Worroll TEX, Perfect Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 16,
+      "name": "Holiday Treats",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "3x Historical Gold Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 17,
+      "name": "Hot Cocoa",
+      "type": "points",
+      "requiredCount": 1115,
+      "reward": "2x Rainbow Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 18,
+      "name": "Chocolate Fudge",
+      "type": "count",
+      "requiredCount": 11,
+      "reward": "Stocking Stuffers 2 - Historical All-Star SS Dansby Swanson ATL 2022, 4x Standard Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 19,
+      "name": "Shortbread",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "Stocking Stuffers 2 - Immortal Seasons 4 SP Fernando Valenzuela LAD 1981, 3x Historical Diamond Pack",
+      "category": "Holiday Times",
+      "cards": []
+    },
+    {
+      "id": 20,
+      "name": "PT Elite - LAA",
+      "type": "count",
+      "requiredCount": 57,
+      "reward": "PT Elite 2 SS Zach Neto LAA, 2x Historical Silver Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 21,
+      "name": "PT Elite - MIN",
+      "type": "count",
+      "requiredCount": 43,
+      "reward": "PT Elite 2 SP Joe Ryan MIN, 2x Historical Gold Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 22,
+      "name": "PT Elite - CLE",
+      "type": "count",
+      "requiredCount": 45,
+      "reward": "PT Elite 2 RP Cade Smith CLE, 2x Standard Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 23,
+      "name": "PT Elite - NYY",
+      "type": "count",
+      "requiredCount": 70,
+      "reward": "PT Elite 2 CF Max Ford NYY, 2x Standard Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 24,
+      "name": "PT Elite - TBK",
+      "type": "count",
+      "requiredCount": 47,
+      "reward": "PT Elite 2 1B Jonathan Aranda TB, 3x Historical Gold Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 25,
+      "name": "PT Elite - SEA",
+      "type": "count",
+      "requiredCount": 46,
+      "reward": "PT Elite 2 CL Andres Munoz SEA, 2x Standard Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 26,
+      "name": "PT Elite - NL",
+      "type": "count",
+      "requiredCount": 40,
+      "reward": "PT Elite 3 SP Paul Skenes PIT, 2x Historical Perfect Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 27,
+      "name": "PT Elite - Pitchers",
+      "type": "count",
+      "requiredCount": 36,
+      "reward": "PT Elite 3 SP Garrett Crochet BOS, 2x Historical Perfect Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 28,
+      "name": "PT Elite - Hitters",
+      "type": "count",
+      "requiredCount": 44,
+      "reward": "PT Elite 3 RF Juan Soto NYM, 2x Historical Perfect Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 29,
+      "name": "PT Elite - ALW 2",
+      "type": "points",
+      "requiredCount": 755,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 30,
+      "name": "PT Elite - ALW 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 31,
+      "name": "PT Elite - ALL 2",
+      "type": "points",
+      "requiredCount": 950,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 32,
+      "name": "PT Elite - ALC 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 33,
+      "name": "PT Elite - ALC 2",
+      "type": "points",
+      "requiredCount": 360,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 34,
+      "name": "PT Elite - ALE",
+      "type": "count",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 1B Vladimir Guerrero Jr. TOR, Park: 1903 Hilltop Park",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 35,
+      "name": "PT Elite - Complete",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "PT Elite 3 DH Shohei Ohtani LAD, 2x Historical Rainbow Pack",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 36,
+      "name": "PT Elite - ALC",
+      "type": "count",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 SS Bobby Witt Jr KC, Park: 1946 Brisco Stadium",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 37,
+      "name": "PT Elite - ALW",
+      "type": "count",
+      "requiredCount": 2,
+      "reward": "Park: 1941 Wrigley Field 1941",
+      "category": "PT Elite",
+      "cards": []
+    },
+    {
+      "id": 38,
+      "name": "Bronze Builds",
+      "type": "count",
+      "requiredCount": 32,
+      "reward": "4x Standard Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 39,
+      "name": "T4 Ep. 15",
+      "type": "count",
+      "requiredCount": 17,
+      "reward": "Historical Silver Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 40,
+      "name": "T4 Checkpoint 2",
+      "type": "count",
+      "requiredCount": 15,
+      "reward": "10x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 41,
+      "name": "T4 Ep. 14",
+      "type": "count",
+      "requiredCount": 14,
+      "reward": "Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 42,
+      "name": "T4 Ep. 17",
+      "type": "count",
+      "requiredCount": 14,
+      "reward": "2x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 43,
+      "name": "Nos Amours 2",
+      "type": "points",
+      "requiredCount": 250,
+      "reward": "2x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 44,
+      "name": "T4 Ep. 18",
+      "type": "count",
+      "requiredCount": 10,
+      "reward": "Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 45,
+      "name": "T4 Ep. 16",
+      "type": "count",
+      "requiredCount": 35,
+      "reward": "3x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 46,
+      "name": "New Year's Diaz",
+      "type": "count",
+      "requiredCount": 45,
+      "reward": "Mixed Bag Missions - Rookie Sensation CL Edwin Diaz SEA 2016, 3x Historical Silver Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 47,
+      "name": "T4 Checkpoint 3",
+      "type": "count",
+      "requiredCount": 20,
+      "reward": "Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 48,
+      "name": "Dem Bums",
+      "type": "points",
+      "requiredCount": 165,
+      "reward": "4x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 49,
+      "name": "Christmas",
+      "type": "points",
+      "requiredCount": 391,
+      "reward": "4x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 50,
+      "name": "A Carol",
+      "type": "count",
+      "requiredCount": 10,
+      "reward": "Historical Silver Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 51,
+      "name": "Opposition",
+      "type": "points",
+      "requiredCount": 630,
+      "reward": "5x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 52,
+      "name": "Reference Value",
+      "type": "points",
+      "requiredCount": 650,
+      "reward": "2x Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 53,
+      "name": "Careful about Sample Sizes",
+      "type": "count",
+      "requiredCount": 27,
+      "reward": "Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 54,
+      "name": "BB Reference 10 - Pitchers",
+      "type": "points",
+      "requiredCount": 340,
+      "reward": "Rainbow Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 55,
+      "name": "The Met Museum",
+      "type": "points",
+      "requiredCount": 1030,
+      "reward": "Historical Rainbow Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 56,
+      "name": "Legends of the Past",
+      "type": "points",
+      "requiredCount": 700,
+      "reward": "2x Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 57,
+      "name": "Golden Paralyzer",
+      "type": "points",
+      "requiredCount": 410,
+      "reward": "4x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 58,
+      "name": "Laptophound - Stieb",
+      "type": "count",
+      "requiredCount": 22,
+      "reward": "Laptophound Appreciation Set - Baseball Reference SP Dave Stieb TOR 1989, Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 59,
+      "name": "Leftorium ft. Koufax",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "Perfect Pack - Sandy Koufax LAD 1963, Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 60,
+      "name": "Miggy Mania",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "Miggy Mission - Baseball Reference 3B Miguel Cabrera DET 2013, Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 61,
+      "name": "Get them to chase",
+      "type": "points",
+      "requiredCount": 930,
+      "reward": "5x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 62,
+      "name": "Drop it like it's hot",
+      "type": "count",
+      "requiredCount": 10,
+      "reward": "4x Historical Silver Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 63,
+      "name": "Release the Kraken",
+      "type": "count",
+      "requiredCount": 3,
+      "reward": "Small Sample Studs - Historical Future Legend C Gary Sanchez NYY 2016, 2x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 64,
+      "name": "Laptophound - Vlad",
+      "type": "count",
+      "requiredCount": 3,
+      "reward": "Laptophound Appreciation Set - Hall of Fame RF Vladimir Guerrero MON 2002, Historical Rainbow Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 65,
+      "name": "Time for PJs",
+      "type": "count",
+      "requiredCount": 3,
+      "reward": "Small Sample Studs - Rookie Sensation RF Aristides Aquino CIN 2019, 2x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 66,
+      "name": "BB Reference 10 - Hitters",
+      "type": "points",
+      "requiredCount": 105,
+      "reward": "6x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 67,
+      "name": "Pitching Prowess",
+      "type": "points",
+      "requiredCount": 115,
+      "reward": "Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 68,
+      "name": "Pewpew",
+      "type": "points",
+      "requiredCount": 400,
+      "reward": "2x Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 69,
+      "name": "T4 Ep. 20",
+      "type": "count",
+      "requiredCount": 16,
+      "reward": "3x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 70,
+      "name": "Unleash the deGrominator",
+      "type": "count",
+      "requiredCount": 8,
+      "reward": "Small Sample Studs - Historical All-Star SP Jacob deGrom NYM 2021, 2x Historical Rainbow Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 71,
+      "name": "The Great Gatsby",
+      "type": "points",
+      "requiredCount": 545,
+      "reward": "Historical Perfect Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 72,
+      "name": "You're not Wrong",
+      "type": "points",
+      "requiredCount": 320,
+      "reward": "4x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 73,
+      "name": "T4 Ep. 21",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "4x Historical Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": []
+    },
+    {
+      "id": 74,
+      "name": "HOF Peak",
+      "type": "points",
+      "requiredCount": 400,
+      "reward": "Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 75,
+      "name": "Last Call Low Iron",
+      "type": "count",
+      "requiredCount": 31,
+      "reward": "5x Historical Silver Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 76,
+      "name": "HOF Heroes",
+      "type": "points",
+      "requiredCount": 600,
+      "reward": "2x Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 77,
+      "name": "Last Call Bronze",
+      "type": "count",
+      "requiredCount": 32,
+      "reward": "3x Historical Gold Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 78,
+      "name": "Golden Heart",
+      "type": "count",
+      "requiredCount": 6,
+      "reward": "Final Mission Set - Historical All-Star CL Luis Arroyo NYY 1961, Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 79,
+      "name": "Last Call Silver",
+      "type": "count",
+      "requiredCount": 43,
+      "reward": "5x Historical Gold Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 80,
+      "name": "The Thomenator",
+      "type": "count",
+      "requiredCount": 12,
+      "reward": "Final Mission Set - Hall of Fame 1B Jim Thome CLE 2002, All-Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 81,
+      "name": "Mr Tiger",
+      "type": "count",
+      "requiredCount": 16,
+      "reward": "Final Mission Set - Hall of Fame RF Al Kaline DET 1961, Historical All-Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 82,
+      "name": "Last Call OF",
+      "type": "points",
+      "requiredCount": 210,
+      "reward": "Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 83,
+      "name": "Last Call IF",
+      "type": "points",
+      "requiredCount": 440,
+      "reward": "Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 84,
+      "name": "Last Call CIPP",
+      "type": "points",
+      "requiredCount": 440,
+      "reward": "Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 85,
+      "name": "Last Call Gold",
+      "type": "count",
+      "requiredCount": 24,
+      "reward": "3x Historical Diamond Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 86,
+      "name": "Last Call Perfect Pack",
+      "type": "count",
+      "requiredCount": 30,
+      "reward": "Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    },
+    {
+      "id": 87,
+      "name": "Last Call 100s",
+      "type": "count",
+      "requiredCount": 20,
+      "reward": "Historical Perfect Pack",
+      "category": "Final Mission Set",
+      "cards": []
+    }
+  ]
+}

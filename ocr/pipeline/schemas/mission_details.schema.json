@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "mission_details",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["missionName", "entries"],
+    "properties": {
+      "missionName": {"type": "string"},
+      "category": {"type": "string"},
+      "type": {"type": "string", "enum": ["count", "points", "missions"]},
+      "entries": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["kind", "title"],
+          "properties": {
+            "kind": {"type": "string", "enum": ["card", "mission"]},
+            "title": {"type": "string"},
+            "points": {"type": "integer"}
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "additionalProperties": true
+  }
+}

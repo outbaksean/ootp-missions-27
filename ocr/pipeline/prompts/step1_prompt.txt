@@ -1,0 +1,3 @@
+Use screenshots in ootp-missions-27/ocr/screenshots/missionsByCategory to build output/missions_structure_{uniqueId}.json.
+Follow ootp-missions-27/ocr/pipeline/AI_STEP1_GUIDE.md.
+Return only the JSON file content for missions_structure_{uniqueId}.json.

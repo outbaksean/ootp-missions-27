@@ -1,0 +1,3 @@
+Use screenshots in ootp-missions-27/ocr/screenshots/missionDetails to build output/mission_details_{uniqueId}.json.
+Follow ootp-missions-27/ocr/pipeline/AI_STEP5_GUIDE.md.
+Return only the JSON file content for mission_details_{uniqueId}.json.
