@@ -476,7 +476,9 @@ const handleDiscountChange = (event: Event) => {
   const pct = parseInt(raw, 10);
   // Validate: reject negative values, cap at 99% to prevent zero prices
   if (!isNaN(pct) && pct < 0) {
-    input.value = Math.round(settingsStore.unlockedCardDiscount * 100).toString();
+    input.value = Math.round(
+      settingsStore.unlockedCardDiscount * 100,
+    ).toString();
     return;
   }
   const val = isNaN(pct) ? 0.1 : Math.min(99, Math.max(0, pct)) / 100;
@@ -632,7 +634,9 @@ const remainingPriceText = (mission: UserMission) => {
 
 const isMissionComplete = (mission: UserMission) => mission.completed;
 
-const missionListRef = ref<{ scrollToMission: (id: number) => void } | null>(null);
+const missionListRef = ref<{ scrollToMission: (id: number) => void } | null>(
+  null,
+);
 
 const selectMission = (mission: UserMission) => {
   selectedMission.value = mission;
@@ -896,7 +900,9 @@ watch(
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   flex-shrink: 0;
 }
 

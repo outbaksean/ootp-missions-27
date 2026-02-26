@@ -38,25 +38,74 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <div v-if="!selectedMission.isCompletable && selectedMission.progressText !== 'Not Calculated'" class="unable-warning">
-          Insufficient cards/points available to complete this mission. Set card prices to update.
+        <div
+          v-if="
+            !selectedMission.isCompletable &&
+            selectedMission.progressText !== 'Not Calculated'
+          "
+          class="unable-warning"
+        >
+          Insufficient cards/points available to complete this mission. Set card
+          prices to update.
         </div>
         <div v-if="!selectedMission.completed" class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
-            <span class="stat-value">{{ remainingPriceText(selectedMission) }}</span>
+            <span class="stat-value">{{
+              remainingPriceText(selectedMission)
+            }}</span>
           </div>
           <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
             <span class="stat-label">Unlocked</span>
-            <span class="stat-value">{{ selectedMission.unlockedCardsPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+            <span class="stat-value"
+              >{{
+                selectedMission.unlockedCardsPrice.toLocaleString(undefined, {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+              }}
+              PP</span
+            >
           </div>
-          <div v-if="selectedMission.rewardValue !== undefined" class="stat-row">
+          <div
+            v-if="selectedMission.rewardValue !== undefined"
+            class="stat-row"
+          >
             <span class="stat-label">Reward</span>
-            <span class="stat-value">{{ selectedMission.rewardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+            <span class="stat-value"
+              >{{
+                selectedMission.rewardValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+              }}
+              PP</span
+            >
           </div>
-          <div v-if="selectedMission.missionValue !== undefined && !selectedMission.completed" class="stat-row">
+          <div
+            v-if="
+              selectedMission.missionValue !== undefined &&
+              !selectedMission.completed
+            "
+            class="stat-row"
+          >
             <span class="stat-label">Net</span>
-            <span class="stat-value" :class="selectedMission.missionValue >= 0 ? 'stat-positive' : 'stat-negative'">{{ selectedMission.missionValue >= 0 ? "+" : "" }}{{ selectedMission.missionValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+            <span
+              class="stat-value"
+              :class="
+                selectedMission.missionValue >= 0
+                  ? 'stat-positive'
+                  : 'stat-negative'
+              "
+              >{{ selectedMission.missionValue >= 0 ? "+" : ""
+              }}{{
+                selectedMission.missionValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+              }}
+              PP</span
+            >
           </div>
         </div>
         <button
@@ -129,25 +178,74 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <div v-if="!selectedMission.isCompletable && selectedMission.progressText !== 'Not Calculated'" class="unable-warning">
-          Insufficient cards/points available to complete this mission. Set card prices to update.
+        <div
+          v-if="
+            !selectedMission.isCompletable &&
+            selectedMission.progressText !== 'Not Calculated'
+          "
+          class="unable-warning"
+        >
+          Insufficient cards/points available to complete this mission. Set card
+          prices to update.
         </div>
         <div v-if="!selectedMission.completed" class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
-            <span class="stat-value">{{ remainingPriceText(selectedMission) }}</span>
+            <span class="stat-value">{{
+              remainingPriceText(selectedMission)
+            }}</span>
           </div>
           <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
             <span class="stat-label">Unlocked</span>
-            <span class="stat-value">{{ selectedMission.unlockedCardsPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+            <span class="stat-value"
+              >{{
+                selectedMission.unlockedCardsPrice.toLocaleString(undefined, {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+              }}
+              PP</span
+            >
           </div>
-          <div v-if="selectedMission.rewardValue !== undefined" class="stat-row">
+          <div
+            v-if="selectedMission.rewardValue !== undefined"
+            class="stat-row"
+          >
             <span class="stat-label">Reward</span>
-            <span class="stat-value">{{ selectedMission.rewardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+            <span class="stat-value"
+              >{{
+                selectedMission.rewardValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+              }}
+              PP</span
+            >
           </div>
-          <div v-if="selectedMission.missionValue !== undefined && !selectedMission.completed" class="stat-row">
+          <div
+            v-if="
+              selectedMission.missionValue !== undefined &&
+              !selectedMission.completed
+            "
+            class="stat-row"
+          >
             <span class="stat-label">Net</span>
-            <span class="stat-value" :class="selectedMission.missionValue >= 0 ? 'stat-positive' : 'stat-negative'">{{ selectedMission.missionValue >= 0 ? "+" : "" }}{{ selectedMission.missionValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+            <span
+              class="stat-value"
+              :class="
+                selectedMission.missionValue >= 0
+                  ? 'stat-positive'
+                  : 'stat-negative'
+              "
+              >{{ selectedMission.missionValue >= 0 ? "+" : ""
+              }}{{
+                selectedMission.missionValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+              }}
+              PP</span
+            >
           </div>
         </div>
         <button
@@ -382,7 +480,10 @@ async function onPriceChange(card: MissionCard, event: Event) {
     cardStore.setCardPriceOverride(card.cardId, Math.max(0, raw));
   } else if (!isNaN(raw) && raw < 0) {
     // Reject negative values
-    input.value = Math.max(0, cardStore.cardPriceOverrides.get(card.cardId) ?? card.price).toString();
+    input.value = Math.max(
+      0,
+      cardStore.cardPriceOverrides.get(card.cardId) ?? card.price,
+    ).toString();
   } else {
     cardStore.clearCardPriceOverride(card.cardId);
   }
@@ -401,10 +502,9 @@ async function clearOverride(cardId: number) {
 }
 
 async function recalculate() {
-  await missionStore.handlePriceOverrideChanged(
-    props.selectedMission?.id,
-    [...pendingRecalcCardIds.value],
-  );
+  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id, [
+    ...pendingRecalcCardIds.value,
+  ]);
   pendingRecalcCardIds.value = new Set();
 }
 

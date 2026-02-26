@@ -266,9 +266,7 @@ export const useMissionStore = defineStore("mission", () => {
       : 0;
     userMission.missionValue =
       rewardValueMissions !== undefined
-        ? rewardValueMissions -
-        totalRemainingPrice -
-        unlockedDeductionMissions
+        ? rewardValueMissions - totalRemainingPrice - unlockedDeductionMissions
         : undefined;
   }
 
@@ -285,7 +283,10 @@ export const useMissionStore = defineStore("mission", () => {
     const shopCardsById = cardStore.shopCardsById;
     const overrides = cardStore.cardPriceOverrides;
     const userMission = userMissions.value.find((m) => m.id === missionId);
-    if (!userMission || (!force && userMission.progressText !== "Not Calculated")) {
+    if (
+      !userMission ||
+      (!force && userMission.progressText !== "Not Calculated")
+    ) {
       return;
     }
 
@@ -381,8 +382,8 @@ export const useMissionStore = defineStore("mission", () => {
       userMission.missionValue =
         rewardValuePoints !== undefined
           ? rewardValuePoints -
-          costInfo.remainingPrice -
-          unlockedDeductionPoints
+            costInfo.remainingPrice -
+            unlockedDeductionPoints
           : undefined;
     }
 
@@ -493,10 +494,13 @@ export const useMissionStore = defineStore("mission", () => {
     const cached = await db.missionsCache.get(1);
     // Array.isArray guards against a corrupted entry where the envelope object
     // { version, missions } was accidentally stored as `data` instead of the array.
-    const cacheUsable = cached !== null && cached !== undefined && Array.isArray(cached.data);
+    const cacheUsable =
+      cached !== null && cached !== undefined && Array.isArray(cached.data);
     const cacheExpired =
       !cacheUsable ||
-      (cached.cachedAt !== null && cached.cachedAt !== undefined && Date.now() - cached.cachedAt > CACHE_TTL_MS);
+      (cached.cachedAt !== null &&
+        cached.cachedAt !== undefined &&
+        Date.now() - cached.cachedAt > CACHE_TTL_MS);
 
     if (cacheUsable && !cacheExpired) {
       missions.value = cached.data;
