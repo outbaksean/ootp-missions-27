@@ -198,9 +198,19 @@
           <div class="spinner"></div>
         </div>
         <template v-else>
-          <div v-if="!hasUserCards" class="upload-prompt">
+          <div v-if="!hasUserCards && !promptDismissed" class="upload-prompt">
             <div class="upload-prompt-header">
-              <p class="upload-prompt-title">User data not imported</p>
+              <div class="upload-prompt-title-row">
+                <p class="upload-prompt-title">User data not imported</p>
+                <button
+                  class="upload-prompt-dismiss"
+                  @click="promptDismissed = true"
+                  aria-label="Dismiss"
+                  type="button"
+                >
+                  ✕
+                </button>
+              </div>
               <button
                 class="upload-prompt-toggle"
                 @click="helpExpanded = !helpExpanded"
@@ -378,6 +388,7 @@ const hasUserCards = computed(
   () => cardStore.hasShopCards && !cardStore.isDefaultData,
 );
 const helpExpanded = ref(false);
+const promptDismissed = ref(false);
 function collectDescendantIds(
   rootId: number,
   missionById: Map<number, UserMission>,
@@ -852,7 +863,14 @@ watch(
 
 .upload-prompt-header {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.upload-prompt-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 0.75rem;
 }
 
@@ -860,6 +878,31 @@ watch(
   font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
+  flex: 1;
+  margin: 0;
+}
+
+.upload-prompt-dismiss {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.upload-prompt-dismiss:hover {
+  background: #f1f5f9;
+  color: #475569;
 }
 
 .upload-prompt-toggle {
