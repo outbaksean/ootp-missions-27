@@ -24,9 +24,10 @@ function parseCardType(row: ShopCardRow): CardType {
 }
 
 function parseShopCardRow(row: ShopCardRow): ShopCard {
+  const cardId = parseInt(row["Card ID"], 10) || 0;
   return {
-    cardId: parseInt(row["Card ID"], 10) || 0,
-    cardTitle: row["//Card Title"] || "Unknown",
+    cardId,
+    cardTitle: row["//Card Title"] || `Card #${cardId}`,
     cardValue: parseInt(row["Card Value"], 10) || 0,
     sellOrderLow: parseInt(row["Sell Order Low"], 10) || 0,
     lastPrice: parseInt(row["Last 10 Price"], 10) || 0,
