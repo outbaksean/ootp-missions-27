@@ -1,0 +1,198 @@
+{
+  "version": "2026-02-22",
+  "missions": [
+    {
+      "id": 1,
+      "name": "And your family",
+      "type": "mission",
+      "requiredCount": 10,
+      "reward": "Rainbow Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": []
+    },
+    {
+      "id": 2,
+      "name": "Not just Coal",
+      "type": "count",
+      "requiredCount": 22,
+      "reward": "Stocking Stuffers 2 - Historical All-Star SS Jose Hernandez MIL 2002, 2x Standard Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 22
+    },
+    {
+      "id": 3,
+      "name": "Chocolate Fudge",
+      "type": "count",
+      "requiredCount": 6,
+      "reward": "Stocking Stuffers 2 - Historical All-Star SS Dansby Swanson ATL 2022, 4x Standard Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 11
+    },
+    {
+      "id": 4,
+      "name": "Sugar Cookies",
+      "type": "count",
+      "requiredCount": 2,
+      "reward": "Stocking Stuffers 2 - Future Legend 3B Sebastian Walcott TEX, Perfect Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 9
+    },
+    {
+      "id": 5,
+      "name": "Keep Running",
+      "type": "points",
+      "requiredCount": 510,
+      "reward": "3x Historical Diamond Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 0
+    },
+    {
+      "id": 6,
+      "name": "Holiday Treats",
+      "type": "mission",
+      "requiredCount": 9,
+      "reward": "5x Historical Gold Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": []
+    },
+    {
+      "id": 7,
+      "name": "All the best",
+      "type": "mission",
+      "requiredCount": 6,
+      "reward": "Perfect Pach",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": []
+    },
+    {
+      "id": 8,
+      "name": "Peppermint Bark",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "Stocking Stuffers 2 - In the Deadball of Winter 1B Dick Hoblitzell CIN 1909, 4x Standard Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 12
+    },
+    {
+      "id": 9,
+      "name": "Peanut Brittle",
+      "type": "count",
+      "requiredCount": 3,
+      "reward": "Stocking Stuffers 2 - Hardware Heroes SS Joe Sewell CLE 1923, 2x Standard Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 4
+    },
+    {
+      "id": 10,
+      "name": "Shortbread",
+      "type": "count",
+      "requiredCount": 4,
+      "reward": "Stocking Stuffers 2 - Immortal Seasons 4 SP Fernando Valenzuela LAD 1981, 3x Historical Diamond Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 5
+    },
+    {
+      "id": 11,
+      "name": "Rickey knows Rickey",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Gold Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 5
+    },
+    {
+      "id": 12,
+      "name": "Gingerbread",
+      "type": "count",
+      "requiredCount": 3,
+      "reward": "Stocking Stuffers 2 - Historical All-Star SS Phil Rizzuto NYY 1950, 3x Historical Diamond Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 5
+    },
+    {
+      "id": 13,
+      "name": "Hot Cocoa",
+      "type": "points",
+      "requiredCount": 1115,
+      "reward": "2x Rainbow Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 0
+    },
+    {
+      "id": 14,
+      "name": "Leading Off",
+      "type": "count",
+      "requiredCount": 10,
+      "reward": "Perfect Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 10
+    },
+    {
+      "id": 15,
+      "name": "Candy Canes",
+      "type": "count",
+      "requiredCount": 11,
+      "reward": "Stocking Stuffers 2 - In the Deadball of Winter SP Allen Sothoron SLA 1918, 4x Standard Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 13
+    },
+    {
+      "id": 16,
+      "name": "Butter Toffee",
+      "type": "count",
+      "requiredCount": 19,
+      "reward": "Stocking Stuffers 2 - Hardware Heroes CF Jim Landis CWS 1959, 2x Standard Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": [],
+      "totalPoints": 19
+    },
+    {
+      "id": 17,
+      "name": "Man of Steal",
+      "type": "mission",
+      "requiredCount": 5,
+      "reward": "Stocking Stuffers 2 - Immortal Seasons LF Rickey Henderson OAK 1990, Historical Rainbow Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": []
+    },
+    {
+      "id": 18,
+      "name": "To you",
+      "type": "mission",
+      "requiredCount": 8,
+      "reward": "2x Historical Diamond Pack",
+      "category": "Holiday Times",
+      "cards": [],
+      "rewards": []
+    }
+  ]
+}
