@@ -671,6 +671,8 @@ const handleUserCardsUpload = async (event: Event) => {
   padding: 1.25rem;
   color: #cbd5e1;
   line-height: 1.6;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
 }
 
 :deep(.modal-body h3) {
