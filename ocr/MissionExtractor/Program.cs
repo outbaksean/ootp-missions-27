@@ -1,15 +1,33 @@
 ﻿using OpenCvSharp;
+using Microsoft.Extensions.Configuration;
 
 var projectDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
 var rootDir = Directory.GetParent(projectDir)!.FullName;
 
-var inputFileDir = Path.Combine(rootDir, "screenshots");
+// Load configuration from appsettings.json
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(projectDir)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .Build();
+
+// Read profile settings (using first profile)
+var profile = configuration.GetSection("OotpProfiles:0");
+var topRow = profile.GetValue<int>("Boundaries:TopRow");
+var rowHeight = profile.GetValue<int>("Boundaries:RowHeight");
+var numRows = profile.GetValue<int>("Boundaries:NumRows");
+var categoryLeft = profile.GetValue<int>("Boundaries:CategoryLeft");
+var titleLeft = profile.GetValue<int>("Boundaries:TitleLeft");
+var rewardLeft = profile.GetValue<int>("Boundaries:RewardLeft");
+var statusLeft = profile.GetValue<int>("Boundaries:StatusLeft");
+var statusRight = profile.GetValue<int>("Boundaries:StatusRight");
+
+var inputFileDir = Path.Combine(rootDir, "screenshots", "missionsByCategory");
 var outputFileDir = Path.Combine(rootDir, "output");
 var engineFilePath = Path.Combine(rootDir, "tesseract");
 
-// Define row parameters
-int firstRowY = 320;
-int rowHeight = 20; // Distance between row starts (340 - 320)
+// Define row parameters (loaded from configuration)
+int firstRowY = topRow;
+// rowHeight now comes from configuration
 
 string[] inputFiles = Directory.GetFiles(inputFileDir, "*.png");
 using (var ocrEngine = new Tesseract.TesseractEngine(engineFilePath, "eng", Tesseract.EngineMode.Default))
