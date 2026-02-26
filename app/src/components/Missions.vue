@@ -124,7 +124,7 @@
               type="number"
               class="discount-input"
               min="0"
-              max="100"
+              max="99"
               :value="Math.round(settingsStore.unlockedCardDiscount * 100)"
               @change="handleDiscountChange($event)"
             />
@@ -300,6 +300,8 @@ function toggleSidebar() {
 
 const isMobile = ref(window.innerWidth < 768);
 
+let windowResizeListenerAdded = false;
+
 function onWindowResize() {
   const wasDesktop = !isMobile.value;
   isMobile.value = window.innerWidth < 768;
@@ -312,6 +314,7 @@ function onWindowResize() {
 
 onMounted(() => {
   window.addEventListener("resize", onWindowResize);
+  windowResizeListenerAdded = true;
   // On mobile, default to sidebar collapsed if the user has never set a preference
   if (isMobile.value && localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === null) {
     isSidebarCollapsed.value = true;
@@ -325,12 +328,14 @@ const listPanelWidth = ref<number>(
 
 let resizeStartX = 0;
 let resizeStartWidth = 0;
+let resizeListenersAdded = false;
 
 function startResize(e: MouseEvent) {
   resizeStartX = e.clientX;
   resizeStartWidth = listPanelWidth.value;
   document.addEventListener("mousemove", onResizeMove);
   document.addEventListener("mouseup", stopResize);
+  resizeListenersAdded = true;
   e.preventDefault();
 }
 
@@ -342,15 +347,26 @@ function onResizeMove(e: MouseEvent) {
 }
 
 function stopResize() {
-  document.removeEventListener("mousemove", onResizeMove);
-  document.removeEventListener("mouseup", stopResize);
+  if (resizeListenersAdded) {
+    document.removeEventListener("mousemove", onResizeMove);
+    document.removeEventListener("mouseup", stopResize);
+    resizeListenersAdded = false;
+  }
   localStorage.setItem(LIST_PANEL_WIDTH_KEY, String(listPanelWidth.value));
 }
 
 onUnmounted(() => {
-  document.removeEventListener("mousemove", onResizeMove);
-  document.removeEventListener("mouseup", stopResize);
-  window.removeEventListener("resize", onWindowResize);
+  // Clean up resize handle listeners if they were added
+  if (resizeListenersAdded) {
+    document.removeEventListener("mousemove", onResizeMove);
+    document.removeEventListener("mouseup", stopResize);
+    resizeListenersAdded = false;
+  }
+  // Clean up window resize listener if it was added
+  if (windowResizeListenerAdded) {
+    window.removeEventListener("resize", onWindowResize);
+    windowResizeListenerAdded = false;
+  }
 });
 const settingsStore = useSettingsStore();
 const hasUserCards = computed(
@@ -441,7 +457,8 @@ const handleOptimizeChange = (event: Event) => {
 const handleDiscountChange = (event: Event) => {
   const raw = (event.target as HTMLInputElement).value;
   const pct = parseInt(raw, 10);
-  const val = isNaN(pct) ? 0.1 : Math.min(100, Math.max(0, pct)) / 100;
+  // Cap discount at 99% to prevent zero prices
+  const val = isNaN(pct) ? 0.1 : Math.min(99, Math.max(0, pct)) / 100;
   settingsStore.setUnlockedCardDiscount(val);
   missionStore.buildUserMissions();
 };
