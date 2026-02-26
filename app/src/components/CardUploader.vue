@@ -174,9 +174,9 @@
                 This app helps you plan the cheapest path to completing OOTP
                 Perfect Team missions. Upload your card shop export (and
                 optional lock export), then calculate mission costs, compare
-                rewards, and decide which missions are worth finishing. The
-                app can also account for the opportunity cost of locking owned
-                cards and can optimize which cards to buy vs lock.
+                rewards, and decide which missions are worth finishing. The app
+                can also account for the opportunity cost of locking owned cards
+                and can optimize which cards to buy vs lock.
               </p>
               <p>
                 All calculations are local to your browser. Data is stored in
@@ -195,20 +195,22 @@
                 upload it under Card Locks.
               </p>
               <p>
-                You can manually set prices and owned and locked status in the mission
-                details panel without any uploads, but uploads are recommended
-                for accurate prices and faster setup.
+                You can manually set prices and owned and locked status in the
+                mission details panel without any uploads, but uploads are
+                recommended for accurate prices and faster setup.
               </p>
               <ul>
-                <li>
-                  User Cards: required for accurate prices and ownership.
-                </li>
+                <li>User Cards: required for accurate prices and ownership.</li>
                 <li>
                   Card Locks: optional, adds locked status and unlock cost.
                 </li>
                 <li>
-                  Large inventories may be paginated by the game; if you are
-                  missing cards, reduce your total cards before exporting. This applies to export for locked cards, owned cards come from the shop export which doesn't have this issue.
+                  Large inventories may be paginated by the game making the
+                  locked cards export useless. In that case you can either
+                  quicksell duplicates to get under the limit or manually set
+                  locked status in the app. This does not apply to owned status
+                  as that comes from the shop export which doesn't have this
+                  issue.
                 </li>
               </ul>
             </details>
@@ -220,12 +222,8 @@
                 Calculations update automatically as data and settings change.
               </p>
               <ul>
-                <li>
-                  Remaining: cost to acquire cards marked Buy in details.
-                </li>
-                <li>
-                  Unlock Cost: sell value of owned cards marked Use.
-                </li>
+                <li>Remaining: cost to acquire cards marked Buy in details.</li>
+                <li>Unlock Cost: sell value of owned cards marked Use.</li>
                 <li>
                   Reward: market value of the mission prize. Set pack prices in
                   the sidebar to value pack rewards.
@@ -244,13 +242,11 @@
             <details open>
               <summary>Mission details</summary>
               <p>
-                The detail panel shows every card in the mission, sorted
-                unowned (cheapest first), then owned unlocked, then locked.
+                The detail panel shows every card in the mission, sorted unowned
+                (cheapest first), then owned unlocked, then locked.
               </p>
               <ul>
-                <li>
-                  Buy: card is included in the calculated purchase list.
-                </li>
+                <li>Buy: card is included in the calculated purchase list.</li>
                 <li>
                   Use: card is owned and the optimizer recommends locking it.
                 </li>
@@ -261,9 +257,7 @@
                   Price field: override a card price to include it in
                   calculations or adjust value.
                 </li>
-                <li>
-                  N other missions: shows where else the card appears.
-                </li>
+                <li>N other missions: shows where else the card appears.</li>
                 <li>
                   Set Completed: manual completion for missions you can finish.
                   This does not change the lock status of any cards.
@@ -304,16 +298,14 @@
                   from net to reflect the full cost of locking owned cards.
                 </li>
                 <li>
-                  Optimize card assignment: finds the cheapest mix of buying
-                  and locking instead of always buying unowned cards.
+                  Optimize card assignment: finds the cheapest mix of buying and
+                  locking instead of always buying unowned cards.
                 </li>
                 <li>
-                  Sell - Buy difference: adjusts the opportunity cost of
-                  locking owned cards based on tax and market spread.
+                  Sell - Buy difference: adjusts the opportunity cost of locking
+                  owned cards based on tax and market spread.
                 </li>
-                <li>
-                  Pack Prices: set PP values for reward calculation.
-                </li>
+                <li>Pack Prices: set PP values for reward calculation.</li>
               </ul>
             </details>
           </div>
