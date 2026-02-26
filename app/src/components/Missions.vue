@@ -124,7 +124,7 @@
               type="number"
               class="discount-input"
               min="0"
-              max="100"
+              max="99"
               :value="Math.round(settingsStore.unlockedCardDiscount * 100)"
               @change="handleDiscountChange($event)"
             />
@@ -468,7 +468,8 @@ const handleOptimizeChange = (event: Event) => {
 const handleDiscountChange = (event: Event) => {
   const raw = (event.target as HTMLInputElement).value;
   const pct = parseInt(raw, 10);
-  const val = isNaN(pct) ? 0.1 : Math.min(100, Math.max(0, pct)) / 100;
+  // Cap discount at 99% to prevent zero prices
+  const val = isNaN(pct) ? 0.1 : Math.min(99, Math.max(0, pct)) / 100;
   settingsStore.setUnlockedCardDiscount(val);
   missionStore.buildUserMissions();
 };

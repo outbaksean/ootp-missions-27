@@ -131,9 +131,9 @@ export default class MissionHelper {
         return { cardId: card.cardId, price };
       })
       .filter((card) => card !== null && card.price > 0) as Array<{
-      cardId: number;
-      price: number;
-    }>;
+        cardId: number;
+        price: number;
+      }>;
 
     const sortedCards = nonOwnedCards.sort((a, b) => a.price - b.price);
 
@@ -228,7 +228,8 @@ export default class MissionHelper {
             ? shopCard.sellOrderLow
             : shopCard.lastPrice;
         const rawPrice = overrides?.get(card.cardId) ?? basePrice;
-        const price = rawPrice * (1 - discount);
+        // Apply discount, but ensure price is at least 1 PP to prevent division by zero
+        const price = Math.max(1, rawPrice * (1 - discount));
         return { cardId: card.cardId, price, points: card.points || 0 };
       })
       .filter((c) => c !== null);
@@ -343,7 +344,8 @@ export default class MissionHelper {
       const pool = [
         ...unlockedOwned.map((c) => ({
           ...c,
-          price: c.price * (1 - discount),
+          // Apply discount, but ensure price is at least 1 PP
+          price: Math.max(1, c.price * (1 - discount)),
         })),
         ...unowned,
       ].sort((a, b) => a.price - b.price);
@@ -379,7 +381,11 @@ export default class MissionHelper {
     }
 
     const pool = [
-      ...unlockedOwned.map((c) => ({ ...c, price: c.price * (1 - discount) })),
+      ...unlockedOwned.map((c) => ({
+        ...c,
+        // Apply discount, but ensure price is at least 1 PP
+        price: Math.max(1, c.price * (1 - discount)),
+      })),
       ...unowned,
     ].filter((c) => c.points > 0);
     if (pool.length === 0) {

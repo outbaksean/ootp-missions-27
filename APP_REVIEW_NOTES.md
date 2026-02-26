@@ -1,13 +1,13 @@
 # Notes on APP_REVIEW.md
 
 ## Bugs
-1. fix
+1. fix [DONE]
 2. release work
 3. release work
-4. fix
-5. fix with plan
+4. fix [DONE]
+5. fix handle uncompletable missions
 6. fix
-7. fix with max 99%
+7. fix with max 99% [DONE]
 8. release work
 9. release work
 10. revisit

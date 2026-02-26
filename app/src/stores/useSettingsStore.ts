@@ -59,7 +59,8 @@ export const useSettingsStore = defineStore("settings", () => {
       const raw = localStorage.getItem(UNLOCK_DISCOUNT_KEY);
       if (raw === null) return 0.1;
       const val = parseFloat(raw);
-      return isNaN(val) ? 0.1 : val;
+      // Cap at 0.99 to prevent zero-price edge cases
+      return isNaN(val) ? 0.1 : Math.min(0.99, Math.max(0, val));
     })(),
   );
 
@@ -91,8 +92,10 @@ export const useSettingsStore = defineStore("settings", () => {
   }
 
   function setUnlockedCardDiscount(value: number) {
-    unlockedCardDiscount.value = value;
-    localStorage.setItem(UNLOCK_DISCOUNT_KEY, String(value));
+    // Cap discount at 0.99 (99%) to prevent zero-price edge cases
+    const capped = Math.min(0.99, Math.max(0, value));
+    unlockedCardDiscount.value = capped;
+    localStorage.setItem(UNLOCK_DISCOUNT_KEY, String(capped));
   }
 
   return {
