@@ -5,13 +5,13 @@
 2. release work
 3. release work
 4. fix [DONE]
-5. fix handle uncompletable missions
-6. fix
+5. fix handle uncompletable missions [DONE]
+6. fix [DONE]
 7. fix with max 99% [DONE]
 8. release work
 9. release work
-10. revisit
-11. fix
+10. wontfix
+11. fix [DONE]
 12. release work
 13. revisit
 14. fix
