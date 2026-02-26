@@ -6,6 +6,7 @@ export interface UserMission {
   rawMission: Mission;
   progressText: string;
   completed: boolean;
+  isCompletable: boolean;
   missionCards: Array<MissionCard>;
   remainingPrice: number;
   unlockedCardsPrice: number;

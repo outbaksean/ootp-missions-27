@@ -5,6 +5,7 @@ import type { MissionReward } from "../models/MissionReward";
 interface PriceCalculationResult {
   totalPrice: number;
   includedCards: Array<{ cardId: number; price: number }>;
+  isCompletable: boolean;
 }
 
 export default class MissionHelper {
@@ -16,9 +17,9 @@ export default class MissionHelper {
     }>,
     requiredPoints: number,
   ): PriceCalculationResult {
-    if (requiredPoints <= 0) return { totalPrice: 0, includedCards: [] };
+    if (requiredPoints <= 0) return { totalPrice: 0, includedCards: [], isCompletable: true };
     if (unownedCardsWithPoints.length === 0)
-      return { totalPrice: 0, includedCards: [] };
+      return { totalPrice: 0, includedCards: [], isCompletable: false };
 
     const n = unownedCardsWithPoints.length;
     const maxPoints = unownedCardsWithPoints.reduce(
@@ -34,6 +35,7 @@ export default class MissionHelper {
           cardId: c.cardId,
           price: c.price,
         })),
+        isCompletable: false,
       };
     }
 
@@ -71,7 +73,7 @@ export default class MissionHelper {
       }
     }
 
-    if (targetPoints === -1) return { totalPrice: 0, includedCards: [] };
+    if (targetPoints === -1) return { totalPrice: 0, includedCards: [], isCompletable: false };
 
     // Reconstruct: card i was included if skipping it would have left dp[i+1][p] unchanged
     const includedCards: Array<{ cardId: number; price: number }> = [];
@@ -88,7 +90,7 @@ export default class MissionHelper {
       }
     }
 
-    return { totalPrice: minCost, includedCards };
+    return { totalPrice: minCost, includedCards, isCompletable: true };
   }
 
   private static calculatePriceDetailsCardType(
@@ -106,8 +108,9 @@ export default class MissionHelper {
       (total, card) => total + card.price,
       0,
     );
+    const isCompletable = includedCards.length >= requiredCount;
 
-    return { totalPrice, includedCards };
+    return { totalPrice, includedCards, isCompletable };
   }
 
   static calculateTotalPriceOfNonOwnedCards(
@@ -166,7 +169,7 @@ export default class MissionHelper {
       );
     }
 
-    return { totalPrice: 0, includedCards: [] };
+    return { totalPrice: 0, includedCards: [], isCompletable: true };
   }
 
   /**
@@ -285,6 +288,7 @@ export default class MissionHelper {
     unlockedCardsPrice: number;
     buyCardIds: Set<number>;
     lockCardIds: Set<number>;
+    isCompletable: boolean;
   } {
     if (mission.type !== "count" && mission.type !== "points") {
       return {
@@ -292,6 +296,7 @@ export default class MissionHelper {
         unlockedCardsPrice: 0,
         buyCardIds: new Set(),
         lockCardIds: new Set(),
+        isCompletable: true,
       };
     }
 
@@ -339,6 +344,7 @@ export default class MissionHelper {
           unlockedCardsPrice: 0,
           buyCardIds: new Set(),
           lockCardIds: new Set(),
+          isCompletable: true,
         };
       }
       const pool = [
@@ -365,7 +371,8 @@ export default class MissionHelper {
         (sum, c) => (lockCardIds.has(c.cardId) ? sum + c.price : sum),
         0,
       );
-      return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds };
+      const isCompletable = chosen.length >= needed;
+      return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds, isCompletable };
     }
 
     // mission.type === 'points'
@@ -377,6 +384,7 @@ export default class MissionHelper {
         unlockedCardsPrice: 0,
         buyCardIds: new Set(),
         lockCardIds: new Set(),
+        isCompletable: true,
       };
     }
 
@@ -394,6 +402,7 @@ export default class MissionHelper {
         unlockedCardsPrice: 0,
         buyCardIds: new Set(),
         lockCardIds: new Set(),
+        isCompletable: false,
       };
     }
 
@@ -414,6 +423,6 @@ export default class MissionHelper {
       (sum, c) => (lockCardIds.has(c.cardId) ? sum + c.price : sum),
       0,
     );
-    return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds };
+    return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds, isCompletable: result.isCompletable };
   }
 }

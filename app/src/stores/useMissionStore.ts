@@ -23,6 +23,7 @@ function computeMissionCostInfo(
   unlockedCardsPrice: number;
   highlightedIds: Set<number>;
   lockIds: Set<number>;
+  isCompletable: boolean;
 } {
   if (optimize) {
     const r = MissionHelper.calculateOptimalMissionCost(
@@ -37,6 +38,7 @@ function computeMissionCostInfo(
       unlockedCardsPrice: r.unlockedCardsPrice,
       highlightedIds: r.buyCardIds,
       lockIds: r.lockCardIds,
+      isCompletable: r.isCompletable,
     };
   }
   const rp = MissionHelper.calculateTotalPriceOfNonOwnedCards(
@@ -58,6 +60,7 @@ function computeMissionCostInfo(
     unlockedCardsPrice,
     highlightedIds: new Set(rp.includedCards.map((c) => c.cardId)),
     lockIds: includedCardIds,
+    isCompletable: rp.isCompletable,
   };
 }
 
@@ -203,6 +206,7 @@ export const useMissionStore = defineStore("mission", () => {
 
     userMission.progressText = `${ownedCount} / ${mission.requiredCount} owned (${mission.cards.length} total${lockedSuffix})`;
     userMission.completed = completed;
+    userMission.isCompletable = costInfo.isCompletable;
     userMission.missionCards = missionCards;
     userMission.remainingPrice = costInfo.remainingPrice;
     userMission.unlockedCardsPrice = costInfo.unlockedCardsPrice;
@@ -244,6 +248,7 @@ export const useMissionStore = defineStore("mission", () => {
     );
     userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
     userMission.remainingPrice = totalRemainingPrice;
+    userMission.isCompletable = true; // missions-type completability based on sub-missions
     userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
     userMission.completed =
       manualCompleteOverrides.value.has(mission.id) ||
@@ -358,6 +363,7 @@ export const useMissionStore = defineStore("mission", () => {
       }
       const completed = computeCompleted(mission.id, mission, missionCards);
       userMission.completed = completed;
+      userMission.isCompletable = costInfo.isCompletable;
       userMission.missionCards = missionCards;
       userMission.remainingPrice = costInfo.remainingPrice;
       userMission.unlockedCardsPrice = costInfo.unlockedCardsPrice;
@@ -406,6 +412,7 @@ export const useMissionStore = defineStore("mission", () => {
           rawMission: mission,
           progressText: "Not Calculated",
           completed: false,
+          isCompletable: true,
           missionCards: [],
           remainingPrice: 0,
           unlockedCardsPrice: 0,
@@ -419,6 +426,7 @@ export const useMissionStore = defineStore("mission", () => {
         rawMission: mission,
         progressText: "Not Calculated",
         completed: false,
+        isCompletable: true,
         missionCards: [],
         remainingPrice: 0,
         unlockedCardsPrice: 0,

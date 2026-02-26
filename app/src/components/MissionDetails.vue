@@ -38,6 +38,9 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
+        <div v-if="!selectedMission.isCompletable && selectedMission.progressText !== 'Not Calculated'" class="unable-warning">
+          Insufficient cards/points available to complete this mission. Set card prices to update.
+        </div>
         <div v-if="!selectedMission.completed" class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
@@ -126,6 +129,9 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
+        <div v-if="!selectedMission.isCompletable && selectedMission.progressText !== 'Not Calculated'" class="unable-warning">
+          Insufficient cards/points available to complete this mission. Set card prices to update.
+        </div>
         <div v-if="!selectedMission.completed" class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
@@ -554,6 +560,20 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   font-size: 0.78rem;
   color: var(--text-muted);
   margin: 0 0 0.5rem 0;
+}
+
+.unable-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #991b1b;
+  margin: 0.5rem 0;
+  font-weight: 500;
 }
 
 .detail-price {
