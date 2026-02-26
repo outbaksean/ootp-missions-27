@@ -98,6 +98,7 @@
         <div
           v-for="mission in group.missions"
           :key="mission.id"
+          :ref="(el) => setMissionRef(mission.id, el)"
           class="mission-card"
           :class="{
             'mission-card--complete': isMissionComplete(mission),
@@ -248,7 +249,7 @@ import type { PropType } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
 
-defineProps({
+const props = defineProps({
   groups: {
     type: Array as PropType<Array<{ label: string; missions: UserMission[] }>>,
     required: true,
@@ -279,6 +280,7 @@ defineEmits<{
 const missionStore = useMissionStore();
 
 const collapsed = ref<Set<string>>(new Set());
+const missionRefs = ref<Map<number, HTMLElement>>(new Map());
 
 function toggleGroup(label: string) {
   const next = new Set(collapsed.value);
@@ -288,6 +290,36 @@ function toggleGroup(label: string) {
     next.add(label);
   }
   collapsed.value = next;
+}
+
+function setMissionRef(missionId: number, el: any) {
+  if (el) {
+    missionRefs.value.set(missionId, el as HTMLElement);
+  } else {
+    missionRefs.value.delete(missionId);
+  }
+}
+
+function scrollToMission(missionId: number) {
+  // Find the group containing this mission and expand it if collapsed
+  for (const group of props.groups) {
+    if (group.label && group.missions.some(m => m.id === missionId)) {
+      if (collapsed.value.has(group.label)) {
+        const next = new Set(collapsed.value);
+        next.delete(group.label);
+        collapsed.value = next;
+      }
+      break;
+    }
+  }
+  
+  // Scroll to the mission after a short delay to allow for group expansion
+  setTimeout(() => {
+    const element = missionRefs.value.get(missionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, 100);
 }
 
 function groupHasUncalculated(missions: UserMission[]): boolean {
@@ -432,6 +464,10 @@ function progressLabel(mission: UserMission): string {
   if (mission.progressText === "Not Calculated") return "Not calculated";
   return mission.progressText;
 }
+
+defineExpose({
+  scrollToMission,
+});
 </script>
 
 <style scoped>

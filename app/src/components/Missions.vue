@@ -232,6 +232,7 @@
             </template>
           </div>
           <MissionList
+            ref="missionListRef"
             :groups="groupedMissions"
             :isMissionComplete="isMissionComplete"
             :remainingPriceText="remainingPriceText"
@@ -603,8 +604,17 @@ const remainingPriceText = (mission: UserMission) => {
 
 const isMissionComplete = (mission: UserMission) => mission.completed;
 
+const missionListRef = ref<{ scrollToMission: (id: number) => void } | null>(null);
+
 const selectMission = (mission: UserMission) => {
   selectedMission.value = mission;
+  // Scroll to the mission in the list after a short delay
+  // to allow Vue to update the selected state
+  setTimeout(() => {
+    if (missionListRef.value) {
+      missionListRef.value.scrollToMission(mission.id);
+    }
+  }, 50);
 };
 
 const missionCategories = computed(() => {
