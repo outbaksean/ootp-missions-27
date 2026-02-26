@@ -377,8 +377,12 @@ async function toggleOwn(cardId: number) {
 async function onPriceChange(card: MissionCard, event: Event) {
   const input = event.target as HTMLInputElement;
   const raw = parseInt(input.value, 10);
+  // Validate: must be a number, non-negative, and positive (clear override if zero)
   if (!isNaN(raw) && raw > 0) {
-    cardStore.setCardPriceOverride(card.cardId, raw);
+    cardStore.setCardPriceOverride(card.cardId, Math.max(0, raw));
+  } else if (!isNaN(raw) && raw < 0) {
+    // Reject negative values
+    input.value = Math.max(0, cardStore.cardPriceOverrides.get(card.cardId) ?? card.price).toString();
   } else {
     cardStore.clearCardPriceOverride(card.cardId);
   }
