@@ -647,4 +647,135 @@ const handleUserCardsUpload = async (event: Event) => {
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
+
+/* ── Modal styling ── */
+:deep(.modal-content) {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+:deep(.modal-header) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1rem 1.25rem;
+}
+
+:deep(.modal-title) {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+:deep(.modal-body) {
+  padding: 1.25rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+:deep(.modal-body h3) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+:deep(.modal-body h3:first-child) {
+  margin-top: 0;
+}
+
+:deep(.modal-body h6) {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+:deep(.modal-body h6:first-child) {
+  margin-top: 0;
+}
+
+:deep(.modal-body p) {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+:deep(.modal-body ul) {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+:deep(.modal-body ul li) {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+:deep(.modal-body ul ul) {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+:deep(.modal-body strong) {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+:deep(.modal-body .text-muted) {
+  color: #94a3b8 !important;
+}
+
+:deep(.modal-body .text-danger) {
+  color: #fca5a5 !important;
+}
+
+:deep(.modal-body .img-fluid) {
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+:deep(.modal-body .card-body) {
+  background: transparent;
+  padding: 0;
+}
+
+:deep(.modal-footer) {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.875rem 1.25rem;
+}
+
+:deep(.btn-close) {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: 0.6;
+}
+
+:deep(.btn-close:hover) {
+  opacity: 1;
+}
+
+:deep(.btn-secondary) {
+  background: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+:deep(.btn-secondary:hover) {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f1f5f9;
+}
+
+:deep(.modal-backdrop) {
+  background-color: rgba(0, 0, 0, 0.65);
+}
 </style>
