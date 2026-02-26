@@ -233,6 +233,7 @@ export const useMissionStore = defineStore("mission", () => {
         mission.missionIds.some((id) => id === um.rawMission.id),
     );
     const completedCount = subMissions.filter((m) => m.completed).length;
+    const completableCount = subMissions.filter((m) => m.isCompletable).length;
     const remainingCount = mission.requiredCount - completedCount;
     const totalRemainingPrice = subMissions
       .filter((m) => !m.completed)
@@ -248,7 +249,7 @@ export const useMissionStore = defineStore("mission", () => {
     );
     userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
     userMission.remainingPrice = totalRemainingPrice;
-    userMission.isCompletable = true; // missions-type completability based on sub-missions
+    userMission.isCompletable = completableCount >= mission.requiredCount;
     userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
     userMission.completed =
       manualCompleteOverrides.value.has(mission.id) ||
