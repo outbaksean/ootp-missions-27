@@ -39,9 +39,15 @@ const missionStore = useMissionStore();
 const expanded = ref(false);
 
 function handleChange(packType: string, event: Event) {
-  const raw = (event.target as HTMLInputElement).value;
+  const input = event.target as HTMLInputElement;
+  const raw = input.value;
   const val = parseInt(raw, 10);
-  settingsStore.setPackPrice(packType, isNaN(val) ? 0 : val);
+  // Validate: reject negative values, clamp to non-negative
+  const validValue = isNaN(val) ? 0 : Math.max(0, val);
+  settingsStore.setPackPrice(packType, validValue);
+  if (!isNaN(val) && val < 0) {
+    input.value = validValue.toString();
+  }
   missionStore.recomputeMissionValues();
 }
 
