@@ -17,9 +17,17 @@
           </button>
         </div>
         <div class="detail-mission-title-row">
-          <h3 class="detail-mission-name">
-            {{ selectedMission.rawMission.name }}
-          </h3>
+          <div class="title-and-progress">
+            <h3 class="detail-mission-name">
+              {{ selectedMission.rawMission.name }}
+            </h3>
+            <p
+              class="detail-progress"
+              :class="{ 'progress-complete': selectedMission.completed }"
+            >
+              {{ selectedMission.progressText }}
+            </p>
+          </div>
           <button
             class="detail-close-btn"
             type="button"
@@ -30,12 +38,6 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <p
-          class="detail-meta"
-          :class="{ 'meta-complete': selectedMission.completed }"
-        >
-          {{ selectedMission.progressText }}
-        </p>
         <div class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
@@ -103,9 +105,17 @@
           </button>
         </div>
         <div class="detail-mission-title-row">
-          <h3 class="detail-mission-name">
-            {{ selectedMission.rawMission.name }}
-          </h3>
+          <div class="title-and-progress">
+            <h3 class="detail-mission-name">
+              {{ selectedMission.rawMission.name }}
+            </h3>
+            <p
+              class="detail-progress"
+              :class="{ 'progress-complete': selectedMission.completed }"
+            >
+              {{ selectedMission.progressText }}
+            </p>
+          </div>
           <button
             class="detail-close-btn"
             type="button"
@@ -116,12 +126,6 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <p v-if="selectedMission.completed" class="detail-meta meta-complete">
-          Completed
-        </p>
-        <p v-else-if="remainingPriceText(selectedMission)" class="detail-price">
-          {{ remainingPriceText(selectedMission) }} remaining
-        </p>
         <div class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
@@ -490,7 +494,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   font-size: 0.97rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
+  margin: 0;
   line-height: 1.35;
 }
 
@@ -503,6 +507,27 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   top: 0;
   background: var(--detail-bg);
   z-index: 2;
+  padding-bottom: 0.5rem;
+}
+
+.title-and-progress {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-progress {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.progress-complete {
+  color: var(--success-text);
+  font-weight: 500;
 }
 
 .detail-close-btn {
@@ -514,6 +539,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   padding: 2px 6px;
   border-radius: 4px;
   line-height: 1;
+  flex-shrink: 0;
   transition:
     background 0.15s,
     color 0.15s;
@@ -527,7 +553,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 .detail-reward {
   font-size: 0.78rem;
   color: var(--text-muted);
-  margin-bottom: 0.3rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .detail-price {
