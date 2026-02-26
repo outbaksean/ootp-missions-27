@@ -65,3 +65,7 @@ bld/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+
+# OCR working directories
+ocr/output/
+ocr/screenshots/
