@@ -17,7 +17,8 @@ export default class MissionHelper {
     }>,
     requiredPoints: number,
   ): PriceCalculationResult {
-    if (requiredPoints <= 0) return { totalPrice: 0, includedCards: [], isCompletable: true };
+    if (requiredPoints <= 0)
+      return { totalPrice: 0, includedCards: [], isCompletable: true };
     if (unownedCardsWithPoints.length === 0)
       return { totalPrice: 0, includedCards: [], isCompletable: false };
 
@@ -73,7 +74,8 @@ export default class MissionHelper {
       }
     }
 
-    if (targetPoints === -1) return { totalPrice: 0, includedCards: [], isCompletable: false };
+    if (targetPoints === -1)
+      return { totalPrice: 0, includedCards: [], isCompletable: false };
 
     // Reconstruct: card i was included if skipping it would have left dp[i+1][p] unchanged
     const includedCards: Array<{ cardId: number; price: number }> = [];
@@ -134,9 +136,9 @@ export default class MissionHelper {
         return { cardId: card.cardId, price };
       })
       .filter((card) => card !== null && card.price > 0) as Array<{
-        cardId: number;
-        price: number;
-      }>;
+      cardId: number;
+      price: number;
+    }>;
 
     const sortedCards = nonOwnedCards.sort((a, b) => a.price - b.price);
 
@@ -372,7 +374,13 @@ export default class MissionHelper {
         0,
       );
       const isCompletable = chosen.length >= needed;
-      return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds, isCompletable };
+      return {
+        remainingPrice,
+        unlockedCardsPrice,
+        buyCardIds,
+        lockCardIds,
+        isCompletable,
+      };
     }
 
     // mission.type === 'points'
@@ -423,6 +431,12 @@ export default class MissionHelper {
       (sum, c) => (lockCardIds.has(c.cardId) ? sum + c.price : sum),
       0,
     );
-    return { remainingPrice, unlockedCardsPrice, buyCardIds, lockCardIds, isCompletable: result.isCompletable };
+    return {
+      remainingPrice,
+      unlockedCardsPrice,
+      buyCardIds,
+      lockCardIds,
+      isCompletable: result.isCompletable,
+    };
   }
 }

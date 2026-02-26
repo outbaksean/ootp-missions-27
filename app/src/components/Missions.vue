@@ -71,30 +71,36 @@
       <div class="sidebar-divider" />
 
       <div class="sidebar-section sidebar-toggles">
-        <label class="toggle-label">
+        <label
+          class="toggle-label"
+          title="Uses the lowest active sell order price instead of the last completed sale price. More accurate for cards you can buy right now."
+        >
           <input
             type="checkbox"
             class="toggle-input"
             v-model="useSellPrice"
             @change="updatePriceType"
           />
-          Use Sell Price
+          Use Sell Price <span class="tooltip-hint">(?)</span>
         </label>
         <label class="toggle-label">
           <input type="checkbox" class="toggle-input" v-model="hideCompleted" />
           Hide Completed
         </label>
-        <label class="toggle-label">
+        <label
+          class="toggle-label"
+          title="Only shows missions where the reward value exceeds the cost to complete them."
+        >
           <input
             type="checkbox"
             class="toggle-input"
             v-model="showPositiveOnly"
           />
-          Positive Value Only
+          Positive Value Only <span class="tooltip-hint">(?)</span>
         </label>
         <label
           class="toggle-label"
-          title="Subtracts the sell value of owned cards you'd need to lock from the mission's net value"
+          title="Locking owned cards means you can no longer sell them. This deducts their sell value from net value to reflect the full cost of completing the mission."
         >
           <input
             type="checkbox"
@@ -103,10 +109,11 @@
             @change="handleIncludeUnlockedChange($event)"
           />
           Include unlocked cards in net value
+          <span class="tooltip-hint">(?)</span>
         </label>
         <label
           class="toggle-label"
-          title="Compares owned card opportunity cost vs buying cheaper unowned cards to find the minimum-cost assignment"
+          title="Instead of always buying unowned cards, finds the cheapest combination of buying new cards and locking ones you already own."
         >
           <input
             type="checkbox"
@@ -114,10 +121,15 @@
             :checked="settingsStore.optimizeCardSelection"
             @change="handleOptimizeChange($event)"
           />
-          Optimize card assignment
+          Optimize card assignment <span class="tooltip-hint">(?)</span>
         </label>
-        <div class="discount-row">
-          <span class="discount-label">Sell - Buy difference</span>
+        <div
+          class="discount-row"
+          title="How much less you receive selling a card vs its listed price (market spread). Applied when calculating the opportunity cost of locking cards you own."
+        >
+          <span class="discount-label"
+            >Sell - Buy difference <span class="tooltip-hint">(?)</span></span
+          >
           <div class="discount-input-wrap">
             <input
               id="sell-discount-input"
@@ -186,9 +198,19 @@
           <div class="spinner"></div>
         </div>
         <template v-else>
-          <div v-if="!hasUserCards" class="upload-prompt">
+          <div v-if="!hasUserCards && !promptDismissed" class="upload-prompt">
             <div class="upload-prompt-header">
-              <p class="upload-prompt-title">User data not imported</p>
+              <div class="upload-prompt-title-row">
+                <p class="upload-prompt-title">User data not imported</p>
+                <button
+                  class="upload-prompt-dismiss"
+                  @click="promptDismissed = true"
+                  aria-label="Dismiss"
+                  type="button"
+                >
+                  ✕
+                </button>
+              </div>
               <button
                 class="upload-prompt-toggle"
                 @click="helpExpanded = !helpExpanded"
@@ -366,6 +388,7 @@ const hasUserCards = computed(
   () => cardStore.hasShopCards && !cardStore.isDefaultData,
 );
 const helpExpanded = ref(false);
+const promptDismissed = ref(false);
 function collectDescendantIds(
   rootId: number,
   missionById: Map<number, UserMission>,
@@ -453,7 +476,9 @@ const handleDiscountChange = (event: Event) => {
   const pct = parseInt(raw, 10);
   // Validate: reject negative values, cap at 99% to prevent zero prices
   if (!isNaN(pct) && pct < 0) {
-    input.value = Math.round(settingsStore.unlockedCardDiscount * 100).toString();
+    input.value = Math.round(
+      settingsStore.unlockedCardDiscount * 100,
+    ).toString();
     return;
   }
   const val = isNaN(pct) ? 0.1 : Math.min(99, Math.max(0, pct)) / 100;
@@ -609,7 +634,9 @@ const remainingPriceText = (mission: UserMission) => {
 
 const isMissionComplete = (mission: UserMission) => mission.completed;
 
-const missionListRef = ref<{ scrollToMission: (id: number) => void } | null>(null);
+const missionListRef = ref<{ scrollToMission: (id: number) => void } | null>(
+  null,
+);
 
 const selectMission = (mission: UserMission) => {
   selectedMission.value = mission;
@@ -754,6 +781,12 @@ watch(
   cursor: pointer;
 }
 
+.tooltip-hint {
+  font-size: 0.75em;
+  opacity: 0.5;
+  cursor: help;
+}
+
 .btn-mark-all-complete {
   background: transparent;
   color: #86efac;
@@ -834,7 +867,14 @@ watch(
 
 .upload-prompt-header {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.upload-prompt-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 0.75rem;
 }
 
@@ -842,6 +882,33 @@ watch(
   font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
+  flex: 1;
+  margin: 0;
+}
+
+.upload-prompt-dismiss {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  flex-shrink: 0;
+}
+
+.upload-prompt-dismiss:hover {
+  background: #f1f5f9;
+  color: #475569;
 }
 
 .upload-prompt-toggle {

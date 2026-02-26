@@ -151,7 +151,10 @@
                     remainingPriceText(mission)
                   }}</span>
                 </div>
-                <div v-if="mission.unlockedCardsPrice > 0" class="card-stat-cell">
+                <div
+                  v-if="mission.unlockedCardsPrice > 0"
+                  class="card-stat-cell"
+                >
                   <span class="card-stat-label">Unlocked</span>
                   <span class="card-price"
                     >{{
@@ -179,7 +182,9 @@
                   >
                 </div>
                 <div
-                  v-if="mission.missionValue !== undefined && !mission.completed"
+                  v-if="
+                    mission.missionValue !== undefined && !mission.completed
+                  "
                   class="card-stat-cell"
                 >
                   <span class="card-stat-label">Net</span>
@@ -303,7 +308,7 @@ function setMissionRef(missionId: number, el: any) {
 function scrollToMission(missionId: number) {
   // Find the group containing this mission and expand it if collapsed
   for (const group of props.groups) {
-    if (group.label && group.missions.some(m => m.id === missionId)) {
+    if (group.label && group.missions.some((m) => m.id === missionId)) {
       if (collapsed.value.has(group.label)) {
         const next = new Set(collapsed.value);
         next.delete(group.label);
@@ -312,12 +317,12 @@ function scrollToMission(missionId: number) {
       break;
     }
   }
-  
+
   // Scroll to the mission after a short delay to allow for group expansion
   setTimeout(() => {
     const element = missionRefs.value.get(missionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      element.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, 100);
 }

@@ -8,7 +8,7 @@
           class="link-btn"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#helpModal"
+          data-bs-target="#appHelpModal"
         >
           Help
         </button>
@@ -34,7 +34,6 @@
           <span :class="statusClass">{{ statusText }}</span>
         </div>
         <button
-          v-if="hasUserCards"
           class="action-btn"
           type="button"
           @click="isExpanded = !isExpanded"
@@ -48,7 +47,15 @@
     </div>
 
     <!-- File inputs -->
-    <div v-show="isExpanded || !hasUserCards" class="upload-form">
+    <div v-show="isExpanded" class="upload-form">
+      <button
+        class="action-btn upload-help-link"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#uploadHelpModal"
+      >
+        Upload Help
+      </button>
       <div class="upload-field">
         <label for="shopCardsFile">User Cards</label>
         <input
@@ -76,18 +83,18 @@
       </div>
     </div>
 
-    <!-- Help Modal (Bootstrap JS) -->
+    <!-- Upload Help Modal -->
     <div
       class="modal fade"
-      id="helpModal"
+      id="uploadHelpModal"
       tabindex="-1"
-      aria-labelledby="helpModalLabel"
+      aria-labelledby="uploadHelpModalLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="helpModalLabel">Help</h5>
+            <h5 class="modal-title" id="uploadHelpModalLabel">Upload Help</h5>
             <button
               type="button"
               class="btn-close"
@@ -136,6 +143,180 @@
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Help Modal -->
+    <div
+      class="modal fade"
+      id="appHelpModal"
+      tabindex="-1"
+      aria-labelledby="appHelpModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="appHelpModalLabel">How it works</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body help-body">
+            <details open>
+              <summary>Overview</summary>
+              <p>
+                This app helps you plan the cheapest path to completing OOTP
+                Perfect Team missions. Upload your card shop export (and
+                optional lock export), then calculate mission costs, compare
+                rewards, and decide which missions are worth finishing. The app
+                can also account for the opportunity cost of locking owned cards
+                and can optimize which cards to buy vs lock.
+              </p>
+              <p>
+                All calculations are local to your browser. Data is stored in
+                your browser so your custom prices and lock status persist
+                between visits.
+              </p>
+            </details>
+
+            <details open>
+              <summary>Uploading data</summary>
+              <p>
+                Start by exporting your card shop list with no filters and
+                upload the CSV under User Cards. This provides prices and owned
+                status. If you want lock status displayed, also export your
+                locked card report with PT Card ID and PT Lock columns and
+                upload it under Card Locks.
+              </p>
+              <p>
+                You can manually set prices and owned and locked status in the
+                mission details panel without any uploads, but uploads are
+                recommended for accurate prices and faster setup.
+              </p>
+              <ul>
+                <li>User Cards: required for accurate prices and ownership.</li>
+                <li>
+                  Card Locks: optional, adds locked status and unlock cost.
+                </li>
+                <li>
+                  Large inventories may be paginated by the game making the
+                  locked cards export useless. In that case you can either
+                  quicksell duplicates to get under the limit or manually set
+                  locked status in the app. This does not apply to owned status
+                  as that comes from the shop export which doesn't have this
+                  issue.
+                </li>
+              </ul>
+            </details>
+
+            <details open>
+              <summary>Mission list</summary>
+              <p>
+                Each row shows an overview of mission completion cost and value.
+                Calculations update automatically as data and settings change.
+              </p>
+              <ul>
+                <li>Remaining: cost to acquire cards marked Buy in details.</li>
+                <li>Unlock Cost: sell value of owned cards marked Use.</li>
+                <li>
+                  Reward: market value of the mission prize. Set pack prices in
+                  the sidebar to value pack rewards.
+                </li>
+                <li>
+                  Net: Reward minus Remaining. When Include unlocked cards is
+                  enabled, Unlock Cost is also subtracted.
+                </li>
+                <li>
+                  Group rows summarize totals for the visible missions when
+                  grouped by chain or category.
+                </li>
+              </ul>
+            </details>
+
+            <details open>
+              <summary>Mission details</summary>
+              <p>
+                The detail panel shows every card in the mission, sorted unowned
+                (cheapest first), then owned unlocked, then locked.
+              </p>
+              <ul>
+                <li>Buy: card is included in the calculated purchase list.</li>
+                <li>
+                  Use: card is owned and the optimizer recommends locking it.
+                </li>
+                <li>
+                  Owned / Locked: current status badges with quick actions.
+                </li>
+                <li>
+                  Price field: override a card price to include it in
+                  calculations or adjust value.
+                </li>
+                <li>N other missions: shows where else the card appears.</li>
+                <li>
+                  Set Completed: manual completion for missions you can finish.
+                  This does not change the lock status of any cards.
+                </li>
+              </ul>
+            </details>
+
+            <details open>
+              <summary>Preferences</summary>
+              <p>
+                Use the sidebar toggles and selectors to control how missions
+                are filtered and how costs are calculated.
+              </p>
+              <ul>
+                <li>
+                  Group by: None (flat list), Chain (parent mission groups), or
+                  Category (in-game category).
+                </li>
+                <li>
+                  Target Mission: limits the list to missions that feed a
+                  selected chain.
+                </li>
+                <li>
+                  Sort by: Default, Remaining Price, Mission Value, or Name.
+                </li>
+                <li>
+                  Use Sell Price: uses lowest active sell order instead of last
+                  10 price.
+                </li>
+                <li>
+                  Hide Completed: removes finished missions from the list.
+                </li>
+                <li>
+                  Positive Value Only: shows only missions with positive net.
+                </li>
+                <li>
+                  Include unlocked cards in net value: subtracts unlock cost
+                  from net to reflect the full cost of locking owned cards.
+                </li>
+                <li>
+                  Optimize card assignment: finds the cheapest mix of buying and
+                  locking instead of always buying unowned cards.
+                </li>
+                <li>
+                  Sell - Buy difference: adjusts the opportunity cost of locking
+                  owned cards based on tax and market spread.
+                </li>
+                <li>Pack Prices: set PP values for reward calculation.</li>
+              </ul>
+            </details>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
@@ -240,7 +421,7 @@ const missionStore = useMissionStore();
 const hasShopCards = computed(() => cardStore.hasShopCards);
 const isDefaultData = computed(() => cardStore.isDefaultData);
 const hasUserCards = computed(() => hasShopCards.value && !isDefaultData.value);
-const isExpanded = ref(false);
+const isExpanded = ref(!hasUserCards.value);
 
 const statusClass = computed(() =>
   hasUserCards.value ? "status-loaded" : "status-missing",
@@ -410,6 +591,11 @@ const handleUserCardsUpload = async (event: Event) => {
   border-top: 1px solid var(--sidebar-border);
 }
 
+.upload-help-link {
+  width: 100%;
+  text-align: center;
+}
+
 .upload-field {
   display: flex;
   flex-direction: column;
@@ -459,5 +645,193 @@ const handleUserCardsUpload = async (event: Event) => {
 
 .btn-clear:hover {
   background: rgba(220, 38, 38, 0.27);
+}
+
+.help-body h6 {
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.help-body h6:first-child {
+  margin-top: 0;
+}
+
+.help-body p,
+.help-body ul {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.help-body details {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.35);
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.help-body details[open] {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.help-body summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #f1f5f9;
+  list-style: none;
+}
+
+.help-body summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-body summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1rem;
+  color: #94a3b8;
+  margin-right: 0.35rem;
+}
+
+.help-body details[open] summary::before {
+  content: "-";
+}
+
+.help-body details > *:not(summary) {
+  margin-top: 0.6rem;
+}
+
+/* ── Modal styling ── */
+:deep(.modal-content) {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+:deep(.modal-header) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1rem 1.25rem;
+}
+
+:deep(.modal-title) {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+:deep(.modal-body) {
+  padding: 1.25rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+:deep(.modal-body h3) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+:deep(.modal-body h3:first-child) {
+  margin-top: 0;
+}
+
+:deep(.modal-body h6) {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+:deep(.modal-body h6:first-child) {
+  margin-top: 0;
+}
+
+:deep(.modal-body p) {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+:deep(.modal-body ul) {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+:deep(.modal-body ul li) {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+:deep(.modal-body ul ul) {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+:deep(.modal-body strong) {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+:deep(.modal-body .text-muted) {
+  color: #94a3b8 !important;
+}
+
+:deep(.modal-body .text-danger) {
+  color: #fca5a5 !important;
+}
+
+:deep(.modal-body .img-fluid) {
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+:deep(.modal-body .card-body) {
+  background: transparent;
+  padding: 0;
+}
+
+:deep(.modal-footer) {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.875rem 1.25rem;
+}
+
+:deep(.btn-close) {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: 0.6;
+}
+
+:deep(.btn-close:hover) {
+  opacity: 1;
+}
+
+:deep(.btn-secondary) {
+  background: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+:deep(.btn-secondary:hover) {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f1f5f9;
+}
+
+:deep(.modal-backdrop) {
+  background-color: rgba(0, 0, 0, 0.65);
 }
 </style>
