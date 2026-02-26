@@ -98,7 +98,11 @@ export const useCardStore = defineStore("card", () => {
   async function addShopCards(data: ShopCard[]) {
     await db.shopCards.bulkAdd(data);
     applyOwnedOverrides(data);
-    // Always called on an empty array — assign directly to avoid spread call-stack limits
+    // Assign directly instead of spreading to avoid call-stack depth exceeded errors.
+    // With 10k+ shop cards, the spread operator [...shopCards.value, ...data] causes
+    // "RangeError: Maximum call stack size exceeded". This is safe because:
+    // 1. This function is only called after clearShopCards() or initialization (empty array)
+    // 2. We don't need a separate copy since the data is already persisted in IndexedDB
     shopCards.value = data;
   }
 
