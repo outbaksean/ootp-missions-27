@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import type { CardType, ShopCard } from "@/models/ShopCard";
 import db from "@/data/indexedDB";
 import Papa from "papaparse";
+import { useMissionStore } from "./useMissionStore";
 
 type ShopCardRow = {
   "Card ID": string;
@@ -111,6 +112,10 @@ export const useCardStore = defineStore("card", () => {
     localStorage.removeItem(OWNED_OVERRIDES_KEY);
     cardPriceOverrides.value = new Map();
     localStorage.removeItem(PRICE_OVERRIDES_KEY);
+
+    // Clear mission completion overrides
+    const missionStore = useMissionStore();
+    missionStore.clearAllManualCompletions();
 
     await fetchDefaultCards();
   }
