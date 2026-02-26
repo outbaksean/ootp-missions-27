@@ -38,7 +38,7 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <div class="detail-stats">
+        <div v-if="!selectedMission.completed" class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
             <span class="stat-value">{{ remainingPriceText(selectedMission) }}</span>
@@ -126,7 +126,7 @@
           </button>
         </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
-        <div class="detail-stats">
+        <div v-if="!selectedMission.completed" class="detail-stats">
           <div v-if="remainingPriceText(selectedMission)" class="stat-row">
             <span class="stat-label">Cost</span>
             <span class="stat-value">{{ remainingPriceText(selectedMission) }}</span>

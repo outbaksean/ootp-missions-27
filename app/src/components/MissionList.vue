@@ -143,61 +143,63 @@
           <!-- Footer: cost + unlocked + value + action -->
           <div class="card-footer">
             <div class="card-footer-stats">
-              <div v-if="remainingPriceText(mission)" class="card-stat-cell">
-                <span class="card-stat-label">Cost</span>
-                <span class="card-price">{{
-                  remainingPriceText(mission)
-                }}</span>
-              </div>
-              <div v-if="mission.unlockedCardsPrice > 0" class="card-stat-cell">
-                <span class="card-stat-label">Unlocked</span>
-                <span class="card-price"
-                  >{{
-                    mission.unlockedCardsPrice.toLocaleString(undefined, {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })
-                  }}
-                  PP</span
+              <template v-if="!mission.completed">
+                <div v-if="remainingPriceText(mission)" class="card-stat-cell">
+                  <span class="card-stat-label">Cost</span>
+                  <span class="card-price">{{
+                    remainingPriceText(mission)
+                  }}</span>
+                </div>
+                <div v-if="mission.unlockedCardsPrice > 0" class="card-stat-cell">
+                  <span class="card-stat-label">Unlocked</span>
+                  <span class="card-price"
+                    >{{
+                      mission.unlockedCardsPrice.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })
+                    }}
+                    PP</span
+                  >
+                </div>
+                <div
+                  v-if="mission.rewardValue !== undefined"
+                  class="card-stat-cell"
                 >
-              </div>
-              <div
-                v-if="mission.rewardValue !== undefined"
-                class="card-stat-cell"
-              >
-                <span class="card-stat-label">Reward</span>
-                <span class="card-price"
-                  >{{
-                    mission.rewardValue.toLocaleString(undefined, {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })
-                  }}
-                  PP</span
+                  <span class="card-stat-label">Reward</span>
+                  <span class="card-price"
+                    >{{
+                      mission.rewardValue.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })
+                    }}
+                    PP</span
+                  >
+                </div>
+                <div
+                  v-if="mission.missionValue !== undefined && !mission.completed"
+                  class="card-stat-cell"
                 >
-              </div>
-              <div
-                v-if="mission.missionValue !== undefined && !mission.completed"
-                class="card-stat-cell"
-              >
-                <span class="card-stat-label">Net</span>
-                <span
-                  class="card-value"
-                  :class="
-                    mission.missionValue >= 0
-                      ? 'card-value--pos'
-                      : 'card-value--neg'
-                  "
-                  >{{ mission.missionValue >= 0 ? "+" : ""
-                  }}{{
-                    mission.missionValue.toLocaleString(undefined, {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })
-                  }}
-                  PP</span
-                >
-              </div>
+                  <span class="card-stat-label">Net</span>
+                  <span
+                    class="card-value"
+                    :class="
+                      mission.missionValue >= 0
+                        ? 'card-value--pos'
+                        : 'card-value--neg'
+                    "
+                    >{{ mission.missionValue >= 0 ? "+" : ""
+                    }}{{
+                      mission.missionValue.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })
+                    }}
+                    PP</span
+                  >
+                </div>
+              </template>
             </div>
             <div class="card-footer-actions">
               <button
