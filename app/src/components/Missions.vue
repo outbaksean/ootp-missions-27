@@ -693,10 +693,10 @@ watch(
 }
 
 .sidebar-section {
-  padding: 0.75rem 1rem;
+  padding: 0.25rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.25rem;
 }
 
 .sidebar-divider {
@@ -729,13 +729,13 @@ watch(
 }
 
 .sidebar-toggles {
-  gap: 0.6rem;
+  gap: 0.4rem;
 }
 
 .toggle-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   font-size: 0.83rem;
   cursor: pointer;
 }
