@@ -358,24 +358,24 @@ const handleUserCardsUpload = async (event: Event) => {
 }
 
 .dot-green {
-  background: #4ade80;
-  box-shadow: 0 0 5px rgba(74, 222, 128, 0.45);
+  background: var(--success-text-soft);
+  box-shadow: 0 0 5px var(--success-glow);
 }
 
 .dot-red {
-  background: #fca5a5;
-  box-shadow: 0 0 5px rgba(252, 165, 165, 0.45);
+  background: var(--danger-text-soft);
+  box-shadow: 0 0 5px var(--danger-glow);
 }
 
 .status-loaded {
   font-size: 0.78rem;
-  color: #4ade80;
+  color: var(--success-text-soft);
   font-weight: 500;
 }
 
 .status-missing {
   font-size: 0.78rem;
-  color: #fca5a5;
+  color: var(--danger-text-soft);
   font-weight: 500;
 }
 
@@ -446,9 +446,9 @@ const handleUserCardsUpload = async (event: Event) => {
 }
 
 .btn-clear {
-  background: rgba(220, 38, 38, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: var(--danger-muted-bg);
+  color: var(--danger-text-soft);
+  border: 1px solid var(--danger-muted-border);
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 0.7rem;
@@ -458,6 +458,6 @@ const handleUserCardsUpload = async (event: Event) => {
 }
 
 .btn-clear:hover {
-  background: rgba(220, 38, 38, 0.27);
+  background: var(--danger-muted-bg-hover);
 }
 </style>

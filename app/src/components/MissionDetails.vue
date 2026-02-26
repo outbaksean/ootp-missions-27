@@ -488,7 +488,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   border: none;
   padding: 0;
   font-size: 0.72rem;
-  color: #3b82f6;
+  color: var(--info-text);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -497,7 +497,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .parent-link:hover {
-  color: #2563eb;
+  color: var(--info-strong);
 }
 
 .detail-mission-name {
@@ -544,7 +544,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   background: none;
   border: none;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: var(--text-subtle);
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
@@ -556,8 +556,8 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .detail-close-btn:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--surface-hover);
+  color: var(--text-primary);
 }
 
 .detail-reward {
@@ -571,11 +571,11 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--danger-bg-strong);
+  border: 1px solid var(--danger-border-strong);
   border-radius: 6px;
   font-size: 0.75rem;
-  color: #991b1b;
+  color: var(--danger-strong);
   margin: 0.5rem 0;
   font-weight: 500;
 }
@@ -629,11 +629,11 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .stat-positive {
-  color: #4ade80;
+  color: var(--success-text-soft);
 }
 
 .stat-negative {
-  color: #f87171;
+  color: var(--danger-text-soft);
 }
 
 /* List */
@@ -644,14 +644,14 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   font-weight: 600;
   border-radius: 4px;
   cursor: pointer;
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
   transition: background 0.15s;
 }
 
 .btn-recalculate:hover {
-  background: #fde68a;
+  background: var(--warning-bg-strong);
 }
 
 .btn-manual-complete {
@@ -662,29 +662,29 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   border-radius: 4px;
   cursor: pointer;
   background: transparent;
-  color: #64748b;
-  border: 1px solid #cbd5e1;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
   transition:
     background 0.15s,
     color 0.15s;
 }
 
 .btn-manual-complete:hover {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
 }
 
 .btn-manual-complete--active {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
 }
 
 .btn-manual-complete--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .detail-list {
@@ -702,14 +702,14 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   gap: 0.5rem;
   padding: 0.45rem 0.65rem;
   border-radius: 6px;
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid var(--card-border);
   flex-wrap: wrap;
 }
 
 .item-highlighted {
-  background: #fefce8;
-  border-color: #fde047;
+  background: var(--warning-soft);
+  border-color: var(--warning-border-strong);
 }
 
 .item-owned {
@@ -722,12 +722,12 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 
 .item-unavailable {
   opacity: 0.5;
-  background: #f8fafc;
+  background: var(--surface-soft);
 }
 
 .price-unavailable {
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: var(--text-subtle);
   font-style: italic;
 }
 
@@ -749,7 +749,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .detail-item--clickable:hover {
-  background: #f1f5f9;
+  background: var(--surface-hover);
 }
 
 .sub-mission-info {
@@ -775,7 +775,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .status-pending {
-  color: #dc2626;
+  color: var(--danger-text);
 }
 
 .item-price-inline {
@@ -810,14 +810,14 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   padding: 1px 4px;
   border: 1px solid var(--card-border);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface-card);
   color: var(--text-primary);
   text-align: right;
 }
 
 .price-input:focus {
   outline: none;
-  border-color: #94a3b8;
+  border-color: var(--border-strong);
 }
 
 .price-input::-webkit-outer-spin-button,
@@ -832,8 +832,8 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .price-overridden {
-  border-color: #f59e0b;
-  color: #b45309;
+  border-color: var(--warning-focus);
+  color: var(--warning-strong);
 }
 
 .btn-clear-override {
@@ -843,14 +843,14 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   border-radius: 4px;
   cursor: pointer;
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
+  color: var(--text-subtle);
+  border: 1px solid var(--border-strong);
 }
 
 .btn-clear-override:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .item-badges {
@@ -867,18 +867,18 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .pill-buy {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--warning-soft);
+  color: var(--warning-strong);
 }
 
 .pill-owned {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--success-bg-strong);
+  color: var(--success-strong);
 }
 
 .pill-use {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--info-bg-strong);
+  color: var(--info-strong);
 }
 
 .btn-lock {
@@ -888,28 +888,28 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   font-weight: 600;
   cursor: pointer;
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
+  color: var(--text-subtle);
+  border: 1px solid var(--border-strong);
   transition:
     background 0.15s,
     color 0.15s;
 }
 
 .btn-lock:hover {
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--surface-hover);
+  color: var(--text-muted);
 }
 
 .btn-lock--active {
-  background: #f1f5f9;
-  color: #64748b;
-  border-color: #cbd5e1;
+  background: var(--surface-hover);
+  color: var(--text-muted);
+  border-color: var(--border-strong);
 }
 
 .btn-lock--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .btn-own {
@@ -919,38 +919,38 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   font-weight: 600;
   cursor: pointer;
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
+  color: var(--text-subtle);
+  border: 1px solid var(--border-strong);
   transition:
     background 0.15s,
     color 0.15s;
 }
 
 .btn-own:hover {
-  background: #dcfce7;
-  color: #166534;
-  border-color: #86efac;
+  background: var(--success-bg-strong);
+  color: var(--success-strong);
+  border-color: var(--success-border);
 }
 
 .btn-own--active {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
 }
 
 .btn-own--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .shared-badge {
   font-size: 0.65rem;
   padding: 1px 7px;
   border-radius: 999px;
-  background: #eff6ff;
-  color: #3b82f6;
-  border: 1px solid #bfdbfe;
+  background: var(--info-bg);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -959,7 +959,7 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .shared-badge:hover {
-  background: #dbeafe;
+  background: var(--info-bg-strong);
 }
 
 .shared-missions-list {
@@ -967,15 +967,15 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   flex-direction: column;
   gap: 0.2rem;
   padding: 0.4rem 0.75rem 0.4rem 1rem;
-  background: #f8fafc;
-  border-left: 2px solid #bfdbfe;
+  background: var(--surface-soft);
+  border-left: 2px solid var(--info-border);
   margin: 0 0 0.25rem 0;
   flex-basis: 100%;
 }
 
 .shared-mission-link {
   font-size: 0.73rem;
-  color: #3b82f6;
+  color: var(--info-text);
   background: none;
   border: none;
   padding: 0;
@@ -986,6 +986,6 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 }
 
 .shared-mission-link:hover {
-  color: #1d4ed8;
+  color: var(--info-strong);
 }
 </style>

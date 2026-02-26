@@ -133,6 +133,15 @@
         </div>
       </div>
 
+      <div class="sidebar-section">
+        <label class="sidebar-label" for="theme-select">Theme</label>
+        <select id="theme-select" v-model="themePreference" class="sidebar-select">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
       <div class="sidebar-divider" />
 
       <div class="sidebar-section">
@@ -273,7 +282,10 @@ import MissionDetails from "./MissionDetails.vue";
 import MissionList from "./MissionList.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
-import { useSettingsStore } from "../stores/useSettingsStore";
+import {
+  useSettingsStore,
+  type ThemePreference,
+} from "../stores/useSettingsStore";
 import type { UserMission } from "../models/UserMission";
 
 defineOptions({ name: "MissionsView" });
@@ -362,6 +374,10 @@ onUnmounted(() => {
   }
 });
 const settingsStore = useSettingsStore();
+const themePreference = computed<ThemePreference>({
+  get: () => settingsStore.themePreference,
+  set: (value) => settingsStore.setThemePreference(value),
+});
 const hasUserCards = computed(
   () => cardStore.hasShopCards && !cardStore.isDefaultData,
 );
@@ -691,7 +707,7 @@ watch(
   content: "";
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-  border-right: 5px solid #64748b;
+  border-right: 5px solid var(--text-muted);
   transition: transform 0.2s ease;
 }
 
@@ -731,8 +747,8 @@ watch(
 }
 
 .sidebar-select option {
-  background: #1e293b;
-  color: #e2e8f0;
+  background: var(--sidebar-option-bg);
+  color: var(--sidebar-option-text);
 }
 
 .sidebar-toggles {
@@ -756,8 +772,8 @@ watch(
 
 .btn-mark-all-complete {
   background: transparent;
-  color: #86efac;
-  border: 1px solid #4ade80;
+  color: var(--success-text-soft);
+  border: 1px solid var(--success-border);
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 0.83rem;
@@ -770,14 +786,14 @@ watch(
 }
 
 .btn-mark-all-complete:hover {
-  background: #166534;
-  color: #dcfce7;
+  background: var(--success-solid-bg);
+  color: var(--success-solid-text);
 }
 
 .btn-unmark-all-complete {
   background: transparent;
-  color: #fca5a5;
-  border: 1px solid #f87171;
+  color: var(--danger-text-soft);
+  border: 1px solid var(--danger-border);
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 0.83rem;
@@ -790,8 +806,8 @@ watch(
 }
 
 .btn-unmark-all-complete:hover {
-  background: #7f1d1d;
-  color: #fee2e2;
+  background: var(--danger-solid-bg);
+  color: var(--danger-solid-text);
 }
 
 .sidebar-spacer {
@@ -817,13 +833,13 @@ watch(
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
-  background: #f1f5f9;
+  background: var(--surface-base);
   min-width: 0;
 }
 
 .upload-prompt {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -841,16 +857,16 @@ watch(
 .upload-prompt-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .upload-prompt-toggle {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-alt);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
   font-size: 0.82rem;
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text-primary);
   cursor: pointer;
   padding: 4px 12px;
   flex-shrink: 0;
@@ -858,18 +874,18 @@ watch(
 }
 
 .upload-prompt-toggle:hover {
-  background: #e2e8f0;
+  background: var(--surface-hover);
 }
 
 .upload-prompt-body {
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
 .upload-prompt-note {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: var(--text-subtle);
   line-height: 1.5;
 }
 
@@ -878,7 +894,7 @@ watch(
   width: auto;
   align-self: flex-start;
   border-radius: 4px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-subtle);
 }
 
 /* ─── RESIZE HANDLE ─── */
@@ -892,7 +908,7 @@ watch(
 }
 
 .resize-handle:hover {
-  background: #94a3b8;
+  background: var(--border-strong);
 }
 
 /* ─── DETAIL PANEL ─── */
@@ -913,7 +929,7 @@ watch(
 }
 
 .spinner {
-  border: 4px solid #e2e8f0;
+  border: 4px solid var(--spinner-track);
   border-top: 4px solid var(--accent);
   border-radius: 50%;
   width: 36px;

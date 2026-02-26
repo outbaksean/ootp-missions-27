@@ -29,15 +29,15 @@ const moonSvgUrl = import.meta.env.BASE_URL + "moon.svg";
   display: flex;
   align-items: center;
   padding: 0.55rem 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fff;
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
   flex-shrink: 0;
 }
 
 .wip-banner {
-  background: #fff3cd;
-  color: #856404;
-  border-bottom: 1px solid #ffc107;
+  background: var(--warning-banner-bg);
+  color: var(--warning-banner-text);
+  border-bottom: 1px solid var(--warning-banner-border);
   padding: 7px 20px;
   text-align: center;
   font-size: 0.85rem;
@@ -49,9 +49,9 @@ footer {
   padding: 9px 20px;
   text-align: center;
   font-size: 0.82rem;
-  color: #64748b;
-  border-top: 1px solid #e2e8f0;
-  background: #fff;
+  color: var(--text-muted);
+  border-top: 1px solid var(--footer-border);
+  background: var(--footer-bg);
 }
 
 footer a {
@@ -67,7 +67,7 @@ footer a:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #1e293b;
+  color: var(--text-primary);
   font-weight: 500;
   text-decoration: none;
 }

@@ -7,10 +7,14 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import { useCardStore } from "./stores/useCardStore";
 import { useMissionStore } from "./stores/useMissionStore";
+import { useSettingsStore } from "./stores/useSettingsStore";
 
 const app = createApp(App);
 
 app.use(createPinia());
+
+const settingsStore = useSettingsStore();
+settingsStore.syncThemePreference();
 
 // Initialize stores before mounting to prevent race conditions
 const cardStore = useCardStore();

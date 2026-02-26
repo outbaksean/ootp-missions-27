@@ -45,6 +45,25 @@ function saveToStorage(prices: Map<string, number>): void {
 const SUBTRACT_UNLOCKED_KEY = "ootp-subtract-unlocked";
 const OPTIMIZE_SELECTION_KEY = "ootp-optimize-selection";
 const UNLOCK_DISCOUNT_KEY = "ootp-unlocked-card-discount";
+const THEME_PREFERENCE_KEY = "ootp-theme-preference";
+
+export type ThemePreference = "system" | "light" | "dark";
+
+function loadThemePreference(): ThemePreference {
+  const raw = localStorage.getItem(THEME_PREFERENCE_KEY);
+  if (raw === "light" || raw === "dark" || raw === "system") return raw;
+  return "system";
+}
+
+function applyThemePreference(pref: ThemePreference): void {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  if (pref === "system") {
+    root.removeAttribute("data-theme");
+    return;
+  }
+  root.setAttribute("data-theme", pref);
+}
 
 export const useSettingsStore = defineStore("settings", () => {
   const packPrices = ref<Map<string, number>>(loadFromStorage());
@@ -63,6 +82,9 @@ export const useSettingsStore = defineStore("settings", () => {
       return isNaN(val) ? 0.1 : Math.min(0.99, Math.max(0, val));
     })(),
   );
+
+  const themePreference = ref<ThemePreference>(loadThemePreference());
+  applyThemePreference(themePreference.value);
 
   function setPackPrice(packType: string, value: number) {
     const next = new Map(packPrices.value);
@@ -98,6 +120,16 @@ export const useSettingsStore = defineStore("settings", () => {
     localStorage.setItem(UNLOCK_DISCOUNT_KEY, String(capped));
   }
 
+  function setThemePreference(value: ThemePreference) {
+    themePreference.value = value;
+    localStorage.setItem(THEME_PREFERENCE_KEY, value);
+    applyThemePreference(value);
+  }
+
+  function syncThemePreference() {
+    applyThemePreference(themePreference.value);
+  }
+
   return {
     packPrices,
     setPackPrice,
@@ -109,5 +141,8 @@ export const useSettingsStore = defineStore("settings", () => {
     setOptimizeCardSelection,
     unlockedCardDiscount,
     setUnlockedCardDiscount,
+    themePreference,
+    setThemePreference,
+    syncThemePreference,
   };
 });

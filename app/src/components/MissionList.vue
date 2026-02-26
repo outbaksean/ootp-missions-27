@@ -484,7 +484,7 @@ defineExpose({
   flex-wrap: wrap;
   gap: 0.5rem;
   width: 100%;
-  background: #e2e8f0;
+  background: var(--surface-alt);
   border-radius: 6px;
   padding: 0.45rem 0.75rem;
   cursor: pointer;
@@ -498,12 +498,12 @@ defineExpose({
 }
 
 .group-header:hover {
-  background: #cbd5e1;
+  background: var(--surface-hover);
 }
 
 .group-calculate-btn {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
   border: none;
   border-radius: 4px;
   padding: 2px 10px;
@@ -521,7 +521,7 @@ defineExpose({
 
 .group-chevron {
   font-size: 0.6rem;
-  color: #64748b;
+  color: var(--text-muted);
   flex-shrink: 0;
   width: 0.75rem;
 }
@@ -529,13 +529,13 @@ defineExpose({
 .group-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
   flex: 1;
 }
 
 .group-meta {
   font-size: 0.7rem;
-  color: #64748b;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -558,22 +558,22 @@ defineExpose({
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--text-subtle);
   font-weight: 600;
 }
 
 .group-stat-value {
   font-size: 0.7rem;
-  color: #475569;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .group-value--pos {
-  color: #16a34a;
+  color: var(--success-text);
 }
 
 .group-value--neg {
-  color: #dc2626;
+  color: var(--danger-text);
 }
 
 .group-rewards-bar {
@@ -582,7 +582,7 @@ defineExpose({
   flex-wrap: wrap;
   gap: 0.3rem;
   padding-top: 0.3rem;
-  border-top: 1px solid #cbd5e1;
+  border-top: 1px solid var(--border-strong);
 }
 
 .group-rewards-section-label {
@@ -590,7 +590,7 @@ defineExpose({
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--text-subtle);
   font-weight: 600;
   margin-top: 0.15rem;
 }
@@ -603,22 +603,22 @@ defineExpose({
   font-size: 0.65rem;
   padding: 1px 8px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--surface-soft);
+  color: var(--text-muted);
   font-weight: 500;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-strong);
   white-space: nowrap;
 }
 
 .group-reward-chip--done {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
 }
 
 /* ─── MISSION CARD ─── */
 .mission-card {
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid var(--card-border);
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -638,8 +638,8 @@ defineExpose({
 }
 
 .mission-card--selected {
-  border-color: #94a3b8;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18);
+  border-color: var(--border-strong);
+  box-shadow: var(--selection-ring);
 }
 
 /* Header */
@@ -666,13 +666,13 @@ defineExpose({
 }
 
 .badge-done {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--success-bg-strong);
+  color: var(--success-strong);
 }
 
 .badge-pending {
-  background: #f1f5f9;
-  color: #94a3b8;
+  background: var(--surface-alt);
+  color: var(--text-subtle);
 }
 
 /* Reward */
@@ -712,7 +712,7 @@ defineExpose({
 }
 
 .label-unknown {
-  color: #94a3b8;
+  color: var(--text-subtle);
   font-style: italic;
 }
 
@@ -740,7 +740,7 @@ defineExpose({
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--text-subtle);
   font-weight: 600;
 }
 
@@ -756,11 +756,11 @@ defineExpose({
 }
 
 .card-value--pos {
-  color: #16a34a;
+  color: var(--success-text);
 }
 
 .card-value--neg {
-  color: #dc2626;
+  color: var(--danger-text);
 }
 
 .card-footer-actions {
@@ -788,8 +788,8 @@ defineExpose({
   border-radius: 4px;
   cursor: pointer;
   background: transparent;
-  color: #64748b;
-  border: 1px solid #cbd5e1;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
   transition:
     background 0.15s,
     color 0.15s;
@@ -797,36 +797,36 @@ defineExpose({
 }
 
 .btn-mark-done:hover {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
 }
 
 .btn-mark-done--active {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
 }
 
 .btn-mark-done--active:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .btn-calculate {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
 }
 
 .btn-calculate:hover {
-  background: #e2e8f0;
+  background: var(--surface-hover);
 }
 
 .btn-select {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
 }
 
 .btn-select:hover {
