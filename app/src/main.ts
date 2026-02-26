@@ -12,16 +12,18 @@ const app = createApp(App);
 
 app.use(createPinia());
 
-app.mount("#app");
-
+// Initialize stores before mounting to prevent race conditions
 const cardStore = useCardStore();
 await cardStore.loadFromCache();
 
 const missionStore = useMissionStore();
 await missionStore.initialize();
 
-// If no cached cards exist, fetch the default CSV in the background so the UI
-// is already rendered and interactive while the data loads.
+// If no cached cards exist, fetch the default CSV in the background.
+// This happens after the UI is mounted so the app is already interactive.
 if (!cardStore.hasShopCards) {
   cardStore.fetchDefaultCards().then(() => missionStore.buildUserMissions());
 }
+
+// Mount app after stores are initialized
+app.mount("#app");
