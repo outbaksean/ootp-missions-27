@@ -16,9 +16,19 @@
             {{ parent.rawMission.name }}
           </button>
         </div>
-        <h3 class="detail-mission-name">
-          {{ selectedMission.rawMission.name }}
-        </h3>
+        <div class="detail-mission-title-row">
+          <h3 class="detail-mission-name">
+            {{ selectedMission.rawMission.name }}
+          </h3>
+          <button
+            class="detail-close-btn"
+            type="button"
+            aria-label="Close"
+            @click="$emit('close')"
+          >
+            ✕
+          </button>
+        </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
         <p
           class="detail-meta"
@@ -26,6 +36,24 @@
         >
           {{ selectedMission.progressText }}
         </p>
+        <div class="detail-stats">
+          <div v-if="remainingPriceText(selectedMission)" class="stat-row">
+            <span class="stat-label">Cost</span>
+            <span class="stat-value">{{ remainingPriceText(selectedMission) }}</span>
+          </div>
+          <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
+            <span class="stat-label">Unlocked</span>
+            <span class="stat-value">{{ selectedMission.unlockedCardsPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+          </div>
+          <div v-if="selectedMission.rewardValue !== undefined" class="stat-row">
+            <span class="stat-label">Reward</span>
+            <span class="stat-value">{{ selectedMission.rewardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+          </div>
+          <div v-if="selectedMission.missionValue !== undefined && !selectedMission.completed" class="stat-row">
+            <span class="stat-label">Net</span>
+            <span class="stat-value" :class="selectedMission.missionValue >= 0 ? 'stat-positive' : 'stat-negative'">{{ selectedMission.missionValue >= 0 ? "+" : "" }}{{ selectedMission.missionValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+          </div>
+        </div>
         <button
           v-if="isManuallyComplete || canMarkComplete"
           class="btn-manual-complete"
@@ -74,9 +102,19 @@
             {{ parent.rawMission.name }}
           </button>
         </div>
-        <h3 class="detail-mission-name">
-          {{ selectedMission.rawMission.name }}
-        </h3>
+        <div class="detail-mission-title-row">
+          <h3 class="detail-mission-name">
+            {{ selectedMission.rawMission.name }}
+          </h3>
+          <button
+            class="detail-close-btn"
+            type="button"
+            aria-label="Close"
+            @click="$emit('close')"
+          >
+            ✕
+          </button>
+        </div>
         <p class="detail-reward">{{ selectedMission.rawMission.reward }}</p>
         <p v-if="selectedMission.completed" class="detail-meta meta-complete">
           Completed
@@ -84,6 +122,24 @@
         <p v-else-if="remainingPriceText(selectedMission)" class="detail-price">
           {{ remainingPriceText(selectedMission) }} remaining
         </p>
+        <div class="detail-stats">
+          <div v-if="remainingPriceText(selectedMission)" class="stat-row">
+            <span class="stat-label">Cost</span>
+            <span class="stat-value">{{ remainingPriceText(selectedMission) }}</span>
+          </div>
+          <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
+            <span class="stat-label">Unlocked</span>
+            <span class="stat-value">{{ selectedMission.unlockedCardsPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+          </div>
+          <div v-if="selectedMission.rewardValue !== undefined" class="stat-row">
+            <span class="stat-label">Reward</span>
+            <span class="stat-value">{{ selectedMission.rewardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+          </div>
+          <div v-if="selectedMission.missionValue !== undefined && !selectedMission.completed" class="stat-row">
+            <span class="stat-label">Net</span>
+            <span class="stat-value" :class="selectedMission.missionValue >= 0 ? 'stat-positive' : 'stat-negative'">{{ selectedMission.missionValue >= 0 ? "+" : "" }}{{ selectedMission.missionValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} PP</span>
+          </div>
+        </div>
         <button
           v-if="isManuallyComplete || canMarkComplete"
           class="btn-manual-complete"
@@ -227,6 +283,7 @@ const missionStore = useMissionStore();
 
 defineEmits<{
   (e: "selectMission", mission: UserMission): void;
+  (e: "close"): void;
 }>();
 
 const pendingRecalcCardIds = ref<Set<number>>(new Set());
@@ -437,6 +494,36 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
   line-height: 1.35;
 }
 
+.detail-mission-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+  background: var(--detail-bg);
+  z-index: 2;
+}
+
+.detail-close-btn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.detail-close-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
 .detail-reward {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -459,6 +546,44 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 .meta-complete {
   color: var(--success-text);
   font-weight: 500;
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat-positive {
+  color: #4ade80;
+}
+
+.stat-negative {
+  color: #f87171;
 }
 
 /* List */

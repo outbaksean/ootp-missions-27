@@ -252,19 +252,11 @@
 
       <!-- ─── DETAIL PANEL ─── -->
       <aside v-if="selectedMission" class="detail-panel">
-        <div class="detail-header">
-          <button
-            class="close-btn"
-            @click="selectedMission = null"
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
         <MissionDetails
           :selectedMission="selectedMission"
           :missions="missions"
           @selectMission="selectMission"
+          @close="selectedMission = null"
         />
       </aside>
     </div>
@@ -895,36 +887,6 @@ watch(
   overflow-y: auto;
   background: var(--detail-bg);
   border-left: 1px solid var(--card-border);
-}
-
-.detail-header {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0.4rem 0.5rem;
-  border-bottom: 1px solid var(--card-border);
-  position: sticky;
-  top: 0;
-  background: var(--detail-bg);
-  z-index: 1;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 3px 7px;
-  border-radius: 4px;
-  line-height: 1;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.close-btn:hover {
-  background: #e2e8f0;
-  color: #1e293b;
 }
 
 /* ─── SPINNER ─── */
