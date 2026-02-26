@@ -15,7 +15,8 @@ From this directory:
 ```
 
 ## First Pass
-Loop through extracting text from the mission page and inserting the missions into missions-structure.json until all missions are added.
+This step is for getting the mission structures including category, name, reward and requirements into json.
+Loop through extracting text from the mission page, inserting the missions into missions-structure.json until all missions are added.
 
 1. In the OOTP mission page with no filter on and no missions expanded, extract all text using Text Extractor
 2. Paste the results into current-data.txt and save
@@ -28,4 +29,15 @@ Implementation TBD.
 
 ## Mission Details
 This step is for getting card titles and mission titles needed to finish a mission, converting them to ids and inserting them into the json.
-Implementation TBD.
+Loop through extracting each mission details from the mission page, updating missions-structure.json until all missions are updated
+
+1. In the OOTP mission page, expand a mission that exists in mission-structures.json, extract all text using Text Extractor
+2. Paste the results into current-data.txt and save
+3. Run `update-mission-details.mjs` script to update requiredPoints and create or update `mission-details.json` with a list of card titles or mission names for the mission.
+4. Repeat step 1 with a new mission until all missions have been extracted
+
+
+
+### Alternatives to try
+windows_media_ocr_cli
+PsOCRCapture
