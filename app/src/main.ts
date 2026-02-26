@@ -22,7 +22,12 @@ await missionStore.initialize();
 // If no cached cards exist, fetch the default CSV in the background.
 // This happens after the UI is mounted so the app is already interactive.
 if (!cardStore.hasShopCards) {
-  cardStore.fetchDefaultCards().then(() => missionStore.buildUserMissions());
+  cardStore.fetchDefaultCards().then(async () => {
+    missionStore.buildUserMissions();
+    await missionStore.calculateAllNotCalculatedMissions(
+      missionStore.userMissions.map((m) => m.id),
+    );
+  });
 }
 
 // Mount app after stores are initialized

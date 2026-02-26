@@ -136,17 +136,6 @@
       <div class="sidebar-divider" />
 
       <div class="sidebar-section">
-        <button
-          class="btn-calc-all"
-          @click="
-            missionStore.calculateAllNotCalculatedMissions(
-              filteredMissions.map((m) => m.id),
-            )
-          "
-        >
-          Calculate All
-        </button>
-        <span class="calc-hint">May take a moment</span>
         <button class="btn-mark-all-complete" @click="markAllComplete">
           Set All Complete
         </button>
@@ -741,23 +730,6 @@ watch(
   cursor: pointer;
 }
 
-.btn-calc-all {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 0.83rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-  width: 100%;
-}
-
-.btn-calc-all:hover {
-  background: var(--accent-hover);
-}
-
 .btn-mark-all-complete {
   background: transparent;
   color: #86efac;
@@ -796,12 +768,6 @@ watch(
 .btn-unmark-all-complete:hover {
   background: #7f1d1d;
   color: #fee2e2;
-}
-
-.calc-hint {
-  font-size: 0.68rem;
-  color: var(--sidebar-muted);
-  text-align: center;
 }
 
 .sidebar-spacer {

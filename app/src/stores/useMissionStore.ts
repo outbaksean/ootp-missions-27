@@ -116,9 +116,160 @@ export const useMissionStore = defineStore("mission", () => {
     return false; // missions-type handled separately
   }
 
+  function rebuildCountMission(userMission: UserMission) {
+    const cardStore = useCardStore();
+    const settingsStore = useSettingsStore();
+    const mission = userMission.rawMission;
+    const shopCardsById = cardStore.shopCardsById;
+    const overrides = cardStore.cardPriceOverrides;
+
+    const costInfo = computeMissionCostInfo(
+      mission,
+      shopCardsById,
+      selectedPriceType.value.sellPrice,
+      overrides,
+      settingsStore.optimizeCardSelection,
+      settingsStore.unlockedCardDiscount,
+    );
+
+    const missionCards = mission.cards
+      .map((card) => {
+        const shopCard = shopCardsById.get(card.cardId);
+        if (!shopCard || shopCard.cardId === undefined) {
+          return {
+            cardId: card.cardId,
+            title: `Card #${card.cardId}`,
+            owned: false,
+            locked: false,
+            available: false,
+            price: 0,
+            points: card.points || 0,
+            highlighted: false,
+            shouldLock: false,
+          };
+        }
+
+        const basePrice = selectedPriceType.value.sellPrice
+          ? shopCard.sellOrderLow > 0
+            ? shopCard.sellOrderLow
+            : shopCard.lastPrice
+          : shopCard.lastPrice;
+        const price = overrides.get(card.cardId) ?? basePrice;
+
+        const highlighted =
+          costInfo.remainingPrice > 0 &&
+          costInfo.highlightedIds.has(card.cardId);
+
+        return {
+          cardId: shopCard.cardId,
+          title: shopCard.cardTitle,
+          owned: shopCard.owned,
+          locked: shopCard.locked,
+          available: shopCard.owned || price > 0,
+          price,
+          highlighted,
+          points: card.points || 0,
+          shouldLock: false,
+        };
+      })
+      .filter((card) => card !== null)
+      .sort((a, b) => {
+        if (a.owned !== b.owned) return a.owned ? 1 : -1;
+        if (a.locked !== b.locked) return a.locked ? 1 : -1;
+        return a.price - b.price;
+      });
+
+    const ownedCount = mission.cards.filter(
+      (card) => shopCardsById.get(card.cardId)?.owned,
+    ).length;
+    const lockedCount = missionCards.filter((c) => c.owned && c.locked).length;
+    const lockedSuffix = lockedCount > 0 ? `, ${lockedCount} locked` : "";
+
+    for (const mc of missionCards) {
+      mc.shouldLock = costInfo.lockIds.has(mc.cardId);
+    }
+
+    const completed = computeCompleted(mission.id, mission, missionCards);
+    const rewardValue = MissionHelper.calculateRewardValue(
+      mission.rewards,
+      settingsStore.packPrices,
+      shopCardsById,
+      selectedPriceType.value.sellPrice,
+    );
+
+    const unlockedDeduction = settingsStore.subtractUnlockedCards
+      ? costInfo.unlockedCardsPrice
+      : 0;
+
+    userMission.progressText = `${ownedCount} / ${mission.requiredCount} owned (${mission.cards.length} total${lockedSuffix})`;
+    userMission.completed = completed;
+    userMission.missionCards = missionCards;
+    userMission.remainingPrice = costInfo.remainingPrice;
+    userMission.unlockedCardsPrice = costInfo.unlockedCardsPrice;
+    userMission.rewardValue = rewardValue;
+    userMission.missionValue =
+      rewardValue !== undefined
+        ? rewardValue - costInfo.remainingPrice - unlockedDeduction
+        : undefined;
+  }
+
+  function rebuildMissionsTypeMission(userMission: UserMission) {
+    const cardStore = useCardStore();
+    const settingsStore = useSettingsStore();
+    const mission = userMission.rawMission;
+    const shopCardsById = cardStore.shopCardsById;
+
+    if (!mission.missionIds || mission.missionIds.length === 0) {
+      return;
+    }
+
+    const subMissions = userMissions.value.filter(
+      (um) =>
+        mission.missionIds &&
+        mission.missionIds.some((id) => id == um.rawMission.id),
+    );
+    const completedCount = subMissions.filter((m) => m.completed).length;
+    const remainingCount = mission.requiredCount - completedCount;
+    const totalRemainingPrice = subMissions
+      .filter((m) => !m.completed)
+      .filter((m) => m.remainingPrice > 0)
+      .map((m) => m.remainingPrice)
+      .sort((a, b) => a - b)
+      .slice(0, remainingCount)
+      .reduce((sum, price) => sum + price, 0);
+
+    const totalUnlockedCardsPrice = subMissions.reduce(
+      (sum, m) => sum + m.unlockedCardsPrice,
+      0,
+    );
+    userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
+    userMission.remainingPrice = totalRemainingPrice;
+    userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
+    userMission.completed =
+      manualCompleteOverrides.value.has(mission.id) ||
+      completedCount >= mission.requiredCount;
+    const rewardValueMissions = MissionHelper.calculateRewardValue(
+      mission.rewards,
+      settingsStore.packPrices,
+      shopCardsById,
+      selectedPriceType.value.sellPrice,
+    );
+    userMission.rewardValue = rewardValueMissions;
+    const unlockedDeductionMissions = settingsStore.subtractUnlockedCards
+      ? totalUnlockedCardsPrice
+      : 0;
+    userMission.missionValue =
+      rewardValueMissions !== undefined
+        ? rewardValueMissions -
+        totalRemainingPrice -
+        unlockedDeductionMissions
+        : undefined;
+  }
+
   async function calculateMissionDetails(
     missionId: number,
     isSubMission = false,
+    force = false,
   ) {
     if (!isSubMission) {
       loading.value = true;
@@ -128,7 +279,7 @@ export const useMissionStore = defineStore("mission", () => {
     const shopCardsById = cardStore.shopCardsById;
     const overrides = cardStore.cardPriceOverrides;
     const userMission = userMissions.value.find((m) => m.id === missionId);
-    if (!userMission || userMission.progressText !== "Not Calculated") {
+    if (!userMission || (!force && userMission.progressText !== "Not Calculated")) {
       return;
     }
 
@@ -223,8 +374,8 @@ export const useMissionStore = defineStore("mission", () => {
       userMission.missionValue =
         rewardValuePoints !== undefined
           ? rewardValuePoints -
-            costInfo.remainingPrice -
-            unlockedDeductionPoints
+          costInfo.remainingPrice -
+          unlockedDeductionPoints
           : undefined;
     }
 
@@ -234,50 +385,12 @@ export const useMissionStore = defineStore("mission", () => {
         return;
       }
       await Promise.all(
-        mission.missionIds.map((id) => calculateMissionDetails(id, true)),
+        mission.missionIds.map((id) =>
+          calculateMissionDetails(id, true, force),
+        ),
       );
 
-      const subMissions = userMissions.value.filter(
-        (um) =>
-          mission.missionIds &&
-          mission.missionIds.some((id) => id == um.rawMission.id),
-      );
-      const completedCount = subMissions.filter((m) => m.completed).length;
-      const remainingCount = mission.requiredCount - completedCount;
-      const totalRemainingPrice = subMissions
-        .filter((m) => !m.completed)
-        .filter((m) => m.remainingPrice > 0)
-        .map((m) => m.remainingPrice)
-        .sort((a, b) => a - b)
-        .slice(0, remainingCount)
-        .reduce((sum, price) => sum + price, 0);
-
-      const totalUnlockedCardsPrice = subMissions.reduce(
-        (sum, m) => sum + m.unlockedCardsPrice,
-        0,
-      );
-      userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
-      userMission.remainingPrice = totalRemainingPrice;
-      userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
-      userMission.completed =
-        manualCompleteOverrides.value.has(mission.id) ||
-        completedCount >= mission.requiredCount;
-      const rewardValueMissions = MissionHelper.calculateRewardValue(
-        mission.rewards,
-        settingsStore.packPrices,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-      );
-      userMission.rewardValue = rewardValueMissions;
-      const unlockedDeductionMissions = settingsStore.subtractUnlockedCards
-        ? totalUnlockedCardsPrice
-        : 0;
-      userMission.missionValue =
-        rewardValueMissions !== undefined
-          ? rewardValueMissions -
-            totalRemainingPrice -
-            unlockedDeductionMissions
-          : undefined;
+      rebuildMissionsTypeMission(userMission);
     }
 
     if (!isSubMission) {
@@ -286,11 +399,6 @@ export const useMissionStore = defineStore("mission", () => {
   }
 
   function buildUserMissions() {
-    const cardStore = useCardStore();
-    const settingsStore = useSettingsStore();
-    const shopCardsById = cardStore.shopCardsById;
-    const overrides = cardStore.cardPriceOverrides;
-
     userMissions.value = missions.value.map((mission) => {
       if (mission.type === "missions" || mission.type === "points") {
         return {
@@ -306,100 +414,20 @@ export const useMissionStore = defineStore("mission", () => {
         };
       }
 
-      const costInfo = computeMissionCostInfo(
-        mission,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-        overrides,
-        settingsStore.optimizeCardSelection,
-        settingsStore.unlockedCardDiscount,
-      );
-      const missionCards = mission.cards
-        .map((card) => {
-          const shopCard = shopCardsById.get(card.cardId);
-          if (!shopCard || shopCard.cardId === undefined) {
-            return {
-              cardId: card.cardId,
-              title: `Card #${card.cardId}`,
-              owned: false,
-              locked: false,
-              available: false,
-              price: 0,
-              points: card.points || 0,
-              highlighted: false,
-              shouldLock: false,
-            };
-          }
-
-          const basePrice = selectedPriceType.value.sellPrice
-            ? shopCard.sellOrderLow > 0
-              ? shopCard.sellOrderLow
-              : shopCard.lastPrice
-            : shopCard.lastPrice;
-          const price = overrides.get(card.cardId) ?? basePrice;
-
-          const highlighted =
-            costInfo.remainingPrice > 0 &&
-            costInfo.highlightedIds.has(card.cardId);
-
-          return {
-            cardId: shopCard.cardId,
-            title: shopCard.cardTitle,
-            owned: shopCard.owned,
-            locked: shopCard.locked,
-            available: shopCard.owned || price > 0,
-            price,
-            highlighted,
-            points: card.points || 0,
-            shouldLock: false,
-          };
-        })
-        .filter((card) => card !== null)
-        .sort((a, b) => {
-          if (a.owned !== b.owned) return a.owned ? 1 : -1;
-          if (a.locked !== b.locked) return a.locked ? 1 : -1;
-          return a.price - b.price;
-        });
-
-      const ownedCount = mission.cards.filter(
-        (card) => shopCardsById.get(card.cardId)?.owned,
-      ).length;
-      const lockedCount = missionCards.filter(
-        (c) => c.owned && c.locked,
-      ).length;
-      const lockedSuffix = lockedCount > 0 ? `, ${lockedCount} locked` : "";
-
-      for (const mc of missionCards) {
-        mc.shouldLock = costInfo.lockIds.has(mc.cardId);
-      }
-
-      const completed = computeCompleted(mission.id, mission, missionCards);
-
-      const rewardValue = MissionHelper.calculateRewardValue(
-        mission.rewards,
-        settingsStore.packPrices,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-      );
-
-      const unlockedDeduction = settingsStore.subtractUnlockedCards
-        ? costInfo.unlockedCardsPrice
-        : 0;
-
-      return {
+      const userMission: UserMission = {
         id: mission.id,
         rawMission: mission,
-        progressText: `${ownedCount} / ${mission.requiredCount} owned (${mission.cards.length} total${lockedSuffix})`,
-        completed,
-        missionCards,
-        remainingPrice: costInfo.remainingPrice,
-        unlockedCardsPrice: costInfo.unlockedCardsPrice,
-        rewardValue,
-        missionValue:
-          rewardValue !== undefined
-            ? rewardValue - costInfo.remainingPrice - unlockedDeduction
-            : undefined,
+        progressText: "Not Calculated",
+        completed: false,
+        missionCards: [],
+        remainingPrice: 0,
+        unlockedCardsPrice: 0,
+        rewardValue: undefined,
+        missionValue: undefined,
       };
+
+      rebuildCountMission(userMission);
+      return userMission;
     });
 
     // Propagate sub-mission completion up to missions-type parents.
@@ -465,6 +493,9 @@ export const useMissionStore = defineStore("mission", () => {
       missions.value = cached.data;
       missionsVersion.value = cached.version;
       buildUserMissions();
+      await calculateAllNotCalculatedMissions(
+        missions.value.map((mission) => mission.id),
+      );
       loading.value = false;
       // Refresh cache in background without blocking the UI
       fetchAndCacheMissions()
@@ -473,6 +504,9 @@ export const useMissionStore = defineStore("mission", () => {
             missions.value = fresh.missions;
             missionsVersion.value = fresh.version;
             buildUserMissions();
+            calculateAllNotCalculatedMissions(
+              missions.value.map((mission) => mission.id),
+            );
           }
         })
         .catch(() => {
@@ -498,468 +532,79 @@ export const useMissionStore = defineStore("mission", () => {
     }
 
     buildUserMissions();
+    await calculateAllNotCalculatedMissions(
+      missions.value.map((mission) => mission.id),
+    );
     loading.value = false;
   }
 
-  function updateCardLockedState(cardId: number, locked: boolean) {
-    const cardStore = useCardStore();
-    const settingsStore = useSettingsStore();
-
-    // Update missionCards locked flag everywhere
-    for (const mission of userMissions.value) {
-      for (const card of mission.missionCards) {
-        if (card.cardId === cardId) {
-          card.locked = locked;
-        }
-      }
-    }
-
-    // Recompute unlockedCardsPrice + missionValue for count/points missions
-    // that contain this card and have already been calculated.
-    for (const mission of userMissions.value) {
-      if (mission.progressText === "Not Calculated") continue;
-      if (mission.rawMission.type === "missions") continue;
-      if (!mission.rawMission.cards.some((c) => c.cardId === cardId)) continue;
-
-      const costInfo3 = computeMissionCostInfo(
-        mission.rawMission,
-        cardStore.shopCardsById,
-        selectedPriceType.value.sellPrice,
-        cardStore.cardPriceOverrides,
-        settingsStore.optimizeCardSelection,
-        settingsStore.unlockedCardDiscount,
-      );
-      mission.unlockedCardsPrice = costInfo3.unlockedCardsPrice;
-      if (settingsStore.optimizeCardSelection) {
-        mission.remainingPrice = costInfo3.remainingPrice;
-        for (const mc of mission.missionCards) {
-          mc.highlighted = costInfo3.highlightedIds.has(mc.cardId);
-          mc.shouldLock = costInfo3.lockIds.has(mc.cardId);
-        }
-      } else {
-        for (const mc of mission.missionCards) {
-          mc.shouldLock = costInfo3.lockIds.has(mc.cardId);
-        }
-      }
-      const rewardValue = MissionHelper.calculateRewardValue(
-        mission.rawMission.rewards,
-        settingsStore.packPrices,
-        cardStore.shopCardsById,
-        selectedPriceType.value.sellPrice,
-      );
-      mission.rewardValue = rewardValue;
-      const unlockedDeduction = settingsStore.subtractUnlockedCards
-        ? mission.unlockedCardsPrice
-        : 0;
-      mission.missionValue =
-        rewardValue !== undefined
-          ? rewardValue - mission.remainingPrice - unlockedDeduction
-          : undefined;
-      mission.completed = computeCompleted(
-        mission.id,
-        mission.rawMission,
-        mission.missionCards,
-      );
-      if (mission.rawMission.type === "count") {
-        const ownedCnt = mission.missionCards.filter((c) => c.owned).length;
-        const lockedCnt = mission.missionCards.filter(
-          (c) => c.owned && c.locked,
-        ).length;
-        const sfx = lockedCnt > 0 ? `, ${lockedCnt} locked` : "";
-        mission.progressText = `${ownedCnt} / ${mission.rawMission.requiredCount} owned (${mission.rawMission.cards.length} total${sfx})`;
-      } else if (mission.rawMission.type === "points") {
-        const ownedPts = mission.missionCards
-          .filter((c) => c.owned)
-          .reduce((sum, c) => sum + (c.points ?? 0), 0);
-        const lockedPts = mission.missionCards
-          .filter((c) => c.owned && c.locked)
-          .reduce((sum, c) => sum + (c.points ?? 0), 0);
-        const remainingPts = mission.rawMission.requiredCount - ownedPts;
-        const sfxPts =
-          lockedPts > 0 ? `, ${lockedPts.toLocaleString()} locked` : "";
-        mission.progressText = `${ownedPts.toLocaleString()} / ${mission.rawMission.requiredCount.toLocaleString()} pts (${remainingPts.toLocaleString()} remaining, ${mission.rawMission.totalPoints?.toLocaleString()} total${sfxPts})`;
-      }
-    }
-
-    // Re-aggregate missions-type missions from their updated sub-missions.
-    for (const mission of userMissions.value) {
-      if (mission.progressText === "Not Calculated") continue;
-      if (mission.rawMission.type !== "missions") continue;
-
-      const subMissions = userMissions.value.filter((um) =>
-        mission.rawMission.missionIds?.some((id) => id === um.rawMission.id),
-      );
-      mission.unlockedCardsPrice = subMissions.reduce(
-        (sum, m) => sum + m.unlockedCardsPrice,
-        0,
-      );
-      const rewardValue = MissionHelper.calculateRewardValue(
-        mission.rawMission.rewards,
-        settingsStore.packPrices,
-        cardStore.shopCardsById,
-        selectedPriceType.value.sellPrice,
-      );
-      mission.rewardValue = rewardValue;
-      const unlockedDeduction = settingsStore.subtractUnlockedCards
-        ? mission.unlockedCardsPrice
-        : 0;
-      mission.missionValue =
-        rewardValue !== undefined
-          ? rewardValue - mission.remainingPrice - unlockedDeduction
-          : undefined;
-      const completedCount = subMissions.filter((m) => m.completed).length;
-      mission.completed =
-        manualCompleteOverrides.value.has(mission.id) ||
-        completedCount >= mission.rawMission.requiredCount;
-    }
-
-    // Also update completed for uncalculated missions-type missions.
-    for (const mission of userMissions.value) {
-      if (mission.progressText !== "Not Calculated") continue;
-      if (mission.rawMission.type !== "missions") continue;
-      const subMissions = userMissions.value.filter((um) =>
-        mission.rawMission.missionIds?.some((id) => id === um.rawMission.id),
-      );
-      const completedCount = subMissions.filter((m) => m.completed).length;
-      mission.completed =
-        manualCompleteOverrides.value.has(mission.id) ||
-        completedCount >= mission.rawMission.requiredCount;
-    }
-  }
-
-  function updateCardOwnedState(cardId: number) {
-    const cardStore = useCardStore();
-    const settingsStore = useSettingsStore();
-    const shopCardsById = cardStore.shopCardsById;
-    const overrides = cardStore.cardPriceOverrides;
-
-    // Update missionCards owned flag and re-sort in all missions
-    for (const mission of userMissions.value) {
-      const idx = mission.missionCards.findIndex((c) => c.cardId === cardId);
-      if (idx === -1) continue;
-      const shopCard = shopCardsById.get(cardId);
-      if (shopCard) mission.missionCards[idx].owned = shopCard.owned;
-      mission.missionCards.sort((a, b) => {
-        if (a.owned !== b.owned) return a.owned ? 1 : -1;
-        if (a.locked !== b.locked) return a.locked ? 1 : -1;
-        return a.price - b.price;
-      });
-    }
-
-    // Rebuild count missions containing this card
-    for (const mission of userMissions.value) {
-      if (mission.progressText === "Not Calculated") continue;
-      if (mission.rawMission.type === "missions") continue;
-      if (!mission.rawMission.cards.some((c) => c.cardId === cardId)) continue;
-
-      if (mission.rawMission.type === "count") {
-        const costInfo4 = computeMissionCostInfo(
-          mission.rawMission,
-          shopCardsById,
-          selectedPriceType.value.sellPrice,
-          overrides,
-          settingsStore.optimizeCardSelection,
-          settingsStore.unlockedCardDiscount,
-        );
-        mission.missionCards = mission.rawMission.cards
-          .map((card) => {
-            const shopCard = shopCardsById.get(card.cardId);
-            if (!shopCard || shopCard.cardId === undefined) {
-              return {
-                cardId: card.cardId,
-                title: `Card #${card.cardId}`,
-                owned: false,
-                locked: false,
-                available: false,
-                price: 0,
-                points: card.points || 0,
-                highlighted: false,
-                shouldLock: false,
-              };
-            }
-            const basePrice = selectedPriceType.value.sellPrice
-              ? shopCard.sellOrderLow > 0
-                ? shopCard.sellOrderLow
-                : shopCard.lastPrice
-              : shopCard.lastPrice;
-            const price = overrides.get(card.cardId) ?? basePrice;
-            const highlighted =
-              costInfo4.remainingPrice > 0 &&
-              costInfo4.highlightedIds.has(card.cardId);
-            return {
-              cardId: shopCard.cardId,
-              title: shopCard.cardTitle,
-              owned: shopCard.owned,
-              locked: shopCard.locked,
-              available: shopCard.owned || price > 0,
-              price,
-              highlighted,
-              points: card.points || 0,
-              shouldLock: false,
-            };
-          })
-          .filter((c) => c !== null)
-          .sort((a, b) => {
-            if (a.owned !== b.owned) return a.owned ? 1 : -1;
-            if (a.locked !== b.locked) return a.locked ? 1 : -1;
-            return a.price - b.price;
-          });
-        const ownedCount = mission.rawMission.cards.filter(
-          (c) => shopCardsById.get(c.cardId)?.owned,
-        ).length;
-        const lockedCount4 = mission.missionCards.filter(
-          (c) => c.owned && c.locked,
-        ).length;
-        const lockedSuffix4 =
-          lockedCount4 > 0 ? `, ${lockedCount4} locked` : "";
-        mission.remainingPrice = costInfo4.remainingPrice;
-        mission.progressText = `${ownedCount} / ${mission.rawMission.requiredCount} owned (${mission.rawMission.cards.length} total${lockedSuffix4})`;
-        mission.unlockedCardsPrice = costInfo4.unlockedCardsPrice;
-        for (const mc of mission.missionCards) {
-          mc.shouldLock = costInfo4.lockIds.has(mc.cardId);
-        }
-        const rewardValue = MissionHelper.calculateRewardValue(
-          mission.rawMission.rewards,
-          settingsStore.packPrices,
-          shopCardsById,
-          selectedPriceType.value.sellPrice,
-        );
-        mission.rewardValue = rewardValue;
-        const unlockedDeduction = settingsStore.subtractUnlockedCards
-          ? mission.unlockedCardsPrice
-          : 0;
-        mission.missionValue =
-          rewardValue !== undefined
-            ? rewardValue - mission.remainingPrice - unlockedDeduction
-            : undefined;
-        mission.completed = computeCompleted(
-          mission.id,
-          mission.rawMission,
-          mission.missionCards,
-        );
-      } else {
-        // points: reset to Not Calculated so user can recalculate.
-        // Keep missionCards intact (owned flag already updated by the first
-        // loop above) so the detail panel doesn't blank out.
-        mission.progressText = "Not Calculated";
-        mission.completed = false;
-        mission.remainingPrice = 0;
-        mission.unlockedCardsPrice = 0;
-        mission.rewardValue = undefined;
-        mission.missionValue = undefined;
-      }
-    }
-
-    // Re-aggregate missions-type missions
-    for (const mission of userMissions.value) {
-      if (mission.progressText === "Not Calculated") continue;
-      if (mission.rawMission.type !== "missions") continue;
-      const subMissions = userMissions.value.filter((um) =>
-        mission.rawMission.missionIds?.some((id) => id === um.rawMission.id),
-      );
-      mission.unlockedCardsPrice = subMissions.reduce(
-        (sum, m) => sum + m.unlockedCardsPrice,
-        0,
-      );
-      const completedCount = subMissions.filter((m) => m.completed).length;
-      mission.completed =
-        manualCompleteOverrides.value.has(mission.id) ||
-        completedCount >= mission.rawMission.requiredCount;
-      const remainingCount = mission.rawMission.requiredCount - completedCount;
-      mission.remainingPrice = subMissions
-        .filter((m) => !m.completed)
-        .filter((m) => m.remainingPrice > 0)
-        .map((m) => m.remainingPrice)
-        .sort((a, b) => a - b)
-        .slice(0, remainingCount)
-        .reduce((sum, price) => sum + price, 0);
-      const rewardValue = MissionHelper.calculateRewardValue(
-        mission.rawMission.rewards,
-        settingsStore.packPrices,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-      );
-      mission.rewardValue = rewardValue;
-      const unlockedDeduction = settingsStore.subtractUnlockedCards
-        ? mission.unlockedCardsPrice
-        : 0;
-      mission.missionValue =
-        rewardValue !== undefined
-          ? rewardValue - mission.remainingPrice - unlockedDeduction
-          : undefined;
-    }
-
-    // Also update completed for uncalculated missions-type missions.
-    for (const mission of userMissions.value) {
-      if (mission.progressText !== "Not Calculated") continue;
-      if (mission.rawMission.type !== "missions") continue;
-      const subMissions = userMissions.value.filter((um) =>
-        mission.rawMission.missionIds?.some((id) => id === um.rawMission.id),
-      );
-      const completedCount = subMissions.filter((m) => m.completed).length;
-      mission.completed =
-        manualCompleteOverrides.value.has(mission.id) ||
-        completedCount >= mission.rawMission.requiredCount;
-    }
-  }
-
-  async function handlePriceOverrideChanged(missionId?: number) {
-    const cardStore = useCardStore();
-    const settingsStore = useSettingsStore();
-    const shopCardsById = cardStore.shopCardsById;
-    const overrides = cardStore.cardPriceOverrides;
-    const overriddenIds = new Set([
-      ...overrides.keys(),
-      ...cardStore.cardOwnedOverrides,
-    ]);
+  async function recalculateMissionsForCardIds(cardIds: Set<number>) {
+    if (cardIds.size === 0) return;
 
     loading.value = true;
 
     const modifiedIds = new Set<number>();
-    const toRecalculate: number[] = [];
+    const pointsToRecalculate: number[] = [];
 
-    for (const um of userMissions.value) {
-      const mission = um.rawMission;
-      if (mission.type === "missions") continue;
+    for (const mission of userMissions.value) {
+      if (mission.rawMission.type === "missions") continue;
+      const hasCard = mission.rawMission.cards.some((c) =>
+        cardIds.has(c.cardId),
+      );
+      if (!hasCard) continue;
 
-      const isSelected = um.id === missionId;
-      const hasOverriddenCard =
-        mission.cards?.some((c) => overriddenIds.has(c.cardId)) ?? false;
-      if (!isSelected && !hasOverriddenCard) continue;
+      modifiedIds.add(mission.id);
 
-      modifiedIds.add(um.id);
-
-      if (mission.type === "count") {
-        const costInfo5 = computeMissionCostInfo(
-          mission,
-          shopCardsById,
-          selectedPriceType.value.sellPrice,
-          overrides,
-          settingsStore.optimizeCardSelection,
-          settingsStore.unlockedCardDiscount,
-        );
-        um.missionCards = mission.cards
-          .map((card) => {
-            const shopCard = shopCardsById.get(card.cardId);
-            if (!shopCard || shopCard.cardId === undefined) {
-              return {
-                cardId: card.cardId,
-                title: `Card #${card.cardId}`,
-                owned: false,
-                locked: false,
-                available: false,
-                price: 0,
-                points: card.points || 0,
-                highlighted: false,
-                shouldLock: false,
-              };
-            }
-            const basePrice = selectedPriceType.value.sellPrice
-              ? shopCard.sellOrderLow > 0
-                ? shopCard.sellOrderLow
-                : shopCard.lastPrice
-              : shopCard.lastPrice;
-            const price = overrides.get(card.cardId) ?? basePrice;
-            const highlighted =
-              costInfo5.remainingPrice > 0 &&
-              costInfo5.highlightedIds.has(card.cardId);
-            return {
-              cardId: shopCard.cardId,
-              title: shopCard.cardTitle,
-              owned: shopCard.owned,
-              locked: shopCard.locked,
-              available: shopCard.owned || price > 0,
-              price,
-              highlighted,
-              points: card.points || 0,
-              shouldLock: false,
-            };
-          })
-          .filter((c) => c !== null)
-          .sort((a, b) => {
-            if (a.owned !== b.owned) return a.owned ? 1 : -1;
-            if (a.locked !== b.locked) return a.locked ? 1 : -1;
-            return a.price - b.price;
-          });
-        um.remainingPrice = costInfo5.remainingPrice;
-        um.unlockedCardsPrice = costInfo5.unlockedCardsPrice;
-        for (const mc of um.missionCards) {
-          mc.shouldLock = costInfo5.lockIds.has(mc.cardId);
-        }
-        const rewardValue = MissionHelper.calculateRewardValue(
-          mission.rewards,
-          settingsStore.packPrices,
-          shopCardsById,
-          selectedPriceType.value.sellPrice,
-        );
-        um.rewardValue = rewardValue;
-        const unlockedDeduction = settingsStore.subtractUnlockedCards
-          ? um.unlockedCardsPrice
-          : 0;
-        um.missionValue =
-          rewardValue !== undefined
-            ? rewardValue - um.remainingPrice - unlockedDeduction
-            : undefined;
-      } else {
-        // points: reset and queue for recalculation
-        um.progressText = "Not Calculated";
-        um.completed = false;
-        um.missionCards = [];
-        um.remainingPrice = 0;
-        um.unlockedCardsPrice = 0;
-        um.rewardValue = undefined;
-        um.missionValue = undefined;
-        toRecalculate.push(um.id);
+      if (mission.rawMission.type === "count") {
+        rebuildCountMission(mission);
+      } else if (mission.rawMission.type === "points") {
+        pointsToRecalculate.push(mission.id);
       }
     }
 
     await Promise.all(
-      toRecalculate.map((id) => calculateMissionDetails(id, true)),
+      pointsToRecalculate.map((id) => calculateMissionDetails(id, true, true)),
     );
 
-    // Re-aggregate missions-type parents whose sub-missions were modified
-    for (const um of userMissions.value) {
-      if (um.progressText === "Not Calculated") continue;
-      if (um.rawMission.type !== "missions") continue;
-      const subIds = um.rawMission.missionIds ?? [];
-      if (!subIds.some((id) => modifiedIds.has(id))) continue;
-
-      const subMissions = userMissions.value.filter((sub) =>
-        subIds.some((id) => id === sub.rawMission.id),
-      );
-      const completedCount = subMissions.filter((m) => m.completed).length;
-      const remainingCount = um.rawMission.requiredCount - completedCount;
-      um.remainingPrice = subMissions
-        .filter((m) => !m.completed)
-        .filter((m) => m.remainingPrice > 0)
-        .map((m) => m.remainingPrice)
-        .sort((a, b) => a - b)
-        .slice(0, remainingCount)
-        .reduce((sum, price) => sum + price, 0);
-      um.unlockedCardsPrice = subMissions.reduce(
-        (sum, m) => sum + m.unlockedCardsPrice,
-        0,
-      );
-      um.completed =
-        manualCompleteOverrides.value.has(um.id) ||
-        completedCount >= um.rawMission.requiredCount;
-      const rewardValue = MissionHelper.calculateRewardValue(
-        um.rawMission.rewards,
-        settingsStore.packPrices,
-        shopCardsById,
-        selectedPriceType.value.sellPrice,
-      );
-      um.rewardValue = rewardValue;
-      const unlockedDeduction = settingsStore.subtractUnlockedCards
-        ? um.unlockedCardsPrice
-        : 0;
-      um.missionValue =
-        rewardValue !== undefined
-          ? rewardValue - um.remainingPrice - unlockedDeduction
-          : undefined;
+    if (modifiedIds.size > 0) {
+      for (const mission of userMissions.value) {
+        if (mission.rawMission.type !== "missions") continue;
+        const subIds = mission.rawMission.missionIds ?? [];
+        if (!subIds.some((id) => modifiedIds.has(id))) continue;
+        rebuildMissionsTypeMission(mission);
+      }
     }
 
     loading.value = false;
+  }
+
+  async function updateCardLockedState(cardId: number, _locked: boolean) {
+    await recalculateMissionsForCardIds(new Set([cardId]));
+  }
+
+  async function updateCardOwnedState(cardId: number) {
+    await recalculateMissionsForCardIds(new Set([cardId]));
+  }
+
+  async function handlePriceOverrideChanged(
+    missionId?: number,
+    cardIds?: number[],
+  ) {
+    const cardStore = useCardStore();
+    const overriddenIds = new Set([
+      ...cardStore.cardPriceOverrides.keys(),
+      ...cardStore.cardOwnedOverrides,
+      ...(cardIds ?? []),
+    ]);
+
+    if (overriddenIds.size === 0 && missionId) {
+      const selected = userMissions.value.find((um) => um.id === missionId);
+      for (const card of selected?.rawMission.cards ?? []) {
+        overriddenIds.add(card.cardId);
+      }
+    }
+
+    await recalculateMissionsForCardIds(overriddenIds);
   }
 
   async function calculateAllNotCalculatedMissions(missionIds: number[]) {

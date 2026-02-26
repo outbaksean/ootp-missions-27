@@ -85,13 +85,6 @@
           {{ remainingPriceText(selectedMission) }} remaining
         </p>
         <button
-          v-if="hasUnappliedChanges"
-          class="btn-recalculate"
-          @click="recalculate"
-        >
-          Recalculate
-        </button>
-        <button
           v-if="isManuallyComplete || canMarkComplete"
           class="btn-manual-complete"
           :class="{ 'btn-manual-complete--active': isManuallyComplete }"
@@ -236,7 +229,7 @@ defineEmits<{
   (e: "selectMission", mission: UserMission): void;
 }>();
 
-const hasUnappliedChanges = ref(false);
+const pendingRecalcCardIds = ref<Set<number>>(new Set());
 const expandedSharedCardId = ref<number | null>(null);
 
 const isManuallyComplete = computed(() =>
@@ -306,18 +299,15 @@ watch(
 async function toggleLock(cardId: number) {
   await cardStore.toggleCardLocked(cardId);
   const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false;
-  missionStore.updateCardLockedState(cardId, locked);
+  await missionStore.updateCardLockedState(cardId, locked);
 }
 
 async function toggleOwn(cardId: number) {
   cardStore.toggleCardOwnedOverride(cardId);
-  missionStore.updateCardOwnedState(cardId);
-  if (props.selectedMission?.progressText === "Not Calculated") {
-    await missionStore.calculateMissionDetails(props.selectedMission.id, true);
-  }
+  await missionStore.updateCardOwnedState(cardId);
 }
 
-function onPriceChange(card: MissionCard, event: Event) {
+async function onPriceChange(card: MissionCard, event: Event) {
   const input = event.target as HTMLInputElement;
   const raw = parseInt(input.value, 10);
   if (!isNaN(raw) && raw > 0) {
@@ -325,17 +315,26 @@ function onPriceChange(card: MissionCard, event: Event) {
   } else {
     cardStore.clearCardPriceOverride(card.cardId);
   }
-  hasUnappliedChanges.value = true;
+  const next = new Set(pendingRecalcCardIds.value);
+  next.add(card.cardId);
+  pendingRecalcCardIds.value = next;
+  await recalculate();
 }
 
-function clearOverride(cardId: number) {
+async function clearOverride(cardId: number) {
   cardStore.clearCardPriceOverride(cardId);
-  hasUnappliedChanges.value = true;
+  const next = new Set(pendingRecalcCardIds.value);
+  next.add(cardId);
+  pendingRecalcCardIds.value = next;
+  await recalculate();
 }
 
 async function recalculate() {
-  await missionStore.handlePriceOverrideChanged(props.selectedMission?.id);
-  hasUnappliedChanges.value = false;
+  await missionStore.handlePriceOverrideChanged(
+    props.selectedMission?.id,
+    [...pendingRecalcCardIds.value],
+  );
+  pendingRecalcCardIds.value = new Set();
 }
 
 const formatPrice = (price: number) =>
