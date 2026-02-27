@@ -8,5 +8,6 @@ public class CaptureResult
     public string CaptureType { get; set; } = string.Empty;
     public DateTime CaptureTime { get; set; }
     public List<string> ExtractedText { get; set; } = new();
+    public List<OcrWordInfo> OcrWords { get; set; } = new();
     public Dictionary<string, object> MetaData { get; set; } = new();
 }

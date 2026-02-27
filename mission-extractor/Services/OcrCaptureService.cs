@@ -77,11 +77,29 @@ public class OcrCaptureService
             ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
 
         var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+        
+        var ocrWords = new List<OcrWordInfo>();
+        foreach (var line in ocrResult.Lines)
+        {
+            foreach (var word in line.Words)
+            {
+                ocrWords.Add(new OcrWordInfo
+                {
+                    Text = word.Text,
+                    Left = word.BoundingRect.X / ocrScale,
+                    Top = word.BoundingRect.Y / ocrScale,
+                    Width = word.BoundingRect.Width / ocrScale,
+                    Height = word.BoundingRect.Height / ocrScale
+                });
+            }
+        }
+        
         var captureResult = new CaptureResult
         {
             CaptureType = "ScreenRegion",
             CaptureTime = DateTime.UtcNow,
             ExtractedText = ocrResult.Lines.Select(line => line.Text).ToList(),
+            OcrWords = ocrWords,
             MetaData = new Dictionary<string, object>
             {
                 { "RegionLeft", region.Left },

@@ -49,7 +49,8 @@ async Task RunMenuLoop(
                 await CaptureMissionRowStructure();
                 break;
             case "2":
-                throw new NotImplementedException();
+                await CaptureMainScreen();
+                break;
             case "3":
                 await CaptureMissionDetails();
                 break;
@@ -68,7 +69,7 @@ void DisplayMenu()
 {
     Console.WriteLine("\n=== Mission Extractor Menu ===");
     Console.WriteLine("1. Capture mission row structure");
-    Console.WriteLine("2. Capture shop cards");
+    Console.WriteLine("2. Capture main screen");
     Console.WriteLine("3. Capture mission details");
     Console.WriteLine("4. Exit");
     Console.WriteLine("==============================");
@@ -100,5 +101,46 @@ async Task CaptureMissionDetails()
     catch (Exception ex)
     {
         Console.WriteLine($"Error: {ex.Message}");
+    }
+}
+
+async Task CaptureMainScreen()
+{
+    var ocrCaptureService = new OcrCaptureService(debugImagesEnabled);
+    var cardExtractionService = new CardExtractionService();
+    
+    var debugImageOverrideName = "MainScreenCapture2";
+    var captureRegion = new CaptureRegionConfig
+    {
+        Left = 17,
+        Top = 375,
+        Width = 2850,
+        Height = 1000
+    };
+    var captureResult = await ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
+    
+    Console.WriteLine($"\nTotal OCR words detected: {captureResult.OcrWords.Count}");
+    
+    // Write word positions to file for debugging
+    var debugPath = Path.Combine(AppContext.BaseDirectory, "debugImages", "word_positions.txt");
+    Directory.CreateDirectory(Path.GetDirectoryName(debugPath)!);
+    using (var writer = new StreamWriter(debugPath))
+    {
+        writer.WriteLine("Text\tLeft\tTop\tWidth\tHeight");
+        foreach (var word in captureResult.OcrWords.OrderBy(w => w.Top).ThenBy(w => w.Left))
+        {
+            writer.WriteLine($"{word.Text}\t{word.Left:F1}\t{word.Top:F1}\t{word.Width:F1}\t{word.Height:F1}");
+        }
+    }
+    Console.WriteLine($"Word positions written to: {debugPath}");
+    
+    var cards = cardExtractionService.ExtractCards(captureResult.OcrWords);
+    
+    Console.WriteLine("\n=== Extracted Card Titles ===");
+    Console.WriteLine($"Total cards found: {cards.Count}\n");
+    
+    foreach (var card in cards.OrderBy(c => c.Row).ThenBy(c => c.Column))
+    {
+        Console.WriteLine($"[Row {card.Row}, Col {card.Column}] {card.Title}");
     }
 }
