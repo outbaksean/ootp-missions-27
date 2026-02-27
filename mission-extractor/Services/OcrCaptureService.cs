@@ -2,6 +2,7 @@ namespace mission_extractor.Services;
 
 using mission_extractor.Models;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
@@ -23,7 +24,7 @@ public class OcrCaptureService
     /// <summary>
     /// Capture a screen region and extract text using OCR
     /// </summary>
-    public async Task<CaptureResult> CaptureScreenRegion(CaptureRegionConfig region)
+    public async Task<CaptureResult> CaptureScreenRegion(CaptureRegionConfig region, string debugImageOverrideName = "")
     {
         if (region.Width <= 0 || region.Height <= 0)
         {
@@ -36,21 +37,41 @@ public class OcrCaptureService
             graphics.CopyFromScreen(region.Left, region.Top, 0, 0, new Size(region.Width, region.Height));
         }
 
+        const int ocrScale = 3;
+        using var scaledBitmap = new Bitmap(region.Width * ocrScale, region.Height * ocrScale, PixelFormat.Format32bppArgb);
+        using (var graphics = Graphics.FromImage(scaledBitmap))
+        {
+            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            graphics.PixelOffsetMode = PixelOffsetMode.Half;
+            graphics.DrawImage(
+                bitmap,
+                new Rectangle(0, 0, scaledBitmap.Width, scaledBitmap.Height),
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                GraphicsUnit.Pixel);
+        }
+
         if (_debugImagesEnabled)
         {
             Directory.CreateDirectory(_debugImagesPath);
-            var fileName = $"capture_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{region.Left}_{region.Top}_{region.Width}x{region.Height}.png";
-            var fullPath = Path.Combine(_debugImagesPath, fileName);
-            bitmap.Save(fullPath, ImageFormat.Png);
+            var stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+            var rawFileName = $"capture_{stamp}_{region.Left}_{region.Top}_{region.Width}x{region.Height}_raw.png";
+            var scaledFileName = $"capture_{stamp}_{region.Left}_{region.Top}_{scaledBitmap.Width}x{scaledBitmap.Height}_scaled.png";
+            if (!string.IsNullOrWhiteSpace(debugImageOverrideName))
+            {
+                rawFileName = $"{debugImageOverrideName}.png";
+                scaledFileName = $"{debugImageOverrideName}_scaled.png";
+            }
+            bitmap.Save(Path.Combine(_debugImagesPath, rawFileName), ImageFormat.Png);
+            scaledBitmap.Save(Path.Combine(_debugImagesPath, scaledFileName), ImageFormat.Png);
         }
 
         using var memoryStream = new MemoryStream();
-        bitmap.Save(memoryStream, ImageFormat.Bmp);
+        scaledBitmap.Save(memoryStream, ImageFormat.Bmp);
         memoryStream.Position = 0;
 
         using var randomAccessStream = memoryStream.AsRandomAccessStream();
         var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
-        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore);
 
         var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages()
             ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
@@ -66,7 +87,8 @@ public class OcrCaptureService
                 { "RegionLeft", region.Left },
                 { "RegionTop", region.Top },
                 { "RegionWidth", region.Width },
-                { "RegionHeight", region.Height }
+                { "RegionHeight", region.Height },
+                { "OcrScale", ocrScale }
             }
         };
         return captureResult;
@@ -94,7 +116,7 @@ public class OcrCaptureService
 
         using var randomAccessStream = memoryStream.AsRandomAccessStream();
         var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
-        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore);
 
         var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages()
             ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
@@ -122,13 +144,5 @@ public class OcrCaptureService
             Description = lines.Count > 2 ? string.Join(" ", lines.Skip(2)) : string.Empty,
             Rewards = new List<string>()
         };
-    }
-
-    /// <summary>
-    /// Capture shop cards from specified screen region
-    /// </summary>
-    public async Task<List<ShopCard>> CaptureShopCards(CaptureRegionConfig region)
-    {
-        throw new NotImplementedException();
     }
 }

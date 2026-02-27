@@ -1,8 +1,4 @@
 ﻿using mission_extractor.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Windows.Media.Devices;
 
 namespace mission_extractor.Services
 {
@@ -21,17 +17,60 @@ namespace mission_extractor.Services
             int noDataCount = 0;
             int maxNoDataCount = 5; // Maximum number of consecutive no-data captures before stopping
             int rowIndex = 0;
-            while (noDataCount < maxNoDataCount)
+            int maxRowIndex = _missionBoundryService.MaxRowIndex;
+            while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
-                var captureRegion = _missionBoundryService.GetCategory(rowIndex);
-                var captureResult = await _ocrCaptureService.CaptureScreenRegion(captureRegion);
-                Console.WriteLine($"Captured Row {rowIndex} - Category: {string.Join(", ", captureResult.ExtractedText)}");
+                // TODO: Account for offset rows after scrolling down with anchoring to horizontal line
+                CaptureResult captureResult = await ExtractCategory(rowIndex);
+                Console.WriteLine($"Row {rowIndex} Category: {string.Join(", ", captureResult.ExtractedText)}");
+
+                CaptureResult titleResult = await ExtractTitle(rowIndex);
+                Console.WriteLine($"Row {rowIndex} Title: {string.Join(", ", titleResult.ExtractedText)}");
+
+                CaptureResult rewardResult = await ExtractReward(rowIndex);
+                Console.WriteLine($"Row {rowIndex} Reward: {string.Join(", ", rewardResult.ExtractedText)}");
+
+                CaptureResult statusResult = await ExtractStatus(rowIndex);
+                Console.WriteLine($"Row {rowIndex} Status: {string.Join(", ", statusResult.ExtractedText)}");
 
                 rowIndex++;
-                if (IsNoDataCapture(captureResult)) {
+                if (IsNoDataCapture(captureResult))
+                {
                     noDataCount++;
                 }
+                else
+                {
+                    noDataCount = 0;
+                }
             }
+        }
+
+        private async Task<CaptureResult> ExtractCategory(int rowIndex)
+        {
+            var captureRegion = _missionBoundryService.GetCategory(rowIndex);
+            string debugImageOverrideName = $"Category-{rowIndex}";
+            return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
+        }
+
+        private async Task<CaptureResult> ExtractReward(int rowIndex)
+        {
+            var captureRegion = _missionBoundryService.GetReward(rowIndex);
+            string debugImageOverrideName = $"Reward-{rowIndex}";
+            return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
+        }
+
+        private async Task<CaptureResult> ExtractTitle(int rowIndex)
+        {
+            var captureRegion = _missionBoundryService.GetTitle(rowIndex);
+            string debugImageOverrideName = $"Title-{rowIndex}";
+            return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
+        }
+
+        private async Task<CaptureResult> ExtractStatus(int rowIndex)
+        {
+            var captureRegion = _missionBoundryService.GetStatus(rowIndex);
+            string debugImageOverrideName = $"Status-{rowIndex}";
+            return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
 
         private bool IsNoDataCapture(CaptureResult captureResult)

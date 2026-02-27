@@ -26,7 +26,7 @@ MissionRowBoundries missionRowBoundries = selectedProfileSection?
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
 var missionExtractionService = new MissionEtractionService(missionRowBoundries, debugImagesEnabled);
 
-await RunMenuLoop( missionExtractionService);
+await RunMenuLoop(missionExtractionService);
 
 async Task RunMenuLoop(
     MissionEtractionService missionExtractionService)
