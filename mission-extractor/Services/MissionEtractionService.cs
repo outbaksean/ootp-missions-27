@@ -15,7 +15,7 @@ namespace mission_extractor.Services
         public async Task ExtractMissionRows()
         {
             int noDataCount = 0;
-            int maxNoDataCount = 5; // Maximum number of consecutive no-data captures before stopping
+            int maxNoDataCount = 5;
             int rowIndex = 0;
             int maxRowIndex = _missionBoundryService.MaxRowIndex;
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
@@ -43,6 +43,42 @@ namespace mission_extractor.Services
                     noDataCount = 0;
                 }
             }
+        }
+
+        public async Task ExtractMissionDetails()
+        {
+            int noDataCount = 0;
+            int maxNoDataCount = 5;
+            int rowIndex = 0;
+            int maxRowIndex = 2;
+            int colIndex = 0;
+            int maxColIndex = _missionBoundryService.MaxColumnIndex;
+            while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
+            {
+                CaptureResult captureResult = await ExtractMissionDetail(rowIndex, colIndex);
+                Console.WriteLine($"Mission Detail Row {rowIndex} Col {colIndex}: {string.Join(", ", captureResult.ExtractedText)}");
+                colIndex++;
+                if (colIndex > maxColIndex)
+                {
+                    colIndex = 0;
+                    rowIndex++;
+                }
+                if (IsNoDataCapture(captureResult))
+                {
+                    noDataCount++;
+                }
+                else
+                {
+                    noDataCount = 0;
+                }
+            }
+        }
+
+        private async Task<CaptureResult> ExtractMissionDetail(int row, int column)
+        {
+            var captureRegion = _missionBoundryService.GetDetail(row, column);
+            string debugImageOverrideName = $"Detail-{row}x{column}";
+            return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
 
         private async Task<CaptureResult> ExtractCategory(int rowIndex)

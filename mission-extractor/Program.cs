@@ -51,7 +51,8 @@ async Task RunMenuLoop(
             case "2":
                 throw new NotImplementedException();
             case "3":
-                throw new NotImplementedException();
+                await CaptureMissionDetails();
+                break;
             case "4":
                 isRunning = false;
                 Console.WriteLine("Exiting application...");
@@ -80,6 +81,20 @@ async Task CaptureMissionRowStructure()
     try
     {
         await missionExtractionService.ExtractMissionRows();
+        Console.WriteLine("Data prepared for serialization to JSON.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
+}
+
+async Task CaptureMissionDetails()
+{
+    Console.WriteLine("\nCapturing mission details...");
+    try
+    {
+        await missionExtractionService.ExtractMissionDetails();
         Console.WriteLine("Data prepared for serialization to JSON.");
     }
     catch (Exception ex)

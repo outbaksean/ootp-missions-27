@@ -13,6 +13,15 @@
         public int RewardRight { get; set; }
         public int StatusLeft { get; set; }
         public int StatusRight { get; set; }
+        public int DetailTop1 { get; set; }
+        public int DetailTop2 { get; set; }
+        public int DetailTop3 { get; set; }
+        public int DetailBottom1 { get; set; }
+        public int DetailBottom2 { get; set; }
+        public int DetailBottom3 { get; set; }
+        public int DetailLeft { get; set; }
+        public int DetailWidth { get; set; }
+        public int DetailColumns { get; set; }
     }
 
 }
