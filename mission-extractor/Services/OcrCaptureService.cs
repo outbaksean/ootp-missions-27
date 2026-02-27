@@ -11,15 +11,11 @@ using Windows.Media.Ocr;
 /// </summary>
 public class OcrCaptureService
 {
-    public OcrCaptureService()
-    {
-        // Initialize OCR engine
-    }
 
     /// <summary>
     /// Capture a screen region and extract text using OCR
     /// </summary>
-    public async Task<CaptureResult> CaptureScreenRegion(CaptureRegionConfig region, string captureType)
+    public async Task<CaptureResult> CaptureScreenRegion(CaptureRegionConfig region)
     {
         throw new NotImplementedException();
     }

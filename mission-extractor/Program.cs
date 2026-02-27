@@ -11,13 +11,15 @@ var config = new ConfigurationBuilder()
 // Initialize services
 var ocrService = new OcrCaptureService();
 
+var selectedProfileName = config["SelectedOOTPProfile"];
+var profiles = config.GetSection("OotpProfiles").Get<List<OotpProfileConfig>>() ?? new();
+var selectedProfile = profiles.FirstOrDefault(p =>
+    string.Equals(p.Name, selectedProfileName, StringComparison.OrdinalIgnoreCase));
+
+MissionRowBoundries missionRowBoundries = selectedProfile?.MissionRowBoundaries ?? new();
+
 // Load capture regions from configuration
-var missionRowConfig = config.GetSection("CaptureRegions:MissionRowStructure")
-    .Get<CaptureRegionConfig>() ?? new();
-var shopCardsConfig = config.GetSection("CaptureRegions:ShopCards")
-    .Get<CaptureRegionConfig>() ?? new();
-var missionDetailsConfig = config.GetSection("CaptureRegions:MissionDetails")
-    .Get<CaptureRegionConfig>() ?? new();
+var missionRowConfig = missionRowBoundries.ToCaptureRegionConfig();
 
 await RunMenuLoop(ocrService, missionRowConfig, shopCardsConfig, missionDetailsConfig);
 
@@ -83,7 +85,7 @@ async Task CaptureMissionRowStructure(
         Console.WriteLine("Mission row structure captured successfully!");
         Console.WriteLine($"Mission ID: {result.MissionId}");
         Console.WriteLine($"Title: {result.Title}");
-        
+
         // TODO: Save to file
         Console.WriteLine("Data prepared for serialization to JSON.");
     }
@@ -102,7 +104,7 @@ async Task CaptureShopCards(
     {
         var result = await ocrService.CaptureShopCards(config);
         Console.WriteLine($"Shop cards captured successfully! Found {result.Count} cards.");
-        
+
         // TODO: Save to file
         Console.WriteLine("Data prepared for serialization to JSON.");
     }
@@ -122,7 +124,7 @@ async Task CaptureMissionDetails(
         var result = await ocrService.CaptureScreenRegion(config, "MissionDetails");
         Console.WriteLine("Mission details captured successfully!");
         Console.WriteLine($"Extracted {result.ExtractedText.Count} text items.");
-        
+
         // TODO: Save to file
         Console.WriteLine("Data prepared for serialization to JSON.");
     }
