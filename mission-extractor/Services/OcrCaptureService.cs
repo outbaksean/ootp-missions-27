@@ -37,60 +37,82 @@ public class OcrCaptureService
             graphics.CopyFromScreen(region.Left, region.Top, 0, 0, new Size(region.Width, region.Height));
         }
 
-        const int ocrScale = 3;
-        using var scaledBitmap = new Bitmap(region.Width * ocrScale, region.Height * ocrScale, PixelFormat.Format32bppArgb);
-        using (var graphics = Graphics.FromImage(scaledBitmap))
-        {
-            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-            graphics.PixelOffsetMode = PixelOffsetMode.Half;
-            graphics.DrawImage(
-                bitmap,
-                new Rectangle(0, 0, scaledBitmap.Width, scaledBitmap.Height),
-                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                GraphicsUnit.Pixel);
-        }
+        var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages()
+            ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
+
+        var stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+        var baseName = string.IsNullOrWhiteSpace(debugImageOverrideName)
+            ? $"capture_{stamp}_{region.Left}_{region.Top}_{region.Width}x{region.Height}"
+            : debugImageOverrideName;
 
         if (_debugImagesEnabled)
         {
             Directory.CreateDirectory(_debugImagesPath);
-            var stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
-            var rawFileName = $"capture_{stamp}_{region.Left}_{region.Top}_{region.Width}x{region.Height}_raw.png";
-            var scaledFileName = $"capture_{stamp}_{region.Left}_{region.Top}_{scaledBitmap.Width}x{scaledBitmap.Height}_scaled.png";
-            if (!string.IsNullOrWhiteSpace(debugImageOverrideName))
-            {
-                rawFileName = $"{debugImageOverrideName}.png";
-                scaledFileName = $"{debugImageOverrideName}_scaled.png";
-            }
-            bitmap.Save(Path.Combine(_debugImagesPath, rawFileName), ImageFormat.Png);
-            scaledBitmap.Save(Path.Combine(_debugImagesPath, scaledFileName), ImageFormat.Png);
+            bitmap.Save(Path.Combine(_debugImagesPath, $"{baseName}_raw.png"), ImageFormat.Png);
         }
 
-        using var memoryStream = new MemoryStream();
-        scaledBitmap.Save(memoryStream, ImageFormat.Bmp);
-        memoryStream.Position = 0;
+        List<string> bestText = await RecognizeLinesAsync(ocrEngine, bitmap);
+        var bestScore = ScoreText(bestText);
+        var bestVariant = "raw";
 
-        using var randomAccessStream = memoryStream.AsRandomAccessStream();
-        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
-        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore);
+        using var scaledNearest = ScaleBitmap(bitmap, 3, InterpolationMode.NearestNeighbor);
+        if (_debugImagesEnabled)
+        {
+            scaledNearest.Save(Path.Combine(_debugImagesPath, $"{baseName}_scaled_nearest.png"), ImageFormat.Png);
+        }
+        var nearestText = await RecognizeLinesAsync(ocrEngine, scaledNearest);
+        var nearestScore = ScoreText(nearestText);
+        if (nearestScore > bestScore)
+        {
+            bestText = nearestText;
+            bestScore = nearestScore;
+            bestVariant = "scaled_nearest";
+        }
 
-        var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages()
-            ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
+        using var scaledBicubic = ScaleBitmap(bitmap, 3, InterpolationMode.HighQualityBicubic);
+        if (_debugImagesEnabled)
+        {
+            scaledBicubic.Save(Path.Combine(_debugImagesPath, $"{baseName}_scaled_bicubic.png"), ImageFormat.Png);
+        }
+        var bicubicText = await RecognizeLinesAsync(ocrEngine, scaledBicubic);
+        var bicubicScore = ScoreText(bicubicText);
+        if (bicubicScore > bestScore)
+        {
+            bestText = bicubicText;
+            bestScore = bicubicScore;
+            bestVariant = "scaled_bicubic";
+        }
 
-        var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+        using var thresholded = ToBlackAndWhite(scaledNearest, 170);
+        if (_debugImagesEnabled)
+        {
+            thresholded.Save(Path.Combine(_debugImagesPath, $"{baseName}_threshold.png"), ImageFormat.Png);
+        }
+        var thresholdText = await RecognizeLinesAsync(ocrEngine, thresholded);
+        var thresholdScore = ScoreText(thresholdText);
+        if (thresholdScore > bestScore)
+        {
+            bestText = thresholdText;
+            bestScore = thresholdScore;
+            bestVariant = "threshold";
+        }
+
         var captureResult = new CaptureResult
         {
             CaptureType = "ScreenRegion",
             CaptureTime = DateTime.UtcNow,
-            ExtractedText = ocrResult.Lines.Select(line => line.Text).ToList(),
+            ExtractedText = bestText,
             MetaData = new Dictionary<string, object>
             {
                 { "RegionLeft", region.Left },
                 { "RegionTop", region.Top },
                 { "RegionWidth", region.Width },
                 { "RegionHeight", region.Height },
-                { "OcrScale", ocrScale }
+                { "OcrBestVariant", bestVariant },
+                { "OcrBestScore", bestScore }
             }
         };
+
         return captureResult;
     }
 
@@ -144,5 +166,57 @@ public class OcrCaptureService
             Description = lines.Count > 2 ? string.Join(" ", lines.Skip(2)) : string.Empty,
             Rewards = new List<string>()
         };
+    }
+
+    private static Bitmap ScaleBitmap(Bitmap source, int scale, InterpolationMode interpolationMode)
+    {
+        var scaled = new Bitmap(source.Width * scale, source.Height * scale, PixelFormat.Format32bppArgb);
+        using var graphics = Graphics.FromImage(scaled);
+        graphics.InterpolationMode = interpolationMode;
+        graphics.PixelOffsetMode = PixelOffsetMode.Half;
+        graphics.DrawImage(source, new Rectangle(0, 0, scaled.Width, scaled.Height));
+        return scaled;
+    }
+
+    private static Bitmap ToBlackAndWhite(Bitmap source, byte threshold)
+    {
+        var output = new Bitmap(source.Width, source.Height, PixelFormat.Format32bppArgb);
+        for (var y = 0; y < source.Height; y++)
+        {
+            for (var x = 0; x < source.Width; x++)
+            {
+                var pixel = source.GetPixel(x, y);
+                var luminance = (byte)((pixel.R * 0.299) + (pixel.G * 0.587) + (pixel.B * 0.114));
+                var value = luminance >= threshold ? 255 : 0;
+                output.SetPixel(x, y, Color.FromArgb(255, value, value, value));
+            }
+        }
+
+        return output;
+    }
+
+    private static int ScoreText(List<string> lines)
+    {
+        if (lines.Count == 0)
+        {
+            return 0;
+        }
+
+        var totalChars = lines.Sum(x => x.Length);
+        return totalChars + (lines.Count * 5);
+    }
+
+    private static async Task<List<string>> RecognizeLinesAsync(OcrEngine ocrEngine, Bitmap bitmap)
+    {
+        using var memoryStream = new MemoryStream();
+        bitmap.Save(memoryStream, ImageFormat.Bmp);
+        memoryStream.Position = 0;
+
+        using var randomAccessStream = memoryStream.AsRandomAccessStream();
+        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore);
+
+        var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+        return ocrResult.Lines.Select(line => line.Text).ToList();
     }
 }
