@@ -17,17 +17,12 @@ var selectedProfile = profiles.FirstOrDefault(p =>
     string.Equals(p.Name, selectedProfileName, StringComparison.OrdinalIgnoreCase));
 
 MissionRowBoundries missionRowBoundries = selectedProfile?.MissionRowBoundaries ?? new();
+var missionExtractionService = new MissionEtractionService(missionRowBoundries);
 
-// Load capture regions from configuration
-var missionRowConfig = missionRowBoundries.ToCaptureRegionConfig();
-
-await RunMenuLoop(ocrService, missionRowConfig, shopCardsConfig, missionDetailsConfig);
+await RunMenuLoop( missionExtractionService);
 
 async Task RunMenuLoop(
-    OcrCaptureService ocrService,
-    CaptureRegionConfig missionRowConfig,
-    CaptureRegionConfig shopCardsConfig,
-    CaptureRegionConfig missionDetailsConfig)
+    MissionEtractionService missionExtractionService)
 {
     bool isRunning = true;
 
@@ -44,14 +39,12 @@ async Task RunMenuLoop(
         switch (choice)
         {
             case "1":
-                await CaptureMissionRowStructure(ocrService, missionRowConfig);
+                await CaptureMissionRowStructure();
                 break;
             case "2":
-                await CaptureShopCards(ocrService, shopCardsConfig);
-                break;
+                throw new NotImplementedException();
             case "3":
-                await CaptureMissionDetails(ocrService, missionDetailsConfig);
-                break;
+                throw new NotImplementedException();
             case "4":
                 isRunning = false;
                 Console.WriteLine("Exiting application...");
@@ -74,58 +67,12 @@ void DisplayMenu()
     Console.Write("Enter your choice (1-4): ");
 }
 
-async Task CaptureMissionRowStructure(
-    OcrCaptureService ocrService,
-    CaptureRegionConfig config)
+async Task CaptureMissionRowStructure()
 {
     Console.WriteLine("\nCapturing mission row structure...");
     try
     {
-        var result = await ocrService.CaptureMissionRowStructure(config);
-        Console.WriteLine("Mission row structure captured successfully!");
-        Console.WriteLine($"Mission ID: {result.MissionId}");
-        Console.WriteLine($"Title: {result.Title}");
-
-        // TODO: Save to file
-        Console.WriteLine("Data prepared for serialization to JSON.");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
-
-async Task CaptureShopCards(
-    OcrCaptureService ocrService,
-    CaptureRegionConfig config)
-{
-    Console.WriteLine("\nCapturing shop cards...");
-    try
-    {
-        var result = await ocrService.CaptureShopCards(config);
-        Console.WriteLine($"Shop cards captured successfully! Found {result.Count} cards.");
-
-        // TODO: Save to file
-        Console.WriteLine("Data prepared for serialization to JSON.");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
-
-async Task CaptureMissionDetails(
-    OcrCaptureService ocrService,
-    CaptureRegionConfig config)
-{
-    Console.WriteLine("\nCapturing mission details...");
-    try
-    {
-        var result = await ocrService.CaptureScreenRegion(config, "MissionDetails");
-        Console.WriteLine("Mission details captured successfully!");
-        Console.WriteLine($"Extracted {result.ExtractedText.Count} text items.");
-
-        // TODO: Save to file
+        await missionExtractionService.ExtractMissionRows();
         Console.WriteLine("Data prepared for serialization to JSON.");
     }
     catch (Exception ex)
