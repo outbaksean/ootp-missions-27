@@ -11,6 +11,14 @@ using Windows.Media.Ocr;
 /// </summary>
 public class OcrCaptureService
 {
+    private readonly bool _debugImagesEnabled;
+    private readonly string _debugImagesPath;
+
+    public OcrCaptureService(bool debugImagesEnabled = false)
+    {
+        _debugImagesEnabled = debugImagesEnabled;
+        _debugImagesPath = Path.Combine(AppContext.BaseDirectory, "debugImages");
+    }
 
     /// <summary>
     /// Capture a screen region and extract text using OCR
@@ -26,6 +34,14 @@ public class OcrCaptureService
         using (var graphics = Graphics.FromImage(bitmap))
         {
             graphics.CopyFromScreen(region.Left, region.Top, 0, 0, new Size(region.Width, region.Height));
+        }
+
+        if (_debugImagesEnabled)
+        {
+            Directory.CreateDirectory(_debugImagesPath);
+            var fileName = $"capture_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{region.Left}_{region.Top}_{region.Width}x{region.Height}.png";
+            var fullPath = Path.Combine(_debugImagesPath, fileName);
+            bitmap.Save(fullPath, ImageFormat.Png);
         }
 
         using var memoryStream = new MemoryStream();

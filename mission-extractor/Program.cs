@@ -22,7 +22,9 @@ var selectedProfileSection = config
 MissionRowBoundries missionRowBoundries = selectedProfileSection?
     .GetSection("MissionRowBoundaries")
     .Get<MissionRowBoundries>() ?? new();
-var missionExtractionService = new MissionEtractionService(missionRowBoundries);
+
+var debugImagesEnabled = config.GetValue<bool>("DebugImages");
+var missionExtractionService = new MissionEtractionService(missionRowBoundries, debugImagesEnabled);
 
 await RunMenuLoop( missionExtractionService);
 

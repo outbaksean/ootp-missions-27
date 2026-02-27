@@ -10,10 +10,10 @@ namespace mission_extractor.Services
     {
         private readonly MissionBoundryService _missionBoundryService;
         private readonly OcrCaptureService _ocrCaptureService;
-        public MissionEtractionService(MissionRowBoundries missionRowBoundries)
+        public MissionEtractionService(MissionRowBoundries missionRowBoundries, bool debugImagesEnabled = false)
         {
             _missionBoundryService = new MissionBoundryService(missionRowBoundries);
-            _ocrCaptureService = new OcrCaptureService();
+            _ocrCaptureService = new OcrCaptureService(debugImagesEnabled);
         }
 
         public async Task ExtractMissionRows()
