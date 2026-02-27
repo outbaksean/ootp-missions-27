@@ -17,7 +17,43 @@ public class OcrCaptureService
     /// </summary>
     public async Task<CaptureResult> CaptureScreenRegion(CaptureRegionConfig region)
     {
-        throw new NotImplementedException();
+        if (region.Width <= 0 || region.Height <= 0)
+        {
+            throw new ArgumentException("Capture region width and height must be greater than zero.");
+        }
+
+        using var bitmap = new Bitmap(region.Width, region.Height, PixelFormat.Format32bppArgb);
+        using (var graphics = Graphics.FromImage(bitmap))
+        {
+            graphics.CopyFromScreen(region.Left, region.Top, 0, 0, new Size(region.Width, region.Height));
+        }
+
+        using var memoryStream = new MemoryStream();
+        bitmap.Save(memoryStream, ImageFormat.Bmp);
+        memoryStream.Position = 0;
+
+        using var randomAccessStream = memoryStream.AsRandomAccessStream();
+        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+        var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+
+        var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages()
+            ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
+
+        var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+        var captureResult = new CaptureResult
+        {
+            CaptureType = "ScreenRegion",
+            CaptureTime = DateTime.UtcNow,
+            ExtractedText = ocrResult.Lines.Select(line => line.Text).ToList(),
+            MetaData = new Dictionary<string, object>
+            {
+                { "RegionLeft", region.Left },
+                { "RegionTop", region.Top },
+                { "RegionWidth", region.Width },
+                { "RegionHeight", region.Height }
+            }
+        };
+        return captureResult;
     }
 
     /// <summary>

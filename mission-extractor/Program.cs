@@ -12,11 +12,16 @@ var config = new ConfigurationBuilder()
 var ocrService = new OcrCaptureService();
 
 var selectedProfileName = config["SelectedOOTPProfile"];
-var profiles = config.GetSection("OotpProfiles").Get<List<OotpProfileConfig>>() ?? new();
-var selectedProfile = profiles.FirstOrDefault(p =>
-    string.Equals(p.Name, selectedProfileName, StringComparison.OrdinalIgnoreCase));
 
-MissionRowBoundries missionRowBoundries = selectedProfile?.MissionRowBoundaries ?? new();
+var selectedProfileSection = config
+    .GetSection("OotpProfiles")
+    .GetChildren()
+    .FirstOrDefault(profile =>
+        string.Equals(profile["Name"], selectedProfileName, StringComparison.OrdinalIgnoreCase));
+
+MissionRowBoundries missionRowBoundries = selectedProfileSection?
+    .GetSection("MissionRowBoundaries")
+    .Get<MissionRowBoundries>() ?? new();
 var missionExtractionService = new MissionEtractionService(missionRowBoundries);
 
 await RunMenuLoop( missionExtractionService);
