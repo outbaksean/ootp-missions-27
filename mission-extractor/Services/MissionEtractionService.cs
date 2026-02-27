@@ -18,19 +18,20 @@ namespace mission_extractor.Services
             int maxNoDataCount = 5;
             int rowIndex = 0;
             int maxRowIndex = _missionBoundryService.MaxRowIndex;
+            var rowOffset = await _missionBoundryService.CalculateRowOffset();
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
                 // TODO: Account for offset rows after scrolling down with anchoring to horizontal line
-                CaptureResult captureResult = await ExtractCategory(rowIndex);
+                CaptureResult captureResult = await ExtractCategory(rowIndex, rowOffset);
                 Console.WriteLine($"Row {rowIndex} Category: {string.Join(", ", captureResult.ExtractedText)}");
 
-                CaptureResult titleResult = await ExtractTitle(rowIndex);
+                CaptureResult titleResult = await ExtractTitle(rowIndex, rowOffset);
                 Console.WriteLine($"Row {rowIndex} Title: {string.Join(", ", titleResult.ExtractedText)}");
 
-                CaptureResult rewardResult = await ExtractReward(rowIndex);
+                CaptureResult rewardResult = await ExtractReward(rowIndex, rowOffset);
                 Console.WriteLine($"Row {rowIndex} Reward: {string.Join(", ", rewardResult.ExtractedText)}");
 
-                CaptureResult statusResult = await ExtractStatus(rowIndex);
+                CaptureResult statusResult = await ExtractStatus(rowIndex, rowOffset);
                 Console.WriteLine($"Row {rowIndex} Status: {string.Join(", ", statusResult.ExtractedText)}");
 
                 rowIndex++;
@@ -55,7 +56,7 @@ namespace mission_extractor.Services
             int maxColIndex = _missionBoundryService.MaxColumnIndex;
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
-                CaptureResult captureResult = await ExtractMissionDetail(rowIndex, colIndex);
+                CaptureResult captureResult = await ExtractMissionDetail(rowIndex, colIndex, 0);
                 Console.WriteLine($"Mission Detail Row {rowIndex} Col {colIndex}: {string.Join(", ", captureResult.ExtractedText)}");
                 colIndex++;
                 if (colIndex > maxColIndex)
@@ -74,37 +75,37 @@ namespace mission_extractor.Services
             }
         }
 
-        private async Task<CaptureResult> ExtractMissionDetail(int row, int column)
+        private async Task<CaptureResult> ExtractMissionDetail(int row, int column, int rowOffset)
         {
-            var captureRegion = _missionBoundryService.GetDetail(row, column);
+            var captureRegion = _missionBoundryService.GetDetail(row, column, rowOffset);
             string debugImageOverrideName = $"Detail-{row}x{column}";
             return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
 
-        private async Task<CaptureResult> ExtractCategory(int rowIndex)
+        private async Task<CaptureResult> ExtractCategory(int rowIndex, int rowOffset)
         {
-            var captureRegion = _missionBoundryService.GetCategory(rowIndex);
+            var captureRegion = _missionBoundryService.GetCategory(rowIndex, rowOffset);
             string debugImageOverrideName = $"Category-{rowIndex}";
             return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
 
-        private async Task<CaptureResult> ExtractReward(int rowIndex)
+        private async Task<CaptureResult> ExtractReward(int rowIndex, int rowOffset)
         {
-            var captureRegion = _missionBoundryService.GetReward(rowIndex);
+            var captureRegion = _missionBoundryService.GetReward(rowIndex, rowOffset);
             string debugImageOverrideName = $"Reward-{rowIndex}";
             return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
 
-        private async Task<CaptureResult> ExtractTitle(int rowIndex)
+        private async Task<CaptureResult> ExtractTitle(int rowIndex, int rowOffset)
         {
-            var captureRegion = _missionBoundryService.GetTitle(rowIndex);
+            var captureRegion = _missionBoundryService.GetTitle(rowIndex, rowOffset);
             string debugImageOverrideName = $"Title-{rowIndex}";
             return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
 
-        private async Task<CaptureResult> ExtractStatus(int rowIndex)
+        private async Task<CaptureResult> ExtractStatus(int rowIndex, int rowOffset)
         {
-            var captureRegion = _missionBoundryService.GetStatus(rowIndex);
+            var captureRegion = _missionBoundryService.GetStatus(rowIndex, rowOffset);
             string debugImageOverrideName = $"Status-{rowIndex}";
             return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }
