@@ -49,7 +49,8 @@ async Task RunMenuLoop(
                 await CaptureMissionRowStructure();
                 break;
             case "2":
-                throw new NotImplementedException();
+                await ExtractTopMissionStructureAndDetails();
+                    break;
             case "3":
                 await CaptureMissionDetails();
                 break;
@@ -68,7 +69,7 @@ void DisplayMenu()
 {
     Console.WriteLine("\n=== Mission Extractor Menu ===");
     Console.WriteLine("1. Capture mission row structure");
-    Console.WriteLine("2. Capture shop cards");
+    Console.WriteLine("2. Capture top mission details");
     Console.WriteLine("3. Capture mission details");
     Console.WriteLine("4. Exit");
     Console.WriteLine("==============================");
@@ -101,4 +102,19 @@ async Task CaptureMissionDetails()
     {
         Console.WriteLine($"Error: {ex.Message}");
     }
+}
+
+async Task ExtractTopMissionStructureAndDetails()
+{
+       Console.WriteLine("\nCapturing top mission structure and details...");
+    try
+    {
+        await missionExtractionService.ExtractTopMissionStructureAndDetails();
+        Console.WriteLine("Data prepared for serialization to JSON.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
+
 }

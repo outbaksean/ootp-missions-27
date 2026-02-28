@@ -12,12 +12,12 @@ namespace mission_extractor.Services
             _ocrCaptureService = new OcrCaptureService(debugImagesEnabled);
         }
 
-        public async Task ExtractMissionRows()
+        public async Task ExtractMissionRows(bool topRowOnly = false)
         {
             int noDataCount = 0;
             int maxNoDataCount = 5;
             int rowIndex = 0;
-            int maxRowIndex = _missionBoundryService.MaxRowIndex;
+            int maxRowIndex = topRowOnly ? 0 : _missionBoundryService.MaxRowIndex;
             var rowOffset = 0; // = await _missionBoundryService.CalculateRowOffset();
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
@@ -73,6 +73,12 @@ namespace mission_extractor.Services
                     noDataCount = 0;
                 }
             }
+        }
+
+        public async Task ExtractTopMissionStructureAndDetails()
+        {
+            await ExtractMissionRows(true);
+            await ExtractMissionDetails();
         }
 
         private async Task<CaptureResult> ExtractMissionDetail(int row, int column, int rowOffset)
