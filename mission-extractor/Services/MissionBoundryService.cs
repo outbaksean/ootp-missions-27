@@ -47,7 +47,7 @@ namespace mission_extractor.Services
                 return 0;
             }
 
-            var rowOffsetPixels = anchorY - _missionRowBoundries.TopRow;
+            var rowOffsetPixels = anchorY;
             return rowOffsetPixels;
         }
 

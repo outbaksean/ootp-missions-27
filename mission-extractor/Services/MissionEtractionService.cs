@@ -18,7 +18,7 @@ namespace mission_extractor.Services
             int maxNoDataCount = 5;
             int rowIndex = 0;
             int maxRowIndex = _missionBoundryService.MaxRowIndex;
-            var rowOffset = await _missionBoundryService.CalculateRowOffset();
+            var rowOffset = 0; // = await _missionBoundryService.CalculateRowOffset();
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
                 // TODO: Account for offset rows after scrolling down with anchoring to horizontal line

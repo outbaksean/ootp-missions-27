@@ -37,18 +37,60 @@ public class OcrCaptureService
             graphics.CopyFromScreen(region.Left, region.Top, 0, 0, new Size(region.Width, region.Height));
         }
 
-        const int ocrScale = 3;
+        const int ocrScale = 4;
         using var scaledBitmap = new Bitmap(region.Width * ocrScale, region.Height * ocrScale, PixelFormat.Format32bppArgb);
         using (var graphics = Graphics.FromImage(scaledBitmap))
         {
-            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-            graphics.PixelOffsetMode = PixelOffsetMode.Half;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.PixelOffsetMode = PixelOffsetMode.Half; // Try HighQuality (no effect in testing)
+            //graphics.SmoothingMode = SmoothingMode.HighQuality; // Try (no effect in testing)
+
+            // Try Grayscape (no effect in testing)
+            //var colorMatrix = new ColorMatrix(new float[][] {
+            //    new float[] {.3f, .3f, .3f, 0, 0},
+            //    new float[] {.59f, .59f, .59f, 0, 0},
+            //    new float[] {.11f, .11f, .11f, 0, 0},
+            //    new float[] {0, 0, 0, 1, 0},
+            //    new float[] {0, 0, 0, 0, 1}
+            //});
+            //var attributes = new ImageAttributes();
+            //attributes.SetColorMatrix(colorMatrix);
+
+
+            //graphics.DrawImage(bitmap,
+            //new Rectangle(0, 0, scaledBitmap.Width, scaledBitmap.Height),
+            //0, 0, bitmap.Width, bitmap.Height,
+            //GraphicsUnit.Pixel, attributes);
+
+
             graphics.DrawImage(
                 bitmap,
                 new Rectangle(0, 0, scaledBitmap.Width, scaledBitmap.Height),
                 new Rectangle(0, 0, bitmap.Width, bitmap.Height),
                 GraphicsUnit.Pixel);
         }
+
+        // Try manual thresholding (no effect in testing)
+        //var data = scaledBitmap.LockBits(new Rectangle(0, 0, scaledBitmap.Width, scaledBitmap.Height),
+        //ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
+        //    unsafe
+        //    {
+        //        byte* ptr = (byte*)data.Scan0;
+        //        for (int i = 0; i < data.Height * data.Width; i++)
+        //        {
+        //            // Calculate brightness (Average of RGB)
+        //            int luminance = (ptr[0] + ptr[1] + ptr[2]) / 3;
+
+        //            // Threshold: 180 is a good starting point for light backgrounds. 
+        //            // Lower it if text disappears; raise it if background noise stays.
+        //            byte color = (luminance < 180) ? (byte)0 : (byte)255;
+
+        //            ptr[0] = ptr[1] = ptr[2] = color; // Set R, G, and B
+        //            ptr += 4; // Move to next pixel (BGRA)
+        //        }
+        //    }
+        //    scaledBitmap.UnlockBits(data);
 
         if (_debugImagesEnabled)
         {
@@ -65,8 +107,22 @@ public class OcrCaptureService
             scaledBitmap.Save(Path.Combine(_debugImagesPath, scaledFileName), ImageFormat.Png);
         }
 
+        // Create a larger "canvas" to ensure we meet minimum size requirements
+        int paddingPixels = 100;
+        int finalWidth = scaledBitmap.Width + paddingPixels;
+        int finalHeight = scaledBitmap.Height + paddingPixels;
+
+        using var paddedBitmap = new Bitmap(finalWidth, finalHeight, PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(paddedBitmap))
+        {
+            g.Clear(Color.White); // Use white (or your background color)
+                                  // Center the scaled text in the padded area
+            g.DrawImage(scaledBitmap, (finalWidth - scaledBitmap.Width) / 2, (finalHeight - scaledBitmap.Height) / 2);
+        }
+        // Proceed to save paddedBitmap to stream...
+
         using var memoryStream = new MemoryStream();
-        scaledBitmap.Save(memoryStream, ImageFormat.Bmp);
+        paddedBitmap.Save(memoryStream, ImageFormat.Bmp);
         memoryStream.Position = 0;
 
         using var randomAccessStream = memoryStream.AsRandomAccessStream();
