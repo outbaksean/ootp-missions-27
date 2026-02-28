@@ -49,7 +49,7 @@ namespace mission_extractor.Services
         public async Task ExtractMissionDetails()
         {
             int noDataCount = 0;
-            int maxNoDataCount = 5;
+            int maxNoDataCount = 2;
             int rowIndex = 0;
             int maxRowIndex = 2;
             int colIndex = 0;
@@ -57,7 +57,7 @@ namespace mission_extractor.Services
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
                 CaptureResult captureResult = await ExtractMissionDetail(rowIndex, colIndex, 0);
-                Console.WriteLine($"Mission Detail Row {rowIndex} Col {colIndex}: {string.Join(", ", captureResult.ExtractedText)}");
+                Console.WriteLine($"Mission Detail Row {rowIndex} Col {colIndex}: {string.Join(" ", captureResult.ExtractedText)}");
                 colIndex++;
                 if (colIndex > maxColIndex)
                 {

@@ -35,7 +35,7 @@ namespace mission_extractor.Services
             using (var graphics = Graphics.FromImage(scaledBitmap))
             {
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.PixelOffsetMode = PixelOffsetMode.Half; // Could be set to HighQuality for better quality, but may cause blurring
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality; // Could be set to HighQuality for better quality, but may cause blurring
                 // Could be converted to grayscale, not recommended due to light theme
 
                 graphics.DrawImage(
@@ -61,6 +61,7 @@ namespace mission_extractor.Services
             }
 
             
+            // Could try to add more left padding to center horizontally
             int paddingPixels = 100;
             int finalWidth = scaledBitmap.Width + paddingPixels;
             int finalHeight = scaledBitmap.Height + paddingPixels;

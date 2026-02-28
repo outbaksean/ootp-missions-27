@@ -549,3 +549,13 @@ Row 31 Title: Live Level 1 - Chicago (A) [+]
 Row 31 Reward: White Sox Live 1 - Hardware Heroes C Carlton Fisk CWS 1985, Standard Pack
 Row 31 Status: 1 / any 20 out 0f51 -
 Data prepared for serialization to JSON.
+
+## New Base
+
+### Results
+
+Mission Detail Row 0 Col 0: MLB 2025 Live, LF Brandon Nimmo, NYM (7
+Mission Detail Row 0 Col 1: Snapshot CF Vic Harris, 3), TEX, 1973 (51), Sell Orders
+Mission Detail Row 0 Col 2: Snapshot SP Lynn, McGlothen, STL, 1976 (66), Sell Orders
+Mission Detail Row 0 Col 3: MLB 2025 Live, SP clay Holmes, NYM (75), Sell Orders
+Mission Detail Row 0 Col 4: Snapshot 2B Miller Huggin, CIN, 1906 (91), Sell Orders
