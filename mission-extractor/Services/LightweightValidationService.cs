@@ -204,7 +204,7 @@ public class LightweightValidationService
             else if ((m = PointsPattern.Match(mission.Status)).Success)
             {
                 mission.Type = MissionType.Points;
-                mission.TotalPoints = int.Parse(m.Groups[1].Value);
+                mission.RequiredCount = int.Parse(m.Groups[1].Value);
             }
             else if ((m = MissionPattern.Match(mission.Status)).Success)
             {
