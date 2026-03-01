@@ -24,9 +24,14 @@
   - Update validations and transforms
 
 - [DONE] Find way to set/override parsed values type and requiredCount (allows extracting missions that are submitted but not complete)
+- Fix caseing for status type parsing
+- card title and mission mappings should be case insensitive
 - Show shop cards on the right
+- Stop auto saving of json and reports
 - Mark mission verified and allow filtering out verified from view
-- Add Save final json button that opens file dialog
+- Update Save/Load buttons
+  - Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
+  - Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)
 - Stop auto saving unstructured json and validation reports
 - Validation points mismatch not doing anything
 

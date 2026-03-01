@@ -34,6 +34,8 @@ public class CardMappingService
         Console.WriteLine($"Loaded {_cards.Count} card entries from shop_cards.csv.");
     }
 
+    public IReadOnlyDictionary<string, CardEntry> Cards => _cards;
+
     public bool TryLookup(string title, out CardEntry entry) =>
         _cards.TryGetValue(title.Trim(), out entry!);
 }

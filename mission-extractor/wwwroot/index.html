@@ -5,7 +5,16 @@
 <title>Mission Extractor</title>
 <style>
 * { box-sizing: border-box; }
-body { font-family: monospace; font-size: 13px; background: #fff; color: #111; margin: 0; padding: 16px; }
+body { font-family: monospace; font-size: 13px; background: #fff; color: #111; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+
+/* Two-panel layout */
+#layout { display: flex; height: 100vh; }
+#left-panel { width: 65%; min-width: 200px; overflow-y: auto; padding: 16px; flex-shrink: 0; }
+#divider { width: 6px; background: #ddd; cursor: col-resize; flex-shrink: 0; }
+#divider:hover, #divider.dragging { background: #aaa; }
+#right-panel { flex: 1; min-width: 150px; overflow-y: auto; padding: 16px; border-left: 1px solid #ddd; }
+
+/* Existing styles */
 h1 { font-size: 1em; margin: 0 0 12px; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 button { font-family: monospace; font-size: 13px; padding: 4px 10px; cursor: pointer; border: 1px solid #999; background: #f4f4f4; }
@@ -35,34 +44,76 @@ summary::-webkit-details-marker { display: none; }
 .detail-entry { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 .detail-entry input[type="text"] { flex: 1; max-width: 560px; }
 .detail-entry img { display: block; max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
+
+/* Cards panel */
+#cards-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+#cards-header h2 { font-size: 1em; margin: 0; flex-shrink: 0; }
+#cards-search { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; flex: 1; min-width: 80px; }
+#cards-count { font-size: 12px; color: #666; white-space: nowrap; }
+#cards-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+#cards-table th { text-align: left; padding: 4px 8px; border-bottom: 2px solid #ccc; background: #f4f4f4; cursor: pointer; white-space: nowrap; user-select: none; position: sticky; top: 0; }
+#cards-table th:hover { background: #e4e4e4; }
+#cards-table th.sort-asc::after { content: ' \25B2'; font-size: 10px; }
+#cards-table th.sort-desc::after { content: ' \25BC'; font-size: 10px; }
+#cards-table th:nth-child(3), #cards-table th:nth-child(4) { text-align: right; }
+#cards-table td { padding: 3px 8px; border-bottom: 1px solid #eee; }
+#cards-table td:nth-child(1) { padding: 2px 4px; }
+#cards-table td:nth-child(3), #cards-table td:nth-child(4) { text-align: right; }
+#cards-table tr:hover td { background: #f8f8f8; }
 </style>
 </head>
 <body>
 
-<h1 id="page-title">Mission Extractor</h1>
+<div id="layout">
+  <div id="left-panel">
+    <h1 id="page-title">Mission Extractor</h1>
 
-<div class="controls">
-  <button onclick="runCapture()">Capture</button>
-  <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More Details</button>
-  <button onclick="runValidate()">Validate</button>
-  <button onclick="runTransform()">Transform</button>
-  <button onclick="runSaveUnstructured()">Save Unstructured</button>
-  <button onclick="toggleLoadForm()">Load Unstructured</button>
-  <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
-  <button onclick="runClearMissions()">Clear Missions</button>
+    <div class="controls">
+      <button onclick="runCapture()">Capture</button>
+      <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More Details</button>
+      <button onclick="runValidate()">Validate</button>
+      <button onclick="runTransform()">Transform</button>
+      <button onclick="runSaveUnstructured()">Save Unstructured</button>
+      <button onclick="toggleLoadForm()">Load Unstructured</button>
+      <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
+      <button onclick="runClearMissions()">Clear Missions</button>
+    </div>
+
+    <div id="load-form">
+      <input type="text" id="load-path" placeholder="Path to unstructured missions JSON file">
+      <button onclick="runLoadUnstructured()">Load</button>
+    </div>
+
+    <pre id="log">Ready.</pre>
+
+    <div id="missions"></div>
+  </div>
+
+  <div id="divider"></div>
+
+  <div id="right-panel">
+    <div id="cards-header">
+      <h2>Shop Cards</h2>
+      <input type="text" id="cards-search" placeholder="Filter by title...">
+      <span id="cards-count"></span>
+    </div>
+    <table id="cards-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th data-col="title">Title</th>
+          <th data-col="cardId">Card ID</th>
+          <th data-col="cardValue">Value</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
-
-<div id="load-form">
-  <input type="text" id="load-path" placeholder="Path to unstructured missions JSON file">
-  <button onclick="runLoadUnstructured()">Load</button>
-</div>
-
-<pre id="log">Ready.</pre>
-
-<div id="missions"></div>
 
 <script>
-// fieldErrors: { [missionId]: Set<fieldName> } — populated after validate/transform
+// ── Missions state ─────────────────────────────────────────────────────────────
+
 let fieldErrors = {};
 
 function errorTypeToField(errorType) {
@@ -137,12 +188,10 @@ function buildMissionElement(m) {
     body.appendChild(errBlock);
   }
 
-  // Simple text fields
   for (const field of ['name', 'category', 'reward', 'status']) {
     body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages, missionErrorTypes));
   }
 
-  // Full mission JSON (read-only, collapsible)
   const jsonDetails = document.createElement('details');
   const jsonSummary = document.createElement('summary');
   jsonSummary.textContent = 'JSON';
@@ -154,10 +203,8 @@ function buildMissionElement(m) {
   jsonDetails.appendChild(pre);
   body.appendChild(jsonDetails);
 
-  // missionDetails
   body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages, missionErrorTypes));
 
-  // Save row
   const saveRow = document.createElement('div');
   saveRow.className = 'save-row';
   const saveBtn = document.createElement('button');
@@ -184,7 +231,6 @@ function summaryText(m) {
     '  |  ' + (m.type || '') +
     '  |  ' + (m.status || '');
 }
-
 
 function buildTextField(field, value, debugImages, missionErrorTypes) {
   const row = document.createElement('div');
@@ -247,8 +293,6 @@ function buildDetailsField(details, debugImages, missionErrorTypes) {
   const row = document.createElement('div');
   row.className = 'field-row';
 
-  // Separate named errors (Card Not Found, Mission Not Found, Points Mismatch) from
-  // aggregate errors (MissionDetails Empty, Total Points Mismatch, etc.).
   const detailErrors = missionErrorTypes.filter(e => errorTypeToField(e) === 'missionDetails');
   const errorIndices = new Set();
   let aggregateError = false;
@@ -478,8 +522,122 @@ async function runDeleteDebugImages() {
   refreshMissions();
 }
 
-// Load missions on page load
+// ── Shop cards ─────────────────────────────────────────────────────────────────
+
+let allCards = [];
+let cardSortCol = 'title';
+let cardSortAsc = true;
+
+async function loadCards() {
+  const res = await fetch('/api/cards');
+  allCards = await res.json();
+  renderCards();
+}
+
+function renderCards() {
+  const filter = document.getElementById('cards-search').value.toLowerCase();
+  const filtered = filter
+    ? allCards.filter(c => c.title.toLowerCase().includes(filter))
+    : allCards.slice();
+
+  filtered.sort((a, b) => {
+    const av = a[cardSortCol], bv = b[cardSortCol];
+    const cmp = typeof av === 'number' ? av - bv : String(av).localeCompare(String(bv));
+    return cardSortAsc ? cmp : -cmp;
+  });
+
+  const tbody = document.querySelector('#cards-table tbody');
+  tbody.innerHTML = '';
+  for (const c of filtered) {
+    const tr = document.createElement('tr');
+
+    const tdCopy = document.createElement('td');
+    const copyBtn = document.createElement('button');
+    copyBtn.textContent = 'Copy';
+    copyBtn.style.cssText = 'padding:1px 5px;font-size:11px;';
+    copyBtn.onclick = function() {
+      navigator.clipboard.writeText(c.title).then(() => {
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1200);
+      });
+    };
+    tdCopy.appendChild(copyBtn);
+
+    const tdTitle = document.createElement('td');
+    tdTitle.textContent = c.title;
+    const tdId = document.createElement('td');
+    tdId.textContent = c.cardId;
+    const tdVal = document.createElement('td');
+    tdVal.textContent = c.cardValue;
+    tr.appendChild(tdCopy);
+    tr.appendChild(tdTitle);
+    tr.appendChild(tdId);
+    tr.appendChild(tdVal);
+    tbody.appendChild(tr);
+  }
+
+  const countEl = document.getElementById('cards-count');
+  countEl.textContent = filter
+    ? filtered.length + ' / ' + allCards.length
+    : allCards.length + ' cards';
+
+  // Update sort indicators
+  for (const th of document.querySelectorAll('#cards-table th')) {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.col === cardSortCol)
+      th.classList.add(cardSortAsc ? 'sort-asc' : 'sort-desc');
+  }
+}
+
+document.querySelectorAll('#cards-table th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (cardSortCol === col) {
+      cardSortAsc = !cardSortAsc;
+    } else {
+      cardSortCol = col;
+      cardSortAsc = col === 'title';
+    }
+    renderCards();
+  });
+});
+
+document.getElementById('cards-search').addEventListener('input', renderCards);
+
+// ── Divider drag ───────────────────────────────────────────────────────────────
+
+const divider = document.getElementById('divider');
+const leftPanel = document.getElementById('left-panel');
+const layout = document.getElementById('layout');
+let dragging = false;
+
+divider.addEventListener('mousedown', e => {
+  dragging = true;
+  divider.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const rect = layout.getBoundingClientRect();
+  const newWidth = e.clientX - rect.left;
+  leftPanel.style.width = Math.max(200, Math.min(newWidth, rect.width - 200)) + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+  if (!dragging) return;
+  dragging = false;
+  divider.classList.remove('dragging');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+
 refreshMissions();
+loadCards();
 </script>
 </body>
 </html>

@@ -58,6 +58,13 @@ var extractionService = app.Services.GetRequiredService<MissionEtractionService>
 var validationService = app.Services.GetRequiredService<LightweightValidationService>();
 var fullTransformService = app.Services.GetRequiredService<FullTransformationService>();
 
+// GET /api/cards
+app.MapGet("/api/cards", () =>
+    cardMappingService.Cards
+        .Select(kvp => new { title = kvp.Key, cardId = kvp.Value.CardId, cardValue = kvp.Value.CardValue })
+        .OrderBy(c => c.title)
+        .ToList());
+
 // GET /api/missions
 app.MapGet("/api/missions", () =>
     new { count = state.Count, missions = state.Missions });
