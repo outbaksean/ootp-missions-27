@@ -21,9 +21,10 @@ summary::-webkit-details-marker { display: none; }
 .field-row { margin-bottom: 10px; }
 .field-label { display: block; font-weight: bold; margin-bottom: 3px; color: #555; }
 .field-row input[type="text"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; }
-.field-row textarea { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; display: block; }
 .debug-imgs { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
 .debug-imgs img { max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
+.detail-entry { margin-bottom: 6px; }
+.detail-entry img { display: block; max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; margin-top: 3px; }
 .save-row { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
 .save-status { font-size: 12px; color: #555; }
 .save-status.error { color: #c00; }
@@ -35,6 +36,7 @@ summary::-webkit-details-marker { display: none; }
 
 <div class="controls">
   <button onclick="runCapture()">Capture</button>
+  <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More Details</button>
   <button onclick="runValidate()">Validate</button>
   <button onclick="runTransform()">Transform</button>
   <button onclick="runSaveUnstructured()">Save Unstructured</button>
@@ -65,6 +67,7 @@ function appendLog(text) {
 function updateTitle(count) {
   document.getElementById('page-title').textContent =
     'Mission Extractor \u2014 ' + count + ' mission(s)';
+  document.getElementById('btn-capture-details-bottom').disabled = count === 0;
 }
 
 async function refreshMissions() {
@@ -165,24 +168,28 @@ function buildDetailsField(details, debugImages) {
   label.textContent = 'missionDetails';
   row.appendChild(label);
 
-  const ta = document.createElement('textarea');
-  ta.rows = 5;
-  ta.dataset.field = 'missionDetails';
-  ta.value = details.join('\n');
-  row.appendChild(ta);
+  const imgs = debugImages?.['missionDetails'] ?? [];
+  const count = Math.max(details.length, 1);
 
-  const imgs = debugImages?.['missionDetails'];
-  if (imgs && imgs.length > 0) {
-    const imgContainer = document.createElement('div');
-    imgContainer.className = 'debug-imgs';
-    for (const imgPath of imgs) {
-      const filename = imgPath.split(/[\\/]/).pop();
+  for (let i = 0; i < count; i++) {
+    const entry = document.createElement('div');
+    entry.className = 'detail-entry';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.dataset.field = 'missionDetails';
+    input.value = details[i] ?? '';
+    entry.appendChild(input);
+
+    if (i < imgs.length) {
+      const filename = imgs[i].split(/[\\/]/).pop();
       const img = document.createElement('img');
       img.src = '/debug-images/' + filename;
       img.alt = 'missionDetails debug image';
-      imgContainer.appendChild(img);
+      entry.appendChild(img);
     }
-    row.appendChild(imgContainer);
+
+    row.appendChild(entry);
   }
 
   return row;
@@ -194,16 +201,12 @@ async function saveMission(btn) {
   const statusEl = btn.nextElementSibling;
 
   const body = {};
-  for (const input of det.querySelectorAll('input[data-field]')) {
+  for (const input of det.querySelectorAll('input[data-field]:not([data-field="missionDetails"])')) {
     body[input.dataset.field] = input.value;
   }
-  const ta = det.querySelector('textarea[data-field="missionDetails"]');
-  if (ta) {
-    body.missionDetails = ta.value
-      .split('\n')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
-  }
+  body.missionDetails = Array.from(det.querySelectorAll('input[data-field="missionDetails"]'))
+    .map(i => i.value.trim())
+    .filter(s => s.length > 0);
 
   const res = await fetch('/api/missions/' + id, {
     method: 'PATCH',
@@ -240,6 +243,19 @@ async function runCapture() {
   const res = await fetch('/api/capture', { method: 'POST' });
   const data = await res.json();
   setLog(data.log || '');
+  refreshMissions();
+}
+
+async function runCaptureDetailsBottom() {
+  setLog('Capturing more details...');
+  const res = await fetch('/api/capture-details-bottom', { method: 'POST' });
+  if (!res.ok) {
+    const data = await res.json();
+    setLog(data.error ?? 'Error');
+    return;
+  }
+  const data = await res.json();
+  setLog(data.log ?? '');
   refreshMissions();
 }
 
