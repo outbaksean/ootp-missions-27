@@ -51,7 +51,7 @@ async Task RunMenuLoop(MissionEtractionService service)
                 Console.WriteLine("Capture lower mission details: not yet implemented.");
                 break;
             case "3":
-                Console.WriteLine("Light-weight validation and transformation: not yet implemented.");
+                await RunLightweightValidation(service);
                 break;
             case "4":
                 Console.WriteLine("Full validation and transformation: not yet implemented.");
@@ -78,7 +78,7 @@ void DisplayMenu(MissionEtractionService service)
     Console.WriteLine($"\n=== Mission Extractor ({service.Missions.Count} mission(s) in memory) ===");
     Console.WriteLine("1. Capture top mission details");
     Console.WriteLine("2. Capture lower mission details (not implemented)");
-    Console.WriteLine("3. Light-weight validation and transformation (not implemented)");
+    Console.WriteLine("3. Light-weight validation and transformation");
     Console.WriteLine("4. Full validation and transformation (not implemented)");
     Console.WriteLine("5. Save unstructured mission data");
     Console.WriteLine("6. Load unstructured mission data");
@@ -93,6 +93,24 @@ async Task CaptureTopMissionDetails(MissionEtractionService service)
     try
     {
         await service.ExtractTopMissionStructureAndDetails();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
+}
+
+async Task RunLightweightValidation(MissionEtractionService service)
+{
+    if (service.Missions.Count == 0)
+    {
+        Console.WriteLine("\nNo missions in memory to validate.");
+        return;
+    }
+
+    try
+    {
+        await service.RunLightweightValidation(outputDirectory);
     }
     catch (Exception ex)
     {

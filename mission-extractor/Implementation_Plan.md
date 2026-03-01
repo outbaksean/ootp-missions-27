@@ -23,7 +23,23 @@
     - Deletes any empty missions
     - Deduplicates the missions array
         - Regenerates IDs updating `missionIds` if needed
-    - For each mission, validate Category is in AvailableCategories (to be added by the user)
+    - For each mission, validate Category is in AvailableCategories
+        - AvailableCategories:
+        - Live Series
+        - Pack Rewards
+        - Launch Deck
+        - Bonus Rewards
+        - Immortal Seasons
+        - Negro Leagues
+        - Hall of Fame
+        - Baseball Reference
+        - Future Legends
+        - Launch Plus
+        - PT Elite
+        - Playoff Moments
+        - Workd Series Start
+        - Holiday Times
+        - Final Mission Set
     - If there are any validation errors, generate a validation report html, if not display validation success in console
     - Validation report should be saved as `validation_lightweight_{timestamp}.html` in the following format:
     ``` 
