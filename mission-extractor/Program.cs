@@ -52,7 +52,7 @@ async Task RunMenuLoop()
         DisplayMenu();
         var choice = Console.ReadLine();
 
-        if (choice != "7")
+        if (choice != "8")
         {
             Console.Clear();
         }
@@ -78,6 +78,9 @@ async Task RunMenuLoop()
                 await LoadUnstructuredMissions();
                 break;
             case "7":
+                DeleteDebugImages();
+                break;
+            case "8":
                 isRunning = false;
                 Console.WriteLine("Exiting application...");
                 break;
@@ -97,9 +100,10 @@ void DisplayMenu()
     Console.WriteLine("4. Full validation and transformation (not implemented)");
     Console.WriteLine("5. Save unstructured mission data");
     Console.WriteLine("6. Load unstructured mission data");
-    Console.WriteLine("7. Exit");
+    Console.WriteLine("7. Delete debug images");
+    Console.WriteLine("8. Exit");
     Console.WriteLine(new string('=', 50));
-    Console.Write("Enter your choice (1-7): ");
+    Console.Write("Enter your choice (1-8): ");
 }
 
 async Task CaptureTopMissionDetails()
@@ -170,4 +174,26 @@ async Task LoadUnstructuredMissions()
     {
         Console.WriteLine($"Error: {ex.Message}");
     }
+}
+
+void DeleteDebugImages()
+{
+    var debugDir = Path.Combine(AppContext.BaseDirectory, "debugImages");
+    if (!Directory.Exists(debugDir))
+    {
+        Console.WriteLine("\nNo debug images directory found.");
+        return;
+    }
+
+    var files = Directory.GetFiles(debugDir);
+    if (files.Length == 0)
+    {
+        Console.WriteLine("\nNo debug images to delete.");
+        return;
+    }
+
+    foreach (var file in files)
+        File.Delete(file);
+
+    Console.WriteLine($"\nDeleted {files.Length} debug image(s).");
 }
