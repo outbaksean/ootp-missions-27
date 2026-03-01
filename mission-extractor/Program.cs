@@ -146,6 +146,15 @@ app.MapPost("/api/load-unstructured", async (LoadRequest req) =>
     return Results.Ok(new { log, missionCount = state.Count });
 });
 
+// DELETE /api/missions/{id}
+app.MapDelete("/api/missions/{id}", (int id) =>
+{
+    var removed = state.Remove(id);
+    return removed
+        ? Results.Ok(new { missionCount = state.Count })
+        : Results.NotFound();
+});
+
 // DELETE /api/missions
 app.MapDelete("/api/missions", () =>
 {

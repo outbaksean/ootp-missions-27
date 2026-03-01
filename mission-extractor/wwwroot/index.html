@@ -22,14 +22,19 @@ summary::-webkit-details-marker { display: none; }
 .field-label { display: block; font-weight: bold; margin-bottom: 3px; color: #555; }
 .field-row input[type="text"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; }
 .error-star { color: #c00; font-weight: bold; margin-left: 4px; }
+.mission-errors { background: #fff8f8; border: 1px solid #f5c6c6; padding: 6px 10px; margin-bottom: 10px; font-size: 12px; color: #c00; }
+.mission-errors div { margin: 1px 0; }
 .mission-json { background: #f8f8f8; border: 1px solid #eee; padding: 8px 10px; margin-bottom: 10px; font-size: 11px; max-height: 200px; overflow-y: auto; white-space: pre; }
 .debug-imgs { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
 .debug-imgs img { max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
-.detail-entry { margin-bottom: 6px; }
-.detail-entry img { display: block; max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; margin-top: 3px; }
 .save-row { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
 .save-status { font-size: 12px; color: #555; }
 .save-status.error { color: #c00; }
+.btn-delete { font-family: monospace; font-size: 13px; padding: 4px 10px; cursor: pointer; border: 1px solid #c00; background: #fff; color: #c00; }
+.btn-delete:hover { background: #fff0f0; }
+.detail-entry { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.detail-entry input[type="text"] { flex: 1; max-width: 560px; }
+.detail-entry img { display: block; max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
 </style>
 </head>
 <body>
@@ -121,6 +126,17 @@ function buildMissionElement(m) {
 
   const missionErrorTypes = fieldErrors[m.id] ?? [];
 
+  if (missionErrorTypes.length > 0) {
+    const errBlock = document.createElement('div');
+    errBlock.className = 'mission-errors';
+    for (const e of missionErrorTypes) {
+      const row = document.createElement('div');
+      row.textContent = e;
+      errBlock.appendChild(row);
+    }
+    body.appendChild(errBlock);
+  }
+
   // Simple text fields
   for (const field of ['name', 'category', 'reward', 'status']) {
     body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages, missionErrorTypes));
@@ -149,8 +165,13 @@ function buildMissionElement(m) {
   saveBtn.onclick = function() { saveMission(this); };
   const saveStatus = document.createElement('span');
   saveStatus.className = 'save-status';
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Delete Mission';
+  deleteBtn.className = 'btn-delete';
+  deleteBtn.onclick = function() { deleteMission(this); };
   saveRow.appendChild(saveBtn);
   saveRow.appendChild(saveStatus);
+  saveRow.appendChild(deleteBtn);
   body.appendChild(saveRow);
 
   det.appendChild(body);
@@ -261,6 +282,12 @@ function buildDetailsField(details, debugImages, missionErrorTypes) {
       entry.appendChild(star);
     }
 
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+    removeBtn.className = 'btn-delete';
+    removeBtn.onclick = function() { entry.remove(); };
+    entry.appendChild(removeBtn);
+
     if (i < imgs.length) {
       const filename = imgs[i].split(/[\\/]/).pop();
       const img = document.createElement('img');
@@ -303,6 +330,22 @@ async function saveMission(btn) {
   } else {
     statusEl.className = 'save-status error';
     statusEl.textContent = 'Save failed (' + res.status + ')';
+  }
+}
+
+async function deleteMission(btn) {
+  const det = btn.closest('details');
+  const id = parseInt(det.dataset.id, 10);
+  const res = await fetch('/api/missions/' + id, { method: 'DELETE' });
+  if (res.ok) {
+    delete fieldErrors[id];
+    det.remove();
+    const data = await res.json();
+    updateTitle(data.missionCount);
+  } else {
+    btn.nextElementSibling
+      ? btn.nextElementSibling.textContent = 'Delete failed'
+      : btn.insertAdjacentText('afterend', ' Delete failed');
   }
 }
 

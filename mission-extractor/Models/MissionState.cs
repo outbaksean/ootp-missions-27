@@ -16,6 +16,14 @@ public class MissionState
 
     public void Clear() => _missions.Clear();
 
+    public bool Remove(int id)
+    {
+        var mission = _missions.FirstOrDefault(m => m.Id == id);
+        if (mission is null) return false;
+        _missions.Remove(mission);
+        return true;
+    }
+
     public void Replace(IEnumerable<Mission> missions)
     {
         _missions.Clear();
