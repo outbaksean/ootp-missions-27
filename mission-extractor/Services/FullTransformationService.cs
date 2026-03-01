@@ -43,7 +43,7 @@ public class FullTransformationService
         "Final Mission Set"
     };
 
-    public async Task Run(string outputDirectory)
+    public async Task<List<ValidationError>> Run(string outputDirectory)
     {
         var (afterEmpty, emptyRemoved) = _lws.RemoveEmptyMissions(_missionState.Missions);
         if (emptyRemoved > 0)
@@ -76,6 +76,7 @@ public class FullTransformationService
 
         await SaveTransformedMissions(result, outputDirectory);
         _missionState.Replace(result);
+        return errors;
     }
 
     private static void DeduplicateMissionDetails(List<Mission> missions)

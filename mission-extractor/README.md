@@ -1,29 +1,51 @@
 # mission-extractor
 
-A .NET 10 console tool that extracts OOTP 27 mission data from screenshots of the running game client using region-based OCR, then serializes the results to `missions.json` for use by the ootp-missions-27 web app.
+A .NET 10 web app that extracts OOTP 27 mission data from screenshots of the running game client using region-based OCR, then serializes the results to `missions.json` for use by the ootp-missions-27 web app.
+
+Run with `dotnet run` — a browser window opens automatically at `http://localhost:5000`.
 
 ## How it works
 
-1. The tool takes a screenshot of the OOTP client window.
+1. The app takes a screenshot of the OOTP client window.
 2. Pixel boundaries configured in `appsettings.json` define the screen regions for each data cell (category, title, reward, status, and mission detail cards).
 3. Each region is cropped and passed through OCR (`OcrCaptureService`) to extract text.
-4. The extracted text is assembled into DTOs (`Mission`, `MissionCard`, `MissionReward`).
-5. The DTOs are serialized to  a new `missions.json` file which is saved and will replace ootp-missions-27\app\public\data\missions.json after user validation
+4. The extracted text is assembled into `Mission` DTOs held in memory.
+5. The browser UI lets you review and edit all OCR-extracted fields inline before running the next pipeline step.
+6. Validate and Transform steps clean the data, map card names to IDs, and write `missions-transformed-{timestamp}.json` to the output directory.
 
 OCR runs cell-by-cell rather than on the full screen to improve accuracy. The tool stops scanning rows automatically when it encounters several consecutive empty captures.
 
-## Current status
+## Browser UI
 
-OCR capture is working. Extracted text is currently written to the console. JSON serialization and file output are not yet implemented (menu options 2 and 3 are stubs or incomplete).
+The UI is a single page served from `wwwroot/index.html`. It shows all missions currently in memory and lets you:
 
-## Menu options
+- Edit any field (name, category, reward, status, missionDetails) and save changes without touching JSON files.
+- Run pipeline actions (Capture, Validate, Transform, Save/Load Unstructured) via buttons; captured console output appears in the log area.
+- View debug images inline next to each field when `DebugImages` is enabled in config.
 
-| Option | Description |
+## Pipeline actions
+
+| Button | Description |
 |--------|-------------|
-| 1 | Capture mission row structure (category, title, reward, status per row) |
-| 2 | Capture shop cards (not implemented, to be removed) |
-| 3 | Capture mission details (card grid for individual missions) |
-| 4 | Exit |
+| Capture | Screenshots the OOTP window and extracts the next mission row into memory |
+| Validate | Runs lightweight cleanup (dedup, field cleaning, status parsing) and reports validation errors |
+| Transform | Runs full transformation (card lookup, mission cross-references, topological sort) and writes `missions-transformed-{timestamp}.json` |
+| Save Unstructured | Writes current in-memory missions to a timestamped JSON file |
+| Load Unstructured | Loads a previously saved unstructured JSON file into memory |
+| Delete Debug Images | Deletes all files in the `debugImages/` directory |
+
+## API endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/missions` | Returns all missions currently in memory |
+| PATCH | `/api/missions/{id}` | Updates fields on a single mission |
+| POST | `/api/capture` | Runs OCR capture |
+| POST | `/api/validate` | Runs lightweight validation |
+| POST | `/api/transform` | Runs full transformation |
+| POST | `/api/save-unstructured` | Saves missions to disk |
+| POST | `/api/load-unstructured` | Loads missions from a JSON file path in the request body |
+| DELETE | `/api/debug-images` | Deletes all debug images |
 
 ## Configuration
 
@@ -33,9 +55,10 @@ OCR capture is working. Extracted text is currently written to the console. JSON
 
 | Setting | Description |
 |---------|-------------|
-| `DebugImages` | When true, saves cropped region images to disk for calibration |
+| `DebugImages` | When true, saves cropped region images to `debugImages/` and serves them at `/debug-images/{filename}` |
 | `SelectedOOTPProfile` | Name of the active profile |
 | `MissionRowBoundaries` | Pixel coordinates for mission list rows and detail card grid |
+| `OutputSettings:OutputDirectory` | Directory for saved JSON and report files |
 
 ### MissionRowBoundaries fields
 
@@ -70,6 +93,9 @@ The intended output shape mirrors the `missions.json` schema consumed by the web
 | `cards` | MissionCard[] | Cards that count toward the mission |
 | `totalPoints` | int | Point target for points-type missions |
 | `rewards` | MissionReward[] | Structured reward list |
+| `status` | string | Raw OCR status text (pre-transform only) |
+| `missionDetails` | string[] | Raw OCR detail card text (pre-transform only) |
+| `debugImages` | object | OCR crop paths keyed by field name (pre-transform only) |
 
 **MissionCard**
 
@@ -90,8 +116,10 @@ The intended output shape mirrors the `missions.json` schema consumed by the web
 
 ```
 mission-extractor/
-  Program.cs                      Entry point, menu loop
+  Program.cs                      Entry point, web host, API endpoints
   appsettings.json                Pixel boundary profiles and settings
+  wwwroot/
+    index.html                    Single-page browser UI
   Enums/
     MissionType.cs
     PackType.cs
@@ -100,6 +128,8 @@ mission-extractor/
     CaptureRegionConfig.cs        Defines a screen region to capture
     CaptureResult.cs              OCR result for a single region
     MissionRowBoundries.cs        Deserialization target for appsettings profile
+    MissionState.cs               In-memory mission list singleton
+    ValidationError.cs            Error record used by validation services
     DTO/
       Mission.cs
       MissionCard.cs
@@ -109,11 +139,7 @@ mission-extractor/
     OcrCaptureService.cs          Takes screenshots and runs OCR on regions
     ScreenshotService.cs          Raw screenshot capture
     MissionEtractionService.cs    Orchestrates row and detail extraction
+    LightweightValidationService.cs  Dedup, cleaning, field validation
+    FullTransformationService.cs  Card lookup, mission cross-references, output
+    CardMappingService.cs         Loads shop_cards.csv and maps names to card IDs
 ```
-
-## Next steps
-
-- Map OCR text to Mission DTOs
-- Serialize the DTO list to `missions.json`
-- Write the output file to the path from `OutputSettings.OutputDirectory`
-- Implement shop card capture (menu option 2)

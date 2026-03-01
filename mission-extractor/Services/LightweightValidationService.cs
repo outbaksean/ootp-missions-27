@@ -50,7 +50,7 @@ public class LightweightValidationService
     /// <summary>
     /// Runs all lightweight cleanup and validation steps in order and updates MissionState with the result.
     /// </summary>
-    public async Task Run(string outputDirectory)
+    public async Task<List<ValidationError>> Run(string outputDirectory)
     {
         var (afterEmpty, emptyRemoved) = RemoveEmptyMissions(_missionState.Missions);
         if (emptyRemoved > 0)
@@ -78,6 +78,7 @@ public class LightweightValidationService
         await SaveMissions(result, outputDirectory);
 
         _missionState.Replace(result);
+        return errors;
     }
 
     /// <summary>

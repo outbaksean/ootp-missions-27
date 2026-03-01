@@ -19,4 +19,17 @@ public class MissionState
         _missions.Clear();
         _missions.AddRange(missions);
     }
+
+    public Mission? TryUpdate(int id, string? name, string? category, string? reward,
+                               string? status, List<string>? missionDetails)
+    {
+        var mission = _missions.FirstOrDefault(m => m.Id == id);
+        if (mission is null) return null;
+        if (name is not null) mission.Name = name;
+        if (category is not null) mission.Category = category;
+        if (reward is not null) mission.Reward = reward;
+        if (status is not null) mission.Status = status;
+        if (missionDetails is not null) mission.MissionDetails = missionDetails;
+        return mission;
+    }
 }

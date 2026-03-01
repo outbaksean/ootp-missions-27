@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mission Extractor</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: monospace; font-size: 13px; background: #fff; color: #111; margin: 0; padding: 16px; }
+h1 { font-size: 1em; margin: 0 0 12px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+button { font-family: monospace; font-size: 13px; padding: 4px 10px; cursor: pointer; border: 1px solid #999; background: #f4f4f4; }
+button:hover { background: #e4e4e4; }
+#load-form { display: none; margin-bottom: 10px; }
+#load-form input { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #999; width: 420px; }
+pre#log { background: #f8f8f8; border: 1px solid #ddd; padding: 8px; height: 120px; overflow-y: auto; margin: 0 0 12px; white-space: pre-wrap; word-break: break-all; font-size: 12px; }
+#missions { margin-top: 4px; }
+details { border: 1px solid #ddd; margin-bottom: 8px; }
+summary { padding: 6px 10px; cursor: pointer; background: #f4f4f4; font-weight: bold; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+.mission-body { padding: 10px 12px; }
+.field-row { margin-bottom: 10px; }
+.field-label { display: block; font-weight: bold; margin-bottom: 3px; color: #555; }
+.field-row input[type="text"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; }
+.field-row textarea { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; display: block; }
+.debug-imgs { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+.debug-imgs img { max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
+.save-row { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+.save-status { font-size: 12px; color: #555; }
+.save-status.error { color: #c00; }
+</style>
+</head>
+<body>
+
+<h1 id="page-title">Mission Extractor</h1>
+
+<div class="controls">
+  <button onclick="runCapture()">Capture</button>
+  <button onclick="runValidate()">Validate</button>
+  <button onclick="runTransform()">Transform</button>
+  <button onclick="runSaveUnstructured()">Save Unstructured</button>
+  <button onclick="toggleLoadForm()">Load Unstructured</button>
+  <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
+</div>
+
+<div id="load-form">
+  <input type="text" id="load-path" placeholder="Path to unstructured missions JSON file">
+  <button onclick="runLoadUnstructured()">Load</button>
+</div>
+
+<pre id="log">Ready.</pre>
+
+<div id="missions"></div>
+
+<script>
+function setLog(text) {
+  document.getElementById('log').textContent = text;
+}
+
+function appendLog(text) {
+  const el = document.getElementById('log');
+  el.textContent += text;
+  el.scrollTop = el.scrollHeight;
+}
+
+function updateTitle(count) {
+  document.getElementById('page-title').textContent =
+    'Mission Extractor \u2014 ' + count + ' mission(s)';
+}
+
+async function refreshMissions() {
+  const res = await fetch('/api/missions');
+  const data = await res.json();
+  updateTitle(data.count);
+  renderMissions(data.missions);
+}
+
+function renderMissions(missions) {
+  const container = document.getElementById('missions');
+  container.innerHTML = '';
+  for (const m of missions) {
+    container.appendChild(buildMissionElement(m));
+  }
+}
+
+function buildMissionElement(m) {
+  const det = document.createElement('details');
+  det.dataset.id = m.id;
+
+  const sum = document.createElement('summary');
+  sum.textContent = summaryText(m);
+  det.appendChild(sum);
+
+  const body = document.createElement('div');
+  body.className = 'mission-body';
+
+  // Simple text fields
+  for (const field of ['name', 'category', 'reward', 'status']) {
+    body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages));
+  }
+
+  // missionDetails textarea
+  body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages));
+
+  // Save row
+  const saveRow = document.createElement('div');
+  saveRow.className = 'save-row';
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = 'Save';
+  saveBtn.onclick = function() { saveMission(this); };
+  const saveStatus = document.createElement('span');
+  saveStatus.className = 'save-status';
+  saveRow.appendChild(saveBtn);
+  saveRow.appendChild(saveStatus);
+  body.appendChild(saveRow);
+
+  det.appendChild(body);
+  return det;
+}
+
+function summaryText(m) {
+  return '[' + m.id + '] ' + (m.name || '') +
+    '  (' + (m.category || '') + ')' +
+    '  |  ' + (m.type || '') +
+    '  |  ' + (m.status || '');
+}
+
+function buildTextField(field, value, debugImages) {
+  const row = document.createElement('div');
+  row.className = 'field-row';
+
+  const label = document.createElement('label');
+  label.className = 'field-label';
+  label.textContent = field;
+  row.appendChild(label);
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.dataset.field = field;
+  input.value = value;
+  row.appendChild(input);
+
+  const imgs = debugImages?.[field];
+  if (imgs && imgs.length > 0) {
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'debug-imgs';
+    for (const imgPath of imgs) {
+      const filename = imgPath.split(/[\\/]/).pop();
+      const img = document.createElement('img');
+      img.src = '/debug-images/' + filename;
+      img.alt = field + ' debug image';
+      imgContainer.appendChild(img);
+    }
+    row.appendChild(imgContainer);
+  }
+
+  return row;
+}
+
+function buildDetailsField(details, debugImages) {
+  const row = document.createElement('div');
+  row.className = 'field-row';
+
+  const label = document.createElement('label');
+  label.className = 'field-label';
+  label.textContent = 'missionDetails';
+  row.appendChild(label);
+
+  const ta = document.createElement('textarea');
+  ta.rows = 5;
+  ta.dataset.field = 'missionDetails';
+  ta.value = details.join('\n');
+  row.appendChild(ta);
+
+  const imgs = debugImages?.['missionDetails'];
+  if (imgs && imgs.length > 0) {
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'debug-imgs';
+    for (const imgPath of imgs) {
+      const filename = imgPath.split(/[\\/]/).pop();
+      const img = document.createElement('img');
+      img.src = '/debug-images/' + filename;
+      img.alt = 'missionDetails debug image';
+      imgContainer.appendChild(img);
+    }
+    row.appendChild(imgContainer);
+  }
+
+  return row;
+}
+
+async function saveMission(btn) {
+  const det = btn.closest('details');
+  const id = parseInt(det.dataset.id, 10);
+  const statusEl = btn.nextElementSibling;
+
+  const body = {};
+  for (const input of det.querySelectorAll('input[data-field]')) {
+    body[input.dataset.field] = input.value;
+  }
+  const ta = det.querySelector('textarea[data-field="missionDetails"]');
+  if (ta) {
+    body.missionDetails = ta.value
+      .split('\n')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+  }
+
+  const res = await fetch('/api/missions/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (res.ok) {
+    const updated = await res.json();
+    det.querySelector('summary').textContent = summaryText(updated);
+    statusEl.className = 'save-status';
+    statusEl.textContent = 'Saved.';
+    setTimeout(() => { statusEl.textContent = ''; }, 2000);
+  } else {
+    statusEl.className = 'save-status error';
+    statusEl.textContent = 'Save failed (' + res.status + ')';
+  }
+}
+
+function handlePipelineResponse(data) {
+  let logText = data.log ?? '';
+  if (data.errors && data.errors.length > 0) {
+    logText += '\n\n' + data.errors.length + ' validation error(s):\n';
+    for (const e of data.errors) {
+      logText += '  Mission ' + e.missionId + ' (' + e.missionName + '): ' + e.errorType + '\n';
+    }
+  }
+  setLog(logText);
+  refreshMissions();
+}
+
+async function runCapture() {
+  setLog('Capturing...');
+  const res = await fetch('/api/capture', { method: 'POST' });
+  const data = await res.json();
+  setLog(data.log || '');
+  refreshMissions();
+}
+
+async function runValidate() {
+  setLog('Validating...');
+  const res = await fetch('/api/validate', { method: 'POST' });
+  if (!res.ok) {
+    const data = await res.json();
+    setLog(data.error ?? 'Error');
+    return;
+  }
+  handlePipelineResponse(await res.json());
+}
+
+async function runTransform() {
+  setLog('Transforming...');
+  const res = await fetch('/api/transform', { method: 'POST' });
+  if (!res.ok) {
+    const data = await res.json();
+    setLog(data.error ?? 'Error');
+    return;
+  }
+  handlePipelineResponse(await res.json());
+}
+
+async function runSaveUnstructured() {
+  setLog('Saving...');
+  const res = await fetch('/api/save-unstructured', { method: 'POST' });
+  if (!res.ok) {
+    const data = await res.json();
+    setLog(data.error ?? 'Error');
+    return;
+  }
+  const data = await res.json();
+  setLog(data.log ?? '');
+}
+
+function toggleLoadForm() {
+  const form = document.getElementById('load-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+async function runLoadUnstructured() {
+  const filePath = document.getElementById('load-path').value.trim();
+  if (!filePath) {
+    setLog('Please enter a file path.');
+    return;
+  }
+  setLog('Loading...');
+  const res = await fetch('/api/load-unstructured', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filePath })
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    setLog(data.error ?? 'Error');
+    return;
+  }
+  const data = await res.json();
+  setLog(data.log ?? '');
+  refreshMissions();
+}
+
+async function runDeleteDebugImages() {
+  const res = await fetch('/api/debug-images', { method: 'DELETE' });
+  const data = await res.json();
+  setLog('Deleted ' + data.deletedCount + ' debug image(s).');
+  refreshMissions();
+}
+
+// Load missions on page load
+refreshMissions();
+</script>
+</body>
+</html>

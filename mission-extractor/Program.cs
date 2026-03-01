@@ -1,16 +1,15 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.Text.Json;
+using Microsoft.Extensions.FileProviders;
 using mission_extractor.Models;
 using mission_extractor.Services;
 
-// Load configuration
-var config = new ConfigurationBuilder()
-    .SetBasePath(AppContext.BaseDirectory)
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
+var builder = WebApplication.CreateBuilder(args);
+
+// Configuration is auto-loaded from appsettings.json by the Web SDK
+var config = builder.Configuration;
 
 var selectedProfileName = config["SelectedOOTPProfile"];
-
 var selectedProfileSection = config
     .GetSection("OotpProfiles")
     .GetChildren()
@@ -26,211 +25,154 @@ var outputDirectory = Path.GetFullPath(
     AppContext.BaseDirectory);
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
 
-// Load card CSV — required for full transformation; exit on failure
 var cardCsvPath = Path.GetFullPath("data/shop_cards.csv", AppContext.BaseDirectory);
-CardMappingService cardMappingService;
-try
+var cardMappingService = new CardMappingService(cardCsvPath);
+
+builder.Services.AddSingleton<MissionState>();
+builder.Services.AddSingleton(missionRowBoundries);
+builder.Services.AddSingleton(_ => new OcrCaptureService(debugImagesEnabled));
+builder.Services.AddSingleton<MissionBoundryService>();
+builder.Services.AddSingleton<MissionEtractionService>();
+builder.Services.AddSingleton<LightweightValidationService>();
+builder.Services.AddSingleton(cardMappingService);
+builder.Services.AddSingleton<FullTransformationService>();
+
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
+
+var app = builder.Build();
+
+app.UseDefaultFiles(); // rewrites / to /index.html
+app.UseStaticFiles(); // wwwroot/
+
+var debugImagesDir = Path.Combine(AppContext.BaseDirectory, "debugImages");
+Directory.CreateDirectory(debugImagesDir);
+app.UseStaticFiles(new StaticFileOptions
 {
-    cardMappingService = new CardMappingService(cardCsvPath);
-}
-catch (FileNotFoundException ex)
+    FileProvider = new PhysicalFileProvider(debugImagesDir),
+    RequestPath = "/debug-images"
+});
+
+var state = app.Services.GetRequiredService<MissionState>();
+var extractionService = app.Services.GetRequiredService<MissionEtractionService>();
+var validationService = app.Services.GetRequiredService<LightweightValidationService>();
+var fullTransformService = app.Services.GetRequiredService<FullTransformationService>();
+
+// GET /api/missions
+app.MapGet("/api/missions", () =>
+    new { count = state.Count, missions = state.Missions });
+
+// PATCH /api/missions/{id}
+app.MapMethods("/api/missions/{id}", ["PATCH"], (int id, MissionUpdateRequest req) =>
 {
-    Console.WriteLine($"Startup error: {ex.Message}");
-    Console.WriteLine($"Expected path: {cardCsvPath}");
-    Console.WriteLine("\nPress any key to exit...");
-    Console.ReadKey();
-    return;
-}
+    var updated = state.TryUpdate(id, req.Name, req.Category, req.Reward, req.Status, req.MissionDetails);
+    return updated is null ? Results.NotFound() : Results.Ok(updated);
+});
 
-// Register services
-var services = new ServiceCollection();
-services.AddSingleton<MissionState>();
-services.AddSingleton(missionRowBoundries);
-services.AddSingleton(_ => new OcrCaptureService(debugImagesEnabled));
-services.AddSingleton<MissionBoundryService>();
-services.AddSingleton<MissionEtractionService>();
-services.AddSingleton<LightweightValidationService>();
-services.AddSingleton(cardMappingService);
-services.AddSingleton<FullTransformationService>();
-
-var provider = services.BuildServiceProvider();
-
-var missionState = provider.GetRequiredService<MissionState>();
-var extractionService = provider.GetRequiredService<MissionEtractionService>();
-var validationService = provider.GetRequiredService<LightweightValidationService>();
-var fullTransformService = provider.GetRequiredService<FullTransformationService>();
-
-await RunMenuLoop();
-
-async Task RunMenuLoop()
+// POST /api/capture
+app.MapPost("/api/capture", async () =>
 {
-    bool isRunning = true;
+    int before = state.Count;
+    var log = await CaptureConsole(async () =>
+        await extractionService.ExtractTopMissionStructureAndDetails());
+    int after = state.Count;
+    object? addedMission = after > before ? (object)state.Missions[^1] : null;
+    return new { log, missionCount = state.Count, addedMission };
+});
 
-    while (isRunning)
-    {
-        DisplayMenu();
-        var choice = Console.ReadLine();
-
-        if (choice != "8")
-        {
-            Console.Clear();
-        }
-
-        switch (choice)
-        {
-            case "1":
-                await CaptureTopMissionDetails();
-                break;
-            case "2":
-                Console.WriteLine("Capture lower mission details: not yet implemented.");
-                break;
-            case "3":
-                await RunLightweightValidation();
-                break;
-            case "4":
-                await RunFullTransformation();
-                break;
-            case "5":
-                await SaveUnstructuredMissions();
-                break;
-            case "6":
-                await LoadUnstructuredMissions();
-                break;
-            case "7":
-                DeleteDebugImages();
-                break;
-            case "8":
-                isRunning = false;
-                Console.WriteLine("Exiting application...");
-                break;
-            default:
-                Console.WriteLine("Invalid choice. Please try again.");
-                break;
-        }
-    }
-}
-
-void DisplayMenu()
+// POST /api/validate
+app.MapPost("/api/validate", async () =>
 {
-    Console.WriteLine($"\n=== Mission Extractor ({missionState.Count} mission(s) in memory) ===");
-    Console.WriteLine("1. Capture top mission details");
-    Console.WriteLine("2. Capture lower mission details (not implemented)");
-    Console.WriteLine("3. Lightweight cleanup and validation");
-    Console.WriteLine("4. Validate, transform, and deduplicate mission data");
-    Console.WriteLine("5. Save unstructured mission data");
-    Console.WriteLine("6. Load unstructured mission data");
-    Console.WriteLine("7. Delete debug images");
-    Console.WriteLine("8. Exit");
-    Console.WriteLine(new string('=', 50));
-    Console.Write("Enter your choice (1-8): ");
-}
+    if (state.Count == 0)
+        return Results.BadRequest(new { error = "No missions in memory to validate." });
 
-async Task CaptureTopMissionDetails()
+    List<mission_extractor.Models.ValidationError> errors = null!;
+    var log = await CaptureConsole(async () =>
+        errors = await validationService.Run(outputDirectory));
+
+    var errorDtos = errors.Select(e => new
+    {
+        missionId = e.Mission.Id,
+        missionName = e.Mission.Name,
+        errorType = e.ErrorType,
+        imagePaths = e.ImagePaths?.Select(Path.GetFileName).ToList() ?? []
+    }).ToList();
+
+    return Results.Ok(new { log, missionCount = state.Count, errors = errorDtos });
+});
+
+// POST /api/transform
+app.MapPost("/api/transform", async () =>
 {
-    Console.WriteLine("\nCapturing top mission details...");
-    try
-    {
-        await extractionService.ExtractTopMissionStructureAndDetails();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
+    if (state.Count == 0)
+        return Results.BadRequest(new { error = "No missions in memory to transform." });
 
-async Task RunLightweightValidation()
+    List<mission_extractor.Models.ValidationError> errors = null!;
+    var log = await CaptureConsole(async () =>
+        errors = await fullTransformService.Run(outputDirectory));
+
+    var errorDtos = errors.Select(e => new
+    {
+        missionId = e.Mission.Id,
+        missionName = e.Mission.Name,
+        errorType = e.ErrorType,
+        imagePaths = e.ImagePaths?.Select(Path.GetFileName).ToList() ?? []
+    }).ToList();
+
+    return Results.Ok(new { log, missionCount = state.Count, errors = errorDtos });
+});
+
+// POST /api/save-unstructured
+app.MapPost("/api/save-unstructured", async () =>
 {
-    if (missionState.Count == 0)
-    {
-        Console.WriteLine("\nNo missions in memory to validate.");
-        return;
-    }
+    if (state.Count == 0)
+        return Results.BadRequest(new { error = "No missions in memory to save." });
 
-    try
-    {
-        await validationService.Run(outputDirectory);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
+    var log = await CaptureConsole(async () =>
+        await extractionService.SaveUnstructuredMissions(outputDirectory));
 
-async Task RunFullTransformation()
+    return Results.Ok(new { log });
+});
+
+// POST /api/load-unstructured
+app.MapPost("/api/load-unstructured", async (LoadRequest req) =>
 {
-    if (missionState.Count == 0)
-    {
-        Console.WriteLine("\nNo missions in memory to transform.");
-        return;
-    }
+    if (string.IsNullOrWhiteSpace(req.FilePath))
+        return Results.BadRequest(new { error = "filePath is required." });
 
-    try
-    {
-        await fullTransformService.Run(outputDirectory);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
+    var log = await CaptureConsole(async () =>
+        await extractionService.LoadUnstructuredMissions(req.FilePath));
 
-async Task SaveUnstructuredMissions()
+    return Results.Ok(new { log, missionCount = state.Count });
+});
+
+// DELETE /api/debug-images
+app.MapDelete("/api/debug-images", () =>
 {
-    if (missionState.Count == 0)
-    {
-        Console.WriteLine("\nNo missions in memory to save.");
-        return;
-    }
+    if (!Directory.Exists(debugImagesDir))
+        return new { deletedCount = 0 };
 
-    try
-    {
-        await extractionService.SaveUnstructuredMissions(outputDirectory);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
-
-async Task LoadUnstructuredMissions()
-{
-    Console.Write("\nEnter path to unstructured missions JSON file: ");
-    var filePath = Console.ReadLine()?.Trim();
-
-    if (string.IsNullOrEmpty(filePath))
-    {
-        Console.WriteLine("No path entered.");
-        return;
-    }
-
-    try
-    {
-        await extractionService.LoadUnstructuredMissions(filePath);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
-}
-
-void DeleteDebugImages()
-{
-    var debugDir = Path.Combine(AppContext.BaseDirectory, "debugImages");
-    if (!Directory.Exists(debugDir))
-    {
-        Console.WriteLine("\nNo debug images directory found.");
-        return;
-    }
-
-    var files = Directory.GetFiles(debugDir);
-    if (files.Length == 0)
-    {
-        Console.WriteLine("\nNo debug images to delete.");
-        return;
-    }
-
+    var files = Directory.GetFiles(debugImagesDir);
     foreach (var file in files)
         File.Delete(file);
 
-    Console.WriteLine($"\nDeleted {files.Length} debug image(s).");
+    return new { deletedCount = files.Length };
+});
+
+app.Start();
+Process.Start(new ProcessStartInfo { FileName = "http://localhost:5000", UseShellExecute = true });
+await app.WaitForShutdownAsync();
+
+static async Task<string> CaptureConsole(Func<Task> action)
+{
+    var sw = new StringWriter();
+    var prev = Console.Out;
+    Console.SetOut(sw);
+    try { await action(); }
+    finally { Console.SetOut(prev); }
+    return sw.ToString();
 }
+
+record MissionUpdateRequest(string? Name, string? Category, string? Reward,
+                             string? Status, List<string>? MissionDetails);
+record LoadRequest(string? FilePath);
