@@ -169,7 +169,7 @@ public class FullTransformationService
                     if (_cardMapping.TryLookup(cleanTitle, out var entry))
                     {
                         cardId = entry.CardId;
-                        mappedPoints = entry.CardValue;
+                        mappedPoints = CardValueToPoints(entry.CardValue);
                     }
                     else
                     {
@@ -294,6 +294,18 @@ public class FullTransformationService
 
         return sorted;
     }
+
+    private static int CardValueToPoints(int cardValue) => cardValue switch
+    {
+        < 60  => 1,
+        < 70  => 2,
+        < 80  => 5,
+        < 85  => 10,
+        < 90  => 15,
+        < 95  => 50,
+        < 100 => 75,
+        _     => 200
+    };
 
     private static IReadOnlyList<string>? DetailImage(List<string>? images, int index) =>
         images != null && index < images.Count ? new[] { images[index] } : null;

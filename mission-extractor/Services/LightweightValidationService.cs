@@ -159,6 +159,9 @@ public class LightweightValidationService
                 int parenIndex = mission.MissionDetails[i].IndexOf('(');
                 if (parenIndex >= 0)
                     mission.MissionDetails[i] = mission.MissionDetails[i][..parenIndex].TrimEnd();
+                int buyIndex = mission.MissionDetails[i].IndexOf("Buy", StringComparison.InvariantCultureIgnoreCase);
+                if (buyIndex >= 0)
+                    mission.MissionDetails[i] = mission.MissionDetails[i][..buyIndex].TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Sell Orders", "", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Historical AS", "Historical All-Star", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("UnH Heroes", "Unsung Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
