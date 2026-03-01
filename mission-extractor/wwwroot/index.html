@@ -20,10 +20,9 @@ summary::-webkit-details-marker { display: none; }
 .mission-body { padding: 10px 12px; }
 .field-row { margin-bottom: 10px; }
 .field-label { display: block; font-weight: bold; margin-bottom: 3px; color: #555; }
-.field-label.has-error { color: #c00; }
 .field-row input[type="text"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; }
-.field-row input[type="text"].has-error { border-color: #c00; background: #fff8f8; }
-.detail-entry input[type="text"].has-error { border-color: #c00; background: #fff8f8; }
+.error-star { color: #c00; font-weight: bold; margin-left: 4px; }
+.mission-json { background: #f8f8f8; border: 1px solid #eee; padding: 8px 10px; margin-bottom: 10px; font-size: 11px; max-height: 200px; overflow-y: auto; white-space: pre; }
 .debug-imgs { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
 .debug-imgs img { max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
 .detail-entry { margin-bottom: 6px; }
@@ -72,8 +71,8 @@ function errorTypeToField(errorType) {
 function buildErrorMap(errors) {
   const map = {};
   for (const e of errors) {
-    if (!map[e.missionId]) map[e.missionId] = new Set();
-    map[e.missionId].add(errorTypeToField(e.errorType));
+    if (!map[e.missionId]) map[e.missionId] = [];
+    map[e.missionId].push(e.errorType);
   }
   return map;
 }
@@ -120,15 +119,27 @@ function buildMissionElement(m) {
   const body = document.createElement('div');
   body.className = 'mission-body';
 
-  const errorFields = fieldErrors[m.id];
+  const missionErrorTypes = fieldErrors[m.id] ?? [];
 
   // Simple text fields
   for (const field of ['name', 'category', 'reward', 'status']) {
-    body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages, errorFields));
+    body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages, missionErrorTypes));
   }
 
+  // Full mission JSON (read-only, collapsible)
+  const jsonDetails = document.createElement('details');
+  const jsonSummary = document.createElement('summary');
+  jsonSummary.textContent = 'JSON';
+  jsonDetails.appendChild(jsonSummary);
+  const { status, missionDetails, debugImages, ...finalFields } = m;
+  const pre = document.createElement('pre');
+  pre.className = 'mission-json';
+  pre.textContent = JSON.stringify(finalFields, null, 2);
+  jsonDetails.appendChild(pre);
+  body.appendChild(jsonDetails);
+
   // missionDetails
-  body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages, errorFields));
+  body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages, missionErrorTypes));
 
   // Save row
   const saveRow = document.createElement('div');
@@ -153,22 +164,28 @@ function summaryText(m) {
     '  |  ' + (m.status || '');
 }
 
-function buildTextField(field, value, debugImages, errorFields) {
+
+function buildTextField(field, value, debugImages, missionErrorTypes) {
   const row = document.createElement('div');
   row.className = 'field-row';
 
-  const hasError = errorFields?.has(field) ?? false;
+  const hasError = missionErrorTypes.some(e => errorTypeToField(e) === field);
 
   const label = document.createElement('label');
-  label.className = 'field-label' + (hasError ? ' has-error' : '');
+  label.className = 'field-label';
   label.textContent = field;
+  if (hasError) {
+    const star = document.createElement('span');
+    star.className = 'error-star';
+    star.textContent = '*';
+    label.appendChild(star);
+  }
   row.appendChild(label);
 
   const input = document.createElement('input');
   input.type = 'text';
   input.dataset.field = field;
   input.value = value;
-  if (hasError) input.classList.add('has-error');
   row.appendChild(input);
 
   const imgs = debugImages?.[field];
@@ -188,15 +205,40 @@ function buildTextField(field, value, debugImages, errorFields) {
   return row;
 }
 
-function buildDetailsField(details, debugImages, errorFields) {
+function buildDetailsField(details, debugImages, missionErrorTypes) {
   const row = document.createElement('div');
   row.className = 'field-row';
 
-  const hasError = errorFields?.has('missionDetails') ?? false;
+  // Separate named errors (Card Not Found, Mission Not Found, Points Mismatch) from
+  // aggregate errors (MissionDetails Empty, Total Points Mismatch, etc.).
+  const detailErrors = missionErrorTypes.filter(e => errorTypeToField(e) === 'missionDetails');
+  const errorIndices = new Set();
+  let aggregateError = false;
+
+  for (const e of detailErrors) {
+    let target = null;
+    if (e.startsWith('Card Not Found: '))
+      target = e.slice('Card Not Found: '.length).trim();
+    else if (e.startsWith('Mission Not Found: '))
+      target = e.slice('Mission Not Found: '.length).trim();
+    else if (e.startsWith('Points Mismatch: '))
+      target = e.slice('Points Mismatch: '.length).replace(/ \(expected.*/, '').trim();
+
+    if (target !== null)
+      details.forEach((d, i) => { if (d.trim() === target) errorIndices.add(i); });
+    else
+      aggregateError = true;
+  }
 
   const label = document.createElement('label');
-  label.className = 'field-label' + (hasError ? ' has-error' : '');
+  label.className = 'field-label';
   label.textContent = 'missionDetails';
+  if (aggregateError) {
+    const star = document.createElement('span');
+    star.className = 'error-star';
+    star.textContent = '*';
+    label.appendChild(star);
+  }
   row.appendChild(label);
 
   const imgs = debugImages?.['missionDetails'] ?? [];
@@ -210,8 +252,14 @@ function buildDetailsField(details, debugImages, errorFields) {
     input.type = 'text';
     input.dataset.field = 'missionDetails';
     input.value = details[i] ?? '';
-    if (hasError) input.classList.add('has-error');
     entry.appendChild(input);
+
+    if (errorIndices.has(i)) {
+      const star = document.createElement('span');
+      star.className = 'error-star';
+      star.textContent = '*';
+      entry.appendChild(star);
+    }
 
     if (i < imgs.length) {
       const filename = imgs[i].split(/[\\/]/).pop();
