@@ -68,7 +68,10 @@ public class LightweightValidationService
 
         var errors = ValidateFields(result);
 
-        await GenerateCleanupReport(result, errors, emptyRemoved, dupRemoved, outputDirectory);
+        if (errors.Count > 0)
+            await GenerateCleanupReport(result, errors, emptyRemoved, dupRemoved, outputDirectory);
+        else
+            Console.WriteLine("Validation passed. No errors found.");
 
         await SaveMissions(result, outputDirectory);
 
@@ -230,7 +233,7 @@ public class LightweightValidationService
 
     /// <summary>
     /// Generates a self-contained HTML cleanup report showing every mission with its
-    /// inferred type and any validation flags. Always generated regardless of error count.
+    /// inferred type and flags. Only called when there are validation errors.
     /// Missions with errors get a detail section below the table with inline images and JSON.
     /// </summary>
     public async Task GenerateCleanupReport(
