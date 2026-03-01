@@ -14,6 +14,8 @@ public class MissionState
 
     public void Add(Mission mission) => _missions.Add(mission);
 
+    public void Clear() => _missions.Clear();
+
     public void Replace(IEnumerable<Mission> missions)
     {
         _missions.Clear();

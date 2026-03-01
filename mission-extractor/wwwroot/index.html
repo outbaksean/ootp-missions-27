@@ -20,7 +20,10 @@ summary::-webkit-details-marker { display: none; }
 .mission-body { padding: 10px 12px; }
 .field-row { margin-bottom: 10px; }
 .field-label { display: block; font-weight: bold; margin-bottom: 3px; color: #555; }
+.field-label.has-error { color: #c00; }
 .field-row input[type="text"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 100%; max-width: 600px; }
+.field-row input[type="text"].has-error { border-color: #c00; background: #fff8f8; }
+.detail-entry input[type="text"].has-error { border-color: #c00; background: #fff8f8; }
 .debug-imgs { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
 .debug-imgs img { max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
 .detail-entry { margin-bottom: 6px; }
@@ -42,6 +45,7 @@ summary::-webkit-details-marker { display: none; }
   <button onclick="runSaveUnstructured()">Save Unstructured</button>
   <button onclick="toggleLoadForm()">Load Unstructured</button>
   <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
+  <button onclick="runClearMissions()">Clear Missions</button>
 </div>
 
 <div id="load-form">
@@ -54,6 +58,26 @@ summary::-webkit-details-marker { display: none; }
 <div id="missions"></div>
 
 <script>
+// fieldErrors: { [missionId]: Set<fieldName> } — populated after validate/transform
+let fieldErrors = {};
+
+function errorTypeToField(errorType) {
+  if (errorType === 'Name Blank') return 'name';
+  if (errorType.startsWith('Category')) return 'category';
+  if (errorType === 'Reward Blank') return 'reward';
+  if (errorType === 'Status Blank' || errorType === 'Type Unparsed') return 'status';
+  return 'missionDetails';
+}
+
+function buildErrorMap(errors) {
+  const map = {};
+  for (const e of errors) {
+    if (!map[e.missionId]) map[e.missionId] = new Set();
+    map[e.missionId].add(errorTypeToField(e.errorType));
+  }
+  return map;
+}
+
 function setLog(text) {
   document.getElementById('log').textContent = text;
 }
@@ -96,13 +120,15 @@ function buildMissionElement(m) {
   const body = document.createElement('div');
   body.className = 'mission-body';
 
+  const errorFields = fieldErrors[m.id];
+
   // Simple text fields
   for (const field of ['name', 'category', 'reward', 'status']) {
-    body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages));
+    body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages, errorFields));
   }
 
-  // missionDetails textarea
-  body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages));
+  // missionDetails
+  body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages, errorFields));
 
   // Save row
   const saveRow = document.createElement('div');
@@ -127,12 +153,14 @@ function summaryText(m) {
     '  |  ' + (m.status || '');
 }
 
-function buildTextField(field, value, debugImages) {
+function buildTextField(field, value, debugImages, errorFields) {
   const row = document.createElement('div');
   row.className = 'field-row';
 
+  const hasError = errorFields?.has(field) ?? false;
+
   const label = document.createElement('label');
-  label.className = 'field-label';
+  label.className = 'field-label' + (hasError ? ' has-error' : '');
   label.textContent = field;
   row.appendChild(label);
 
@@ -140,6 +168,7 @@ function buildTextField(field, value, debugImages) {
   input.type = 'text';
   input.dataset.field = field;
   input.value = value;
+  if (hasError) input.classList.add('has-error');
   row.appendChild(input);
 
   const imgs = debugImages?.[field];
@@ -159,12 +188,14 @@ function buildTextField(field, value, debugImages) {
   return row;
 }
 
-function buildDetailsField(details, debugImages) {
+function buildDetailsField(details, debugImages, errorFields) {
   const row = document.createElement('div');
   row.className = 'field-row';
 
+  const hasError = errorFields?.has('missionDetails') ?? false;
+
   const label = document.createElement('label');
-  label.className = 'field-label';
+  label.className = 'field-label' + (hasError ? ' has-error' : '');
   label.textContent = 'missionDetails';
   row.appendChild(label);
 
@@ -179,6 +210,7 @@ function buildDetailsField(details, debugImages) {
     input.type = 'text';
     input.dataset.field = 'missionDetails';
     input.value = details[i] ?? '';
+    if (hasError) input.classList.add('has-error');
     entry.appendChild(input);
 
     if (i < imgs.length) {
@@ -227,6 +259,7 @@ async function saveMission(btn) {
 }
 
 function handlePipelineResponse(data) {
+  fieldErrors = data.errors?.length > 0 ? buildErrorMap(data.errors) : {};
   let logText = data.log ?? '';
   if (data.errors && data.errors.length > 0) {
     logText += '\n\n' + data.errors.length + ' validation error(s):\n';
@@ -239,6 +272,7 @@ function handlePipelineResponse(data) {
 }
 
 async function runCapture() {
+  fieldErrors = {};
   setLog('Capturing...');
   const res = await fetch('/api/capture', { method: 'POST' });
   const data = await res.json();
@@ -247,6 +281,7 @@ async function runCapture() {
 }
 
 async function runCaptureDetailsBottom() {
+  fieldErrors = {};
   setLog('Capturing more details...');
   const res = await fetch('/api/capture-details-bottom', { method: 'POST' });
   if (!res.ok) {
@@ -317,6 +352,14 @@ async function runLoadUnstructured() {
   }
   const data = await res.json();
   setLog(data.log ?? '');
+  refreshMissions();
+}
+
+async function runClearMissions() {
+  fieldErrors = {};
+  const res = await fetch('/api/missions', { method: 'DELETE' });
+  const data = await res.json();
+  setLog('Missions cleared.');
   refreshMissions();
 }
 
