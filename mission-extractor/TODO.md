@@ -10,10 +10,18 @@
 - Add Save final json button that opens file dialog
 - Validation points mismatch not doing anything
 
-- Transform card title Historical AS to Historical All-Star (check other abbreviations)
+- Card Title transformations, case sensitive, check for others
+- [Done] "Historical AS" to "Historical All-Star"
+- [Done] "UnH" to "Unsung Heroes"
+- [Done] "RSSensation" to "Rookie Sensation"
+- [Done] "HaHes" to "Hardware Heroes"
 
-- Remove trailing (VAR) from mission title. Also validation error doesn't match the actual mission detail
-- Remove all commas from mission titles, not just the first
+
+- [Done] Remove "Sell Orders"
+- [Done] Remove trailing (VAR) from mission title.
+- [Done] Remove all commas from mission titles, not just the first
+
+- Check order of card title mapping vs validation error generation
 
 - Finish Lower Mission Details OCR
 - Implement Mission Type Missions OCR

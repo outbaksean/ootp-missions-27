@@ -156,9 +156,14 @@ public class LightweightValidationService
 
             for (int i = 0; i < mission.MissionDetails.Count; i++)
             {
-                int parenIndex = mission.MissionDetails[i].LastIndexOf('(');
+                int parenIndex = mission.MissionDetails[i].IndexOf('(');
                 if (parenIndex >= 0)
                     mission.MissionDetails[i] = mission.MissionDetails[i][..parenIndex].TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Sell Orders", "", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Historical AS", "Historical All-Star", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("UnH Heroes", "Unsung Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("RSSensation", "Rookie Sensation", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("HaHes", "Hardware Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
             }
         }
     }
@@ -175,12 +180,7 @@ public class LightweightValidationService
                 continue;
 
             for (int i = 0; i < mission.MissionDetails.Count; i++)
-            {
-                var detail = mission.MissionDetails[i];
-                int commaIndex = detail.LastIndexOf(',');
-                if (commaIndex >= 0)
-                    mission.MissionDetails[i] = detail[..commaIndex] + detail[(commaIndex + 1)..];
-            }
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace(",", "");
         }
     }
 
