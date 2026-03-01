@@ -39,6 +39,13 @@ public class Mission
     public List<MissionReward> Rewards { get; set; } = new();
 
     /// <summary>
+    /// The ID assigned at capture time. Used to locate debug images regardless of any
+    /// ID regeneration that occurs during validation. Not part of the final missions.json schema.
+    /// </summary>
+    [JsonPropertyName("captureId")]
+    public int CaptureId { get; set; }
+
+    /// <summary>
     /// Raw OCR text from the status column. Used during transformation to derive Type,
     /// RequiredCount, and TotalPoints. Not part of the final missions.json schema.
     /// </summary>
