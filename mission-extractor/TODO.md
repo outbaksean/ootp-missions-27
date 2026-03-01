@@ -15,6 +15,7 @@
 - [Done] Remove "Sell Orders"
 - [Done] Remove trailing (VAR) from mission title.
 - [Done] Remove all commas from mission titles, not just the first
+- Remove all accents
 
 - Finish Lower Mission Details OCR
   - Measure boundries from mission details bottom going up and add them to appsettings
@@ -25,8 +26,11 @@
 
 - [DONE] Find way to set/override parsed values type and requiredCount (allows extracting missions that are submitted but not complete)
 - [Done] Fix caseing for status type parsing - Was actually O instead of 0 in ocr output, allowed anything in X part of X of Y for parsing
-- card title and mission mappings should be case insensitive
-- Show shop cards on the right
+- [DONE] card title and mission mappings should be case insensitive
+- [Done] Show shop cards on the right
+- [Done] Fix points mapping to not just use card value
+- [Done] Map totalPoints
+
 - Stop auto saving of json and reports
 - Mark mission verified and allow filtering out verified from view
 - Update Save/Load buttons
@@ -54,3 +58,15 @@ Left is transition from dark to light (can use exact color)
 Columns is count of rectangles in a row
 
 -     BoundingRect	{78,81,211,58}	Windows.Foundation.Rect
+
+## Value - Points Mapping
+
+<60 = 1
+60-69 = 2
+70-79 = 5
+80-84 = 10
+85-89 = 15
+90-94 = 50
+95-99 = 75
+
+> = 100 = 200

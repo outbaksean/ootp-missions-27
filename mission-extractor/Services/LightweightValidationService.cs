@@ -163,10 +163,14 @@ public class LightweightValidationService
                 if (buyIndex >= 0)
                     mission.MissionDetails[i] = mission.MissionDetails[i][..buyIndex].TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Sell Orders", "", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Locked", "", StringComparison.InvariantCultureIgnoreCase).TrimStart();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("-", "", StringComparison.InvariantCultureIgnoreCase).TrimStart();
+
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Historical AS", "Historical All-Star", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("UnH Heroes", "Unsung Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("RSSensation", "Rookie Sensation", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("HaHes", "Hardware Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Future Leg", "Future Legend", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
             }
         }
     }

@@ -65,6 +65,7 @@ public class FullTransformationService
 
         TransformPass1(result, errors, errorMissionIds);
         TransformPass2(result, errors, errorMissionIds);
+        SetTotals(result);
         result = ReorderMissions(result, errors);
 
         _lws.RegenerateIds(result);
@@ -187,12 +188,6 @@ public class FullTransformationService
                     cards.Add(new MissionCard { CardId = cardId, Points = mappedPoints });
                 }
                 mission.Cards = cards;
-
-                var totalPointsSum = cards.Sum(c => c.Points ?? 0);
-                if (totalPointsSum != mission.TotalPoints)
-                    errors.Add(new ValidationError(mission,
-                        $"Total Points Mismatch: sum={totalPointsSum}, expected={mission.TotalPoints}",
-                        null));
             }
         }
     }
@@ -293,6 +288,20 @@ public class FullTransformationService
         }
 
         return sorted;
+    }
+
+    private static void SetTotals(List<Mission> missions)
+    {
+        foreach (var mission in missions)
+        {
+            mission.TotalPoints = mission.Type switch
+            {
+                MissionType.Count   => mission.Cards.Count,
+                MissionType.Points  => mission.Cards.Sum(c => c.Points ?? 0),
+                MissionType.Mission => mission.MissionIds?.Count ?? 0,
+                _                   => 0
+            };
+        }
     }
 
     private static int CardValueToPoints(int cardValue) => cardValue switch
