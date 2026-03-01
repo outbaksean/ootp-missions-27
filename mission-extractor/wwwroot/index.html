@@ -486,16 +486,31 @@ async function runSaveDialog() {
   const data = await res.json();
   if (data.count === 0) { setLog('No missions to save.'); return; }
   const json = JSON.stringify(data.missions, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'missions.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  setLog('Saved missions.json');
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: 'missions.json',
+        types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(json);
+      await writable.close();
+      setLog('Saved to ' + handle.name);
+    } catch (e) {
+      if (e.name !== 'AbortError') setLog('Save failed: ' + e.message);
+    }
+  } else {
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'missions.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setLog('Saved missions.json (downloaded — open in Chrome/Edge for a save dialog)');
+  }
 }
 
 function runLoadDialog() {
