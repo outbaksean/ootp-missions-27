@@ -35,10 +35,20 @@ namespace mission_extractor.Services
             CaptureResult rewardResult = await ExtractReward(0, rowOffset, $"Reward-{nextId}");
             CaptureResult statusResult = await ExtractStatus(0, rowOffset, $"Status-{nextId}");
 
+            var debugImages = new Dictionary<string, List<string>>();
+            if (categoryResult.DebugImagePath != null)
+                debugImages["category"] = [categoryResult.DebugImagePath];
+            if (titleResult.DebugImagePath != null)
+                debugImages["name"] = [titleResult.DebugImagePath];
+            if (rewardResult.DebugImagePath != null)
+                debugImages["reward"] = [rewardResult.DebugImagePath];
+            if (statusResult.DebugImagePath != null)
+                debugImages["status"] = [statusResult.DebugImagePath];
+
             return new Mission
             {
                 Id = nextId,
-                CategoryImagePath = categoryResult.DebugImagePath,
+                DebugImages = debugImages.Count > 0 ? debugImages : null,
                 Category = string.Join(" ", categoryResult.ExtractedText).Trim(),
                 Name = string.Join(" ", titleResult.ExtractedText).Trim(),
                 Reward = string.Join(" ", rewardResult.ExtractedText).Trim(),
@@ -67,6 +77,7 @@ namespace mission_extractor.Services
             int colIndex = 0;
             int maxColIndex = _missionBoundryService.MaxColumnIndex;
             int detailsAdded = 0;
+            var missionDetailImages = new List<string>();
 
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
@@ -83,6 +94,8 @@ namespace mission_extractor.Services
                 if (!string.IsNullOrWhiteSpace(text))
                 {
                     mission.MissionDetails.Add(text);
+                    if (captureResult.DebugImagePath != null)
+                        missionDetailImages.Add(captureResult.DebugImagePath);
                     detailsAdded++;
                     noDataCount = 0;
                 }
@@ -90,6 +103,12 @@ namespace mission_extractor.Services
                 {
                     noDataCount++;
                 }
+            }
+
+            if (missionDetailImages.Count > 0)
+            {
+                mission.DebugImages ??= new();
+                mission.DebugImages["missionDetails"] = missionDetailImages;
             }
 
             Console.WriteLine($"Added {detailsAdded} detail(s) to mission {missionId}.");

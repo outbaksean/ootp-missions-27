@@ -166,8 +166,8 @@ public class LightweightValidationService
     }
 
     /// <summary>
-    /// Validates all key fields of each mission. Category errors carry the debug image path;
-    /// other errors pass null for image path (not used in the cleanup report).
+    /// Validates all key fields of each mission. Images for each error are pulled from
+    /// the mission's DebugImages dict by field name.
     /// </summary>
     public List<ValidationError> ValidateFields(IReadOnlyList<Mission> missions)
     {
@@ -176,23 +176,30 @@ public class LightweightValidationService
         foreach (var mission in missions)
         {
             if (string.IsNullOrWhiteSpace(mission.Name))
-                errors.Add(new ValidationError(mission, "Name Blank", null));
+                errors.Add(new ValidationError(mission, "Name Blank",
+                    mission.DebugImages?.GetValueOrDefault("name")));
 
             if (string.IsNullOrWhiteSpace(mission.Category))
-                errors.Add(new ValidationError(mission, "Category Blank", mission.CategoryImagePath));
+                errors.Add(new ValidationError(mission, "Category Blank",
+                    mission.DebugImages?.GetValueOrDefault("category")));
             else if (!AvailableCategories.Contains(mission.Category.Trim()))
-                errors.Add(new ValidationError(mission, "Category Invalid", mission.CategoryImagePath));
+                errors.Add(new ValidationError(mission, "Category Invalid",
+                    mission.DebugImages?.GetValueOrDefault("category")));
 
             if (string.IsNullOrWhiteSpace(mission.Reward))
-                errors.Add(new ValidationError(mission, "Reward Blank", null));
+                errors.Add(new ValidationError(mission, "Reward Blank",
+                    mission.DebugImages?.GetValueOrDefault("reward")));
 
             if (string.IsNullOrWhiteSpace(mission.Status))
-                errors.Add(new ValidationError(mission, "Status Blank", null));
+                errors.Add(new ValidationError(mission, "Status Blank",
+                    mission.DebugImages?.GetValueOrDefault("status")));
             else if (mission.Type == null)
-                errors.Add(new ValidationError(mission, "Type Unparsed", mission.StatusImagePath));
+                errors.Add(new ValidationError(mission, "Type Unparsed",
+                    mission.DebugImages?.GetValueOrDefault("status")));
 
             if (mission.MissionDetails.Count == 0)
-                errors.Add(new ValidationError(mission, "MissionDetails Empty", null));
+                errors.Add(new ValidationError(mission, "MissionDetails Empty",
+                    mission.DebugImages?.GetValueOrDefault("missionDetails")));
         }
 
         return errors;
@@ -279,11 +286,14 @@ public class LightweightValidationService
                     sb.Append("<p class=\"error-label\">");
                     sb.Append($"<span>{WebUtility.HtmlEncode(error.ErrorType)}</span>");
 
-                    if (error.ImagePath != null && File.Exists(error.ImagePath))
+                    if (error.ImagePaths != null)
                     {
-                        var imageBytes = await File.ReadAllBytesAsync(error.ImagePath);
-                        var base64 = Convert.ToBase64String(imageBytes);
-                        sb.Append($"<img src=\"data:image/png;base64,{base64}\" alt=\"OCR capture\" />");
+                        foreach (var imagePath in error.ImagePaths.Where(File.Exists))
+                        {
+                            var imageBytes = await File.ReadAllBytesAsync(imagePath);
+                            var base64 = Convert.ToBase64String(imageBytes);
+                            sb.Append($"<img src=\"data:image/png;base64,{base64}\" alt=\"OCR capture\" />");
+                        }
                     }
 
                     sb.AppendLine("</p>");

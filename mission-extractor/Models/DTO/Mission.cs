@@ -39,22 +39,14 @@ public class Mission
     public List<MissionReward> Rewards { get; set; } = new();
 
     /// <summary>
-    /// Full path to the category OCR debug image saved at capture time. Used to display
-    /// the image in validation reports regardless of any ID regeneration. Not part of
-    /// the final missions.json schema.
+    /// Debug images from OCR capture, keyed by field name (e.g. "category", "status",
+    /// "name", "reward", "missionDetails"). Each entry is a list of image paths — single
+    /// for most fields, one per row for missionDetails. Used in validation reports.
+    /// Not part of the final missions.json schema.
     /// </summary>
-    [JsonPropertyName("categoryImagePath")]
+    [JsonPropertyName("debugImages")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? CategoryImagePath { get; set; }
-
-    /// <summary>
-    /// Full path to the status OCR debug image saved at capture time. Used to display
-    /// the image in validation reports when status parsing fails. Not part of
-    /// the final missions.json schema.
-    /// </summary>
-    [JsonPropertyName("statusImagePath")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? StatusImagePath { get; set; }
+    public Dictionary<string, List<string>>? DebugImages { get; set; }
 
     /// <summary>
     /// Raw OCR text from the status column. Used during transformation to derive Type,
