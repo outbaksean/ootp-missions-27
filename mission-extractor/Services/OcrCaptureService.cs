@@ -28,8 +28,16 @@ public class OcrCaptureService
             throw new ArgumentException("Capture region width and height must be greater than zero.");
         }
 
+        var uniqueOverrideName = string.IsNullOrWhiteSpace(debugImageOverrideName)
+            ? debugImageOverrideName
+            : $"{debugImageOverrideName}-{Guid.NewGuid():N}";
+
         var screenShotService = new ScreenshotService(_debugImagesEnabled);
-        SoftwareBitmap softwareBitmap = await screenShotService.GetPreprocessedImage(region, debugImageOverrideName);
+        SoftwareBitmap softwareBitmap = await screenShotService.GetPreprocessedImage(region, uniqueOverrideName);
+
+        string? debugImagePath = null;
+        if (_debugImagesEnabled && !string.IsNullOrWhiteSpace(uniqueOverrideName))
+            debugImagePath = Path.Combine(AppContext.BaseDirectory, "debugImages", $"{uniqueOverrideName}.png");
 
         var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages()
             ?? throw new InvalidOperationException("Unable to initialize Windows OCR engine.");
@@ -40,6 +48,7 @@ public class OcrCaptureService
             CaptureType = "ScreenRegion",
             CaptureTime = DateTime.UtcNow,
             ExtractedText = ocrResult.Lines.Select(line => line.Text).ToList(),
+            DebugImagePath = debugImagePath,
             MetaData = new Dictionary<string, object>
             {
                 { "RegionLeft", region.Left },

@@ -128,6 +128,8 @@ public class LightweightValidationService
 
     /// <summary>
     /// Validates the category field of each mission against the allowed category list.
+    /// Resolves the debug image path for each error at validation time so report
+    /// generation has no knowledge of image naming conventions.
     /// </summary>
     public List<ValidationError> ValidateCategories(IReadOnlyList<Mission> missions)
     {
@@ -136,9 +138,9 @@ public class LightweightValidationService
         foreach (var mission in missions)
         {
             if (string.IsNullOrWhiteSpace(mission.Category))
-                errors.Add(new ValidationError(mission, "Category Blank"));
+                errors.Add(new ValidationError(mission, "Category Blank", mission.CategoryImagePath));
             else if (!AvailableCategories.Contains(mission.Category.Trim()))
-                errors.Add(new ValidationError(mission, "Category Invalid"));
+                errors.Add(new ValidationError(mission, "Category Invalid", mission.CategoryImagePath));
         }
 
         return errors;
@@ -149,7 +151,6 @@ public class LightweightValidationService
     /// </summary>
     public async Task GenerateReport(List<ValidationError> errors, string outputDirectory)
     {
-        var debugImagesPath = Path.Combine(AppContext.BaseDirectory, "debugImages");
         var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         var reportPath = Path.Combine(outputDirectory, $"validation_lightweight_{timestamp}.html");
 
@@ -177,10 +178,9 @@ public class LightweightValidationService
             sb.Append("<p class=\"error-label\">");
             sb.Append($"<span>{WebUtility.HtmlEncode(error.ErrorType)}</span>");
 
-            var imagePath = Path.Combine(debugImagesPath, $"Category-{error.Mission.CaptureId}.png");
-            if (File.Exists(imagePath))
+            if (error.ImagePath != null)
             {
-                var imageBytes = await File.ReadAllBytesAsync(imagePath);
+                var imageBytes = await File.ReadAllBytesAsync(error.ImagePath);
                 var base64 = Convert.ToBase64String(imageBytes);
                 sb.Append($"<img src=\"data:image/png;base64,{base64}\" alt=\"Category OCR capture\" />");
             }

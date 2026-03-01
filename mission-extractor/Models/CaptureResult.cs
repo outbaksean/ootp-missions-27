@@ -9,4 +9,9 @@ public class CaptureResult
     public DateTime CaptureTime { get; set; }
     public List<string> ExtractedText { get; set; } = new();
     public Dictionary<string, object> MetaData { get; set; } = new();
+
+    /// <summary>
+    /// Full path to the saved raw debug image, or null if debug images are disabled.
+    /// </summary>
+    public string? DebugImagePath { get; set; }
 }

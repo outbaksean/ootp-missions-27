@@ -38,7 +38,7 @@ namespace mission_extractor.Services
             return new Mission
             {
                 Id = nextId,
-                CaptureId = nextId,
+                CategoryImagePath = categoryResult.DebugImagePath,
                 Category = string.Join(" ", categoryResult.ExtractedText).Trim(),
                 Name = string.Join(" ", titleResult.ExtractedText).Trim(),
                 Reward = string.Join(" ", rewardResult.ExtractedText).Trim(),
