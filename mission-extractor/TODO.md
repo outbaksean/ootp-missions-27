@@ -15,7 +15,7 @@
 - [Done] Remove "Sell Orders"
 - [Done] Remove trailing (VAR) from mission title.
 - [Done] Remove all commas from mission titles, not just the first
-- Remove all accents - initial try failed, maybe don't bother
+- [Done] Remove all accents - initial try failed, maybe don't bother - Fixed, removing dashes from a separate cleanup was the issue
 
 - Finish Lower Mission Details OCR
   - Measure boundries from mission details bottom going up and add them to appsettings
@@ -31,9 +31,9 @@
 - [Done] Fix points mapping to not just use card value
 - [Done] Map totalPoints
 
-- Stop auto saving of json and reports
+- [Done] Stop auto saving of json and reports
 - Mark mission verified and allow filtering out verified from view
-- Update Save/Load buttons
+- [WIP] Update Save/Load buttons
   - Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
   - Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)
 - Stop auto saving unstructured json and validation reports

@@ -1,5 +1,7 @@
-using MissionExtractor.dto;
 using mission_extractor.Models;
+using MissionExtractor.dto;
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace mission_extractor.Services;
@@ -164,8 +166,19 @@ public class LightweightValidationService
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("RSSensation", "Rookie Sensation", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("HaHes", "Hardware Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Future Leg", "Future Legend", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = RemoveAccents(mission.MissionDetails[i]);
             }
         }
+    }
+
+    private static string RemoveAccents(string text)
+    {
+        var normalized = text.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder(normalized.Length);
+        foreach (var c in normalized)
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        return sb.ToString().Normalize(NormalizationForm.FormC);
     }
 
     /// <summary>
