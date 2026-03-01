@@ -27,4 +27,4 @@
 - Implement Mission Type Missions OCR
 
 - Add date added mapping and expose it in the app
-- Add structured reward mapping and validation
+- Add structured reward mapping and validation format: Card, Packs, Park
