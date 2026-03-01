@@ -41,7 +41,7 @@ public class LightweightValidationService
     //   Mission: "X / Y Missions"  — Y -> RequiredCount
     //   No match -> Type left null (reported as "Type Unparsed" by ValidateFields)
     private static readonly Regex CountPattern =
-        new(@"\d+\s*/\s*(\d+)\s+out\s+of\s+\d+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        new(@"\d+\s*/\s*(?:[a-z]+\s+)*(\d+)\s+out\s+of\s+\d+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex PointsPattern =
         new(@"\d+\s*/\s*(\d+)\s+Points", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex MissionPattern =
