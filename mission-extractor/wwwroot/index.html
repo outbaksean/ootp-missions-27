@@ -209,6 +209,23 @@ function buildTextField(field, value, debugImages, missionErrorTypes) {
   input.value = value;
   row.appendChild(input);
 
+  if (field === 'status') {
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:4px;';
+    const presets = [
+      { label: 'Set Type Count',    value: '0 / 1 out of 1' },
+      { label: 'Set Type Points',   value: '0 / 1 Points' },
+      { label: 'Set Type Missions', value: '0 / 1 Missions' },
+    ];
+    for (const preset of presets) {
+      const btn = document.createElement('button');
+      btn.textContent = preset.label;
+      btn.onclick = function() { input.value = preset.value; };
+      btnRow.appendChild(btn);
+    }
+    row.appendChild(btnRow);
+  }
+
   const imgs = debugImages?.[field];
   if (imgs && imgs.length > 0) {
     const imgContainer = document.createElement('div');
