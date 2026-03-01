@@ -57,6 +57,7 @@ public class FullTransformationService
 
         _lws.CleanFields(result);
         _lws.ParseAllStatuses(result);
+        _lws.StripDetailTrailingCommas(result);
         DeduplicateMissionDetails(result);
 
         var errors = ValidateFields(result);

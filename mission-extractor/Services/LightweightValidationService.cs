@@ -66,6 +66,8 @@ public class LightweightValidationService
 
         ParseAllStatuses(result);
 
+        StripDetailTrailingCommas(result);
+
         var errors = ValidateFields(result);
 
         if (errors.Count > 0)
@@ -156,6 +158,27 @@ public class LightweightValidationService
                 int parenIndex = mission.MissionDetails[i].LastIndexOf('(');
                 if (parenIndex >= 0)
                     mission.MissionDetails[i] = mission.MissionDetails[i][..parenIndex].TrimEnd();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Strips trailing commas from MissionDetails entries for Count and Points missions.
+    /// Must be called after ParseAllStatuses so Type is known.
+    /// </summary>
+    public void StripDetailTrailingCommas(List<Mission> missions)
+    {
+        foreach (var mission in missions)
+        {
+            if (mission.Type != MissionType.Count && mission.Type != MissionType.Points)
+                continue;
+
+            for (int i = 0; i < mission.MissionDetails.Count; i++)
+            {
+                var detail = mission.MissionDetails[i];
+                int commaIndex = detail.LastIndexOf(',');
+                if (commaIndex >= 0)
+                    mission.MissionDetails[i] = detail[..commaIndex] + detail[(commaIndex + 1)..];
             }
         }
     }
