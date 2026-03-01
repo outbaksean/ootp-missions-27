@@ -24,7 +24,7 @@
   - Update validations and transforms
 
 - [DONE] Find way to set/override parsed values type and requiredCount (allows extracting missions that are submitted but not complete)
-- Fix caseing for status type parsing
+- [Done] Fix caseing for status type parsing - Was actually O instead of 0 in ocr output, allowed anything in X part of X of Y for parsing
 - card title and mission mappings should be case insensitive
 - Show shop cards on the right
 - Stop auto saving of json and reports
