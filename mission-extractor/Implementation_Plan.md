@@ -118,7 +118,7 @@
 
 6. Implement Full Validation and Transformation
     - Details TBD
-    - Will include card mappings
+    - Card mappings will be a copy of ootp-missions-27\app\public\data\shop_cards.csv
 
 7. Update OCR for mission type missions
     - Details TBD

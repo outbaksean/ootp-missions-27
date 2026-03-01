@@ -26,6 +26,22 @@ var outputDirectory = Path.GetFullPath(
     AppContext.BaseDirectory);
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
 
+// Load card CSV — required for full transformation; exit on failure
+var cardCsvPath = Path.GetFullPath("data/shop_cards.csv", AppContext.BaseDirectory);
+CardMappingService cardMappingService;
+try
+{
+    cardMappingService = new CardMappingService(cardCsvPath);
+}
+catch (FileNotFoundException ex)
+{
+    Console.WriteLine($"Startup error: {ex.Message}");
+    Console.WriteLine($"Expected path: {cardCsvPath}");
+    Console.WriteLine("\nPress any key to exit...");
+    Console.ReadKey();
+    return;
+}
+
 // Register services
 var services = new ServiceCollection();
 services.AddSingleton<MissionState>();
@@ -34,12 +50,15 @@ services.AddSingleton(_ => new OcrCaptureService(debugImagesEnabled));
 services.AddSingleton<MissionBoundryService>();
 services.AddSingleton<MissionEtractionService>();
 services.AddSingleton<LightweightValidationService>();
+services.AddSingleton(cardMappingService);
+services.AddSingleton<FullTransformationService>();
 
 var provider = services.BuildServiceProvider();
 
 var missionState = provider.GetRequiredService<MissionState>();
 var extractionService = provider.GetRequiredService<MissionEtractionService>();
 var validationService = provider.GetRequiredService<LightweightValidationService>();
+var fullTransformService = provider.GetRequiredService<FullTransformationService>();
 
 await RunMenuLoop();
 
@@ -69,7 +88,7 @@ async Task RunMenuLoop()
                 await RunLightweightValidation();
                 break;
             case "4":
-                Console.WriteLine("Full validation and transformation: not yet implemented.");
+                await RunFullTransformation();
                 break;
             case "5":
                 await SaveUnstructuredMissions();
@@ -97,7 +116,7 @@ void DisplayMenu()
     Console.WriteLine("1. Capture top mission details");
     Console.WriteLine("2. Capture lower mission details (not implemented)");
     Console.WriteLine("3. Lightweight cleanup and validation");
-    Console.WriteLine("4. Full validation and transformation (not implemented)");
+    Console.WriteLine("4. Validate, transform, and deduplicate mission data");
     Console.WriteLine("5. Save unstructured mission data");
     Console.WriteLine("6. Load unstructured mission data");
     Console.WriteLine("7. Delete debug images");
@@ -130,6 +149,24 @@ async Task RunLightweightValidation()
     try
     {
         await validationService.Run(outputDirectory);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
+}
+
+async Task RunFullTransformation()
+{
+    if (missionState.Count == 0)
+    {
+        Console.WriteLine("\nNo missions in memory to transform.");
+        return;
+    }
+
+    try
+    {
+        await fullTransformService.Run(outputDirectory);
     }
     catch (Exception ex)
     {
