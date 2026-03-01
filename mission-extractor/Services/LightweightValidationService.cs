@@ -62,6 +62,8 @@ public class LightweightValidationService
 
         var result = RegenerateIds(afterDedup);
 
+        CleanFields(result);
+
         ParseAllStatuses(result);
 
         var errors = ValidateFields(result);
@@ -132,6 +134,27 @@ public class LightweightValidationService
         }
 
         return missions;
+    }
+
+    /// <summary>
+    /// Trims OCR noise from key text fields: strips everything from the last "[" in Name,
+    /// and strips everything from the last "(" in each MissionDetails entry.
+    /// </summary>
+    public void CleanFields(List<Mission> missions)
+    {
+        foreach (var mission in missions)
+        {
+            int bracketIndex = mission.Name.LastIndexOf('[');
+            if (bracketIndex >= 0)
+                mission.Name = mission.Name[..bracketIndex].TrimEnd();
+
+            for (int i = 0; i < mission.MissionDetails.Count; i++)
+            {
+                int parenIndex = mission.MissionDetails[i].LastIndexOf('(');
+                if (parenIndex >= 0)
+                    mission.MissionDetails[i] = mission.MissionDetails[i][..parenIndex].TrimEnd();
+            }
+        }
     }
 
     /// <summary>
