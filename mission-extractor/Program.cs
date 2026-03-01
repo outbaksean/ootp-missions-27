@@ -96,7 +96,7 @@ void DisplayMenu()
     Console.WriteLine($"\n=== Mission Extractor ({missionState.Count} mission(s) in memory) ===");
     Console.WriteLine("1. Capture top mission details");
     Console.WriteLine("2. Capture lower mission details (not implemented)");
-    Console.WriteLine("3. Light-weight validation and transformation");
+    Console.WriteLine("3. Lightweight cleanup and validation");
     Console.WriteLine("4. Full validation and transformation (not implemented)");
     Console.WriteLine("5. Save unstructured mission data");
     Console.WriteLine("6. Load unstructured mission data");
