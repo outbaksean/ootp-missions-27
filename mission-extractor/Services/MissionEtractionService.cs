@@ -133,6 +133,16 @@ namespace mission_extractor.Services
             await ExtractMissionDetails(mission.Id);
         }
 
+        public async Task SaveToPath(string filePath)
+        {
+            var dir = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+            var json = JsonSerializer.Serialize(_missionState.Missions, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(filePath, json);
+            Console.WriteLine($"Saved {_missionState.Count} mission(s) to {filePath}");
+        }
+
         public async Task SaveUnstructuredMissions(string outputDirectory)
         {
             Directory.CreateDirectory(outputDirectory);

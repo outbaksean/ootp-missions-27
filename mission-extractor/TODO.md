@@ -15,7 +15,7 @@
 - [Done] Remove "Sell Orders"
 - [Done] Remove trailing (VAR) from mission title.
 - [Done] Remove all commas from mission titles, not just the first
-- Remove all accents
+- Remove all accents - initial try failed, maybe don't bother
 
 - Finish Lower Mission Details OCR
   - Measure boundries from mission details bottom going up and add them to appsettings

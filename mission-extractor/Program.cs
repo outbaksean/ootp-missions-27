@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.FileProviders;
+using MissionExtractor.dto;
 using mission_extractor.Models;
 using mission_extractor.Services;
 
@@ -20,10 +21,8 @@ var missionRowBoundries = selectedProfileSection?
     .GetSection("MissionRowBoundaries")
     .Get<MissionRowBoundries>() ?? new();
 
-var outputDirectory = Path.GetFullPath(
-    config["OutputSettings:OutputDirectory"] ?? "output",
-    AppContext.BaseDirectory);
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
+var workingFilePath = Path.GetFullPath("missions-working.json", AppContext.BaseDirectory);
 
 var cardCsvPath = Path.GetFullPath("data/shop_cards.csv", AppContext.BaseDirectory);
 var cardMappingService = new CardMappingService(cardCsvPath);
@@ -94,8 +93,11 @@ app.MapPost("/api/validate", async () =>
         return Results.BadRequest(new { error = "No missions in memory to validate." });
 
     List<mission_extractor.Models.ValidationError> errors = null!;
-    var log = await CaptureConsole(async () =>
-        errors = await validationService.Run(outputDirectory));
+    var log = await CaptureConsole(() =>
+    {
+        errors = validationService.Run();
+        return Task.CompletedTask;
+    });
 
     var errorDtos = errors.Select(e => new
     {
@@ -115,8 +117,11 @@ app.MapPost("/api/transform", async () =>
         return Results.BadRequest(new { error = "No missions in memory to transform." });
 
     List<mission_extractor.Models.ValidationError> errors = null!;
-    var log = await CaptureConsole(async () =>
-        errors = await fullTransformService.Run(outputDirectory));
+    var log = await CaptureConsole(() =>
+    {
+        errors = fullTransformService.Run();
+        return Task.CompletedTask;
+    });
 
     var errorDtos = errors.Select(e => new
     {
@@ -129,28 +134,35 @@ app.MapPost("/api/transform", async () =>
     return Results.Ok(new { log, missionCount = state.Count, errors = errorDtos });
 });
 
-// POST /api/save-unstructured
-app.MapPost("/api/save-unstructured", async () =>
+// POST /api/save-working
+app.MapPost("/api/save-working", async () =>
 {
     if (state.Count == 0)
         return Results.BadRequest(new { error = "No missions in memory to save." });
 
     var log = await CaptureConsole(async () =>
-        await extractionService.SaveUnstructuredMissions(outputDirectory));
+        await extractionService.SaveToPath(workingFilePath));
 
     return Results.Ok(new { log });
 });
 
-// POST /api/load-unstructured
-app.MapPost("/api/load-unstructured", async (LoadRequest req) =>
+// POST /api/load-working
+app.MapPost("/api/load-working", async () =>
 {
-    if (string.IsNullOrWhiteSpace(req.FilePath))
-        return Results.BadRequest(new { error = "filePath is required." });
+    if (!File.Exists(workingFilePath))
+        return Results.BadRequest(new { error = $"Working missions file not found: {workingFilePath}" });
 
     var log = await CaptureConsole(async () =>
-        await extractionService.LoadUnstructuredMissions(req.FilePath));
+        await extractionService.LoadUnstructuredMissions(workingFilePath));
 
     return Results.Ok(new { log, missionCount = state.Count });
+});
+
+// POST /api/missions/import
+app.MapPost("/api/missions/import", (List<Mission> missions) =>
+{
+    state.Replace(missions);
+    return new { missionCount = state.Count };
 });
 
 // DELETE /api/missions/{id}
@@ -198,4 +210,3 @@ static async Task<string> CaptureConsole(Func<Task> action)
 
 record MissionUpdateRequest(string? Name, string? Category, string? Reward,
                              string? Status, List<string>? MissionDetails);
-record LoadRequest(string? FilePath);

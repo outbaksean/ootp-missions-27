@@ -1,9 +1,5 @@
 using MissionExtractor.dto;
 using mission_extractor.Models;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 
 namespace mission_extractor.Services;
@@ -43,7 +39,7 @@ public class FullTransformationService
         "Final Mission Set"
     };
 
-    public async Task<List<ValidationError>> Run(string outputDirectory)
+    public List<ValidationError> Run()
     {
         var (afterEmpty, emptyRemoved) = _lws.RemoveEmptyMissions(_missionState.Missions);
         if (emptyRemoved > 0)
@@ -70,12 +66,9 @@ public class FullTransformationService
 
         _lws.RegenerateIds(result);
 
-        if (errors.Count > 0)
-            await GenerateValidationReport(result, errors, emptyRemoved, dupRemoved, outputDirectory);
-        else
+        if (errors.Count == 0)
             Console.WriteLine("Validation passed.");
 
-        await SaveTransformedMissions(result, outputDirectory);
         _missionState.Replace(result);
         return errors;
     }
@@ -325,134 +318,4 @@ public class FullTransformationService
         return match.Success ? int.Parse(match.Groups[1].Value) : null;
     }
 
-    private async Task GenerateValidationReport(
-        IReadOnlyList<Mission> missions,
-        List<ValidationError> errors,
-        int emptyRemoved,
-        int dupRemoved,
-        string outputDirectory)
-    {
-        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        var reportPath = Path.Combine(outputDirectory, $"missions-validation-report-{timestamp}.html");
-
-        var errorsByMission = errors
-            .GroupBy(e => e.Mission.Id)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
-        var sb = new StringBuilder();
-        sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\">");
-        sb.AppendLine("<title>Validation Report</title>");
-        sb.AppendLine("<style>");
-        sb.AppendLine("body { font-family: monospace; padding: 20px; background: #fff; color: #000; }");
-        sb.AppendLine("h1 { font-size: 1.2em; }");
-        sb.AppendLine("h2 { font-size: 1em; margin-bottom: 4px; }");
-        sb.AppendLine("table { border-collapse: collapse; width: 100%; }");
-        sb.AppendLine("th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }");
-        sb.AppendLine("th { background: #f4f4f4; }");
-        sb.AppendLine(".flag { color: red; }");
-        sb.AppendLine(".detail { margin-bottom: 28px; border-bottom: 1px solid #ccc; padding-bottom: 16px; }");
-        sb.AppendLine(".error-label { margin: 4px 0; }");
-        sb.AppendLine(".error-label span { color: red; font-weight: bold; margin-right: 8px; }");
-        sb.AppendLine("img { display: inline-block; vertical-align: middle; max-height: 60px; image-rendering: pixelated; }");
-        sb.AppendLine("pre { background: #f4f4f4; padding: 10px; overflow-x: auto; margin-top: 8px; }");
-        sb.AppendLine("</style></head><body>");
-        sb.AppendLine("<h1>Validation Report</h1>");
-        sb.AppendLine($"<p>{dupRemoved} duplicate(s) removed. {emptyRemoved} empty mission(s) removed.</p>");
-
-        sb.AppendLine("<table>");
-        sb.AppendLine("<thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Type</th><th>Flags</th></tr></thead>");
-        sb.AppendLine("<tbody>");
-
-        foreach (var mission in missions)
-        {
-            var flags = errorsByMission.TryGetValue(mission.Id, out var missionErrors)
-                ? string.Join(", ", missionErrors.Select(e => e.ErrorType))
-                : string.Empty;
-
-            var flagCell = string.IsNullOrEmpty(flags)
-                ? string.Empty
-                : $"<span class=\"flag\">{WebUtility.HtmlEncode(flags)}</span>";
-
-            sb.AppendLine("<tr>");
-            sb.AppendLine($"<td>{mission.Id}</td>");
-            sb.AppendLine($"<td>{WebUtility.HtmlEncode(mission.Name)}</td>");
-            sb.AppendLine($"<td>{WebUtility.HtmlEncode(mission.Category)}</td>");
-            sb.AppendLine($"<td>{mission.Type?.ToString() ?? string.Empty}</td>");
-            sb.AppendLine($"<td>{flagCell}</td>");
-            sb.AppendLine("</tr>");
-        }
-
-        sb.AppendLine("</tbody></table>");
-
-        if (errors.Count == 0)
-        {
-            sb.AppendLine("<p>No issues found.</p>");
-        }
-        else
-        {
-            foreach (var mission in missions.Where(m => errorsByMission.ContainsKey(m.Id)))
-            {
-                var missionErrors = errorsByMission[mission.Id];
-                sb.AppendLine("<div class=\"detail\">");
-                sb.AppendLine($"<h2>Mission ID {mission.Id}: {WebUtility.HtmlEncode(mission.Name)}</h2>");
-
-                foreach (var error in missionErrors)
-                {
-                    sb.Append("<p class=\"error-label\">");
-                    sb.Append($"<span>{WebUtility.HtmlEncode(error.ErrorType)}</span>");
-
-                    if (error.ImagePaths != null)
-                    {
-                        foreach (var imagePath in error.ImagePaths.Where(File.Exists))
-                        {
-                            var imageBytes = await File.ReadAllBytesAsync(imagePath);
-                            var base64 = Convert.ToBase64String(imageBytes);
-                            sb.Append($"<img src=\"data:image/png;base64,{base64}\" alt=\"OCR capture\" />");
-                        }
-                    }
-
-                    sb.AppendLine("</p>");
-                }
-
-                var missionJson = JsonSerializer.Serialize(mission, new JsonSerializerOptions { WriteIndented = true });
-                sb.AppendLine($"<pre>{WebUtility.HtmlEncode(missionJson)}</pre>");
-                sb.AppendLine("</div>");
-            }
-        }
-
-        sb.AppendLine("</body></html>");
-
-        Directory.CreateDirectory(outputDirectory);
-        await File.WriteAllTextAsync(reportPath, sb.ToString());
-        Console.WriteLine($"Validation report saved to {reportPath}");
-    }
-
-    private static async Task SaveTransformedMissions(IReadOnlyList<Mission> missions, string outputDirectory)
-    {
-        Directory.CreateDirectory(outputDirectory);
-        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        var jsonPath = Path.Combine(outputDirectory, $"missions-transformed-{timestamp}.json");
-
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver
-            {
-                Modifiers =
-                {
-                    static info =>
-                    {
-                        if (info.Type != typeof(Mission)) return;
-                        foreach (var prop in info.Properties)
-                            if (prop.Name is "status" or "missionDetails" or "debugImages")
-                                prop.ShouldSerialize = (_, _) => false;
-                    }
-                }
-            }
-        };
-
-        var json = JsonSerializer.Serialize(missions, options);
-        await File.WriteAllTextAsync(jsonPath, json);
-        Console.WriteLine($"Saved {missions.Count} transformed mission(s) to {jsonPath}");
-    }
 }
