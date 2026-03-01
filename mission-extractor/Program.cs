@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using mission_extractor.Models;
 using mission_extractor.Services;
 
@@ -7,9 +7,6 @@ var config = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .Build();
-
-// Initialize services
-var ocrService = new OcrCaptureService();
 
 var selectedProfileName = config["SelectedOOTPProfile"];
 
@@ -23,22 +20,24 @@ MissionRowBoundries missionRowBoundries = selectedProfileSection?
     .GetSection("MissionRowBoundaries")
     .Get<MissionRowBoundries>() ?? new();
 
+var outputDirectory = Path.GetFullPath(
+    config["OutputSettings:OutputDirectory"] ?? "output",
+    AppContext.BaseDirectory);
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
 var missionExtractionService = new MissionEtractionService(missionRowBoundries, debugImagesEnabled);
 
 await RunMenuLoop(missionExtractionService);
 
-async Task RunMenuLoop(
-    MissionEtractionService missionExtractionService)
+async Task RunMenuLoop(MissionEtractionService service)
 {
     bool isRunning = true;
 
     while (isRunning)
     {
-        DisplayMenu();
+        DisplayMenu(service);
         var choice = Console.ReadLine();
 
-        if (isRunning && choice != "4")
+        if (choice != "7")
         {
             Console.Clear();
         }
@@ -46,15 +45,24 @@ async Task RunMenuLoop(
         switch (choice)
         {
             case "1":
-                await CaptureMissionRowStructure();
+                await CaptureTopMissionDetails(service);
                 break;
             case "2":
-                await ExtractTopMissionStructureAndDetails();
-                    break;
+                Console.WriteLine("Capture lower mission details: not yet implemented.");
+                break;
             case "3":
-                await CaptureMissionDetails();
+                Console.WriteLine("Light-weight validation and transformation: not yet implemented.");
                 break;
             case "4":
+                Console.WriteLine("Full validation and transformation: not yet implemented.");
+                break;
+            case "5":
+                await SaveUnstructuredMissions(service);
+                break;
+            case "6":
+                await LoadUnstructuredMissions(service);
+                break;
+            case "7":
                 isRunning = false;
                 Console.WriteLine("Exiting application...");
                 break;
@@ -65,24 +73,26 @@ async Task RunMenuLoop(
     }
 }
 
-void DisplayMenu()
+void DisplayMenu(MissionEtractionService service)
 {
-    Console.WriteLine("\n=== Mission Extractor Menu ===");
-    Console.WriteLine("1. Capture mission row structure");
-    Console.WriteLine("2. Capture top mission details");
-    Console.WriteLine("3. Capture mission details");
-    Console.WriteLine("4. Exit");
-    Console.WriteLine("==============================");
-    Console.Write("Enter your choice (1-4): ");
+    Console.WriteLine($"\n=== Mission Extractor ({service.Missions.Count} mission(s) in memory) ===");
+    Console.WriteLine("1. Capture top mission details");
+    Console.WriteLine("2. Capture lower mission details (not implemented)");
+    Console.WriteLine("3. Light-weight validation and transformation (not implemented)");
+    Console.WriteLine("4. Full validation and transformation (not implemented)");
+    Console.WriteLine("5. Save unstructured mission data");
+    Console.WriteLine("6. Load unstructured mission data");
+    Console.WriteLine("7. Exit");
+    Console.WriteLine(new string('=', 50));
+    Console.Write("Enter your choice (1-7): ");
 }
 
-async Task CaptureMissionRowStructure()
+async Task CaptureTopMissionDetails(MissionEtractionService service)
 {
-    Console.WriteLine("\nCapturing mission row structure...");
+    Console.WriteLine("\nCapturing top mission details...");
     try
     {
-        await missionExtractionService.ExtractMissionRows();
-        Console.WriteLine("Data prepared for serialization to JSON.");
+        await service.ExtractTopMissionStructureAndDetails();
     }
     catch (Exception ex)
     {
@@ -90,13 +100,17 @@ async Task CaptureMissionRowStructure()
     }
 }
 
-async Task CaptureMissionDetails()
+async Task SaveUnstructuredMissions(MissionEtractionService service)
 {
-    Console.WriteLine("\nCapturing mission details...");
+    if (service.Missions.Count == 0)
+    {
+        Console.WriteLine("\nNo missions in memory to save.");
+        return;
+    }
+
     try
     {
-        await missionExtractionService.ExtractMissionDetails();
-        Console.WriteLine("Data prepared for serialization to JSON.");
+        await service.SaveUnstructuredMissions(outputDirectory);
     }
     catch (Exception ex)
     {
@@ -104,17 +118,23 @@ async Task CaptureMissionDetails()
     }
 }
 
-async Task ExtractTopMissionStructureAndDetails()
+async Task LoadUnstructuredMissions(MissionEtractionService service)
 {
-       Console.WriteLine("\nCapturing top mission structure and details...");
+    Console.Write("\nEnter path to unstructured missions JSON file: ");
+    var filePath = Console.ReadLine()?.Trim();
+
+    if (string.IsNullOrEmpty(filePath))
+    {
+        Console.WriteLine("No path entered.");
+        return;
+    }
+
     try
     {
-        await missionExtractionService.ExtractTopMissionStructureAndDetails();
-        Console.WriteLine("Data prepared for serialization to JSON.");
+        await service.LoadUnstructuredMissions(filePath);
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Error: {ex.Message}");
     }
-
 }

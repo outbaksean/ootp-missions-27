@@ -14,6 +14,11 @@ public class MissionReward
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public PackType? PackType { get; set; }
 
+    [JsonPropertyName("cardId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? CardId { get; set; }
+
     [JsonPropertyName("count")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Count { get; set; }
 }
