@@ -32,6 +32,7 @@
 - [Done] Map totalPoints
 
 - [Done] Stop auto saving of json and reports
+- Try Fuzzy Search for the mapping
 - Mark mission verified and allow filtering out verified from view
 - [WIP] Update Save/Load buttons
   - Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time

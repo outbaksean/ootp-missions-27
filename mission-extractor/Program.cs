@@ -86,6 +86,19 @@ app.MapPost("/api/capture", async () =>
     return new { log, missionCount = state.Count, addedMission };
 });
 
+// POST /api/capture-details-bottom
+app.MapPost("/api/capture-details-bottom", async () =>
+{
+    if (state.Count == 0)
+        return Results.BadRequest(new { error = "No missions in memory." });
+
+    var lastMission = state.Missions[^1];
+    var log = await CaptureConsole(async () =>
+        await extractionService.ExtractMissionDetailsBottom(lastMission.Id));
+
+    return Results.Ok(new { log, missionCount = state.Count, updatedMission = state.Missions[^1] });
+});
+
 // POST /api/validate
 app.MapPost("/api/validate", async () =>
 {
