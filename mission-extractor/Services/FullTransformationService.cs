@@ -76,7 +76,30 @@ public class FullTransformationService
     private static void DeduplicateMissionDetails(List<Mission> missions)
     {
         foreach (var mission in missions)
-            mission.MissionDetails = mission.MissionDetails.Distinct().ToList();
+        {
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var keptIndices = new List<int>();
+            var deduped = new List<string>();
+
+            for (int i = 0; i < mission.MissionDetails.Count; i++)
+            {
+                if (seen.Add(mission.MissionDetails[i]))
+                {
+                    keptIndices.Add(i);
+                    deduped.Add(mission.MissionDetails[i]);
+                }
+            }
+
+            mission.MissionDetails = deduped;
+
+            if (mission.DebugImages?.TryGetValue("missionDetails", out var images) == true && images != null)
+            {
+                mission.DebugImages["missionDetails"] = keptIndices
+                    .Where(i => i < images.Count)
+                    .Select(i => images[i])
+                    .ToList();
+            }
+        }
     }
 
     private static List<ValidationError> ValidateFields(IReadOnlyList<Mission> missions)
