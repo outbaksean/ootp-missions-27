@@ -10,6 +10,7 @@ namespace mission_extractor.Enums
     {
         Card,
         Pack,
+        Park,
         Other
     }
 }

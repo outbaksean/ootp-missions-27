@@ -21,4 +21,8 @@ public class MissionReward
     [JsonPropertyName("count")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Count { get; set; }
+
+    [JsonPropertyName("park")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Park { get; set; }
 }

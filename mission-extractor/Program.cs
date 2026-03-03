@@ -39,6 +39,7 @@ builder.Services.AddSingleton<MissionBoundryService>();
 builder.Services.AddSingleton<MissionEtractionService>();
 builder.Services.AddSingleton<LightweightValidationService>();
 builder.Services.AddSingleton(cardMappingService);
+builder.Services.AddSingleton<RewardMappingService>();
 builder.Services.AddSingleton<FullTransformationService>();
 builder.Services.AddSingleton<LoadVerifiedService>();
 

@@ -11,6 +11,7 @@ public class LoadVerifiedService
 {
     private readonly MissionState _missionState;
     private readonly LightweightValidationService _lws;
+    private readonly RewardMappingService _rewardMapping;
 
     private static readonly HashSet<string> AvailableCategories = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -26,10 +27,12 @@ public class LoadVerifiedService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public LoadVerifiedService(MissionState missionState, LightweightValidationService lws)
+    public LoadVerifiedService(MissionState missionState, LightweightValidationService lws,
+        RewardMappingService rewardMapping)
     {
         _missionState = missionState;
         _lws = lws;
+        _rewardMapping = rewardMapping;
     }
 
     public LoadVerifiedResult Load(List<Mission> incoming, bool clean = false)
@@ -45,7 +48,7 @@ public class LoadVerifiedService
         var validCandidates = new List<Mission>();
         foreach (var mission in candidates)
         {
-            var (missionErrors, missionWarnings) = ValidateMission(mission, incomingIds, clean);
+            var (missionErrors, missionWarnings) = ValidateMission(mission, incomingIds, clean, _rewardMapping);
             foreach (var w in missionWarnings)
                 errors.Add($"'{mission.Name}': {w}");
             if (missionErrors.Count > 0)
@@ -186,7 +189,7 @@ public class LoadVerifiedService
     }
 
     private static (List<string> Errors, List<string> Warnings) ValidateMission(
-        Mission m, HashSet<int> incomingIds, bool clean)
+        Mission m, HashSet<int> incomingIds, bool clean, RewardMappingService rewardMapping)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -261,6 +264,20 @@ public class LoadVerifiedService
                 if (dupMissionIds.Count > 0)
                     errors.Add($"mission type: duplicate missionIds [{string.Join(", ", dupMissionIds)}]");
             }
+        }
+
+        // Reward validation
+        if (clean)
+        {
+            var rewardErrors = rewardMapping.ParseAndSet(m);
+            foreach (var e in rewardErrors)
+                errors.Add($"reward: {e}");
+        }
+        else
+        {
+            var rewardErrors = rewardMapping.ValidateMatchesExisting(m);
+            foreach (var e in rewardErrors)
+                errors.Add($"reward: {e}");
         }
 
         return (errors, warnings);

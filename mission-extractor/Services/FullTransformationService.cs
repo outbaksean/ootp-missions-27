@@ -9,15 +9,18 @@ public class FullTransformationService
     private readonly MissionState _missionState;
     private readonly LightweightValidationService _lws;
     private readonly CardMappingService _cardMapping;
+    private readonly RewardMappingService _rewardMapping;
 
     public FullTransformationService(
         MissionState missionState,
         LightweightValidationService lws,
-        CardMappingService cardMapping)
+        CardMappingService cardMapping,
+        RewardMappingService rewardMapping)
     {
         _missionState = missionState;
         _lws = lws;
         _cardMapping = cardMapping;
+        _rewardMapping = rewardMapping;
     }
 
     private static readonly HashSet<string> AvailableCategories = new(StringComparer.OrdinalIgnoreCase)
@@ -62,6 +65,16 @@ public class FullTransformationService
         TransformPass1(result, errors, errorMissionIds);
         TransformPass2(result, errors, errorMissionIds);
         SetTotals(result);
+
+        foreach (var mission in result)
+        {
+            if (errorMissionIds.Contains(mission.Id)) continue;
+            var rewardErrors = _rewardMapping.ParseAndSet(mission);
+            foreach (var e in rewardErrors)
+                errors.Add(new ValidationError(mission, e,
+                    mission.DebugImages?.GetValueOrDefault("reward")));
+        }
+
         result = ReorderMissions(result, errors);
 
         _lws.RegenerateIds(result);
