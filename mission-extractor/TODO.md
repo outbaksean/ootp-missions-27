@@ -34,7 +34,7 @@
 - [WIP] Update Save/Load buttons
   - [Done] Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
   - [Done] Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)
-  - Add "Load Verified Missions" button - loads missions json file in the final format, validates it, any validated are added to the beginning of the array then ids regenerated.
+  - [Done] Add "Load Verified Missions" button - loads missions json file in the final format, validates it, any validated are added to the beginning of the array then ids regenerated.
     Validation:
   - All mission names must be unique, if missions with the same name are identical other than id load one of them and report the error, if they are different report both and don't load either, always try to load the remaining
   - For each mission validate the following:

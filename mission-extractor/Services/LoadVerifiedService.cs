@@ -32,7 +32,7 @@ public class LoadVerifiedService
         _lws = lws;
     }
 
-    public LoadVerifiedResult Load(List<Mission> incoming)
+    public LoadVerifiedResult Load(List<Mission> incoming, bool clean = false)
     {
         var errors = new List<string>();
         int markedVerifiedCount = 0;
@@ -45,7 +45,9 @@ public class LoadVerifiedService
         var validCandidates = new List<Mission>();
         foreach (var mission in candidates)
         {
-            var missionErrors = ValidateMission(mission, incomingIds);
+            var (missionErrors, missionWarnings) = ValidateMission(mission, incomingIds, clean);
+            foreach (var w in missionWarnings)
+                errors.Add($"'{mission.Name}': {w}");
             if (missionErrors.Count > 0)
                 foreach (var e in missionErrors)
                     errors.Add($"'{mission.Name}': {e}");
@@ -140,9 +142,11 @@ public class LoadVerifiedService
         return result;
     }
 
-    private static List<string> ValidateMission(Mission m, HashSet<int> incomingIds)
+    private static (List<string> Errors, List<string> Warnings) ValidateMission(
+        Mission m, HashSet<int> incomingIds, bool clean)
     {
         var errors = new List<string>();
+        var warnings = new List<string>();
 
         if (m.RequiredCount <= 0)
             errors.Add($"requiredCount must be > 0 (got {m.RequiredCount})");
@@ -171,7 +175,13 @@ public class LoadVerifiedService
             if (m.RequiredCount > cardCount)
                 errors.Add($"count mission: requiredCount ({m.RequiredCount}) > cards.length ({cardCount})");
             if (cardCount != m.TotalPoints)
-                errors.Add($"count mission: cards.length ({cardCount}) != totalPoints ({m.TotalPoints})");
+            {
+                if (clean) { warnings.Add($"count mission: totalPoints fixed from {m.TotalPoints} to {cardCount}"); m.TotalPoints = cardCount; }
+                else errors.Add($"count mission: cards.length ({cardCount}) != totalPoints ({m.TotalPoints})");
+            }
+            var dupCardIds = m.Cards.GroupBy(c => c.CardId).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+            if (dupCardIds.Count > 0)
+                errors.Add($"count mission: duplicate cardIds [{string.Join(", ", dupCardIds)}]");
         }
         else if (m.Type == MissionType.Points)
         {
@@ -179,7 +189,13 @@ public class LoadVerifiedService
             if (m.RequiredCount > sumPoints)
                 errors.Add($"points mission: requiredCount ({m.RequiredCount}) > sum of card points ({sumPoints})");
             if (sumPoints != m.TotalPoints)
-                errors.Add($"points mission: sum of card points ({sumPoints}) != totalPoints ({m.TotalPoints})");
+            {
+                if (clean) { warnings.Add($"points mission: totalPoints fixed from {m.TotalPoints} to {sumPoints}"); m.TotalPoints = sumPoints; }
+                else errors.Add($"points mission: sum of card points ({sumPoints}) != totalPoints ({m.TotalPoints})");
+            }
+            var dupCardIds = m.Cards.GroupBy(c => c.CardId).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+            if (dupCardIds.Count > 0)
+                errors.Add($"points mission: duplicate cardIds [{string.Join(", ", dupCardIds)}]");
         }
         else if (m.Type == MissionType.Missions)
         {
@@ -187,17 +203,24 @@ public class LoadVerifiedService
             if (m.RequiredCount > missionIdsCount)
                 errors.Add($"mission type: requiredCount ({m.RequiredCount}) > missionIds.length ({missionIdsCount})");
             if (missionIdsCount != m.TotalPoints)
-                errors.Add($"mission type: missionIds.length ({missionIdsCount}) != totalPoints ({m.TotalPoints})");
+            {
+                if (clean) { warnings.Add($"mission type: totalPoints fixed from {m.TotalPoints} to {missionIdsCount}"); m.TotalPoints = missionIdsCount; }
+                else errors.Add($"mission type: missionIds.length ({missionIdsCount}) != totalPoints ({m.TotalPoints})");
+            }
 
             if (m.MissionIds != null)
             {
                 var missing = m.MissionIds.Where(id => id != 0 && !incomingIds.Contains(id)).ToList();
                 if (missing.Count > 0)
                     errors.Add($"mission type: missionIds [{string.Join(", ", missing)}] not found in file");
+
+                var dupMissionIds = m.MissionIds.GroupBy(id => id).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+                if (dupMissionIds.Count > 0)
+                    errors.Add($"mission type: duplicate missionIds [{string.Join(", ", dupMissionIds)}]");
             }
         }
 
-        return errors;
+        return (errors, warnings);
     }
 
     private static bool FinalFieldsEqual(Mission a, Mission b) =>
