@@ -64,4 +64,8 @@ public class Mission
 
     [JsonPropertyName("verified")]
     public bool Verified { get; set; } = false;
+
+    [JsonPropertyName("readOnly")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ReadOnly { get; set; } = false;
 }

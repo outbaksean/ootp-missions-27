@@ -39,6 +39,7 @@ builder.Services.AddSingleton<MissionEtractionService>();
 builder.Services.AddSingleton<LightweightValidationService>();
 builder.Services.AddSingleton(cardMappingService);
 builder.Services.AddSingleton<FullTransformationService>();
+builder.Services.AddSingleton<LoadVerifiedService>();
 
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
@@ -60,6 +61,7 @@ var state = app.Services.GetRequiredService<MissionState>();
 var extractionService = app.Services.GetRequiredService<MissionEtractionService>();
 var validationService = app.Services.GetRequiredService<LightweightValidationService>();
 var fullTransformService = app.Services.GetRequiredService<FullTransformationService>();
+var loadVerifiedService = app.Services.GetRequiredService<LoadVerifiedService>();
 
 // GET /api/cards
 app.MapGet("/api/cards", () =>
@@ -162,6 +164,50 @@ app.MapPost("/api/transform", async () =>
     return Results.Ok(new { log, missionCount = state.Count, errors = errorDtos });
 });
 
+// POST /api/load-verified
+app.MapPost("/api/load-verified", async (HttpRequest req) =>
+{
+    JsonElement root;
+    try
+    {
+        root = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = $"Invalid JSON: {ex.Message}" });
+    }
+
+    if (root.ValueKind != JsonValueKind.Object ||
+        !root.TryGetProperty("missions", out var missionsEl) ||
+        missionsEl.ValueKind != JsonValueKind.Array)
+        return Results.BadRequest(new { error = "Expected { \"missions\": [...] } format." });
+
+    List<Mission> missions;
+    try
+    {
+        missions = missionsEl.Deserialize<List<Mission>>(
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? [];
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = $"Failed to parse missions: {ex.Message}" });
+    }
+
+    if (missions.Count == 0)
+        return Results.BadRequest(new { error = "No missions in file." });
+
+    var result = loadVerifiedService.Load(missions);
+
+    return Results.Ok(new
+    {
+        errors = result.Errors,
+        loadedCount = result.LoadedCount,
+        markedVerifiedCount = result.MarkedVerifiedCount,
+        missionCount = state.Count
+    });
+});
+
 // POST /api/save-verified
 app.MapPost("/api/save-verified", async () =>
 {
@@ -173,11 +219,11 @@ app.MapPost("/api/save-verified", async () =>
     var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
     var filePath = Path.Combine(outputDirectory, $"missions_verified_{timestamp}.json");
 
-    var final = verifiedMissions.Select(m => new
+    var missions = verifiedMissions.Select(m => new
     {
         id = m.Id,
         name = m.Name,
-        type = m.Type,
+        type = m.Type?.ToString()?.ToLowerInvariant(),
         requiredCount = m.RequiredCount,
         reward = m.Reward,
         category = m.Category,
@@ -187,13 +233,19 @@ app.MapPost("/api/save-verified", async () =>
         rewards = m.Rewards
     });
 
+    var wrapper = new
+    {
+        version = DateTime.Now.ToString("yyyy-MM-dd"),
+        missions
+    };
+
     var options = new JsonSerializerOptions
     {
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
-    var json = JsonSerializer.Serialize(final, options);
+    var json = JsonSerializer.Serialize(wrapper, options);
     await File.WriteAllTextAsync(filePath, json);
 
     return Results.Ok(new { fileName = Path.GetFileName(filePath), count = verifiedMissions.Count });

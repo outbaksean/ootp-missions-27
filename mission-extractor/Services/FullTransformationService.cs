@@ -223,7 +223,7 @@ public class FullTransformationService
             if (errorMissionIds.Contains(mission.Id))
                 continue;
 
-            if (mission.Type != MissionType.Mission)
+            if (mission.Type != MissionType.Missions)
                 continue;
 
             var detailImages = mission.DebugImages?.GetValueOrDefault("missionDetails");
@@ -258,7 +258,7 @@ public class FullTransformationService
 
         var dependents = new Dictionary<int, List<Mission>>();
 
-        foreach (var m in missions.Where(m => m.Type == MissionType.Mission && m.MissionIds != null))
+        foreach (var m in missions.Where(m => m.Type == MissionType.Missions && m.MissionIds != null))
         {
             foreach (var refId in m.MissionIds!)
             {
@@ -314,7 +314,7 @@ public class FullTransformationService
             {
                 MissionType.Count   => mission.Cards.Count,
                 MissionType.Points  => mission.Cards.Sum(c => c.Points ?? 0),
-                MissionType.Mission => mission.MissionIds?.Count ?? 0,
+                MissionType.Missions => mission.MissionIds?.Count ?? 0,
                 _                   => 0
             };
         }

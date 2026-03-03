@@ -12,7 +12,7 @@ public class MissionReward
 
     [JsonPropertyName("packType")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public PackType? PackType { get; set; }
+    public string? PackType { get; set; }
 
     [JsonPropertyName("cardId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

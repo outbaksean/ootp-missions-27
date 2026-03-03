@@ -221,7 +221,7 @@ public class LightweightValidationService
             }
             else if ((m = MissionPattern.Match(mission.Status)).Success)
             {
-                mission.Type = MissionType.Mission;
+                mission.Type = MissionType.Missions;
                 mission.RequiredCount = int.Parse(m.Groups[1].Value);
             }
             // else: leave Type = null

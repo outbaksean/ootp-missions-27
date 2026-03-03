@@ -54,6 +54,9 @@ De-Duplication: When a mission to be loaded has the same name as one in state:
 - if they don't have the exact same final fields that's a validation error, don't load it
 - if they do have the exact same final fields mark the mission in state verified if it's not and don't load
   Any data from non final properties is ignored, the missions are imported as verified and are uneditable
+
+- Change version format to include time, update app to parse date from it
+- Change totalPoints to totalItems in ocr and app
 - [Done] Stop auto saving unstructured json and validation reports
 - Validation points mismatch not doing anything
 
