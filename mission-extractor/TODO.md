@@ -42,7 +42,7 @@
 - [Done] "UnH" to "Unsung Heroes"
 - [Done] "RSSensation" to "Rookie Sensation"
 - [Done] "HaHes" to "Hardware Heroes"
-- "NeL Star"
+- [Done] "NeL Star"
 
 - Add structured reward mapping and validation format: Card, Packs, Park
 - Change version format to include time, update app to parse date from it
