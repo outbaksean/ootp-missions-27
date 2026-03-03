@@ -82,36 +82,39 @@ app.MapMethods("/api/missions/{id}", ["PATCH"], (int id, MissionUpdateRequest re
 });
 
 // POST /api/capture
-app.MapPost("/api/capture", async () =>
+app.MapPost("/api/capture", async (CaptureRequest? req) =>
 {
+    int captureRow = req?.CaptureRow ?? 0;
     int before = state.Count;
     var log = await CaptureConsole(async () =>
-        await extractionService.ExtractTopMissionStructureAndDetails());
+        await extractionService.ExtractTopMissionStructureAndDetails(captureRow));
     int after = state.Count;
     object? addedMission = after > before ? (object)state.Missions[^1] : null;
     return new { log, missionCount = state.Count, addedMission };
 });
 
 // POST /api/capture-mission-type-details
-app.MapPost("/api/capture-mission-type-details", async () =>
+app.MapPost("/api/capture-mission-type-details", async (CaptureRequest? req) =>
 {
+    int captureRow = req?.CaptureRow ?? 0;
     int before = state.Count;
     var log = await CaptureConsole(async () =>
-        await extractionService.ExtractTopMissionStructureAndTypeDetails());
+        await extractionService.ExtractTopMissionStructureAndTypeDetails(captureRow));
     int after = state.Count;
     object? addedMission = after > before ? (object)state.Missions[^1] : null;
     return new { log, missionCount = state.Count, addedMission };
 });
 
 // POST /api/capture-details-bottom
-app.MapPost("/api/capture-details-bottom", async () =>
+app.MapPost("/api/capture-details-bottom", async (CaptureRequest? req) =>
 {
     if (state.Count == 0)
         return Results.BadRequest(new { error = "No missions in memory." });
 
+    int captureRow = req?.CaptureRow ?? 0;
     var lastMission = state.Missions[^1];
     var log = await CaptureConsole(async () =>
-        await extractionService.ExtractMissionDetailsBottom(lastMission.Id));
+        await extractionService.ExtractMissionDetailsBottom(lastMission.Id, captureRow));
 
     return Results.Ok(new { log, missionCount = state.Count, updatedMission = state.Missions[^1] });
 });
@@ -376,6 +379,7 @@ static async Task<string> CaptureConsole(Func<Task> action)
     return sw.ToString();
 }
 
+record CaptureRequest(int CaptureRow = 0);
 record MissionUpdateRequest(string? Name, string? Category, string? Reward,
                              string? Status, List<string>? MissionDetails);
 record VerifyRequest(bool Verified);

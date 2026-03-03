@@ -2,6 +2,13 @@
 
 - Latest pack rewards 164 days ago on 3/2
 - All live missions need to be redone since cards have been added
+- Ready to go!!!
+  - Ignore live missions, they can use the alternate strategy no ocr needed
+  - Go per category
+  - Do mission type missions last of the category
+  - Fix as you go
+  - Save working copy often
+  - Check save verified missions regularly
 
 - [DONE] Only highlight mission details with validation errors
 - [DONE] Allow the user to delete missions or mission details manuallly
@@ -24,6 +31,7 @@
 - [Done] Mark mission verified and allow filtering out verified from view
 - [Done] Add way to combine mission files into one and reorder, regenerate ids, validate
 - [Done] Stop auto saving unstructured json and validation reports
+- [Done] Add way to capture missions that can't align with the top row
 - [Done] Update Save/Load buttons
   - [Done] Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
   - [Done] Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)
@@ -34,8 +42,8 @@
 - [Done] "UnH" to "Unsung Heroes"
 - [Done] "RSSensation" to "Rookie Sensation"
 - [Done] "HaHes" to "Hardware Heroes"
+- "NeL Star"
 
-- _Add way to capture missions that can't align with the top row, probably go back to back to an anchoring stategy_
 - Add structured reward mapping and validation format: Card, Packs, Park
 - Change version format to include time, update app to parse date from it
 - Add date added mapping and expose it in the app

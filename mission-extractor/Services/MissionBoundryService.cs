@@ -72,16 +72,17 @@ namespace mission_extractor.Services
             };
         }
 
-        public CaptureRegionConfig GetDetail(int row, int column, bool useLowerOffset = false)
+        public CaptureRegionConfig GetDetail(int row, int column, bool useLowerOffset = false, int captureRow = 0)
         {
             if (column < 0 || column >= _missionRowBoundries.DetailColumns)
             {
                 throw new ArgumentOutOfRangeException(nameof(column), "Column index is out of range.");
             }
-            var offset = _missionRowBoundries.TopRow + _missionRowBoundries.RowHeight + _missionRowBoundries.DetailUpperOffsetY;
+            int captureRowOffset = captureRow * _missionRowBoundries.RowHeight;
+            var offset = _missionRowBoundries.TopRow + _missionRowBoundries.RowHeight + _missionRowBoundries.DetailUpperOffsetY + captureRowOffset;
             if (useLowerOffset)
             {
-                offset = _missionRowBoundries.TopRow + _missionRowBoundries.DetailLowerOffsetY;
+                offset = _missionRowBoundries.TopRow + _missionRowBoundries.DetailLowerOffsetY + captureRowOffset;
             }
             int top = offset + row * (_missionRowBoundries.DetailHeight + _missionRowBoundries.DetailSkipY);
             return new CaptureRegionConfig
@@ -93,12 +94,13 @@ namespace mission_extractor.Services
             };
         }
 
-        public CaptureRegionConfig GetMissionTypeDetail(int rowIndex)
+        public CaptureRegionConfig GetMissionTypeDetail(int rowIndex, int captureRow = 0)
         {
+            int captureRowOffset = captureRow * _missionRowBoundries.RowHeight;
             var region = new CaptureRegionConfig
             {
                 Left = _missionRowBoundries.CategoryLeft,
-                Top = _missionRowBoundries.TopRow + (_missionRowBoundries.RowHeight * 2) + (rowIndex * _missionRowBoundries.RowHeight),
+                Top = _missionRowBoundries.TopRow + (_missionRowBoundries.RowHeight * 2) + (rowIndex * _missionRowBoundries.RowHeight) + captureRowOffset,
                 Width = (int)((_missionRowBoundries.CategoryLeft + _missionRowBoundries.CategoryRight) * 1.4),
                 Height = _missionRowBoundries.RowHeight
             };
