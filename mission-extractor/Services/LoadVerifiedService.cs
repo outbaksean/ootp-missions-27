@@ -114,6 +114,7 @@ public class LoadVerifiedService
     private static List<Mission> DeduplicateIncoming(List<Mission> incoming, List<string> errors)
     {
         var result = new List<Mission>();
+        var idRemap = new Dictionary<int, int>(); // discarded duplicate ID → kept mission ID
         var groups = incoming.GroupBy(m => m.Name.Trim(), StringComparer.OrdinalIgnoreCase);
 
         foreach (var group in groups)
@@ -132,10 +133,24 @@ public class LoadVerifiedService
             {
                 errors.Add($"'{group.Key}': {missions.Count} identical copies in file, loaded one");
                 result.Add(missions[0]);
+                foreach (var discarded in missions.Skip(1))
+                    idRemap[discarded.Id] = missions[0].Id;
             }
             else
             {
                 errors.Add($"'{group.Key}': duplicate name with different data in file, none loaded");
+            }
+        }
+
+        // Remap MissionIds that reference a discarded duplicate to the kept mission's ID
+        if (idRemap.Count > 0)
+        {
+            foreach (var mission in result)
+            {
+                if (mission.MissionIds != null)
+                    mission.MissionIds = mission.MissionIds
+                        .Select(id => idRemap.TryGetValue(id, out int newId) ? newId : id)
+                        .ToList();
             }
         }
 
