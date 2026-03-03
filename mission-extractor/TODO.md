@@ -32,9 +32,29 @@
 - Show offsets on screen and make them editable
 - [Done] Mark mission verified and allow filtering out verified from view
 - [WIP] Update Save/Load buttons
-  - Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
-  - Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)
-- Stop auto saving unstructured json and validation reports
+  - [Done] Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
+  - [Done] Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)
+  - Add "Load Verified Missions" button - loads missions json file in the final format, validates it, any validated are added to the beginning of the array then ids regenerated.
+    Validation:
+  - All mission names must be unique, if missions with the same name are identical other than id load one of them and report the error, if they are different report both and don't load either, always try to load the remaining
+  - For each mission validate the following:
+    - requiredCount <= totalPoints,
+    - no 0 in id or cardID or missionID,
+    - category is in availableCategories,
+    - type is in the enum
+    - reward exists
+    - for mission type requiredCount = length of missionIds array
+    - for cards type requiredCount = length of cards array
+    - for points type required count = sum of points in cards array
+    - requiredCount must be > 0
+    - mission type missions have missionids that all exist in the array
+
+De-Duplication: When a mission to be loaded has the same name as one in state:
+
+- if they don't have the exact same final fields that's a validation error, don't load it
+- if they do have the exact same final fields mark the mission in state verified if it's not and don't load
+  Any data from non final properties is ignored, the missions are imported as verified and are uneditable
+- [Done] Stop auto saving unstructured json and validation reports
 - Validation points mismatch not doing anything
 
 - Add date added mapping and expose it in the app

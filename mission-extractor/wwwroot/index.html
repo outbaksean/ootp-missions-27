@@ -65,6 +65,7 @@ summary::-webkit-details-marker { display: none; }
 <div id="layout">
   <div id="left-panel">
     <h1 id="page-title">Mission Extractor</h1>
+    <div id="verified-count" style="font-size:12px;color:#555;margin:-8px 0 10px;"></div>
 
     <div class="controls">
       <button onclick="runCapture()">Capture</button>
@@ -72,6 +73,7 @@ summary::-webkit-details-marker { display: none; }
       <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More Details</button>
       <button onclick="runValidate()">Validate</button>
       <button onclick="runTransform()">Transform</button>
+      <button onclick="runSaveVerified()">Save Verified Missions</button>
       <button onclick="runSaveWorking()">Save Working Missions</button>
       <button onclick="runLoadWorking()">Load Working Missions</button>
       <button onclick="runSaveDialog()">Save As...</button>
@@ -158,6 +160,10 @@ async function refreshMissions() {
 }
 
 function applyAndRenderMissions() {
+  const verified = cachedMissions.filter(m => m.verified).length;
+  const unverified = cachedMissions.length - verified;
+  document.getElementById('verified-count').textContent =
+    cachedMissions.length > 0 ? `${verified} verified, ${unverified} unverified` : '';
   const toShow = hideVerified ? cachedMissions.filter(m => !m.verified) : cachedMissions;
   renderMissions(toShow);
 }
@@ -508,6 +514,14 @@ async function runTransform() {
     return;
   }
   handlePipelineResponse(await res.json());
+}
+
+async function runSaveVerified() {
+  setLog('Saving verified missions...');
+  const res = await fetch('/api/save-verified', { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok) { setLog(data.error ?? 'Error'); return; }
+  setLog(`Saved ${data.count} verified mission(s) to ${data.fileName}`);
 }
 
 async function runSaveWorking() {

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using MissionExtractor.dto;
 using mission_extractor.Models;
@@ -23,6 +24,9 @@ var missionRowBoundries = selectedProfileSection?
 
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
 var workingFilePath = Path.GetFullPath("missions-working.json", AppContext.BaseDirectory);
+var outputDirectory = Path.GetFullPath(
+    config["OutputSettings:OutputDirectory"] ?? "./output",
+    AppContext.BaseDirectory);
 
 var cardCsvPath = Path.GetFullPath("data/shop_cards.csv", AppContext.BaseDirectory);
 var cardMappingService = new CardMappingService(cardCsvPath);
@@ -156,6 +160,43 @@ app.MapPost("/api/transform", async () =>
     }).ToList();
 
     return Results.Ok(new { log, missionCount = state.Count, errors = errorDtos });
+});
+
+// POST /api/save-verified
+app.MapPost("/api/save-verified", async () =>
+{
+    var verifiedMissions = state.Missions.Where(m => m.Verified).ToList();
+    if (verifiedMissions.Count == 0)
+        return Results.BadRequest(new { error = "No verified missions to save." });
+
+    Directory.CreateDirectory(outputDirectory);
+    var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+    var filePath = Path.Combine(outputDirectory, $"missions_verified_{timestamp}.json");
+
+    var final = verifiedMissions.Select(m => new
+    {
+        id = m.Id,
+        name = m.Name,
+        type = m.Type,
+        requiredCount = m.RequiredCount,
+        reward = m.Reward,
+        category = m.Category,
+        cards = m.Cards,
+        missionIds = m.MissionIds,
+        totalPoints = m.TotalPoints,
+        rewards = m.Rewards
+    });
+
+    var options = new JsonSerializerOptions
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+    var json = JsonSerializer.Serialize(final, options);
+    await File.WriteAllTextAsync(filePath, json);
+
+    return Results.Ok(new { fileName = Path.GetFileName(filePath), count = verifiedMissions.Count });
 });
 
 // POST /api/save-working
