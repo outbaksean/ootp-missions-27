@@ -13,6 +13,45 @@
   - Bonus Rewards Complete through 165 days ago - Bo Knows Best
   - Skipping Roberto Clemente Giveaway due to having cards beaking ocr, It should work if I show boundries and temporarily update offset
   - Bonus Rewards Complete through 158 days ago - Left Arm of God - About the same time per mission, code changes as I went
+  - Bonus Rewards Complete through 109 days ago - Miggy Mania
+
+Categories
+
+- Live Series
+  - To be done later not using ocr
+- Pack Rewards
+  - Complete, not deployed
+- Launch Deck
+  - Complete previously
+- Bonus Rewards - In Progress
+  - Weighs and Means - 46 days - around 20 missions
+  - Unleash the Degrominator - 32 days - around 20 missions
+  - T4 Checkpoint 3 - 12 days - around 20 missions
+- Immortal Seasons
+  - Complete previously
+- Negro Leagues
+  - Complete previously
+- Hall of Fame
+  - Complete previously
+- Baseball Reference
+  - Complete previously
+- Future Legends
+  - Complete previously
+- Launch Plus
+  - Complete previously
+- PT Elite
+  - To be done, around 60 missions
+- Playoff Moments
+  - To be done, around 30 missions
+- World Series Start
+  - To be done, around 40 missions
+  - Cake Day 4
+- Holiday Times
+  - To be done, 18 missions
+- Final Mission Set
+  - To be done, 19 missions
+- Total
+  - Around 250 missions left
 
 - [DONE] Only highlight mission details with validation errors
 - [DONE] Allow the user to delete missions or mission details manuallly
