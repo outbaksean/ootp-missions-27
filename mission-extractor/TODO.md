@@ -30,7 +30,7 @@
 - [Done] Stop auto saving of json and reports
 - Try Fuzzy Search for the mapping
 - Show offsets on screen and make them editable
-- Mark mission verified and allow filtering out verified from view
+- [Done] Mark mission verified and allow filtering out verified from view
 - [WIP] Update Save/Load buttons
   - Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
   - Add Save Verified Missions, saves all missions marked verified in final format (intermediate properties like missionDetails omitted)

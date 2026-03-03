@@ -42,4 +42,12 @@ public class MissionState
         if (missionDetails is not null) mission.MissionDetails = missionDetails;
         return mission;
     }
+
+    public Mission? SetVerified(int id, bool verified)
+    {
+        var mission = _missions.FirstOrDefault(m => m.Id == id);
+        if (mission is null) return null;
+        mission.Verified = verified;
+        return mission;
+    }
 }

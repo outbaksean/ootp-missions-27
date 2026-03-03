@@ -61,4 +61,7 @@ public class Mission
     /// </summary>
     [JsonPropertyName("missionDetails")]
     public List<string> MissionDetails { get; set; } = new();
+
+    [JsonPropertyName("verified")]
+    public bool Verified { get; set; } = false;
 }

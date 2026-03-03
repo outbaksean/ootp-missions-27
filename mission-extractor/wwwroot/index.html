@@ -79,6 +79,7 @@ summary::-webkit-details-marker { display: none; }
       <input type="file" id="file-input" accept=".json" style="display:none">
       <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
       <button onclick="runClearMissions()">Clear Missions</button>
+      <button id="btn-hide-verified" onclick="toggleHideVerified()">Hide Verified</button>
     </div>
 
     <pre id="log">Ready.</pre>
@@ -112,6 +113,8 @@ summary::-webkit-details-marker { display: none; }
 // ── Missions state ─────────────────────────────────────────────────────────────
 
 let fieldErrors = {};
+let cachedMissions = [];
+let hideVerified = false;
 
 function errorTypeToField(errorType) {
   if (errorType === 'Name Blank') return 'name';
@@ -149,8 +152,22 @@ function updateTitle(count) {
 async function refreshMissions() {
   const res = await fetch('/api/missions');
   const data = await res.json();
+  cachedMissions = data.missions;
   updateTitle(data.count);
-  renderMissions(data.missions);
+  applyAndRenderMissions();
+}
+
+function applyAndRenderMissions() {
+  const toShow = hideVerified ? cachedMissions.filter(m => !m.verified) : cachedMissions;
+  renderMissions(toShow);
+}
+
+function toggleHideVerified() {
+  hideVerified = !hideVerified;
+  const btn = document.getElementById('btn-hide-verified');
+  btn.textContent = hideVerified ? 'Show Verified' : 'Hide Verified';
+  btn.style.fontWeight = hideVerified ? 'bold' : '';
+  applyAndRenderMissions();
 }
 
 function renderMissions(missions) {
@@ -216,6 +233,16 @@ function buildMissionElement(m) {
   saveRow.appendChild(saveBtn);
   saveRow.appendChild(saveStatus);
   saveRow.appendChild(deleteBtn);
+
+  const hasErrors = (fieldErrors[m.id] ?? []).length > 0;
+  if (!hasErrors || m.verified) {
+    const verifyBtn = document.createElement('button');
+    verifyBtn.textContent = m.verified ? 'Unverify' : 'Mark Verified';
+    if (m.verified) verifyBtn.style.cssText = 'border-color: #090; color: #090;';
+    verifyBtn.onclick = function() { toggleVerify(m.id, !m.verified); };
+    saveRow.appendChild(verifyBtn);
+  }
+
   body.appendChild(saveRow);
 
   det.appendChild(body);
@@ -389,6 +416,15 @@ async function saveMission(btn) {
     statusEl.className = 'save-status error';
     statusEl.textContent = 'Save failed (' + res.status + ')';
   }
+}
+
+async function toggleVerify(id, verified) {
+  const res = await fetch('/api/missions/' + id + '/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ verified })
+  });
+  if (res.ok) refreshMissions();
 }
 
 async function deleteMission(btn) {

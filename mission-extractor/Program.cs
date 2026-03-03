@@ -189,6 +189,13 @@ app.MapPost("/api/missions/import", (List<Mission> missions) =>
     return new { missionCount = state.Count };
 });
 
+// POST /api/missions/{id}/verify
+app.MapPost("/api/missions/{id}/verify", (int id, VerifyRequest req) =>
+{
+    var updated = state.SetVerified(id, req.Verified);
+    return updated is null ? Results.NotFound() : Results.Ok(updated);
+});
+
 // DELETE /api/missions/{id}
 app.MapDelete("/api/missions/{id}", (int id) =>
 {
@@ -234,3 +241,4 @@ static async Task<string> CaptureConsole(Func<Task> action)
 
 record MissionUpdateRequest(string? Name, string? Category, string? Reward,
                              string? Status, List<string>? MissionDetails);
+record VerifyRequest(bool Verified);
