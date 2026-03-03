@@ -183,6 +183,7 @@ public class LightweightValidationService
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("HaHes", "Hardware Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Future Leg ", "Future Legend ", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Future Le ", "Future Legend ", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("All-Time Leg ", "All-Time Legend ", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("NeL Star", "Negro League Star", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Atlanta ASS", "Atlanta All-Stars", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" KCI", " KC1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
