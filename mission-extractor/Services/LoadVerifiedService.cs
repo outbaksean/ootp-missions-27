@@ -55,6 +55,34 @@ public class LoadVerifiedService
                 validCandidates.Add(mission);
         }
 
+        // Phase 2.5: Propagate failures — Missions-type missions referencing a failed candidate
+        // are themselves invalid. Loop until stable to handle cascading dependencies.
+        var candidateById = candidates.ToDictionary(m => m.Id);
+        var failedIds = candidates.Where(m => !validCandidates.Contains(m)).Select(m => m.Id).ToHashSet();
+        bool changed = true;
+        while (changed)
+        {
+            changed = false;
+            for (int i = validCandidates.Count - 1; i >= 0; i--)
+            {
+                var mission = validCandidates[i];
+                if (mission.Type != MissionType.Missions || mission.MissionIds == null)
+                    continue;
+
+                var badIds = mission.MissionIds.Where(id => failedIds.Contains(id)).ToList();
+                if (badIds.Count == 0)
+                    continue;
+
+                var badNames = badIds
+                    .Where(id => candidateById.TryGetValue(id, out _))
+                    .Select(id => $"'{candidateById[id].Name}'");
+                errors.Add($"'{mission.Name}': references mission(s) with errors: {string.Join(", ", badNames)}");
+                validCandidates.RemoveAt(i);
+                failedIds.Add(mission.Id);
+                changed = true;
+            }
+        }
+
         // Phase 3: Deduplicate against existing state
         var toLoad = new List<Mission>();
         foreach (var mission in validCandidates)
