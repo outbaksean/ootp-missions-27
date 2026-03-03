@@ -39,6 +39,11 @@ public class LightweightValidationService
     //   Points:  "X / Y Points"    — Y -> TotalPoints
     //   Mission: "X / Y Missions"  — Y -> RequiredCount
     //   No match -> Type left null (reported as "Type Unparsed" by ValidateFields)
+    // Strips a trailing card-value number that OCR appends after the 4-digit year,
+    // e.g. "Dan Haren OAK 2005 60" → "Dan Haren OAK 2005"
+    private static readonly Regex TrailingCardValueAfterYearPattern =
+        new(@"((?:19|20)\d{2})\s+\d+$", RegexOptions.Compiled);
+
     private static readonly Regex CountPattern =
         new(@"\S+\s*/\s*(?:[a-z]+\s+)*(\d+)\s+out\s+of\s+\d+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex PointsPattern =
@@ -143,6 +148,10 @@ public class LightweightValidationService
     /// </summary>
     public void CleanFields(List<Mission> missions)
     {
+        var positionAbbreviations = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            "SP", "RP", "CL", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH"
+        };
         foreach (var mission in missions)
         {
             int bracketIndex = mission.Name.LastIndexOf('[');
@@ -169,6 +178,10 @@ public class LightweightValidationService
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Future Leg ", "Future Legend ", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Future Le ", "Future Legend ", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("NeL Star", "Negro League Star", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Atlanta ASS", "Atlanta All-Stars", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" KCI", " KC1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" NYI", " NY1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = TrailingCardValueAfterYearPattern.Replace(mission.MissionDetails[i], "$1");
                 mission.MissionDetails[i] = RemoveAccents(mission.MissionDetails[i]);
             }
         }
