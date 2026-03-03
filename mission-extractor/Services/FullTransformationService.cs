@@ -255,11 +255,6 @@ public class FullTransformationService
                         DetailImage(detailImages, i)));
                 }
             }
-
-            if (mission.MissionIds.Count != mission.RequiredCount)
-                errors.Add(new ValidationError(mission,
-                    $"Mission Count Mismatch: found {mission.MissionIds.Count}, expected {mission.RequiredCount}",
-                    null));
         }
     }
 

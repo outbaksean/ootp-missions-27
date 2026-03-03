@@ -49,9 +49,9 @@ Categories
 - Holiday Times
   - To be done, 18 missions
 - Final Mission Set
-  - To be done, 19 missions
+  - Complete, not deployed
 - Total
-  - Around 250 missions left
+  - Around 230 missions left
 
 - [DONE] Only highlight mission details with validation errors
 - [DONE] Allow the user to delete missions or mission details manuallly

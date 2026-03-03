@@ -16,4 +16,6 @@ public enum PackType
     HistDiamond,
     HistPerfect,
     HistRainbow,
+    AllPerfect,
+    HistAllPerfect,
 }
