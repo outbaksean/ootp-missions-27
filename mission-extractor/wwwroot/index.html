@@ -45,6 +45,13 @@ summary::-webkit-details-marker { display: none; }
 .detail-entry input[type="text"] { flex: 1; max-width: 560px; }
 .detail-entry img { display: block; max-height: 80px; image-rendering: pixelated; border: 1px solid #ccc; }
 
+/* Boundaries panel */
+#boundaries { padding: 6px 0; border-top: 1px solid #eee; margin-bottom: 6px; }
+#boundaries-grid { display: grid; grid-template-columns: repeat(4, auto); gap: 4px 16px; margin-bottom: 6px; }
+.bnd-field { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+.bnd-field label { color: #555; white-space: nowrap; }
+.bnd-field input { width: 4.5em; font-family: monospace; font-size: 12px; padding: 2px 4px; border: 1px solid #bbb; }
+
 /* Cards panel */
 #cards-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 #cards-header h2 { font-size: 1em; margin: 0; flex-shrink: 0; }
@@ -75,6 +82,7 @@ summary::-webkit-details-marker { display: none; }
         <button onclick="runCapture()">Capture</button>
         <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More</button>
         <button onclick="runCaptureMissionTypeDetails()">Capture Mission Type</button>
+        <button onclick="runCaptureNoImageOffsets()">Capture Without Images</button>
       </div>
       <div class="controls">
         <button onclick="runTransform()">Transform</button>
@@ -89,6 +97,31 @@ summary::-webkit-details-marker { display: none; }
       <div id="missions"></div>
     </div>
     <div id="left-panel-footer">
+      <div id="boundaries" style="display:none">
+        <div id="boundaries-grid">
+          <div class="bnd-field"><label>TopRowOffset</label><input type="number" id="bnd-topRowOffset"></div>
+          <div class="bnd-field"><label>TopRow</label><input type="number" id="bnd-topRow"></div>
+          <div class="bnd-field"><label>RowHeight</label><input type="number" id="bnd-rowHeight"></div>
+          <div class="bnd-field"><label>NumRows</label><input type="number" id="bnd-numRows"></div>
+          <div class="bnd-field"><label>CategoryLeft</label><input type="number" id="bnd-categoryLeft"></div>
+          <div class="bnd-field"><label>CategoryRight</label><input type="number" id="bnd-categoryRight"></div>
+          <div class="bnd-field"><label>TitleLeft</label><input type="number" id="bnd-titleLeft"></div>
+          <div class="bnd-field"><label>TitleRight</label><input type="number" id="bnd-titleRight"></div>
+          <div class="bnd-field"><label>RewardLeft</label><input type="number" id="bnd-rewardLeft"></div>
+          <div class="bnd-field"><label>RewardRight</label><input type="number" id="bnd-rewardRight"></div>
+          <div class="bnd-field"><label>StatusLeft</label><input type="number" id="bnd-statusLeft"></div>
+          <div class="bnd-field"><label>StatusRight</label><input type="number" id="bnd-statusRight"></div>
+          <div class="bnd-field"><label>DetailLeft</label><input type="number" id="bnd-detailLeft"></div>
+          <div class="bnd-field"><label>DetailWidth</label><input type="number" id="bnd-detailWidth"></div>
+          <div class="bnd-field"><label>DetailColumns</label><input type="number" id="bnd-detailColumns"></div>
+          <div class="bnd-field"><label>DetailHeight</label><input type="number" id="bnd-detailHeight"></div>
+          <div class="bnd-field"><label>DetailUpperOffsetY</label><input type="number" id="bnd-detailUpperOffsetY"></div>
+          <div class="bnd-field"><label>DetailSkipY</label><input type="number" id="bnd-detailSkipY"></div>
+          <div class="bnd-field"><label>DetailNoImagesHeight</label><input type="number" id="bnd-detailNoImagesHeight"></div>
+          <div class="bnd-field"><label>DetailLowerOffsetY</label><input type="number" id="bnd-detailLowerOffsetY"></div>
+        </div>
+        <button onclick="applyBoundaries()">Apply Boundaries</button>
+      </div>
       <div class="controls" style="margin-bottom:0">
         <button onclick="runValidate()">Validate</button>
         <button onclick="runLoadVerified()">Load Verified Missions</button>
@@ -517,6 +550,19 @@ async function runCapture() {
   refreshMissions();
 }
 
+async function runCaptureNoImageOffsets() {
+  fieldErrors = {};
+  setLog('Capturing without images...');
+  const res = await fetch('/api/capture', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ captureRow: getCaptureRow(), noImageOffsets: true })
+  });
+  const data = await res.json();
+  setLog(data.log || '');
+  refreshMissions();
+}
+
 async function runCaptureMissionTypeDetails() {
   fieldErrors = {};
   setLog('Capturing mission type details...');
@@ -840,10 +886,48 @@ document.addEventListener('mouseup', () => {
   document.body.style.userSelect = '';
 });
 
+// ── Boundaries ─────────────────────────────────────────────────────────────────
+
+const boundaryFields = [
+  'topRowOffset', 'topRow', 'rowHeight', 'numRows',
+  'categoryLeft', 'categoryRight', 'titleLeft', 'titleRight',
+  'rewardLeft', 'rewardRight', 'statusLeft', 'statusRight',
+  'detailLeft', 'detailWidth', 'detailColumns', 'detailHeight',
+  'detailUpperOffsetY', 'detailSkipY', 'detailNoImagesHeight', 'detailLowerOffsetY'
+];
+
+async function loadBoundaries() {
+  const res = await fetch('/api/boundaries');
+  if (!res.ok) return;
+  const data = await res.json();
+  document.getElementById('boundaries').style.display = data.allowBoundryEdits ? '' : 'none';
+  if (!data.allowBoundryEdits) return;
+  for (const field of boundaryFields) {
+    const el = document.getElementById('bnd-' + field);
+    if (el) el.value = data.boundaries[field] ?? 0;
+  }
+}
+
+async function applyBoundaries() {
+  const body = {};
+  for (const field of boundaryFields) {
+    const el = document.getElementById('bnd-' + field);
+    body[field] = el ? parseInt(el.value, 10) || 0 : 0;
+  }
+  const res = await fetch('/api/boundaries', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (res.ok) setLog('Boundaries applied.');
+  else setLog('Failed to apply boundaries.');
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────────
 
 refreshMissions();
 loadCards();
+loadBoundaries();
 </script>
 </body>
 </html>

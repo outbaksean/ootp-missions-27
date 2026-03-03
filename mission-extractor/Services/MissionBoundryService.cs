@@ -72,25 +72,28 @@ namespace mission_extractor.Services
             };
         }
 
-        public CaptureRegionConfig GetDetail(int row, int column, bool useLowerOffset = false, int captureRow = 0)
+        public CaptureRegionConfig GetDetail(int row, int column, bool useLowerOffset = false, int captureRow = 0, bool noImageOffsets = false)
         {
             if (column < 0 || column >= _missionRowBoundries.DetailColumns)
             {
                 throw new ArgumentOutOfRangeException(nameof(column), "Column index is out of range.");
             }
             int captureRowOffset = captureRow * _missionRowBoundries.RowHeight;
-            var offset = _missionRowBoundries.TopRow + _missionRowBoundries.RowHeight + _missionRowBoundries.DetailUpperOffsetY + captureRowOffset;
+            int detailUpperOffsetY = noImageOffsets ? 0 : _missionRowBoundries.DetailUpperOffsetY;
+            int detailSkipY = noImageOffsets ? 0 : _missionRowBoundries.DetailSkipY;
+            int detailHeight = noImageOffsets ? _missionRowBoundries.DetailNoImagesHeight : _missionRowBoundries.DetailHeight;
+            var offset = _missionRowBoundries.TopRow + _missionRowBoundries.RowHeight + detailUpperOffsetY + captureRowOffset;
             if (useLowerOffset)
             {
                 offset = _missionRowBoundries.TopRow + _missionRowBoundries.DetailLowerOffsetY + captureRowOffset;
             }
-            int top = offset + row * (_missionRowBoundries.DetailHeight + _missionRowBoundries.DetailSkipY);
+            int top = offset + row * (detailHeight + detailSkipY);
             return new CaptureRegionConfig
             {
                 Left = _missionRowBoundries.DetailLeft + (column * _missionRowBoundries.DetailWidth),
                 Top = top,
                 Width = _missionRowBoundries.DetailWidth,
-                Height = _missionRowBoundries.DetailHeight
+                Height = detailHeight
             };
         }
 

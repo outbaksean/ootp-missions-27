@@ -58,8 +58,8 @@ namespace mission_extractor.Services
         /// <summary>
         /// Captures the detail card grid and appends detail text to the specified mission.
         /// </summary>
-        public async Task ExtractMissionDetails(int missionId, int captureRow = 0) =>
-            await ExtractMissionDetailsWithOffset(missionId, false, captureRow);
+        public async Task ExtractMissionDetails(int missionId, int captureRow = 0, bool noImageOffsets = false) =>
+            await ExtractMissionDetailsWithOffset(missionId, false, captureRow, noImageOffsets);
 
         /// <summary>
         /// Captures the lower detail card grid (using DetailLowerOffset) and appends detail text to the specified mission.
@@ -67,7 +67,7 @@ namespace mission_extractor.Services
         public async Task ExtractMissionDetailsBottom(int missionId, int captureRow = 0) =>
             await ExtractMissionDetailsWithOffset(missionId, true, captureRow);
 
-        private async Task ExtractMissionDetailsWithOffset(int missionId, bool useLowerOffset, int captureRow = 0)
+        private async Task ExtractMissionDetailsWithOffset(int missionId, bool useLowerOffset, int captureRow = 0, bool noImageOffsets = false)
         {
             var mission = _missionState.Missions.FirstOrDefault(m => m.Id == missionId);
             if (mission == null)
@@ -89,7 +89,7 @@ namespace mission_extractor.Services
 
             while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
             {
-                CaptureResult captureResult = await ExtractMissionDetail(rowIndex, colIndex, useLowerOffset, captureRow);
+                CaptureResult captureResult = await ExtractMissionDetail(rowIndex, colIndex, useLowerOffset, captureRow, noImageOffsets);
                 var text = string.Join(" ", captureResult.ExtractedText).Trim();
 
                 colIndex++;
@@ -127,7 +127,7 @@ namespace mission_extractor.Services
         /// Captures the top mission row and its detail card grid, appending a new Mission to memory.
         /// Use this when OOTP has a single mission selected/expanded on screen.
         /// </summary>
-        public async Task ExtractTopMissionStructureAndDetails(int captureRow = 0)
+        public async Task ExtractTopMissionStructureAndDetails(int captureRow = 0, bool noImageOffsets = false)
         {
             var mission = await CaptureTopMissionRow(captureRow);
             if (mission == null)
@@ -139,7 +139,7 @@ namespace mission_extractor.Services
             _missionState.Add(mission);
             Console.WriteLine($"Captured mission row: [{mission.Id}] {mission.Name}");
 
-            await ExtractMissionDetails(mission.Id, captureRow);
+            await ExtractMissionDetails(mission.Id, captureRow, noImageOffsets);
         }
 
         /// <summary>
@@ -256,9 +256,9 @@ namespace mission_extractor.Services
             Console.WriteLine($"Loaded {_missionState.Count} mission(s) from {filePath}");
         }
 
-        private async Task<CaptureResult> ExtractMissionDetail(int row, int column, bool useLowerOffset, int captureRow = 0)
+        private async Task<CaptureResult> ExtractMissionDetail(int row, int column, bool useLowerOffset, int captureRow = 0, bool noImageOffsets = false)
         {
-            var captureRegion = _missionBoundryService.GetDetail(row, column, useLowerOffset, captureRow);
+            var captureRegion = _missionBoundryService.GetDetail(row, column, useLowerOffset, captureRow, noImageOffsets);
             string debugImageOverrideName = $"Detail-{row}x{column}";
             return await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
         }

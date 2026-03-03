@@ -15,6 +15,7 @@
         public int StatusRight { get; set; }
         public int DetailUpperOffsetY { get; set; }
         public int DetailSkipY { get; set; }
+        public int DetailNoImagesHeight { get; set; }
         public int DetailHeight { get; set; }
         public int DetailLeft { get; set; }
         public int DetailWidth { get; set; }

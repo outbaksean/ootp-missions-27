@@ -23,6 +23,7 @@ var missionRowBoundries = selectedProfileSection?
     .Get<MissionRowBoundries>() ?? new();
 
 var debugImagesEnabled = config.GetValue<bool>("DebugImages");
+var allowBoundryEdits = config.GetValue<bool>("AllowBoundryEdits");
 var workingFilePath = Path.GetFullPath("missions-working.json", AppContext.BaseDirectory);
 var outputDirectory = Path.GetFullPath(
     config["OutputSettings:OutputDirectory"] ?? "./output",
@@ -85,9 +86,10 @@ app.MapMethods("/api/missions/{id}", ["PATCH"], (int id, MissionUpdateRequest re
 app.MapPost("/api/capture", async (CaptureRequest? req) =>
 {
     int captureRow = req?.CaptureRow ?? 0;
+    bool noImageOffsets = req?.NoImageOffsets ?? false;
     int before = state.Count;
     var log = await CaptureConsole(async () =>
-        await extractionService.ExtractTopMissionStructureAndDetails(captureRow));
+        await extractionService.ExtractTopMissionStructureAndDetails(captureRow, noImageOffsets));
     int after = state.Count;
     object? addedMission = after > before ? (object)state.Missions[^1] : null;
     return new { log, missionCount = state.Count, addedMission };
@@ -352,6 +354,35 @@ app.MapDelete("/api/missions", () =>
     return new { missionCount = state.Count };
 });
 
+// GET /api/boundaries
+app.MapGet("/api/boundaries", () => new { allowBoundryEdits, boundaries = missionRowBoundries });
+
+// POST /api/boundaries
+app.MapPost("/api/boundaries", (MissionRowBoundries updated) =>
+{
+    missionRowBoundries.TopRowOffset = updated.TopRowOffset;
+    missionRowBoundries.TopRow = updated.TopRow;
+    missionRowBoundries.RowHeight = updated.RowHeight;
+    missionRowBoundries.NumRows = updated.NumRows;
+    missionRowBoundries.CategoryLeft = updated.CategoryLeft;
+    missionRowBoundries.CategoryRight = updated.CategoryRight;
+    missionRowBoundries.TitleLeft = updated.TitleLeft;
+    missionRowBoundries.TitleRight = updated.TitleRight;
+    missionRowBoundries.RewardLeft = updated.RewardLeft;
+    missionRowBoundries.RewardRight = updated.RewardRight;
+    missionRowBoundries.StatusLeft = updated.StatusLeft;
+    missionRowBoundries.StatusRight = updated.StatusRight;
+    missionRowBoundries.DetailUpperOffsetY = updated.DetailUpperOffsetY;
+    missionRowBoundries.DetailSkipY = updated.DetailSkipY;
+    missionRowBoundries.DetailNoImagesHeight = updated.DetailNoImagesHeight;
+    missionRowBoundries.DetailHeight = updated.DetailHeight;
+    missionRowBoundries.DetailLowerOffsetY = updated.DetailLowerOffsetY;
+    missionRowBoundries.DetailLeft = updated.DetailLeft;
+    missionRowBoundries.DetailWidth = updated.DetailWidth;
+    missionRowBoundries.DetailColumns = updated.DetailColumns;
+    return missionRowBoundries;
+});
+
 // DELETE /api/debug-images
 app.MapDelete("/api/debug-images", () =>
 {
@@ -379,7 +410,7 @@ static async Task<string> CaptureConsole(Func<Task> action)
     return sw.ToString();
 }
 
-record CaptureRequest(int CaptureRow = 0);
+record CaptureRequest(int CaptureRow = 0, bool NoImageOffsets = false);
 record MissionUpdateRequest(string? Name, string? Category, string? Reward,
                              string? Status, List<string>? MissionDetails);
 record VerifyRequest(bool Verified);
