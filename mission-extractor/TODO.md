@@ -21,8 +21,9 @@
 - `Bonus Rewards` Complete through 109 days ago - Miggy Mania
 - `Final Mission Set` Complete
 - `Holiday Times` Complete
-- `Bonus Rewards` COmplete through 47 days ago - Weighs and Means
-- `Bonus Rewards` COmplete through 33 days ago - Unleash the deGrominator
+- `Bonus Rewards` Complete through 47 days ago - Weighs and Means
+- `Bonus Rewards` Complete through 33 days ago - Unleash the deGrominator
+- `Bonus Rewards` Complete
 
 ## Categories
 
@@ -33,8 +34,7 @@
 - Launch Deck
   - Complete previously
 - Bonus Rewards - In Progress
-  - Unleash the Degrominator - 32 days - around 20 missions
-  - T4 Checkpoint 3 - 12 days - around 20 missions
+  - Complete, not deployed
 - Immortal Seasons
   - Complete previously
 - Negro Leagues
