@@ -1,5 +1,7 @@
 # TODO
 
+## Notes
+
 - Latest pack rewards 164 days ago on 3/2
 - All live missions need to be redone since cards have been added
 - Ready to go!!!
@@ -9,13 +11,20 @@
   - Fix as you go
   - Save working copy often
   - Check save verified missions regularly
-  - _Pack Rewards Complete!_ Estimated 85 minutes for 19 missions, code changes as I went
-  - Bonus Rewards Complete through 165 days ago - Bo Knows Best
-  - Skipping Roberto Clemente Giveaway due to having cards beaking ocr, It should work if I show boundries and temporarily update offset
-  - Bonus Rewards Complete through 158 days ago - Left Arm of God - About the same time per mission, code changes as I went
-  - Bonus Rewards Complete through 109 days ago - Miggy Mania
 
-Categories
+## Progress
+
+- _`Pack Rewards` Complete!_ Estimated 85 minutes for 19 missions, code changes as I went
+- `Bonus Rewards` Complete through 165 days ago - Bo Knows Best
+- Skipping `Roberto Clemente Giveaway` due to having cards beaking ocr, It should work if I show boundries and temporarily update offset
+- `Bonus Rewards` Complete through 158 days ago - Left Arm of God - About the same time per mission, code changes as I went
+- `Bonus Rewards` Complete through 109 days ago - Miggy Mania
+- `Final Mission Set` Complete
+- `Holiday Times` Complete
+- `Bonus Rewards` COmplete through 47 days ago - Weighs and Means
+- `Bonus Rewards` COmplete through 33 days ago - Unleash the deGrominator
+
+## Categories
 
 - Live Series
   - To be done later not using ocr
@@ -24,7 +33,6 @@ Categories
 - Launch Deck
   - Complete previously
 - Bonus Rewards - In Progress
-  - Weighs and Means - 46 days - around 20 missions
   - Unleash the Degrominator - 32 days - around 20 missions
   - T4 Checkpoint 3 - 12 days - around 20 missions
 - Immortal Seasons
@@ -45,13 +53,30 @@ Categories
   - To be done, around 30 missions
 - World Series Start
   - To be done, around 40 missions
-  - Cake Day 4
 - Holiday Times
-  - To be done, 18 missions
+  - Complete, not deployed
 - Final Mission Set
   - Complete, not deployed
 - Total
   - Around 230 missions left
+
+## Combine with previous missions
+
+- Make a script to update the live mission cards for previous missions.json
+- Make a script update structured pack rewards strucure to match mission-extractor, go from "2 Standard Packs" to "2x Standard Packs"
+- Update mission-extractor to Load missions from final format as unformatted to manually map reward cards to card ids
+- Load cleaned up prefious missions.json, validate no errors other than rewards and fix rewards mapping
+- Combine previous missions into working set, or refactor to allow smaller sets and combine verified missions at the end
+
+## After missions.json is done
+
+- Deploy to ootp-missions-27
+- Ensure rewards are hooked up right in the app, verify parks are shown and card rewards have their prices included in reward price
+- Add date added mapping to missions, possibly manually, possibly don't bother
+- Update version in missions.json to include datatime, update the ocr and the app to use that
+- Find a way better way than date to show what missions are in the app for intermediate deploys
+- Finish release checklist and update process docs
+- Change totalPoints to totalItems in ocr and app, refactor only no behavior change
 
 - [DONE] Only highlight mission details with validation errors
 - [DONE] Allow the user to delete missions or mission details manuallly
@@ -87,11 +112,11 @@ Categories
 - [Done] "HaHes" to "Hardware Heroes"
 - [Done] "NeL Star"
 
-- Add structured reward mapping and validation format: Card, Packs, Park
+- [Done] Add structured reward mapping and validation format: Card, Packs, Park
 - Change version format to include time, update app to parse date from it
-- Add date added mapping and expose it in the app
+- Add date added mapping and expose it in the app, or don't
 - Change totalPoints to totalItems in ocr and app
 
 - Validation points mismatch not doing anything
 - Try Fuzzy Search for the mapping
-- Show offsets on screen and make them editable
+- [Done] Show offsets on screen and make them editable

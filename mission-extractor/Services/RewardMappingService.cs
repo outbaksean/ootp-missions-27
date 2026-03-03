@@ -23,6 +23,8 @@ public class RewardMappingService
             ["Historical Rainbow Pack"]= PackType.HistRainbow,
             ["All-Perfect Pack"]              = PackType.AllPerfect,
             ["Historical All-Perfect Pack"]   = PackType.HistAllPerfect,
+            ["All-Diamond Pack"]              = PackType.AllDiamond,
+            ["Historical All-Diamond Pack"]   = PackType.HistAllDiamond,
         };
 
     private static readonly Regex PackCountPrefix =
