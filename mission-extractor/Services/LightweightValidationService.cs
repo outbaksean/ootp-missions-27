@@ -42,7 +42,7 @@ public class LightweightValidationService
     // Strips a trailing card-value number that OCR appends after the 4-digit year,
     // e.g. "Dan Haren OAK 2005 60" → "Dan Haren OAK 2005"
     private static readonly Regex TrailingCardValueAfterYearPattern =
-        new(@"((?:19|20)\d{2})\s+\d.*$", RegexOptions.Compiled);
+        new(@"((?:18|19|20)\d{2})\s+\d.*$", RegexOptions.Compiled);
 
     // Expands "Historical <POS>" → "Historical All-Star <POS>" for any fielding position.
     // Keep the alternation in sync with the positionAbbreviations HashSet in CleanFields.
