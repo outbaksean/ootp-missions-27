@@ -42,7 +42,7 @@ public class LightweightValidationService
     // Strips a trailing card-value number that OCR appends after the 4-digit year,
     // e.g. "Dan Haren OAK 2005 60" → "Dan Haren OAK 2005"
     private static readonly Regex TrailingCardValueAfterYearPattern =
-        new(@"((?:19|20)\d{2})\s+\d+$", RegexOptions.Compiled);
+        new(@"((?:19|20)\d{2})\s+\d.*$", RegexOptions.Compiled);
 
     // Expands "Historical <POS>" → "Historical All-Star <POS>" for any fielding position.
     // Keep the alternation in sync with the positionAbbreviations HashSet in CleanFields.
@@ -50,7 +50,7 @@ public class LightweightValidationService
         new(@"\bHistorical\s+(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex CountPattern =
-        new(@"\S+\s*/\s*(?:[a-z]+\s+)*(\d+)\s+out\s+of\s+\d+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        new(@"\S+\s*/\s*(?:[a-z]+\s+)*(\d+)\s+out\s+[o0]f\s*\S+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex PointsPattern =
         new(@"\S+\s*/\s*(\d+)\s+Points", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex MissionPattern =
@@ -188,6 +188,9 @@ public class LightweightValidationService
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Atlanta ASS", "Atlanta All-Stars", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" KCI", " KC1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" NYI", " NY1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" WSI", " WS1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" MSI", " MS1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = mission.MissionDetails[i].Replace(" MLI", " ML1", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = TrailingCardValueAfterYearPattern.Replace(mission.MissionDetails[i], "$1");
                 mission.MissionDetails[i] = RemoveAccents(mission.MissionDetails[i]);
             }

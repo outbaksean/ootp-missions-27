@@ -10,6 +10,9 @@
   - Save working copy often
   - Check save verified missions regularly
   - _Pack Rewards Complete!_ Estimated 85 minutes for 19 missions, code changes as I went
+  - Bonus Rewards Complete through 165 days ago - Bo Knows Best
+  - Skipping Roberto Clemente Giveaway due to having cards beaking ocr, It should work if I show boundries and temporarily update offset
+  - Bonus Rewards Complete through 158 days ago - Left Arm of God - About the same time per mission, code changes as I went
 
 - [DONE] Only highlight mission details with validation errors
 - [DONE] Allow the user to delete missions or mission details manuallly
