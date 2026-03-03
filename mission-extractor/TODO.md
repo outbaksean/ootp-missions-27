@@ -9,6 +9,7 @@
   - Fix as you go
   - Save working copy often
   - Check save verified missions regularly
+  - _Pack Rewards Complete!_ Estimated 85 minutes for 19 missions, code changes as I went
 
 - [DONE] Only highlight mission details with validation errors
 - [DONE] Allow the user to delete missions or mission details manuallly

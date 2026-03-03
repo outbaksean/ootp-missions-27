@@ -44,6 +44,11 @@ public class LightweightValidationService
     private static readonly Regex TrailingCardValueAfterYearPattern =
         new(@"((?:19|20)\d{2})\s+\d+$", RegexOptions.Compiled);
 
+    // Expands "Historical <POS>" → "Historical All-Star <POS>" for any fielding position.
+    // Keep the alternation in sync with the positionAbbreviations HashSet in CleanFields.
+    private static readonly Regex HistoricalPositionPattern =
+        new(@"\bHistorical\s+(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     private static readonly Regex CountPattern =
         new(@"\S+\s*/\s*(?:[a-z]+\s+)*(\d+)\s+out\s+of\s+\d+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex PointsPattern =
@@ -171,6 +176,7 @@ public class LightweightValidationService
                 mission.MissionDetails[i] = mission.MissionDetails[i].TrimStart('-');
 
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("Historical AS", "Historical All-Star", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
+                mission.MissionDetails[i] = HistoricalPositionPattern.Replace(mission.MissionDetails[i], "Historical All-Star $1");
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("UnH Heroes", "Unsung Heroes", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("RSSensation", "Rookie Sensation", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
                 mission.MissionDetails[i] = mission.MissionDetails[i].Replace("RSSensatlon", "Rookie Sensation", StringComparison.InvariantCultureIgnoreCase).TrimEnd();
