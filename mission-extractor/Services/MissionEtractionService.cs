@@ -116,7 +116,8 @@ namespace mission_extractor.Services
             if (missionDetailImages.Count > 0)
             {
                 mission.DebugImages ??= new();
-                mission.DebugImages["missionDetails"] = missionDetailImages;
+                mission.DebugImages.TryGetValue("missionDetails", out var existingImages);
+                mission.DebugImages["missionDetails"] = [.. (existingImages ?? []), .. missionDetailImages];
             }
 
             Console.WriteLine($"Added {detailsAdded} detail(s) to mission {missionId}.");
