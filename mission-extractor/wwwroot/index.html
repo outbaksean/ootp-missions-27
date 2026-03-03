@@ -9,7 +9,9 @@ body { font-family: monospace; font-size: 13px; background: #fff; color: #111; m
 
 /* Two-panel layout */
 #layout { display: flex; height: 100vh; }
-#left-panel { width: 65%; min-width: 200px; overflow-y: auto; padding: 16px; flex-shrink: 0; }
+#left-panel { width: 65%; min-width: 200px; flex-shrink: 0; display: flex; flex-direction: column; }
+#left-panel-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+#left-panel-footer { padding: 8px 16px; border-top: 1px solid #ddd; background: #fff; flex-shrink: 0; }
 #divider { width: 6px; background: #ddd; cursor: col-resize; flex-shrink: 0; }
 #divider:hover, #divider.dragging { background: #aaa; }
 #right-panel { flex: 1; min-width: 150px; overflow-y: auto; padding: 16px; border-left: 1px solid #ddd; }
@@ -64,33 +66,41 @@ summary::-webkit-details-marker { display: none; }
 
 <div id="layout">
   <div id="left-panel">
-    <h1 id="page-title">Mission Extractor</h1>
-    <div id="verified-count" style="font-size:12px;color:#555;margin:-8px 0 10px;"></div>
+    <div id="left-panel-scroll">
+      <h1 id="page-title">Mission Extractor</h1>
+      <div id="verified-count" style="font-size:12px;color:#555;margin:-8px 0 10px;"></div>
 
-    <div class="controls">
-      <label>Row: <input type="number" id="capture-row" value="0" min="0" max="9" style="width:3em"></label>
-      <button onclick="runCapture()">Capture</button>
-      <button onclick="runCaptureMissionTypeDetails()">Capture Mission Type Details</button>
-      <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More Details</button>
-      <button onclick="runValidate()">Validate</button>
-      <button onclick="runTransform()">Transform</button>
-      <button onclick="runLoadVerified()">Load Verified Missions</button>
-      <button onclick="runLoadAndCleanVerified()">Load and Clean Verified Missions</button>
-      <input type="file" id="file-input-verified" accept=".json" style="display:none">
-      <button onclick="runSaveVerified()">Save Verified Missions</button>
-      <button onclick="runSaveWorking()">Save Working Missions</button>
-      <button onclick="runLoadWorking()">Load Working Missions</button>
-      <button onclick="runSaveDialog()">Save As...</button>
-      <button onclick="runLoadDialog()">Load From...</button>
-      <input type="file" id="file-input" accept=".json" style="display:none">
-      <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
-      <button onclick="runClearMissions()">Clear Missions</button>
-      <button id="btn-hide-verified" onclick="toggleHideVerified()">Hide Verified</button>
+      <div class="controls">
+        <label>Row: <input type="number" id="capture-row" value="0" min="0" max="9" style="width:3em"></label>
+        <button onclick="runCapture()">Capture</button>
+        <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More</button>
+        <button onclick="runCaptureMissionTypeDetails()">Capture Mission Type</button>
+      </div>
+      <div class="controls">
+        <button onclick="runTransform()">Transform</button>
+        <button onclick="runSaveWorking()">Save Scratch Missions</button>
+        <button onclick="runLoadWorking()">Load Scratch Missions</button>
+        <button onclick="runClearMissions()">Clear Missions</button>
+        <button id="btn-hide-verified" onclick="toggleHideVerified()">Hide Verified</button>
+      </div>
+
+      <pre id="log">Ready.</pre>
+
+      <div id="missions"></div>
     </div>
-
-    <pre id="log">Ready.</pre>
-
-    <div id="missions"></div>
+    <div id="left-panel-footer">
+      <div class="controls" style="margin-bottom:0">
+        <button onclick="runValidate()">Validate</button>
+        <button onclick="runLoadVerified()">Load Verified Missions</button>
+        <button onclick="runSaveDialog()">Save As...</button>
+        <button onclick="runLoadDialog()">Load From...</button>
+        <button onclick="runDeleteDebugImages()">Delete Debug Images</button>
+        <button onclick="runSaveVerified()">Save Verified Missions</button>
+        <button onclick="runLoadAndCleanVerified()">Load and Clean Verified Missions</button>
+        <input type="file" id="file-input-verified" accept=".json" style="display:none">
+        <input type="file" id="file-input" accept=".json" style="display:none">
+      </div>
+    </div>
   </div>
 
   <div id="divider"></div>
@@ -188,6 +198,48 @@ function renderMissions(missions) {
   }
 }
 
+function buildActionRow(m) {
+  const saveRow = document.createElement('div');
+  saveRow.className = 'save-row';
+
+  if (m.readOnly) {
+    const badge = document.createElement('span');
+    badge.className = 'save-status';
+    badge.textContent = 'Imported (read-only)';
+    saveRow.appendChild(badge);
+  } else {
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.onclick = function() { saveMission(this); };
+    const saveStatus = document.createElement('span');
+    saveStatus.className = 'save-status';
+    saveRow.appendChild(saveBtn);
+    saveRow.appendChild(saveStatus);
+
+    const hasErrors = (fieldErrors[m.id] ?? []).length > 0;
+    if (!hasErrors || m.verified) {
+      const verifyBtn = document.createElement('button');
+      verifyBtn.textContent = m.verified ? 'Unverify' : 'Mark Verified';
+      if (m.verified) verifyBtn.style.cssText = 'border-color: #090; color: #090;';
+      verifyBtn.onclick = function() { toggleVerify(m.id, !m.verified); };
+      saveRow.appendChild(verifyBtn);
+    }
+  }
+
+  const transformBtn = document.createElement('button');
+  transformBtn.textContent = 'Transform';
+  transformBtn.onclick = function() { runTransform(); };
+  saveRow.appendChild(transformBtn);
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Delete Mission';
+  deleteBtn.className = 'btn-delete';
+  deleteBtn.onclick = function() { deleteMission(this); };
+  saveRow.appendChild(deleteBtn);
+
+  return saveRow;
+}
+
 function buildMissionElement(m) {
   const det = document.createElement('details');
   det.dataset.id = m.id;
@@ -198,6 +250,8 @@ function buildMissionElement(m) {
 
   const body = document.createElement('div');
   body.className = 'mission-body';
+
+  body.appendChild(buildActionRow(m));
 
   const missionErrorTypes = fieldErrors[m.id] ?? [];
 
@@ -229,40 +283,7 @@ function buildMissionElement(m) {
 
   body.appendChild(buildDetailsField(m.missionDetails ?? [], m.debugImages, missionErrorTypes, m.readOnly));
 
-  const saveRow = document.createElement('div');
-  saveRow.className = 'save-row';
-
-  if (m.readOnly) {
-    const badge = document.createElement('span');
-    badge.className = 'save-status';
-    badge.textContent = 'Imported (read-only)';
-    saveRow.appendChild(badge);
-  } else {
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save';
-    saveBtn.onclick = function() { saveMission(this); };
-    const saveStatus = document.createElement('span');
-    saveStatus.className = 'save-status';
-    saveRow.appendChild(saveBtn);
-    saveRow.appendChild(saveStatus);
-
-    const hasErrors = (fieldErrors[m.id] ?? []).length > 0;
-    if (!hasErrors || m.verified) {
-      const verifyBtn = document.createElement('button');
-      verifyBtn.textContent = m.verified ? 'Unverify' : 'Mark Verified';
-      if (m.verified) verifyBtn.style.cssText = 'border-color: #090; color: #090;';
-      verifyBtn.onclick = function() { toggleVerify(m.id, !m.verified); };
-      saveRow.appendChild(verifyBtn);
-    }
-  }
-
-  const deleteBtn = document.createElement('button');
-  deleteBtn.textContent = 'Delete Mission';
-  deleteBtn.className = 'btn-delete';
-  deleteBtn.onclick = function() { deleteMission(this); };
-  saveRow.appendChild(deleteBtn);
-
-  body.appendChild(saveRow);
+  body.appendChild(buildActionRow(m));
 
   det.appendChild(body);
   return det;
