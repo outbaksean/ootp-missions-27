@@ -17,12 +17,8 @@
 - [Done] Remove all commas from mission titles, not just the first
 - [Done] Remove all accents - initial try failed, maybe don't bother - Fixed, removing dashes from a separate cleanup was the issue
 
-- Finish Lower Mission Details OCR
-  - Measure boundries from mission details bottom going up and add them to appsettings
-  - Add or update get details from bottom to use new boundries
-- Implement Mission Type Missions OCR
-  - Measure row length and top and add to boundries
-  - Update validations and transforms
+- [Done] Finish Lower Mission Details OCR
+- [Done] Implement Mission Type Missions OCR
 
 - [DONE] Find way to set/override parsed values type and requiredCount (allows extracting missions that are submitted but not complete)
 - [Done] Fix caseing for status type parsing - Was actually O instead of 0 in ocr output, allowed anything in X part of X of Y for parsing
@@ -33,6 +29,7 @@
 
 - [Done] Stop auto saving of json and reports
 - Try Fuzzy Search for the mapping
+- Show offsets on screen and make them editable
 - Mark mission verified and allow filtering out verified from view
 - [WIP] Update Save/Load buttons
   - Add Save and Load working copy buttons, uses hardcoded filename, overwrites each time
@@ -43,31 +40,3 @@
 - Add date added mapping and expose it in the app
 - Add structured reward mapping and validation format: Card, Packs, Park
 - Add way to combine mission files into one and reorder, regenerate ids, validate
-
-## Auto Generate Boundries Notes
-
-Top Row - Second Red Bar from top
-Row Height - First divider below top bar
-Num Rows - Count dividers to bottom
-Row Left/Rights - Do an OCR Capture of the mission labels row (Category, Mission Title, etc) and use the bounding box from the output to find the left for each column (they ar left justified)
-Details:
-Find the first two rectangles on the first two rows (rectangle has one of two specific colors)
-Measure from the center of 0x0 to 0x1 and 0x0 to 1x0
-Detail width is 0x0 to 0x1 (horizontal)
-Detail height is 0x0 to 1x0 (vertical) minus rectangle height
-Left is transition from dark to light (can use exact color)
-Columns is count of rectangles in a row
-
--     BoundingRect	{78,81,211,58}	Windows.Foundation.Rect
-
-## Value - Points Mapping
-
-<60 = 1
-60-69 = 2
-70-79 = 5
-80-84 = 10
-85-89 = 15
-90-94 = 50
-95-99 = 75
-
-> = 100 = 200

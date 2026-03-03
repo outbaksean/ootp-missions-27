@@ -142,6 +142,75 @@ namespace mission_extractor.Services
             await ExtractMissionDetails(mission.Id);
         }
 
+        /// <summary>
+        /// Captures the top mission row and its type details (row-based, full-width regions
+        /// below the header), appending a new Mission to memory.
+        /// </summary>
+        public async Task ExtractTopMissionStructureAndTypeDetails()
+        {
+            var mission = await CaptureTopMissionRow();
+            if (mission == null)
+            {
+                Console.WriteLine("No mission data found in the top row. Aborting.");
+                return;
+            }
+
+            _missionState.Add(mission);
+            Console.WriteLine($"Captured mission row: [{mission.Id}] {mission.Name}");
+
+            await ExtractMissionTypeDetails(mission.Id);
+        }
+
+        private async Task ExtractMissionTypeDetails(int missionId)
+        {
+            var mission = _missionState.Missions.FirstOrDefault(m => m.Id == missionId);
+            if (mission == null)
+            {
+                Console.WriteLine($"No mission found with ID {missionId}.");
+                return;
+            }
+
+            Console.WriteLine($"Capturing type details for mission {missionId}: {mission.Name}...");
+
+            int noDataCount = 0;
+            int maxNoDataCount = 2;
+            int rowIndex = 0;
+            int maxRowIndex = _missionBoundryService.MaxRowIndex - 2;
+            int detailsAdded = 0;
+            var missionDetailImages = new List<string>();
+
+            while (noDataCount < maxNoDataCount && rowIndex <= maxRowIndex)
+            {
+                var captureRegion = _missionBoundryService.GetMissionTypeDetail(rowIndex);
+                string debugImageOverrideName = $"DetailMission-{rowIndex}";
+                CaptureResult captureResult = await _ocrCaptureService.CaptureScreenRegion(captureRegion, debugImageOverrideName);
+                var text = string.Join(" ", captureResult.ExtractedText).Trim();
+
+                rowIndex++;
+
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    mission.MissionDetails.Add(text);
+                    if (captureResult.DebugImagePath != null)
+                        missionDetailImages.Add(captureResult.DebugImagePath);
+                    detailsAdded++;
+                    noDataCount = 0;
+                }
+                else
+                {
+                    noDataCount++;
+                }
+            }
+
+            if (missionDetailImages.Count > 0)
+            {
+                mission.DebugImages ??= new();
+                mission.DebugImages["missionDetails"] = missionDetailImages;
+            }
+
+            Console.WriteLine($"Added {detailsAdded} type detail(s) to mission {missionId}.");
+        }
+
         public async Task SaveToPath(string filePath)
         {
             var dir = Path.GetDirectoryName(filePath);

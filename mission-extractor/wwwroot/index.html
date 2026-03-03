@@ -68,6 +68,7 @@ summary::-webkit-details-marker { display: none; }
 
     <div class="controls">
       <button onclick="runCapture()">Capture</button>
+      <button onclick="runCaptureMissionTypeDetails()">Capture Mission Type Details</button>
       <button id="btn-capture-details-bottom" onclick="runCaptureDetailsBottom()" disabled>Capture More Details</button>
       <button onclick="runValidate()">Validate</button>
       <button onclick="runTransform()">Transform</button>
@@ -423,6 +424,15 @@ async function runCapture() {
   fieldErrors = {};
   setLog('Capturing...');
   const res = await fetch('/api/capture', { method: 'POST' });
+  const data = await res.json();
+  setLog(data.log || '');
+  refreshMissions();
+}
+
+async function runCaptureMissionTypeDetails() {
+  fieldErrors = {};
+  setLog('Capturing mission type details...');
+  const res = await fetch('/api/capture-mission-type-details', { method: 'POST' });
   const data = await res.json();
   setLog(data.log || '');
   refreshMissions();

@@ -93,6 +93,20 @@ namespace mission_extractor.Services
             };
         }
 
+        public CaptureRegionConfig GetMissionTypeDetail(int rowIndex)
+        {
+            var region = new CaptureRegionConfig
+            {
+                Left = _missionRowBoundries.CategoryLeft,
+                Top = _missionRowBoundries.TopRow + (_missionRowBoundries.RowHeight * 2) + (rowIndex * _missionRowBoundries.RowHeight),
+                Width = (int)((_missionRowBoundries.CategoryLeft + _missionRowBoundries.CategoryRight) * 1.4),
+                Height = _missionRowBoundries.RowHeight
+            };
+            Console.WriteLine($"RowIndex: {rowIndex}, Left: {region.Left}, Top: {region.Top}, Width: {region.Width}, Height: {region.Height}");
+
+            return region;
+        }
+
         public int MaxRowIndex => _missionRowBoundries.NumRows - 1;
         public int MaxColumnIndex => _missionRowBoundries.DetailColumns - 1;
     }

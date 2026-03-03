@@ -86,6 +86,17 @@ app.MapPost("/api/capture", async () =>
     return new { log, missionCount = state.Count, addedMission };
 });
 
+// POST /api/capture-mission-type-details
+app.MapPost("/api/capture-mission-type-details", async () =>
+{
+    int before = state.Count;
+    var log = await CaptureConsole(async () =>
+        await extractionService.ExtractTopMissionStructureAndTypeDetails());
+    int after = state.Count;
+    object? addedMission = after > before ? (object)state.Missions[^1] : null;
+    return new { log, missionCount = state.Count, addedMission };
+});
+
 // POST /api/capture-details-bottom
 app.MapPost("/api/capture-details-bottom", async () =>
 {
