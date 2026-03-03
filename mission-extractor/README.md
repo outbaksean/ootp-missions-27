@@ -4,6 +4,24 @@ A .NET 10 web app that extracts OOTP 27 mission data from screenshots of the run
 
 Run with `dotnet run` — a browser window opens automatically at `http://localhost:5000`.
 
+## Getting missions from the game
+
+The tool reads pixel regions directly from the OOTP client window. Before capturing:
+
+1. Open OOTP 27 and navigate to the **Missions** screen.
+2. Click on the first mission to expand its detail card grid below the mission list.
+3. Ensure the OOTP window is on the primary display at the expected resolution (matching the pixel boundaries in `appsettings.json`).
+4. Run the extractor (`dotnet run`) — a browser tab opens automatically.
+5. For each mission:
+   - In OOTP, click the mission row so its detail cards are visible.
+   - In the browser UI, click **Capture**. The tool screenshots the OOTP window and OCRs the selected row and its card grid.
+   - If the mission has more cards below the initially visible area, scroll OOTP down and click **Capture Details (Bottom)** to append the lower card rows.
+   - For `missions`-type missions (where the detail area lists sub-mission names rather than cards), use **Capture Mission Type Details** instead of the normal Capture.
+6. Review OCR results in the browser. Correct any misread fields inline and click save.
+7. Once all missions are captured, click **Validate** then **Transform** to produce the final `missions.json`.
+
+> **Pixel calibration:** If captures are blank or misaligned, enable `DebugImages` in `appsettings.json` and inspect the saved crop images. Adjust `MissionRowBoundaries` values in the active profile until the crops align with the correct screen regions.
+
 ## How it works
 
 1. The app takes a screenshot of the OOTP client window.
@@ -27,24 +45,40 @@ The UI is a single page served from `wwwroot/index.html`. It shows all missions 
 
 | Button | Description |
 |--------|-------------|
-| Capture | Screenshots the OOTP window and extracts the next mission row into memory |
+| Capture | Screenshots the OOTP window and OCRs the top mission row plus its detail card grid |
+| Capture Mission Type Details | Like Capture, but reads sub-mission names (row-based regions) instead of card grid cells — use for `missions`-type missions |
+| Capture Details (Bottom) | Appends the lower detail card rows to the last captured mission (for missions with cards below the fold) |
 | Validate | Runs lightweight cleanup (dedup, field cleaning, status parsing) and reports validation errors |
 | Transform | Runs full transformation (card lookup, mission cross-references, topological sort) and writes `missions-transformed-{timestamp}.json` |
-| Save Unstructured | Writes current in-memory missions to a timestamped JSON file |
-| Load Unstructured | Loads a previously saved unstructured JSON file into memory |
+| Save Working | Writes current in-memory missions to `missions-working.json` for quick resume |
+| Load Working | Loads `missions-working.json` back into memory |
+| Save Verified | Writes all verified missions to a timestamped `missions_verified_{timestamp}.json` in the output directory |
+| Load Verified | Merges a previously saved verified file into memory, marking those missions as verified |
+| Load Verified (Clean) | Same as Load Verified but clears existing missions first |
 | Delete Debug Images | Deletes all files in the `debugImages/` directory |
 
 ## API endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/missions` | Returns all missions currently in memory |
+| GET | `/api/missions` | Returns all missions in memory |
+| GET | `/api/cards` | Returns the card catalog loaded from `shop_cards.csv` |
 | PATCH | `/api/missions/{id}` | Updates fields on a single mission |
-| POST | `/api/capture` | Runs OCR capture |
+| POST | `/api/missions/{id}/verify` | Marks a mission as verified/unverified |
+| DELETE | `/api/missions/{id}` | Removes a single mission from memory |
+| DELETE | `/api/missions` | Clears all missions from memory |
+| POST | `/api/capture` | OCRs the top mission row and its detail card grid |
+| POST | `/api/capture-mission-type-details` | OCRs the top mission row with sub-mission name regions |
+| POST | `/api/capture-details-bottom` | Appends lower detail card rows to the last mission |
 | POST | `/api/validate` | Runs lightweight validation |
-| POST | `/api/transform` | Runs full transformation |
-| POST | `/api/save-unstructured` | Saves missions to disk |
-| POST | `/api/load-unstructured` | Loads missions from a JSON file path in the request body |
+| POST | `/api/transform` | Runs full transformation and writes output JSON |
+| POST | `/api/save-working` | Saves missions to `missions-working.json` |
+| POST | `/api/load-working` | Loads `missions-working.json` into memory |
+| POST | `/api/save-verified` | Writes verified missions to a timestamped output file |
+| POST | `/api/load-verified` | Merges a verified missions file into memory |
+| POST | `/api/load-verified-clean` | Replaces memory with a verified missions file |
+| GET | `/api/boundaries` | Returns the active pixel boundary config |
+| POST | `/api/boundaries` | Updates the active pixel boundary config in memory |
 | DELETE | `/api/debug-images` | Deletes all debug images |
 
 ## Configuration
