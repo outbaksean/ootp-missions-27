@@ -94,6 +94,7 @@ summary::-webkit-details-marker { display: none; }
       </div>
       <div class="controls">
         <button onclick="runTransform()">Transform</button>
+        <button onclick="runReorder()">Reorder</button>
         <button onclick="runSaveWorking()">Save Scratch Missions</button>
         <button onclick="runLoadWorking()">Load Scratch Missions</button>
         <button onclick="runClearMissions()">Clear Missions</button>
@@ -642,6 +643,17 @@ async function saveAllRenderedMissions() {
       body: JSON.stringify(body)
     });
   }
+}
+
+async function runReorder() {
+  setLog('Reordering...');
+  const res = await fetch('/api/reorder', { method: 'POST' });
+  if (!res.ok) {
+    const data = await res.json();
+    setLog(data.error ?? 'Error');
+    return;
+  }
+  handlePipelineResponse(await res.json());
 }
 
 async function runTransform() {

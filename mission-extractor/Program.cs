@@ -170,6 +170,19 @@ app.MapPost("/api/transform", async () =>
     return Results.Ok(new { log, missionCount = state.Count, errors = errorDtos });
 });
 
+// POST /api/reorder
+app.MapPost("/api/reorder", () =>
+{
+    if (state.Count == 0)
+        return Results.BadRequest(new { error = "No missions in memory to reorder." });
+
+    var reordered = validationService.ReorderMissions(state.Missions.ToList());
+    validationService.RegenerateIds(reordered);
+    state.Replace(reordered);
+
+    return Results.Ok(new { log = $"Reordered {reordered.Count} mission(s).", errors = Array.Empty<object>() });
+});
+
 // POST /api/load-verified
 app.MapPost("/api/load-verified", async (HttpRequest req) =>
 {

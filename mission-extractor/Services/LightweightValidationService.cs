@@ -34,6 +34,92 @@ public class LightweightValidationService
         "Final Mission Set"
     };
 
+    public static readonly IReadOnlyList<string> CategoryOrder = new[]
+    {
+        "Live Series", "Pack Rewards", "Launch Deck", "Bonus Rewards",
+        "Immortal Seasons", "Negro Leagues", "Hall of Fame", "Baseball Reference",
+        "Future Legends", "Launch Plus", "PT Elite", "Playoff Moments",
+        "World Series Start", "Holiday Times", "Final Mission Set"
+    };
+
+    private static readonly IReadOnlyDictionary<string, int> CategoryPriority =
+        CategoryOrder.Select((c, i) => (c, i))
+                     .ToDictionary(x => x.c, x => x.i, StringComparer.OrdinalIgnoreCase);
+
+    private static int GetCategoryPriority(string? cat) =>
+        cat != null && CategoryPriority.TryGetValue(cat, out var i) ? i : int.MaxValue;
+
+    private static int GetTypePriority(MissionType? type) => type switch
+    {
+        MissionType.Count    => 0,
+        MissionType.Points   => 1,
+        MissionType.Missions => 2,
+        _                    => 3
+    };
+
+    /// <summary>
+    /// Sorts missions by (category order, Count → Points → Missions, name) using Kahn's
+    /// algorithm so that Missions-type children always precede their parent missions.
+    /// Missions caught in dependency cycles are appended at the end without error reporting.
+    /// </summary>
+    public List<Mission> ReorderMissions(List<Mission> missions)
+    {
+        var missionById = missions.ToDictionary(m => m.Id);
+
+        var inDegree = missions.ToDictionary(m => m.Id, _ => 0);
+        var dependents = new Dictionary<int, List<int>>();
+
+        foreach (var m in missions)
+        {
+            if (m.Type != MissionType.Missions || m.MissionIds == null) continue;
+            foreach (var refId in m.MissionIds)
+            {
+                if (refId == 0 || !missionById.ContainsKey(refId)) continue;
+                inDegree[m.Id]++;
+                if (!dependents.TryGetValue(refId, out var deps))
+                    dependents[refId] = deps = new();
+                deps.Add(m.Id);
+            }
+        }
+
+        // Priority queue ordered by (category, type, name, id as tiebreaker)
+        var ready = new SortedSet<Mission>(Comparer<Mission>.Create((a, b) =>
+        {
+            int c = GetCategoryPriority(a.Category).CompareTo(GetCategoryPriority(b.Category));
+            if (c != 0) return c;
+            c = GetTypePriority(a.Type).CompareTo(GetTypePriority(b.Type));
+            if (c != 0) return c;
+            c = string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
+            if (c != 0) return c;
+            return a.Id.CompareTo(b.Id);
+        }));
+
+        foreach (var m in missions.Where(m => inDegree[m.Id] == 0))
+            ready.Add(m);
+
+        var result = new List<Mission>(missions.Count);
+        while (ready.Count > 0)
+        {
+            var current = ready.Min!;
+            ready.Remove(current);
+            result.Add(current);
+
+            if (!dependents.TryGetValue(current.Id, out var deps)) continue;
+            foreach (var depId in deps)
+                if (--inDegree[depId] == 0)
+                    ready.Add(missionById[depId]);
+        }
+
+        // Append any missions in cycles (shouldn't normally happen after transform validation)
+        if (result.Count < missions.Count)
+        {
+            var resultIds = result.Select(m => m.Id).ToHashSet();
+            result.AddRange(missions.Where(m => !resultIds.Contains(m.Id)));
+        }
+
+        return result;
+    }
+
     // Confirmed OCR status text patterns:
     //   Count:   "X / Y out of Z"  — Y -> RequiredCount
     //   Points:  "X / Y Points"    — Y -> TotalPoints

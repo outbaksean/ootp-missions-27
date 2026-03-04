@@ -263,7 +263,7 @@ public class FullTransformationService
         }
     }
 
-    private List<Mission> ReorderMissions(List<Mission> missions, List<ValidationError> errors)
+    private static List<Mission> ReorderMissions(List<Mission> missions, List<ValidationError> errors)
     {
         var inDegree = new Dictionary<int, int>(missions.Count);
         foreach (var m in missions)
