@@ -79,6 +79,10 @@ public class FullTransformationService
 
         _lws.RegenerateIds(result);
 
+        var finalErrorIds = new HashSet<int>(errors.Select(e => e.Mission.Id));
+        foreach (var mission in result.Where(m => finalErrorIds.Contains(m.Id)))
+            mission.Verified = false;
+
         if (errors.Count == 0)
             Console.WriteLine("Validation passed.");
 
