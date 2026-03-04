@@ -24,6 +24,9 @@
 - `Bonus Rewards` Complete through 47 days ago - Weighs and Means
 - `Bonus Rewards` Complete through 33 days ago - Unleash the deGrominator
 - `Bonus Rewards` Complete
+- `Trouble Twins` is the first one to go through with no errors!
+- `Playoff Moments` Complete
+-
 
 ## Categories
 
@@ -50,15 +53,15 @@
 - PT Elite
   - To be done, around 60 missions
 - Playoff Moments
-  - To be done, around 30 missions
+  - Complete, not deployed
 - World Series Start
-  - To be done, around 40 missions
+  - Complete, not deployed
 - Holiday Times
   - Complete, not deployed
 - Final Mission Set
   - Complete, not deployed
 - Total
-  - Around 230 missions left
+  - Around 100 missions left
 
 ## Combine with previous missions
 

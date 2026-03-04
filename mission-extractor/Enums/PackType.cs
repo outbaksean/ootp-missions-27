@@ -20,4 +20,8 @@ public enum PackType
     HistAllPerfect,
     AllDiamond,
     HistAllDiamond,
+    MoneyballDiamond,
+    AnalyticsDiamond,
+    DefensiveDiamond,
+    PowerDiamond,
 }

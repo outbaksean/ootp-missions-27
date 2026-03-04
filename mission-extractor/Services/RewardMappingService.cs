@@ -25,6 +25,10 @@ public class RewardMappingService
             ["Historical All-Perfect Pack"]   = PackType.HistAllPerfect,
             ["All-Diamond Pack"]              = PackType.AllDiamond,
             ["Historical All-Diamond Pack"]   = PackType.HistAllDiamond,
+            ["Moneyball Era Diamond Pack"] = PackType.MoneyballDiamond,
+            ["Analytics Era Diamond Pack"] = PackType.AnalyticsDiamond,
+            ["Power Era Diamond Pack"] = PackType.PowerDiamond,
+            ["Defensive Era Diamond Pack"] = PackType.DefensiveDiamond,
         };
 
     private static readonly Regex PackCountPrefix =
