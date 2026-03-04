@@ -26,7 +26,7 @@
 - `Bonus Rewards` Complete
 - `Trouble Twins` is the first one to go through with no errors!
 - `Playoff Moments` Complete
--
+- `World Series Start` Complete
 
 ## Categories
 
