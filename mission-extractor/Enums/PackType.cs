@@ -24,4 +24,5 @@ public enum PackType
     AnalyticsDiamond,
     DefensiveDiamond,
     PowerDiamond,
+    SpotlightImmortals,
 }

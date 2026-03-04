@@ -38,4 +38,34 @@ public class CardMappingService
 
     public bool TryLookup(string title, out CardEntry entry) =>
         _cards.TryGetValue(title.Trim(), out entry!);
+
+    // Parses "{cardValue} {position} {playerName}" and finds a card by player name substring + card value.
+    // Returns true only if exactly one card matches.
+    private static readonly System.Text.RegularExpressions.Regex RewardCardTokenPattern =
+        new(@"^(\d+)\s+\S+\s+(.+)$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    public bool TryFuzzyLookupByValueAndName(string token, out CardEntry entry)
+    {
+        var match = RewardCardTokenPattern.Match(token.Trim());
+        if (!match.Success || !int.TryParse(match.Groups[1].Value, out int cardValue))
+        {
+            entry = default!;
+            return false;
+        }
+
+        var playerName = match.Groups[2].Value.Trim();
+        var matches = _cards
+            .Where(kvp => kvp.Value.CardValue == cardValue &&
+                          kvp.Key.Contains(playerName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (matches.Count == 1)
+        {
+            entry = matches[0].Value;
+            return true;
+        }
+
+        entry = default!;
+        return false;
+    }
 }

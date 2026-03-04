@@ -29,6 +29,7 @@ public class RewardMappingService
             ["Analytics Era Diamond Pack"] = PackType.AnalyticsDiamond,
             ["Power Era Diamond Pack"] = PackType.PowerDiamond,
             ["Defensive Era Diamond Pack"] = PackType.DefensiveDiamond,
+            ["Spotlight #Immortals Pack"] = PackType.SpotlightImmortals,
         };
 
     private static readonly Regex PackCountPrefix =
@@ -136,6 +137,10 @@ public class RewardMappingService
         // Card — always use the full original token (not packCandidate)
         if (_cardMapping.TryLookup(token, out var cardEntry))
             return new MissionReward { Type = "Card", CardId = cardEntry.CardId };
+
+        // Fallback: parse "{cardValue} {position} {playerName}" and match by name substring + value
+        if (_cardMapping.TryFuzzyLookupByValueAndName(token, out var fuzzyEntry))
+            return new MissionReward { Type = "Card", CardId = fuzzyEntry.CardId };
 
         errors.Add($"Reward Card Not Found: {token}");
         return null;
