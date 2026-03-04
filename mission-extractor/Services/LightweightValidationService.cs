@@ -163,6 +163,9 @@ public class LightweightValidationService
             if (bracketIndex >= 0)
                 mission.Name = mission.Name[..bracketIndex].TrimEnd();
 
+            if (mission.Type == MissionType.Missions)
+                continue;
+
             for (int i = 0; i < mission.MissionDetails.Count; i++)
             {
                 int parenIndex = mission.MissionDetails[i].IndexOf('(');

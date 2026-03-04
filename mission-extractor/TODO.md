@@ -28,6 +28,15 @@
 - `Playoff Moments` Complete
 - `World Series Start` Complete
 - Updated original live missions with all cards
+- Cleaned up original missions in `mission-extractor\in-progress-missions\misions_live_updated_cleaned.json`
+- Cleaned up most of new extracted missions in `mission-extractor\in-progress-missions\missions_verified_20260303_224132.json`
+- `Bo Knows Iron` and `PG Associates` did not get full captures, need to add the remaining cards, probably through the manage screen instead of ocr
+
+## Next
+
+- FIX _Load final mission format is verifying requirecCount <= totalCount but transform is not_
+- After the new extracts are clean, try to combine them and check that they work in the mission tracker locally
+- Extract `PT Elite` category with a combination of ocr extraction and live mission helper
 
 ## Live
 

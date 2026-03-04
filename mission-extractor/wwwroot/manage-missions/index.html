@@ -589,8 +589,29 @@ async function runValidate() {
   handlePipelineResponse(await res.json());
 }
 
+async function saveAllRenderedMissions() {
+  const allDetails = document.querySelectorAll('#missions details[data-id]');
+  for (const det of allDetails) {
+    const missionId = parseInt(det.dataset.id, 10);
+    const m = cachedMissions.find(m => m.id === missionId);
+    if (m?.readOnly) continue;
+    const body = {};
+    for (const input of det.querySelectorAll('input[data-field]:not([data-field="missionDetails"])')) {
+      body[input.dataset.field] = input.value;
+    }
+    body.missionDetails = Array.from(det.querySelectorAll('input[data-field="missionDetails"]'))
+      .map(i => i.value.trim()).filter(s => s.length > 0);
+    await fetch('/api/missions/' + missionId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+  }
+}
+
 async function runTransform() {
   setLog('Transforming...');
+  await saveAllRenderedMissions();
   const res = await fetch('/api/transform', { method: 'POST' });
   if (!res.ok) {
     const data = await res.json();
