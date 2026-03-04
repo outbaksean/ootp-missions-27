@@ -35,6 +35,15 @@
 - Update totalPoints
 - Combine with main mission pool
 
+## Live Missions Helper page
+
+- Dropdown with abbreviation for each of the 30 mlb teams
+- "Get Live CardIDs" button displays all cardIDs for the team in the live category
+- Has a copy all button
+- Card that are in the live category have titles that start with "MLB 2025 Live"
+- The last word of the title is the team abbreviation "WSH" for the Washington Nationals.
+- Example "MLB 2025 Live LF James Wood WSH"
+
 ## Old to New Cleanup
 
 - Update pack part of reward string "3 Standard Packs" -> "3x Standard Packs", do not consider this an error or warning
