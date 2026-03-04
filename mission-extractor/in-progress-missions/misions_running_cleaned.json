@@ -315,11 +315,11 @@
     },
     {
       "id": 5,
-      "name": "PT27",
+      "name": "PT 27",
       "type": "points",
       "requiredCount": 238,
       "reward": "4x Historical Gold Pack",
-      "category": "pack Rewards",
+      "category": "Pack Rewards",
       "cards": [
         {
           "cardId": 71542,
@@ -453,11 +453,11 @@
     },
     {
       "id": 6,
-      "name": "PT26",
+      "name": "PT 26",
       "type": "points",
       "requiredCount": 302,
       "reward": "4x Historical Gold Pack",
-      "category": "pack Rewards",
+      "category": "Pack Rewards",
       "cards": [
         {
           "cardId": 72887,

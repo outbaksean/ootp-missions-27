@@ -34,12 +34,26 @@
 - Added running cleaned missions file to in progress missions
 - Updated `Bo Knows Iron` and `PG Associates` using manage missions screen, it was pretty nice
 - Re-captured `PG Heroes` and `Stars` and added to running cleaned missions, these have duplicate mission names
+- Cleaned up `PT27`, `PT26` manually in the json, the name spacing and category casing were wrong
 
 ## Next
 
+- Cleanup Category casing
 - Extract `Roberto Clemente Giveaway`
 - Extract `PT Elite` category with a combination of ocr extraction and live mission helper
-- Test running missions in app
+- Mission Tracker: Update category order
+- Mission Tracker: Fix App reward parsing
+- Mission Tracker: Add "Mission Update Notes" modal that explains when missions were last updated and any to be updated
+- Mission Tracker: Fix Mobile Layout
+- Mission Tracker: Test and deploy updated missions with udpated PreReleaase Notes
+- Mission Tracker: Deploy archived ootp26 version, add links in CraterVar and 27 tracker
+
+## Proposed Features - Mission Tracker
+
+- Deploy Card Ranker (in memory of Fabtron)
+- Mission Tracker: Find a better way to highight cards in multiple missions
+- Mission Tracker: Revisit report generation
+- Mission Tracker: Export to csv (maybe combined with report)
 
 ## Live
 
@@ -67,12 +81,12 @@
 ## Categories
 
 - Live Series
-  - To be done later not using ocr
+  - Complete, not deployed
 - Pack Rewards
   - Complete, not deployed
 - Launch Deck
   - Complete previously
-- Bonus Rewards - In Progress
+- Bonus Rewards
   - Complete, not deployed
 - Immortal Seasons
   - Complete previously
@@ -87,7 +101,7 @@
 - Launch Plus
   - Complete previously
 - PT Elite
-  - To be done, around 60 missions
+  - To be done, 43 missions
 - Playoff Moments
   - Complete, not deployed
 - World Series Start
@@ -97,7 +111,7 @@
 - Final Mission Set
   - Complete, not deployed
 - Total
-  - Around 100 missions left
+  - 44 missions left
 
 ## Combine with previous missions
 
