@@ -64,7 +64,6 @@ label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
     <option>WSH</option>
   </select>
   <label><input type="checkbox" id="include-points"> Include points</label>
-  <button onclick="getLiveCards()">Get Live Cards</button>
   <span id="status"></span>
 </div>
 
@@ -119,7 +118,7 @@ async function getLiveCards() {
     return obj;
   });
 
-  currentOutput = `"cards": ${JSON.stringify(cardObjects, null, 2)}`;
+  currentOutput = `"cards": ${JSON.stringify(cardObjects, null, 2)},`;
 
   document.getElementById('results-title').textContent = `${matches.length} live card(s) for ${team}`;
   document.getElementById('output').textContent = currentOutput;
@@ -139,6 +138,11 @@ function copyAll() {
 function setStatus(msg) {
   document.getElementById('status').textContent = msg;
 }
+
+document.getElementById('team-select').addEventListener('change', () => {
+  if (document.getElementById('team-select').value) getLiveCards();
+  else document.getElementById('results').style.display = 'none';
+});
 
 document.getElementById('include-points').addEventListener('change', () => {
   if (currentOutput) getLiveCards();
