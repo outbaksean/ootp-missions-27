@@ -214,6 +214,94 @@ app.MapPost("/api/load-verified", async (HttpRequest req) =>
     });
 });
 
+// POST /api/load-final-format
+app.MapPost("/api/load-final-format", async (HttpRequest req) =>
+{
+    JsonElement root;
+    try
+    {
+        root = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = $"Invalid JSON: {ex.Message}" });
+    }
+
+    if (root.ValueKind != JsonValueKind.Object ||
+        !root.TryGetProperty("missions", out var missionsEl) ||
+        missionsEl.ValueKind != JsonValueKind.Array)
+        return Results.BadRequest(new { error = "Expected { \"missions\": [...] } format." });
+
+    List<Mission> missions;
+    try
+    {
+        missions = missionsEl.Deserialize<List<Mission>>(
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? [];
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = $"Failed to parse missions: {ex.Message}" });
+    }
+
+    if (missions.Count == 0)
+        return Results.BadRequest(new { error = "No missions in file." });
+
+    var result = loadVerifiedService.LoadFinalFormat(missions);
+
+    return Results.Ok(new
+    {
+        errors = result.Errors,
+        loadedCount = result.LoadedCount,
+        markedVerifiedCount = result.MarkedVerifiedCount,
+        missionCount = state.Count
+    });
+});
+
+// POST /api/load-and-clean-final-format
+app.MapPost("/api/load-and-clean-final-format", async (HttpRequest req) =>
+{
+    JsonElement root;
+    try
+    {
+        root = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = $"Invalid JSON: {ex.Message}" });
+    }
+
+    if (root.ValueKind != JsonValueKind.Object ||
+        !root.TryGetProperty("missions", out var missionsEl) ||
+        missionsEl.ValueKind != JsonValueKind.Array)
+        return Results.BadRequest(new { error = "Expected { \"missions\": [...] } format." });
+
+    List<Mission> missions;
+    try
+    {
+        missions = missionsEl.Deserialize<List<Mission>>(
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? [];
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = $"Failed to parse missions: {ex.Message}" });
+    }
+
+    if (missions.Count == 0)
+        return Results.BadRequest(new { error = "No missions in file." });
+
+    var result = loadVerifiedService.LoadAndCleanFinalFormat(missions);
+
+    return Results.Ok(new
+    {
+        errors = result.Errors,
+        loadedCount = result.LoadedCount,
+        markedVerifiedCount = result.MarkedVerifiedCount,
+        missionCount = state.Count
+    });
+});
+
 // POST /api/load-verified-clean
 app.MapPost("/api/load-verified-clean", async (HttpRequest req) =>
 {

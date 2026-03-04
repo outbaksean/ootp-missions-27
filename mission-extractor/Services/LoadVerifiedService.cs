@@ -2,6 +2,7 @@ using MissionExtractor.dto;
 using mission_extractor.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace mission_extractor.Services;
 
@@ -12,6 +13,7 @@ public class LoadVerifiedService
     private readonly MissionState _missionState;
     private readonly LightweightValidationService _lws;
     private readonly RewardMappingService _rewardMapping;
+    private readonly CardMappingService _cardMapping;
 
     private static readonly HashSet<string> AvailableCategories = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -28,11 +30,12 @@ public class LoadVerifiedService
     };
 
     public LoadVerifiedService(MissionState missionState, LightweightValidationService lws,
-        RewardMappingService rewardMapping)
+        RewardMappingService rewardMapping, CardMappingService cardMapping)
     {
         _missionState = missionState;
         _lws = lws;
         _rewardMapping = rewardMapping;
+        _cardMapping = cardMapping;
     }
 
     public LoadVerifiedResult Load(List<Mission> incoming, bool clean = false)
@@ -140,6 +143,244 @@ public class LoadVerifiedService
 
         Console.WriteLine($"Loaded {toLoad.Count} verified mission(s). Marked {markedVerifiedCount} existing mission(s) as verified.");
         return new LoadVerifiedResult(errors, toLoad.Count, markedVerifiedCount);
+    }
+
+    public LoadVerifiedResult LoadFinalFormat(List<Mission> incoming)
+    {
+        var errors = new List<string>();
+        int markedVerifiedCount = 0;
+
+        // Phase 1: Deduplicate by name within the incoming file
+        var candidates = DeduplicateIncoming(incoming, errors);
+
+        // Phase 1.5: Reverse-parse status and missionDetails from structured fields
+        SetReverseParsedFields(candidates, _cardMapping, errors);
+
+        // Phase 2: Per-mission validation — all issues are warnings, missions still load
+        var incomingIds = incoming.Select(m => m.Id).ToHashSet();
+        var missionsWithIssues = new HashSet<int>();
+        foreach (var mission in candidates)
+        {
+            var (missionErrors, missionWarnings) = ValidateMission(mission, incomingIds, false, _rewardMapping);
+            var allIssues = missionErrors.Concat(missionWarnings).ToList();
+            foreach (var w in allIssues)
+                errors.Add($"'{mission.Name}': {w}");
+            if (allIssues.Count > 0)
+                missionsWithIssues.Add(mission.Id);
+        }
+
+        // Phase 3: Deduplicate against existing state
+        var toLoad = new List<Mission>();
+        foreach (var mission in candidates)
+        {
+            var existing = _missionState.Missions.FirstOrDefault(m =>
+                string.Equals(m.Name.Trim(), mission.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (existing == null)
+            {
+                mission.Verified = !missionsWithIssues.Contains(mission.Id);
+                mission.ReadOnly = false;
+                toLoad.Add(mission);
+            }
+            else if (FinalFieldsEqual(existing, mission))
+            {
+                if (!existing.Verified && !missionsWithIssues.Contains(mission.Id))
+                {
+                    existing.Verified = true;
+                    markedVerifiedCount++;
+                }
+            }
+            else
+            {
+                errors.Add($"'{mission.Name}': conflicts with existing mission in state (different final fields), not loaded");
+            }
+        }
+
+        // Phase 4: Prepend to state and regenerate IDs
+        if (toLoad.Count > 0)
+        {
+            int nextTempId = (_missionState.Count > 0 ? _missionState.Missions.Max(m => m.Id) : 0) + 1;
+            var idRemap = new Dictionary<int, int>();
+            foreach (var mission in toLoad)
+            {
+                idRemap[mission.Id] = nextTempId;
+                mission.Id = nextTempId++;
+            }
+            foreach (var mission in toLoad)
+            {
+                if (mission.MissionIds != null)
+                    mission.MissionIds = mission.MissionIds
+                        .Select(id => idRemap.TryGetValue(id, out int newId) ? newId : id)
+                        .ToList();
+            }
+
+            var allMissions = toLoad.Concat(_missionState.Missions).ToList();
+            _lws.RegenerateIds(allMissions);
+            _missionState.Replace(allMissions);
+        }
+
+        Console.WriteLine($"Loaded {toLoad.Count} mission(s). Marked {markedVerifiedCount} existing mission(s) as verified.");
+        return new LoadVerifiedResult(errors, toLoad.Count, markedVerifiedCount);
+    }
+
+    public LoadVerifiedResult LoadAndCleanFinalFormat(List<Mission> incoming)
+    {
+        var errors = new List<string>();
+        int markedVerifiedCount = 0;
+
+        // Phase 1: Deduplicate by name within the incoming file
+        var candidates = DeduplicateIncoming(incoming, errors);
+
+        // Phase 1.5: Pre-cleanup (silent — no warnings generated)
+        CleanupForFinalFormat(candidates);
+
+        // Phase 1.6: Reverse-parse status and missionDetails from structured fields
+        SetReverseParsedFields(candidates, _cardMapping, errors);
+
+        // Phase 2: Per-mission validation — all issues are warnings, missions still load
+        // Uses clean=true: ParseAndSet for reward, fixes totalPoints mismatches with warnings
+        var incomingIds = incoming.Select(m => m.Id).ToHashSet();
+        var missionsWithIssues = new HashSet<int>();
+        foreach (var mission in candidates)
+        {
+            var (missionErrors, missionWarnings) = ValidateMission(mission, incomingIds, true, _rewardMapping);
+            var allIssues = missionErrors.Concat(missionWarnings).ToList();
+            foreach (var w in allIssues)
+                errors.Add($"'{mission.Name}': {w}");
+            if (allIssues.Count > 0)
+                missionsWithIssues.Add(mission.Id);
+        }
+
+        // Phase 3: Deduplicate against existing state
+        var toLoad = new List<Mission>();
+        foreach (var mission in candidates)
+        {
+            var existing = _missionState.Missions.FirstOrDefault(m =>
+                string.Equals(m.Name.Trim(), mission.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (existing == null)
+            {
+                mission.Verified = !missionsWithIssues.Contains(mission.Id);
+                mission.ReadOnly = false;
+                toLoad.Add(mission);
+            }
+            else if (FinalFieldsEqual(existing, mission))
+            {
+                if (!existing.Verified && !missionsWithIssues.Contains(mission.Id))
+                {
+                    existing.Verified = true;
+                    markedVerifiedCount++;
+                }
+            }
+            else
+            {
+                errors.Add($"'{mission.Name}': conflicts with existing mission in state (different final fields), not loaded");
+            }
+        }
+
+        // Phase 4: Prepend to state and regenerate IDs
+        if (toLoad.Count > 0)
+        {
+            int nextTempId = (_missionState.Count > 0 ? _missionState.Missions.Max(m => m.Id) : 0) + 1;
+            var idRemap = new Dictionary<int, int>();
+            foreach (var mission in toLoad)
+            {
+                idRemap[mission.Id] = nextTempId;
+                mission.Id = nextTempId++;
+            }
+            foreach (var mission in toLoad)
+            {
+                if (mission.MissionIds != null)
+                    mission.MissionIds = mission.MissionIds
+                        .Select(id => idRemap.TryGetValue(id, out int newId) ? newId : id)
+                        .ToList();
+            }
+
+            var allMissions = toLoad.Concat(_missionState.Missions).ToList();
+            _lws.RegenerateIds(allMissions);
+            _missionState.Replace(allMissions);
+        }
+
+        Console.WriteLine($"Loaded {toLoad.Count} mission(s). Marked {markedVerifiedCount} existing mission(s) as verified.");
+        return new LoadVerifiedResult(errors, toLoad.Count, markedVerifiedCount);
+    }
+
+    // Matches "3 PackName" or "3x PackName" — captures count and pack name separately
+    private static readonly Regex RewardCountPrefix = new(@"^(\d+)x?\s+(.+)$", RegexOptions.Compiled);
+
+    private static void CleanupForFinalFormat(List<Mission> missions)
+    {
+        foreach (var mission in missions)
+        {
+            // Normalize "3 Standard Packs" → "3x Standard Pack" silently (add x, drop trailing s)
+            if (!string.IsNullOrWhiteSpace(mission.Reward))
+            {
+                mission.Reward = string.Join(", ", mission.Reward
+                    .Split(',')
+                    .Select(t =>
+                    {
+                        var trimmed = t.Trim();
+                        var m = RewardCountPrefix.Match(trimmed);
+                        if (!m.Success) return trimmed;
+                        var packName = m.Groups[2].Value;
+                        if (packName.EndsWith('s'))
+                            packName = packName[..^1];
+                        return $"{m.Groups[1].Value}x {packName}";
+                    }));
+            }
+
+            // Fix totalPoints for Missions-type silently
+            if (mission.Type == MissionType.Missions && mission.MissionIds != null)
+                mission.TotalPoints = mission.MissionIds.Count;
+        }
+    }
+
+    private static void SetReverseParsedFields(
+        List<Mission> missions,
+        CardMappingService cardMapping,
+        List<string> warnings)
+    {
+        var cardIdToTitle = new Dictionary<int, string>();
+        foreach (var (title, entry) in cardMapping.Cards)
+            cardIdToTitle.TryAdd(entry.CardId, title);
+
+        var missionIdToName = missions.ToDictionary(m => m.Id, m => m.Name);
+
+        foreach (var mission in missions)
+        {
+            mission.Status = mission.Type switch
+            {
+                MissionType.Count    => $"0 / {mission.RequiredCount} out of {mission.TotalPoints}",
+                MissionType.Points   => $"0 / {mission.RequiredCount} Points",
+                MissionType.Missions => $"0 / {mission.RequiredCount} Missions",
+                _                    => mission.Status
+            };
+
+            if (mission.Type == MissionType.Count || mission.Type == MissionType.Points)
+            {
+                var details = new List<string>();
+                foreach (var card in mission.Cards)
+                {
+                    if (cardIdToTitle.TryGetValue(card.CardId, out var title))
+                        details.Add(title);
+                    else
+                        warnings.Add($"'{mission.Name}': card ID {card.CardId} not found in shop_cards.csv, missionDetails entry left blank");
+                }
+                mission.MissionDetails = details;
+            }
+            else if (mission.Type == MissionType.Missions)
+            {
+                var details = new List<string>();
+                foreach (var id in mission.MissionIds ?? [])
+                {
+                    if (missionIdToName.TryGetValue(id, out var name))
+                        details.Add(name);
+                    else
+                        warnings.Add($"'{mission.Name}': mission ID {id} not found in file, missionDetails entry left blank");
+                }
+                mission.MissionDetails = details;
+            }
+        }
     }
 
     private static List<Mission> DeduplicateIncoming(List<Mission> incoming, List<string> errors)

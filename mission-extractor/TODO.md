@@ -28,6 +28,20 @@
 - `Playoff Moments` Complete
 - `World Series Start` Complete
 
+## Live
+
+- Get mission scaffold: name, type (count), reward, requiredCount
+- Put every live card with the team in the cards array
+- Update totalPoints
+- Combine with main mission pool
+
+## Old to New Cleanup
+
+- Update pack part of reward string "3 Standard Packs" -> "3x Standard Packs", do not consider this an error or warning
+- Try to parse reward to structured rewards
+- For mission type missions - set totalPoints to length of missionIds array
+- Try to do a substring match of reward card
+
 ## Categories
 
 - Live Series
