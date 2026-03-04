@@ -11,6 +11,7 @@
   - Fix as you go
   - Save working copy often
   - Check save verified missions regularly
+  - Combine verified missions occasionally and reorder
 
 ## Progress
 
@@ -30,16 +31,15 @@
 - Updated original live missions with all cards
 - Cleaned up original missions in `mission-extractor\in-progress-missions\misions_live_updated_cleaned.json`
 - Cleaned up most of new extracted missions in `mission-extractor\in-progress-missions\missions_verified_20260303_224132.json`
-- `Bo Knows Iron` and `PG Associates` did not get full captures, need to add the remaining cards, probably through the manage screen instead of ocr
-- `PG Heroes` and `Stars` are in both previous and new missions files with different json, merge them correctly
 - Added running cleaned missions file to in progress missions
 - Updated `Bo Knows Iron` and `PG Associates` using manage missions screen, it was pretty nice
+- Re-captured `PG Heroes` and `Stars` and added to running cleaned missions, these have duplicate mission names
 
 ## Next
 
-- FIX _Load final mission format is verifying requirecCount <= totalCount but transform is not_
-- After the new extracts are clean, try to combine them and check that they work in the mission tracker locally
+- Extract `Roberto Clemente Giveaway`
 - Extract `PT Elite` category with a combination of ocr extraction and live mission helper
+- Test running missions in app
 
 ## Live
 
