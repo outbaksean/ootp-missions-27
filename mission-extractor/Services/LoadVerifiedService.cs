@@ -305,8 +305,8 @@ public class LoadVerifiedService
         return new LoadVerifiedResult(errors, toLoad.Count, markedVerifiedCount);
     }
 
-    // Matches "3 PackName" or "3x PackName" — captures count and pack name separately
-    private static readonly Regex RewardCountPrefix = new(@"^(\d+)x?\s+(.+)$", RegexOptions.Compiled);
+    // Matches "3 ... Pack" or "3x ... Packs" — only applies to pack rewards
+    private static readonly Regex RewardCountPrefix = new(@"^(\d+)x?\s+(.+Packs?)$", RegexOptions.Compiled);
 
     private static void CleanupForFinalFormat(List<Mission> missions)
     {
