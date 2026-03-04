@@ -31,6 +31,9 @@
 - Cleaned up original missions in `mission-extractor\in-progress-missions\misions_live_updated_cleaned.json`
 - Cleaned up most of new extracted missions in `mission-extractor\in-progress-missions\missions_verified_20260303_224132.json`
 - `Bo Knows Iron` and `PG Associates` did not get full captures, need to add the remaining cards, probably through the manage screen instead of ocr
+- `PG Heroes` and `Stars` are in both previous and new missions files with different json, merge them correctly
+- Added running cleaned missions file to in progress missions
+- Updated `Bo Knows Iron` and `PG Associates` using manage missions screen, it was pretty nice
 
 ## Next
 
