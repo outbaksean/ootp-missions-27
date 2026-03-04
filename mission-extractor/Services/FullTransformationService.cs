@@ -65,6 +65,7 @@ public class FullTransformationService
         TransformPass1(result, errors, errorMissionIds);
         TransformPass2(result, errors, errorMissionIds);
         SetTotals(result);
+        CheckRequiredCountVsTotalPoints(result, errors, errorMissionIds);
 
         foreach (var mission in result)
         {
@@ -316,6 +317,35 @@ public class FullTransformationService
         }
 
         return sorted;
+    }
+
+    private static void CheckRequiredCountVsTotalPoints(
+        List<Mission> missions,
+        List<ValidationError> errors,
+        HashSet<int> errorMissionIds)
+    {
+        foreach (var mission in missions)
+        {
+            if (errorMissionIds.Contains(mission.Id)) continue;
+
+            string? errorMsg = mission.Type switch
+            {
+                MissionType.Count when mission.RequiredCount > mission.TotalPoints =>
+                    $"count mission: requiredCount ({mission.RequiredCount}) > cards.length ({mission.TotalPoints})",
+                MissionType.Points when mission.RequiredCount > mission.TotalPoints =>
+                    $"points mission: requiredCount ({mission.RequiredCount}) > sum of card points ({mission.TotalPoints})",
+                MissionType.Missions when mission.RequiredCount > mission.TotalPoints =>
+                    $"mission type: requiredCount ({mission.RequiredCount}) > missionIds.length ({mission.TotalPoints})",
+                _ => null
+            };
+
+            if (errorMsg != null)
+            {
+                errors.Add(new ValidationError(mission, errorMsg,
+                    mission.DebugImages?.GetValueOrDefault("status")));
+                errorMissionIds.Add(mission.Id);
+            }
+        }
     }
 
     private static void SetTotals(List<Mission> missions)

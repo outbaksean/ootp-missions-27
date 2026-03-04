@@ -170,6 +170,8 @@ public class LoadVerifiedService
         }
 
         // Phase 3: Deduplicate against existing state
+        var existingIdToName = _missionState.Missions.ToDictionary(m => m.Id, m => m.Name.Trim());
+        var incomingIdToName = candidates.ToDictionary(m => m.Id, m => m.Name.Trim());
         var toLoad = new List<Mission>();
         foreach (var mission in candidates)
         {
@@ -182,17 +184,17 @@ public class LoadVerifiedService
                 mission.ReadOnly = false;
                 toLoad.Add(mission);
             }
-            else if (FinalFieldsEqual(existing, mission))
+            else if (FinalFieldsEqualSemantic(existing, mission, existingIdToName, incomingIdToName))
             {
-                if (!existing.Verified && !missionsWithIssues.Contains(mission.Id))
-                {
-                    existing.Verified = true;
-                    markedVerifiedCount++;
-                }
+                // identical — no action
             }
             else
             {
-                errors.Add($"'{mission.Name}': conflicts with existing mission in state (different final fields), not loaded");
+                if (existing.Verified)
+                    existing.Verified = false;
+                var diffs = GetFinalFieldDiffs(existing, mission, existingIdToName, incomingIdToName);
+                var diffStr = diffs.Count > 0 ? $" [{string.Join("; ", diffs)}]" : "";
+                errors.Add($"'{mission.Name}': conflicts with existing mission in state (different final fields), not loaded{diffStr}");
             }
         }
 
@@ -219,7 +221,7 @@ public class LoadVerifiedService
             _missionState.Replace(allMissions);
         }
 
-        Console.WriteLine($"Loaded {toLoad.Count} mission(s). Marked {markedVerifiedCount} existing mission(s) as verified.");
+        Console.WriteLine($"Loaded {toLoad.Count} mission(s).");
         return new LoadVerifiedResult(errors, toLoad.Count, markedVerifiedCount);
     }
 
@@ -252,6 +254,8 @@ public class LoadVerifiedService
         }
 
         // Phase 3: Deduplicate against existing state
+        var existingIdToName = _missionState.Missions.ToDictionary(m => m.Id, m => m.Name.Trim());
+        var incomingIdToName = candidates.ToDictionary(m => m.Id, m => m.Name.Trim());
         var toLoad = new List<Mission>();
         foreach (var mission in candidates)
         {
@@ -264,17 +268,17 @@ public class LoadVerifiedService
                 mission.ReadOnly = false;
                 toLoad.Add(mission);
             }
-            else if (FinalFieldsEqual(existing, mission))
+            else if (FinalFieldsEqualSemantic(existing, mission, existingIdToName, incomingIdToName))
             {
-                if (!existing.Verified && !missionsWithIssues.Contains(mission.Id))
-                {
-                    existing.Verified = true;
-                    markedVerifiedCount++;
-                }
+                // identical — no action
             }
             else
             {
-                errors.Add($"'{mission.Name}': conflicts with existing mission in state (different final fields), not loaded");
+                if (existing.Verified)
+                    existing.Verified = false;
+                var diffs = GetFinalFieldDiffs(existing, mission, existingIdToName, incomingIdToName);
+                var diffStr = diffs.Count > 0 ? $" [{string.Join("; ", diffs)}]" : "";
+                errors.Add($"'{mission.Name}': conflicts with existing mission in state (different final fields), not loaded{diffStr}");
             }
         }
 
@@ -301,7 +305,7 @@ public class LoadVerifiedService
             _missionState.Replace(allMissions);
         }
 
-        Console.WriteLine($"Loaded {toLoad.Count} mission(s). Marked {markedVerifiedCount} existing mission(s) as verified.");
+        Console.WriteLine($"Loaded {toLoad.Count} mission(s).");
         return new LoadVerifiedResult(errors, toLoad.Count, markedVerifiedCount);
     }
 
@@ -524,8 +528,69 @@ public class LoadVerifiedService
         return (errors, warnings);
     }
 
+    private static List<string> ResolveMissionIdNames(List<int>? ids, IReadOnlyDictionary<int, string> idToName) =>
+        (ids ?? []).Select(id => idToName.TryGetValue(id, out var name) ? name : id.ToString()).ToList();
+
+    private static List<string> GetFinalFieldDiffs(
+        Mission existing, Mission incoming,
+        IReadOnlyDictionary<int, string> existingIdToName,
+        IReadOnlyDictionary<int, string> incomingIdToName)
+    {
+        var diffs = new List<string>();
+
+        if (existing.Name?.Trim() != incoming.Name?.Trim())
+            diffs.Add($"name: '{existing.Name?.Trim()}' → '{incoming.Name?.Trim()}'");
+        if (existing.Type != incoming.Type)
+            diffs.Add($"type: {existing.Type} → {incoming.Type}");
+        if (existing.RequiredCount != incoming.RequiredCount)
+            diffs.Add($"requiredCount: {existing.RequiredCount} → {incoming.RequiredCount}");
+        if (existing.Reward != incoming.Reward)
+            diffs.Add($"reward: '{existing.Reward}' → '{incoming.Reward}'");
+        if (existing.Category != incoming.Category)
+            diffs.Add($"category: '{existing.Category}' → '{incoming.Category}'");
+        if (existing.TotalPoints != incoming.TotalPoints)
+            diffs.Add($"totalPoints: {existing.TotalPoints} → {incoming.TotalPoints}");
+        if (JsonSerializer.Serialize(existing.Cards, CompareOptions) != JsonSerializer.Serialize(incoming.Cards, CompareOptions))
+        {
+            var removedCards = existing.Cards.Select(c => c.CardId).Except(incoming.Cards.Select(c => c.CardId)).ToList();
+            var addedCards = incoming.Cards.Select(c => c.CardId).Except(existing.Cards.Select(c => c.CardId)).ToList();
+            var cardDesc = new List<string>();
+            if (removedCards.Count > 0) cardDesc.Add($"removed [{string.Join(", ", removedCards)}]");
+            if (addedCards.Count > 0) cardDesc.Add($"added [{string.Join(", ", addedCards)}]");
+            if (cardDesc.Count == 0) cardDesc.Add($"{existing.Cards.Count} items → {incoming.Cards.Count} items (order or points changed)");
+            diffs.Add($"cards: {string.Join("; ", cardDesc)}");
+        }
+        var existingNames = ResolveMissionIdNames(existing.MissionIds, existingIdToName);
+        var incomingNames = ResolveMissionIdNames(incoming.MissionIds, incomingIdToName);
+        if (!existingNames.SequenceEqual(incomingNames, StringComparer.OrdinalIgnoreCase))
+            diffs.Add($"missionIds: [{string.Join(", ", existingNames)}] → [{string.Join(", ", incomingNames)}]");
+        if (JsonSerializer.Serialize(existing.Rewards, CompareOptions) != JsonSerializer.Serialize(incoming.Rewards, CompareOptions))
+            diffs.Add("rewards changed");
+
+        return diffs;
+    }
+
     private static bool FinalFieldsEqual(Mission a, Mission b) =>
         FinalFieldsJson(a) == FinalFieldsJson(b);
+
+    private static bool FinalFieldsEqualSemantic(
+        Mission existing, Mission incoming,
+        IReadOnlyDictionary<int, string> existingIdToName,
+        IReadOnlyDictionary<int, string> incomingIdToName)
+    {
+        if (existing.Name?.Trim() != incoming.Name?.Trim()) return false;
+        if (existing.Type != incoming.Type) return false;
+        if (existing.RequiredCount != incoming.RequiredCount) return false;
+        if (existing.Reward != incoming.Reward) return false;
+        if (existing.Category != incoming.Category) return false;
+        if (existing.TotalPoints != incoming.TotalPoints) return false;
+        if (JsonSerializer.Serialize(existing.Cards, CompareOptions) != JsonSerializer.Serialize(incoming.Cards, CompareOptions)) return false;
+        if (JsonSerializer.Serialize(existing.Rewards, CompareOptions) != JsonSerializer.Serialize(incoming.Rewards, CompareOptions)) return false;
+
+        var existingNames = ResolveMissionIdNames(existing.MissionIds, existingIdToName);
+        var incomingNames = ResolveMissionIdNames(incoming.MissionIds, incomingIdToName);
+        return existingNames.SequenceEqual(incomingNames, StringComparer.OrdinalIgnoreCase);
+    }
 
     private static string FinalFieldsJson(Mission m)
     {
