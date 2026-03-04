@@ -64,6 +64,7 @@ label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
     <option>WSH</option>
   </select>
   <label><input type="checkbox" id="include-points"> Include points</label>
+  <button onclick="generatePTEliteMissions()">Generate PT Elite Missions</button>
   <span id="status"></span>
 </div>
 
@@ -133,6 +134,46 @@ function copyAll() {
     btn.textContent = 'Copied!';
     setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
   });
+}
+
+async function generatePTEliteMissions() {
+  const teams = ['AZ','ATH','ATL','BAL','BOS','CHC','CIN','CLE','COL','CWS','DET','HOU','KC','LAA','LAD','MIA','MIL','MIN','NYM','NYY','PHI','PIT','SD','SEA','SF','STL','TB','TEX','TOR','WSH'];
+
+  setStatus('Loading...');
+  document.getElementById('results').style.display = 'none';
+
+  let cards;
+  try {
+    const res = await fetch('/api/cards');
+    cards = await res.json();
+  } catch {
+    setStatus('Failed to load cards.');
+    return;
+  }
+
+  const missions = teams.map((team, i) => {
+    const matches = cards.filter(c =>
+      c.title.startsWith('MLB 2025 Live') &&
+      c.title.split(' ').pop() === team
+    );
+    const cardObjects = matches.map(c => ({ cardId: c.cardId }));
+    return {
+      id: 1001 + i,
+      category: 'PT Elite',
+      name: `PT Elite - ${team}`,
+      type: 'count',
+      reward: '',
+      cards: cardObjects,
+      requiredCount: cardObjects.length,
+      totalPoints: cardObjects.length
+    };
+  });
+
+  currentOutput = missions.map(m => JSON.stringify(m, null, 2)).join(',\n') + ',';
+  document.getElementById('results-title').textContent = `PT Elite Missions (${missions.length} teams)`;
+  document.getElementById('output').textContent = currentOutput;
+  document.getElementById('results').style.display = '';
+  setStatus('');
 }
 
 function setStatus(msg) {
