@@ -59,6 +59,8 @@ public class FullTransformationService
         _lws.StripDetailTrailingCommas(result);
         DeduplicateMissionDetails(result);
 
+        BackfillRewardStrings(result);
+
         var errors = ValidateFields(result);
         var errorMissionIds = new HashSet<int>(errors.Select(e => e.Mission.Id));
 
@@ -89,6 +91,15 @@ public class FullTransformationService
 
         _missionState.Replace(result);
         return errors;
+    }
+
+    private void BackfillRewardStrings(List<Mission> missions)
+    {
+        foreach (var m in missions)
+        {
+            if (string.IsNullOrWhiteSpace(m.Reward) && m.Rewards?.Count > 0)
+                m.Reward = _rewardMapping.GenerateRewardString(m.Rewards);
+        }
     }
 
     private static void DeduplicateMissionDetails(List<Mission> missions)

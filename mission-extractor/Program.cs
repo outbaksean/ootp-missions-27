@@ -79,7 +79,7 @@ app.MapGet("/api/missions", () =>
 // PATCH /api/missions/{id}
 app.MapMethods("/api/missions/{id}", ["PATCH"], (int id, MissionUpdateRequest req) =>
 {
-    var updated = state.TryUpdate(id, req.Name, req.Category, req.Reward, req.Status, req.MissionDetails);
+    var updated = state.TryUpdate(id, req.Name, req.Category, req.Reward, req.Status, req.MissionDetails, req.Rewards);
     return updated is null ? Results.NotFound() : Results.Ok(updated);
 });
 
@@ -514,5 +514,5 @@ static async Task<string> CaptureConsole(Func<Task> action)
 
 record CaptureRequest(int CaptureRow = 0, bool NoImageOffsets = false);
 record MissionUpdateRequest(string? Name, string? Category, string? Reward,
-                             string? Status, List<string>? MissionDetails);
+                             string? Status, List<string>? MissionDetails, List<MissionReward>? Rewards);
 record VerifyRequest(bool Verified);

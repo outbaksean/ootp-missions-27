@@ -31,7 +31,7 @@ public class MissionState
     }
 
     public Mission? TryUpdate(int id, string? name, string? category, string? reward,
-                               string? status, List<string>? missionDetails)
+                               string? status, List<string>? missionDetails, List<MissionReward>? rewards = null)
     {
         var mission = _missions.FirstOrDefault(m => m.Id == id);
         if (mission is null) return null;
@@ -40,6 +40,7 @@ public class MissionState
         if (reward is not null) mission.Reward = reward;
         if (status is not null) mission.Status = status;
         if (missionDetails is not null) mission.MissionDetails = missionDetails;
+        if (rewards is not null) mission.Rewards = rewards;
         return mission;
     }
 

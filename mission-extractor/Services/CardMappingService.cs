@@ -5,6 +5,7 @@ public record CardEntry(int CardId, int CardValue);
 public class CardMappingService
 {
     private readonly Dictionary<string, CardEntry> _cards;
+    private readonly Dictionary<int, string> _titleById;
 
     public CardMappingService(string csvPath)
     {
@@ -32,12 +33,19 @@ public class CardMappingService
         }
 
         Console.WriteLine($"Loaded {_cards.Count} card entries from shop_cards.csv.");
+
+        _titleById = new Dictionary<int, string>();
+        foreach (var (title, entry) in _cards)
+            _titleById.TryAdd(entry.CardId, title);
     }
 
     public IReadOnlyDictionary<string, CardEntry> Cards => _cards;
 
     public bool TryLookup(string title, out CardEntry entry) =>
         _cards.TryGetValue(title.Trim(), out entry!);
+
+    public bool TryLookupById(int cardId, out string title) =>
+        _titleById.TryGetValue(cardId, out title!);
 
     // Parses "{cardValue} {position} {playerName}" and finds a card by player name substring + card value.
     // Returns true only if exactly one card matches.

@@ -32,6 +32,9 @@ public class RewardMappingService
             ["Spotlight #Immortals Pack"] = PackType.SpotlightImmortals,
         };
 
+    private static readonly Dictionary<string, string> PackTypeToDisplayName =
+        PackNameToType.ToDictionary(kvp => kvp.Value.ToString(), kvp => kvp.Key);
+
     private static readonly Regex PackCountPrefix =
         new(@"^(\d+)x\s+(.+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -65,6 +68,38 @@ public class RewardMappingService
 
         mission.Rewards = rewards;
         return errors;
+    }
+
+    /// <summary>
+    /// Generates a human-readable reward string from structured MissionReward entries.
+    /// This is the reverse of ParseAndSet.
+    /// </summary>
+    public string GenerateRewardString(List<MissionReward> rewards)
+    {
+        var parts = new List<string>();
+
+        foreach (var r in rewards)
+        {
+            if (r.Type == "Park")
+            {
+                parts.Add($"Park: {r.Park}");
+            }
+            else if (r.Type == "Pack")
+            {
+                var name = r.PackType != null && PackTypeToDisplayName.TryGetValue(r.PackType, out var display)
+                    ? display
+                    : r.PackType ?? "Pack";
+                parts.Add(r.Count > 1 ? $"{r.Count}x {name}" : name);
+            }
+            else if (r.Type == "Card" && r.CardId.HasValue)
+            {
+                parts.Add(_cardMapping.TryLookupById(r.CardId.Value, out var title)
+                    ? title
+                    : r.CardId.Value.ToString());
+            }
+        }
+
+        return string.Join(", ", parts);
     }
 
     /// <summary>

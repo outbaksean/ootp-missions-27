@@ -52,6 +52,14 @@ summary::-webkit-details-marker { display: none; }
 .bnd-field label { color: #555; white-space: nowrap; }
 .bnd-field input { width: 4.5em; font-family: monospace; font-size: 12px; padding: 2px 4px; border: 1px solid #bbb; }
 
+/* Rewards */
+.reward-entry { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
+.reward-entry input[type="text"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 130px; }
+.reward-entry input[type="number"] { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; width: 60px; }
+.reward-entry select { font-family: monospace; font-size: 13px; padding: 3px 6px; border: 1px solid #bbb; background: #f4f4f4; }
+.reward-type-badge { font-size: 11px; background: #e8e8e8; border: 1px solid #ccc; padding: 1px 5px; min-width: 34px; text-align: center; }
+.reward-field-label { font-size: 12px; color: #666; white-space: nowrap; }
+
 /* Cards panel */
 #cards-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 #cards-header h2 { font-size: 1em; margin: 0; flex-shrink: 0; }
@@ -168,6 +176,8 @@ summary::-webkit-details-marker { display: none; }
     </table>
   </div>
 </div>
+
+<datalist id="reward-card-titles-datalist"></datalist>
 
 <script>
 // ── Missions state ─────────────────────────────────────────────────────────────
@@ -358,6 +368,8 @@ function buildMissionElement(m) {
     body.appendChild(buildTextField(field, m[field] ?? '', m.debugImages, missionErrorTypes, m.readOnly));
   }
 
+  body.appendChild(buildRewardsField(m.rewards ?? [], m.readOnly));
+
   const jsonDetails = document.createElement('details');
   const jsonSummary = document.createElement('summary');
   jsonSummary.textContent = 'JSON';
@@ -545,6 +557,135 @@ function buildDetailsField(details, debugImages, missionErrorTypes, readOnly = f
   return row;
 }
 
+const PACK_TYPE_NAMES = {
+  Standard: 'Standard Pack', Silver: 'Silver Pack', Gold: 'Gold Pack', Diamond: 'Diamond Pack',
+  Perfect: 'Perfect Pack', Rainbow: 'Rainbow Pack', HistSilver: 'Historical Silver Pack',
+  HistGold: 'Historical Gold Pack', HistDiamond: 'Historical Diamond Pack',
+  HistPerfect: 'Historical Perfect Pack', HistRainbow: 'Historical Rainbow Pack',
+  AllPerfect: 'All-Perfect Pack', HistAllPerfect: 'Historical All-Perfect Pack',
+  AllDiamond: 'All-Diamond Pack', HistAllDiamond: 'Historical All-Diamond Pack',
+  MoneyballDiamond: 'Moneyball Era Diamond Pack', AnalyticsDiamond: 'Analytics Era Diamond Pack',
+  PowerDiamond: 'Power Era Diamond Pack', DefensiveDiamond: 'Defensive Era Diamond Pack',
+  SpotlightImmortals: 'Spotlight #Immortals Pack',
+};
+
+function generateRewardStringFromDOM(det) {
+  const parts = [];
+  for (const entry of det.querySelectorAll('[data-rewards-container] [data-reward-type]')) {
+    const type = entry.dataset.rewardType;
+    if (type === 'park') {
+      const park = entry.querySelector('[data-reward-field="park"]')?.value?.trim();
+      if (park) parts.push(`Park: ${park}`);
+    } else if (type === 'pack') {
+      const packType = entry.querySelector('[data-reward-field="packType"]')?.value;
+      const count = parseInt(entry.querySelector('[data-reward-field="count"]')?.value, 10) || 1;
+      const name = PACK_TYPE_NAMES[packType] ?? packType ?? 'Pack';
+      parts.push(count > 1 ? `${count}x ${name}` : name);
+    } else if (type === 'card') {
+      const title = entry.querySelector('[data-reward-field="cardTitle"]')?.value?.trim();
+      if (title) parts.push(title);
+    }
+  }
+  return parts.join(', ');
+}
+
+function reverseParseReward(btn) {
+  const det = btn.closest('details');
+  const rewardInput = det.querySelector('input[data-field="reward"]');
+  if (rewardInput) rewardInput.value = generateRewardStringFromDOM(det);
+}
+
+function buildRewardEntry(reward, readOnly) {
+  const entry = document.createElement('div');
+  entry.className = 'reward-entry';
+  entry.dataset.rewardType = reward.type;
+
+  const badge = document.createElement('span');
+  badge.className = 'reward-type-badge';
+  badge.textContent = reward.type;
+  entry.appendChild(badge);
+
+  if (reward.type === 'card') {
+    const lbl = document.createElement('span'); lbl.className = 'reward-field-label'; lbl.textContent = 'card:'; entry.appendChild(lbl);
+    const inp = document.createElement('input'); inp.type = 'text'; inp.dataset.rewardField = 'cardTitle';
+    inp.setAttribute('list', 'reward-card-titles-datalist');
+    const existingTitle = reward.cardId ? (allCards.find(c => c.cardId === reward.cardId)?.title ?? '') : (reward.cardTitle ?? '');
+    inp.value = existingTitle; inp.disabled = readOnly; inp.style.width = '220px'; entry.appendChild(inp);
+  } else if (reward.type === 'pack') {
+    const lbl = document.createElement('span'); lbl.className = 'reward-field-label'; lbl.textContent = 'packType:'; entry.appendChild(lbl);
+    const sel = document.createElement('select'); sel.dataset.rewardField = 'packType'; sel.disabled = readOnly;
+    for (const [value, name] of Object.entries(PACK_TYPE_NAMES)) {
+      const opt = document.createElement('option'); opt.value = value; opt.textContent = name;
+      if (value === reward.packType) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    entry.appendChild(sel);
+  } else if (reward.type === 'park') {
+    const lbl = document.createElement('span'); lbl.className = 'reward-field-label'; lbl.textContent = 'park:'; entry.appendChild(lbl);
+    const inp = document.createElement('input'); inp.type = 'text'; inp.dataset.rewardField = 'park';
+    inp.value = reward.park ?? ''; inp.disabled = readOnly; entry.appendChild(inp);
+  }
+
+  if (reward.type === 'pack') {
+    const countLbl = document.createElement('span'); countLbl.className = 'reward-field-label'; countLbl.textContent = 'count:'; entry.appendChild(countLbl);
+    const countInp = document.createElement('input'); countInp.type = 'number'; countInp.dataset.rewardField = 'count';
+    countInp.value = reward.count ?? 1; countInp.disabled = readOnly; entry.appendChild(countInp);
+  }
+
+  if (!readOnly) {
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove'; removeBtn.className = 'btn-delete';
+    removeBtn.onclick = () => entry.remove();
+    entry.appendChild(removeBtn);
+  }
+  return entry;
+}
+
+function buildRewardsField(rewards, readOnly) {
+  const row = document.createElement('div');
+  row.className = 'field-row';
+
+  const label = document.createElement('label');
+  label.className = 'field-label';
+  label.textContent = 'rewards';
+  row.appendChild(label);
+
+  const container = document.createElement('div');
+  container.dataset.rewardsContainer = '1';
+  for (const r of (rewards ?? [])) container.appendChild(buildRewardEntry(r, readOnly));
+  row.appendChild(container);
+
+  if (!readOnly) {
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:4px;';
+    for (const [type, label] of [['card', 'Add Card'], ['pack', 'Add Packs'], ['park', 'Add Parks']]) {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.onclick = () => container.appendChild(buildRewardEntry({ type, count: 1 }, false));
+      btnRow.appendChild(btn);
+    }
+    const reverseBtn = document.createElement('button');
+    reverseBtn.textContent = 'Reverse Parse';
+    reverseBtn.onclick = function() { reverseParseReward(this); };
+    btnRow.appendChild(reverseBtn);
+    row.appendChild(btnRow);
+  }
+
+  return row;
+}
+
+function collectRewardsFromElement(det) {
+  const entries = det.querySelectorAll('[data-rewards-container] [data-reward-type]');
+  return Array.from(entries).map(entry => {
+    const type = entry.dataset.rewardType;
+    const obj = { type, count: parseInt(entry.querySelector('[data-reward-field="count"]')?.value, 10) || 0 };
+    if (type === 'card') { const title = entry.querySelector('[data-reward-field="cardTitle"]')?.value?.trim(); if (title) { const card = allCards.find(c => c.title === title); if (card) obj.cardId = card.cardId; } }
+    if (type === 'pack') { obj.packType = entry.querySelector('[data-reward-field="packType"]')?.value ?? null; }
+    if (type === 'park') { obj.park = entry.querySelector('[data-reward-field="park"]')?.value ?? null; }
+    return obj;
+  });
+}
+
 async function saveMission(btn) {
   const det = btn.closest('details');
   const id = parseInt(det.dataset.id, 10);
@@ -557,6 +698,7 @@ async function saveMission(btn) {
   body.missionDetails = Array.from(det.querySelectorAll('input[data-field="missionDetails"]'))
     .map(i => i.value.trim())
     .filter(s => s.length > 0);
+  body.rewards = collectRewardsFromElement(det);
 
   const res = await fetch('/api/missions/' + id, {
     method: 'PATCH',
@@ -637,6 +779,7 @@ async function saveAllRenderedMissions() {
     }
     body.missionDetails = Array.from(det.querySelectorAll('input[data-field="missionDetails"]'))
       .map(i => i.value.trim()).filter(s => s.length > 0);
+    body.rewards = collectRewardsFromElement(det);
     await fetch('/api/missions/' + missionId, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -945,6 +1088,13 @@ let cardSortAsc = true;
 async function loadCards() {
   const res = await fetch('/api/cards');
   allCards = await res.json();
+  const dl = document.getElementById('reward-card-titles-datalist');
+  dl.innerHTML = '';
+  for (const c of allCards) {
+    const opt = document.createElement('option');
+    opt.value = c.title;
+    dl.appendChild(opt);
+  }
   renderCards();
 }
 
