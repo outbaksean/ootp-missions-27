@@ -37,6 +37,8 @@
 - Cleaned up `PT27`, `PT26` manually in the json, the name spacing and category casing were wrong
 - Added `PT Elite` live missions to running cleaned missions
 - Added remaining `PT Elite` Missions
+- Added `Roberto Clemente Giveaway` mission mostly through manage missions page
+- _FULLY EXTRACTED AND CLEANED MISSIONS!!_
 
 ## Next
 
@@ -113,7 +115,7 @@
 - Final Mission Set
   - Complete, not deployed
 - Total
-  - 1 missions left
+  - 0 missions left
 
 ## Combine with previous missions
 
