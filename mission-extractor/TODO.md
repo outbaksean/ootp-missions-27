@@ -41,15 +41,16 @@
 - _FULLY EXTRACTED AND CLEANED MISSIONS!!_
 
 - Updated mission tracker category order
+- Fixed mission tracker reward parsing
 
 ## Next
 
-- Cleanup Category casing
-- Mission Tracker: Fix App reward parsing
+- Mission Tracker: Remove calculate button from group details
 - Mission Tracker: Add "Mission Update Notes" modal that explains when missions were last updated and any to be updated
 - Mission Tracker: Fix Mobile Layout
 - Mission Tracker: Test and deploy updated missions with udpated PreReleaase Notes
 - Mission Tracker: Deploy archived ootp26 version, add links in CraterVar and 27 tracker
+- Mission Extractor: Category casing
 
 ## Proposed Features - Mission Tracker
 
