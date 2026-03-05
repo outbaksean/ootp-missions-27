@@ -435,6 +435,7 @@ function buildDetailsField(details, debugImages, missionErrorTypes, readOnly = f
     input.type = 'text';
     input.dataset.field = 'missionDetails';
     input.value = details[i] ?? '';
+    input.addEventListener('focus', function() { this.select(); });
     if (readOnly) input.disabled = true;
     entry.appendChild(input);
 
@@ -858,6 +859,7 @@ document.querySelectorAll('#cards-table th').forEach(th => {
 });
 
 document.getElementById('cards-search').addEventListener('input', renderCards);
+document.getElementById('cards-search').addEventListener('focus', function() { this.select(); });
 
 // ── Divider drag ───────────────────────────────────────────────────────────────
 
