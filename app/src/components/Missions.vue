@@ -422,6 +422,28 @@ function loadPref<T>(key: string, fallback: T): T {
   }
 }
 
+const CATEGORY_ORDER = [
+  "Live Series",
+  "Pack Rewards",
+  "Launch Deck",
+  "Bonus Rewards",
+  "Immortal Seasons",
+  "Negro Leagues",
+  "Hall of Fame",
+  "Baseball Reference",
+  "Future Legends",
+  "Launch Plus",
+  "PT Elite",
+  "Playoff Moments",
+  "World Series Start",
+  "Holiday Times",
+  "Final Mission Set",
+];
+const categoryPriority = (cat: string) => {
+  const i = CATEGORY_ORDER.indexOf(cat);
+  return i === -1 ? CATEGORY_ORDER.length : i;
+};
+
 const selectedMission = ref<UserMission | null>(null);
 const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
@@ -569,10 +591,9 @@ const groupedMissions = computed(
         if (!groups.has(label)) groups.set(label, []);
         groups.get(label)!.push(m);
       }
-      return Array.from(groups.entries()).map(([label, missions]) => ({
-        label,
-        missions,
-      }));
+      return Array.from(groups.entries())
+        .sort(([a], [b]) => categoryPriority(a) - categoryPriority(b))
+        .map(([label, missions]) => ({ label, missions }));
     }
 
     if (groupBy.value === "chain") {
@@ -654,7 +675,9 @@ const missionCategories = computed(() => {
   missions.value.forEach((m) => {
     if (m.rawMission.category) categories.add(m.rawMission.category);
   });
-  return Array.from(categories);
+  return Array.from(categories).sort(
+    (a, b) => categoryPriority(a) - categoryPriority(b),
+  );
 });
 
 watch(

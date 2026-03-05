@@ -190,19 +190,22 @@ export default class MissionHelper {
 
     let total = 0;
     for (const reward of rewards) {
-      if (reward.type === "pack") {
-        total += (packPrices.get(reward.packType) ?? 0) * reward.count;
-      } else if (reward.type === "card") {
-        if (reward.cardId === 0) continue; // Needs manual cardId — treat as 0
-        const card = shopCardsById.get(reward.cardId);
+      const type = (reward.type as string).toLowerCase();
+      if (type === "pack") {
+        const r = reward as { packType: string; count: number };
+        total += (packPrices.get(r.packType) ?? 0) * r.count;
+      } else if (type === "card") {
+        const r = reward as { cardId: number; count?: number };
+        if (r.cardId === 0) continue; // Needs manual cardId — treat as 0
+        const card = shopCardsById.get(r.cardId);
         if (!card) continue;
         const price =
           useSellPrice && card.sellOrderLow > 0
             ? card.sellOrderLow
             : card.lastPrice;
-        total += price * (reward.count ?? 1);
+        total += price * (r.count ?? 1);
       }
-      // type:'other' → 0, no contribution
+      // type:'park'/'other' → 0, no contribution
     }
     return total;
   }
