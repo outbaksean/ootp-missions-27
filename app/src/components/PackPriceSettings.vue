@@ -16,7 +16,9 @@
         :key="packType"
         class="pack-price-row"
       >
-        <label class="pack-price-label">{{ packType }}</label>
+        <label class="pack-price-label">{{
+          PACK_TYPE_LABELS[packType] ?? packType
+        }}</label>
         <input
           type="number"
           class="pack-price-input"
@@ -32,7 +34,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useMissionStore } from "../stores/useMissionStore";
-import { useSettingsStore, PACK_TYPES } from "../stores/useSettingsStore";
+import {
+  useSettingsStore,
+  PACK_TYPES,
+  PACK_TYPE_LABELS,
+} from "../stores/useSettingsStore";
 
 const settingsStore = useSettingsStore();
 const missionStore = useMissionStore();
