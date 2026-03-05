@@ -40,12 +40,11 @@
 - Added `Roberto Clemente Giveaway` mission mostly through manage missions page
 - _FULLY EXTRACTED AND CLEANED MISSIONS!!_
 
+- Updated mission tracker category order
+
 ## Next
 
 - Cleanup Category casing
-- Extract `Roberto Clemente Giveaway`
-- Extract `PT Elite` category with a combination of ocr extraction and live mission helper
-- Mission Tracker: Update category order
 - Mission Tracker: Fix App reward parsing
 - Mission Tracker: Add "Mission Update Notes" modal that explains when missions were last updated and any to be updated
 - Mission Tracker: Fix Mobile Layout

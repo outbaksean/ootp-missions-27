@@ -10173,13 +10173,7 @@
       "reward": "AL Central 1 - All-Time Legend CF Torii Hunter MIN Peak, 1x Gold Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        11,
-        18,
-        13,
-        9,
-        6
-      ],
+      "missionIds": [11, 18, 13, 9, 6],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10201,13 +10195,7 @@
       "reward": "97 1B Jason Giambi, 1x Gold Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        29,
-        19,
-        5,
-        27,
-        4
-      ],
+      "missionIds": [29, 19, 5, 27, 4],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10229,13 +10217,7 @@
       "reward": "92 LF Frank Howard, 1x Gold Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        12,
-        25,
-        14,
-        28,
-        2
-      ],
+      "missionIds": [12, 25, 14, 28, 2],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10257,13 +10239,7 @@
       "reward": "97 C Yadier Molina, 1x Gold Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        7,
-        17,
-        26,
-        8,
-        22
-      ],
+      "missionIds": [7, 17, 26, 8, 22],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10285,13 +10261,7 @@
       "reward": "94 LF Rico Carty, 1x Gold Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        20,
-        21,
-        16,
-        3,
-        30
-      ],
+      "missionIds": [20, 21, 16, 3, 30],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10313,13 +10283,7 @@
       "reward": "96 CF Steve Finley, 1x Gold Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        1,
-        15,
-        23,
-        24,
-        10
-      ],
+      "missionIds": [1, 15, 23, 24, 10],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10341,14 +10305,7 @@
       "reward": "100 SP Dave Stieb, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        66,
-        64,
-        65,
-        63,
-        61,
-        62
-      ],
+      "missionIds": [66, 64, 65, 63, 61, 62],
       "totalPoints": 6,
       "rewards": [
         {
@@ -10370,13 +10327,7 @@
       "reward": "99 SP Sam McDowell, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        41,
-        48,
-        43,
-        39,
-        36
-      ],
+      "missionIds": [41, 48, 43, 39, 36],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10398,13 +10349,7 @@
       "reward": "AL East Live 2 - Historical All-Star SS Rico Petrocelli BOS 1969, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        59,
-        49,
-        35,
-        57,
-        34
-      ],
+      "missionIds": [59, 49, 35, 57, 34],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10426,13 +10371,7 @@
       "reward": "99 SP Mike Scott, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        42,
-        55,
-        44,
-        58,
-        32
-      ],
+      "missionIds": [42, 55, 44, 58, 32],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10454,13 +10393,7 @@
       "reward": "99 2B joe Morgan, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        37,
-        47,
-        56,
-        38,
-        52
-      ],
+      "missionIds": [37, 47, 56, 38, 52],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10482,13 +10415,7 @@
       "reward": "96 SP Tom Glavine, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        50,
-        51,
-        46,
-        33,
-        60
-      ],
+      "missionIds": [50, 51, 46, 33, 60],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10510,13 +10437,7 @@
       "reward": "98 SP Juan Marichal, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        31,
-        45,
-        53,
-        54,
-        40
-      ],
+      "missionIds": [31, 45, 53, 54, 40],
       "totalPoints": 5,
       "rewards": [
         {
@@ -10538,15 +10459,7 @@
       "reward": "100 SS Honus Wagner, 1x Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        73,
-        71,
-        72,
-        70,
-        68,
-        69,
-        67
-      ],
+      "missionIds": [73, 71, 72, 70, 68, 69, 67],
       "totalPoints": 7,
       "rewards": [
         {
@@ -11304,7 +11217,7 @@
       "type": "count",
       "requiredCount": 30,
       "reward": "2x Standard Pack",
-      "category": "pack Rewards",
+      "category": "Pack Rewards",
       "cards": [
         {
           "cardId": 75264
@@ -12246,7 +12159,7 @@
       "type": "count",
       "requiredCount": 14,
       "reward": "3x Standard Pack",
-      "category": "pack Rewards",
+      "category": "Pack Rewards",
       "cards": [
         {
           "cardId": 71081
@@ -13044,7 +12957,7 @@
       "type": "count",
       "requiredCount": 25,
       "reward": "3x Historical Silver Pack",
-      "category": "pack Rewards",
+      "category": "Pack Rewards",
       "cards": [
         {
           "cardId": 71485
@@ -13976,15 +13889,7 @@
       "reward": "2x Diamond Pack",
       "category": "Pack Rewards",
       "cards": [],
-      "missionIds": [
-        97,
-        78,
-        101,
-        76,
-        110,
-        107,
-        94
-      ],
+      "missionIds": [97, 78, 101, 76, 110, 107, 94],
       "totalPoints": 7,
       "rewards": [
         {
@@ -14002,15 +13907,7 @@
       "reward": "1x Diamond Pack",
       "category": "Pack Rewards",
       "cards": [],
-      "missionIds": [
-        80,
-        79,
-        77,
-        90,
-        75,
-        81,
-        96
-      ],
+      "missionIds": [80, 79, 77, 90, 75, 81, 96],
       "totalPoints": 7,
       "rewards": [
         {
@@ -14028,17 +13925,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Pack Rewards",
       "cards": [],
-      "missionIds": [
-        84,
-        86,
-        105,
-        104,
-        99,
-        82,
-        98,
-        87,
-        102
-      ],
+      "missionIds": [84, 86, 105, 104, 99, 82, 98, 87, 102],
       "totalPoints": 9,
       "rewards": [
         {
@@ -23908,12 +23795,7 @@
       "reward": "Small Sample Studs - Historical Future Legend CF Rick Ankiel STL Peak, 5x Historical Gold Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        137,
-        210,
-        209,
-        234
-      ],
+      "missionIds": [137, 210, 209, 234],
       "totalPoints": 4,
       "rewards": [
         {
@@ -23935,13 +23817,7 @@
       "reward": "Historical Future Legend LF Bo Jackson KC 1990, Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        208,
-        128,
-        127,
-        190,
-        189
-      ],
+      "missionIds": [208, 128, 127, 190, 189],
       "totalPoints": 5,
       "rewards": [
         {
@@ -23963,10 +23839,7 @@
       "reward": "Mixed Bag Missions - Hall of Fame 3B Eddie Mathews ML1 1961, Historical All-Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        193,
-        202
-      ],
+      "missionIds": [193, 202],
       "totalPoints": 2,
       "rewards": [
         {
@@ -23988,11 +23861,7 @@
       "reward": "Mixed Bag Missions - Immortal Seasons SS Martin Dihigo CSE 1926, 2x Historical Rainbow Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        218,
-        199,
-        203
-      ],
+      "missionIds": [218, 199, 203],
       "totalPoints": 3,
       "rewards": [
         {
@@ -24014,13 +23883,7 @@
       "reward": "100 SP Roy Halladay",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        230,
-        221,
-        197,
-        145,
-        233
-      ],
+      "missionIds": [230, 221, 197, 145, 233],
       "totalPoints": 5,
       "rewards": [
         {
@@ -24037,14 +23900,7 @@
       "reward": "101 CF Ken Griffey Jr., 2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        146,
-        156,
-        194,
-        217,
-        196,
-        212
-      ],
+      "missionIds": [146, 156, 194, 217, 196, 212],
       "totalPoints": 6,
       "rewards": [
         {
@@ -24067,28 +23923,8 @@
       "category": "Bonus Rewards",
       "cards": [],
       "missionIds": [
-        136,
-        163,
-        174,
-        177,
-        178,
-        179,
-        180,
-        181,
-        182,
-        183,
-        164,
-        165,
-        166,
-        167,
-        168,
-        169,
-        170,
-        171,
-        172,
-        173,
-        175,
-        176
+        136, 163, 174, 177, 178, 179, 180, 181, 182, 183, 164, 165, 166, 167,
+        168, 169, 170, 171, 172, 173, 175, 176
       ],
       "totalPoints": 22,
       "rewards": [
@@ -24111,11 +23947,7 @@
       "reward": "Laptophound Appreciation Set - Hall of Fame RF Vladimir Guerrero MON 2002, Historical Rainbow Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        242,
-        149,
-        219
-      ],
+      "missionIds": [242, 149, 219],
       "totalPoints": 3,
       "rewards": [
         {
@@ -24137,15 +23969,7 @@
       "reward": "Perfect Game SP Sandy Koufax LAD 1965, Historical Perfect Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        152,
-        200,
-        228,
-        224,
-        151,
-        220,
-        223
-      ],
+      "missionIds": [152, 200, 228, 224, 151, 220, 223],
       "totalPoints": 7,
       "rewards": [
         {
@@ -24167,13 +23991,7 @@
       "reward": "Miggy Mission - Baseball Reference 10 3B Miguel Cabrera DET 2013, Historical Perfect Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        188,
-        187,
-        215,
-        191,
-        226
-      ],
+      "missionIds": [188, 187, 215, 191, 226],
       "totalPoints": 5,
       "rewards": [
         {
@@ -24195,11 +24013,7 @@
       "reward": "Small Sample Studs - Historical Future Legend C Gary Sanchez NYY 2016, 2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        134,
-        207,
-        222
-      ],
+      "missionIds": [134, 207, 222],
       "totalPoints": 3,
       "rewards": [
         {
@@ -24221,15 +24035,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        229,
-        198,
-        204,
-        195,
-        192,
-        186,
-        211
-      ],
+      "missionIds": [229, 198, 204, 195, 192, 186, 211],
       "totalPoints": 7,
       "rewards": [
         {
@@ -24247,10 +24053,7 @@
       "reward": "88 LF Lou Brock, 2x Historical Gold Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        247,
-        157
-      ],
+      "missionIds": [247, 157],
       "totalPoints": 2,
       "rewards": [
         {
@@ -24272,15 +24075,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        229,
-        198,
-        204,
-        195,
-        192,
-        186,
-        211
-      ],
+      "missionIds": [229, 198, 204, 195, 192, 186, 211],
       "totalPoints": 7,
       "rewards": [
         {
@@ -24298,15 +24093,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        229,
-        198,
-        204,
-        195,
-        192,
-        186,
-        211
-      ],
+      "missionIds": [229, 198, 204, 195, 192, 186, 211],
       "totalPoints": 7,
       "rewards": [
         {
@@ -24324,10 +24111,7 @@
       "reward": "97 SP Roger Clemens, 5x Historical Gold Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        249,
-        227
-      ],
+      "missionIds": [249, 227],
       "totalPoints": 2,
       "rewards": [
         {
@@ -24349,11 +24133,7 @@
       "reward": "100 C Mike Piazza, 2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        248,
-        251,
-        250
-      ],
+      "missionIds": [248, 251, 250],
       "totalPoints": 3,
       "rewards": [
         {
@@ -24375,13 +24155,7 @@
       "reward": "101 SP Chris Sale CWS Peak, 2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        126,
-        201,
-        225,
-        216,
-        213
-      ],
+      "missionIds": [126, 201, 225, 216, 213],
       "totalPoints": 5,
       "rewards": [
         {
@@ -24404,27 +24178,8 @@
       "category": "Bonus Rewards",
       "cards": [],
       "missionIds": [
-        163,
-        174,
-        177,
-        178,
-        179,
-        180,
-        181,
-        182,
-        183,
-        164,
-        165,
-        166,
-        167,
-        168,
-        169,
-        170,
-        171,
-        172,
-        173,
-        175,
-        176
+        163, 174, 177, 178, 179, 180, 181, 182, 183, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 175, 176
       ],
       "totalPoints": 21,
       "rewards": [
@@ -24444,27 +24199,8 @@
       "category": "Bonus Rewards",
       "cards": [],
       "missionIds": [
-        163,
-        174,
-        177,
-        178,
-        179,
-        180,
-        181,
-        182,
-        183,
-        164,
-        165,
-        166,
-        167,
-        168,
-        169,
-        170,
-        171,
-        172,
-        173,
-        175,
-        176
+        163, 174, 177, 178, 179, 180, 181, 182, 183, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 175, 176
       ],
       "totalPoints": 21,
       "rewards": [
@@ -24484,27 +24220,8 @@
       "category": "Bonus Rewards",
       "cards": [],
       "missionIds": [
-        163,
-        174,
-        177,
-        178,
-        179,
-        180,
-        181,
-        182,
-        183,
-        164,
-        165,
-        166,
-        167,
-        168,
-        169,
-        170,
-        171,
-        172,
-        173,
-        175,
-        176
+        163, 174, 177, 178, 179, 180, 181, 182, 183, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 175, 176
       ],
       "totalPoints": 21,
       "rewards": [
@@ -24523,11 +24240,7 @@
       "reward": "Small Sample Studs - Rookie Sensation RF Aristides Aquino CIN 2019, 2x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        222,
-        140,
-        235
-      ],
+      "missionIds": [222, 140, 235],
       "totalPoints": 3,
       "rewards": [
         {
@@ -24549,16 +24262,7 @@
       "reward": "Small Sample Studs - Historical All-Star SP Jacob deGrom NYM 2021, 2x Historical Rainbow Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        185,
-        205,
-        214,
-        231,
-        232,
-        133,
-        246,
-        257
-      ],
+      "missionIds": [185, 205, 214, 231, 232, 133, 246, 257],
       "totalPoints": 8,
       "rewards": [
         {
@@ -26550,13 +26254,7 @@
       "reward": "1x Spotlight #Immortals Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        277,
-        285,
-        269,
-        265,
-        266
-      ],
+      "missionIds": [277, 285, 269, 265, 266],
       "totalPoints": 5,
       "rewards": [
         {
@@ -26574,10 +26272,7 @@
       "reward": "1x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        273,
-        275
-      ],
+      "missionIds": [273, 275],
       "totalPoints": 2,
       "rewards": [
         {
@@ -26595,13 +26290,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        274,
-        280,
-        284,
-        271,
-        264
-      ],
+      "missionIds": [274, 280, 284, 271, 264],
       "totalPoints": 5,
       "rewards": [
         {
@@ -26619,10 +26308,7 @@
       "reward": "101 SS Cal Ripken, 2x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        287,
-        288
-      ],
+      "missionIds": [287, 288],
       "totalPoints": 2,
       "rewards": [
         {
@@ -26644,10 +26330,7 @@
       "reward": "1x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        270,
-        267
-      ],
+      "missionIds": [270, 267],
       "totalPoints": 2,
       "rewards": [
         {
@@ -26665,13 +26348,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        274,
-        280,
-        284,
-        271,
-        264
-      ],
+      "missionIds": [274, 280, 284, 271, 264],
       "totalPoints": 5,
       "rewards": [
         {
@@ -26689,10 +26366,7 @@
       "reward": "1x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        272,
-        279
-      ],
+      "missionIds": [272, 279],
       "totalPoints": 2,
       "rewards": [
         {
@@ -26710,13 +26384,7 @@
       "reward": "2x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        274,
-        280,
-        284,
-        271,
-        264
-      ],
+      "missionIds": [274, 280, 284, 271, 264],
       "totalPoints": 5,
       "rewards": [
         {
@@ -26734,10 +26402,7 @@
       "reward": "102 SP Jose Fernandez, 2x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        292,
-        293
-      ],
+      "missionIds": [292, 293],
       "totalPoints": 2,
       "rewards": [
         {
@@ -26759,10 +26424,7 @@
       "reward": "Immortal Seasons 3 1B Eric Thames NC 2015, 2x Historical Diamond Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        292,
-        293
-      ],
+      "missionIds": [292, 293],
       "totalPoints": 2,
       "rewards": [
         {
@@ -26784,13 +26446,7 @@
       "reward": "1x Historical Perfect Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        262,
-        259,
-        260,
-        263,
-        261
-      ],
+      "missionIds": [262, 259, 260, 263, 261],
       "totalPoints": 5,
       "rewards": [
         {
@@ -26808,12 +26464,7 @@
       "reward": "1x Historical Rainbow Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        295,
-        289,
-        294,
-        296
-      ],
+      "missionIds": [295, 289, 294, 296],
       "totalPoints": 4,
       "rewards": [
         {
@@ -26831,14 +26482,7 @@
       "reward": "1x Spotlight #Immortals Pack",
       "category": "Immortal Seasons",
       "cards": [],
-      "missionIds": [
-        276,
-        282,
-        283,
-        268,
-        281,
-        278
-      ],
+      "missionIds": [276, 282, 283, 268, 281, 278],
       "totalPoints": 6,
       "rewards": [
         {
@@ -28119,10 +27763,7 @@
       "reward": "83 LF Jackie Robinson, 1x Historical Gold Pack",
       "category": "Negro Leagues",
       "cards": [],
-      "missionIds": [
-        301,
-        300
-      ],
+      "missionIds": [301, 300],
       "totalPoints": 2,
       "rewards": [
         {
@@ -28144,19 +27785,7 @@
       "reward": "83 SS Howard Easterling, 2x Historical Diamond Pack",
       "category": "Negro Leagues",
       "cards": [],
-      "missionIds": [
-        304,
-        302,
-        305,
-        303,
-        311,
-        312,
-        308,
-        306,
-        307,
-        309,
-        310
-      ],
+      "missionIds": [304, 302, 305, 303, 311, 312, 308, 306, 307, 309, 310],
       "totalPoints": 11,
       "rewards": [
         {
@@ -28178,18 +27807,7 @@
       "reward": "77 SS Pop Lloyd, 1x Historical Gold Pack",
       "category": "Negro Leagues",
       "cards": [],
-      "missionIds": [
-        304,
-        302,
-        305,
-        311,
-        312,
-        308,
-        306,
-        307,
-        309,
-        310
-      ],
+      "missionIds": [304, 302, 305, 311, 312, 308, 306, 307, 309, 310],
       "totalPoints": 10,
       "rewards": [
         {
@@ -28211,17 +27829,7 @@
       "reward": "67 2B Dink Mothell, 1x Historical Gold Pack",
       "category": "Negro Leagues",
       "cards": [],
-      "missionIds": [
-        304,
-        302,
-        311,
-        312,
-        308,
-        306,
-        307,
-        309,
-        310
-      ],
+      "missionIds": [304, 302, 311, 312, 308, 306, 307, 309, 310],
       "totalPoints": 9,
       "rewards": [
         {
@@ -28244,18 +27852,7 @@
       "category": "Negro Leagues",
       "cards": [],
       "missionIds": [
-        304,
-        302,
-        305,
-        303,
-        313,
-        311,
-        312,
-        308,
-        306,
-        307,
-        309,
-        310
+        304, 302, 305, 303, 313, 311, 312, 308, 306, 307, 309, 310
       ],
       "totalPoints": 12,
       "rewards": [
@@ -28279,20 +27876,7 @@
       "category": "Negro Leagues",
       "cards": [],
       "missionIds": [
-        304,
-        302,
-        305,
-        303,
-        313,
-        311,
-        312,
-        308,
-        306,
-        307,
-        309,
-        310,
-        299,
-        314
+        304, 302, 305, 303, 313, 311, 312, 308, 306, 307, 309, 310, 299, 314
       ],
       "totalPoints": 14,
       "rewards": [
@@ -28725,13 +28309,7 @@
       "reward": "1x Perfect Pack",
       "category": "Hall of Fame",
       "cards": [],
-      "missionIds": [
-        320,
-        321,
-        323,
-        322,
-        324
-      ],
+      "missionIds": [320, 321, 323, 322, 324],
       "totalPoints": 5,
       "rewards": [
         {
@@ -29873,20 +29451,7 @@
       "category": "Bonus Rewards",
       "cards": [],
       "missionIds": [
-        143,
-        135,
-        124,
-        184,
-        138,
-        155,
-        154,
-        129,
-        159,
-        144,
-        147,
-        130,
-        139,
-        337
+        143, 135, 124, 184, 138, 155, 154, 129, 159, 144, 147, 130, 139, 337
       ],
       "totalPoints": 14,
       "rewards": [
@@ -29909,13 +29474,7 @@
       "reward": "Historical Perfect Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        338,
-        148,
-        206,
-        238,
-        239
-      ],
+      "missionIds": [338, 148, 206, 238, 239],
       "totalPoints": 5,
       "rewards": [
         {
@@ -30068,20 +29627,7 @@
       "category": "Bonus Rewards",
       "cards": [],
       "missionIds": [
-        142,
-        150,
-        152,
-        131,
-        162,
-        141,
-        132,
-        326,
-        332,
-        333,
-        336,
-        340,
-        337,
-        335,
+        142, 150, 152, 131, 162, 141, 132, 326, 332, 333, 336, 340, 337, 335,
         334
       ],
       "totalPoints": 15,
@@ -30101,10 +29647,7 @@
       "reward": "Complete Live 1 - All-Time Legend SP Dave Stieb TOR Peak",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        341,
-        161
-      ],
+      "missionIds": [341, 161],
       "totalPoints": 2,
       "rewards": [
         {
@@ -30121,15 +29664,7 @@
       "reward": "89 CF Willie Davis, 1x Historical Diamond Pack",
       "category": "Baseball Reference",
       "cards": [],
-      "missionIds": [
-        326,
-        328,
-        327,
-        332,
-        333,
-        336,
-        340
-      ],
+      "missionIds": [326, 328, 327, 332, 333, 336, 340],
       "totalPoints": 7,
       "rewards": [
         {
@@ -30151,17 +29686,7 @@
       "reward": "102 SP Dazzy Vance, 1x Rainbow Pack",
       "category": "Baseball Reference",
       "cards": [],
-      "missionIds": [
-        330,
-        331,
-        332,
-        333,
-        336,
-        340,
-        337,
-        335,
-        334
-      ],
+      "missionIds": [330, 331, 332, 333, 336, 340, 337, 335, 334],
       "totalPoints": 9,
       "rewards": [
         {
@@ -30183,12 +29708,7 @@
       "reward": "Baseball Reference 7 SP Greg Maddux SD 2007, 1x Historical Silver Pack",
       "category": "Baseball Reference",
       "cards": [],
-      "missionIds": [
-        329,
-        328,
-        327,
-        326
-      ],
+      "missionIds": [329, 328, 327, 326],
       "totalPoints": 4,
       "rewards": [
         {
@@ -30210,12 +29730,7 @@
       "reward": "59 SP Scott Perry, 1x Historical Silver Pack",
       "category": "Baseball Reference",
       "cards": [],
-      "missionIds": [
-        329,
-        328,
-        327,
-        326
-      ],
+      "missionIds": [329, 328, 327, 326],
       "totalPoints": 4,
       "rewards": [
         {
@@ -30237,15 +29752,7 @@
       "reward": "73 SP Ricky Romero, 1x Historical Gold Pack",
       "category": "Baseball Reference",
       "cards": [],
-      "missionIds": [
-        326,
-        328,
-        327,
-        332,
-        333,
-        336,
-        340
-      ],
+      "missionIds": [326, 328, 327, 332, 333, 336, 340],
       "totalPoints": 7,
       "rewards": [
         {
@@ -30267,17 +29774,7 @@
       "reward": "91 C Rudy York, 1x Perfect Pack",
       "category": "Baseball Reference",
       "cards": [],
-      "missionIds": [
-        330,
-        331,
-        332,
-        333,
-        336,
-        340,
-        337,
-        335,
-        334
-      ],
+      "missionIds": [330, 331, 332, 333, 336, 340, 337, 335, 334],
       "totalPoints": 9,
       "rewards": [
         {
@@ -30300,25 +29797,8 @@
       "category": "Baseball Reference",
       "cards": [],
       "missionIds": [
-        329,
-        326,
-        328,
-        327,
-        331,
-        330,
-        332,
-        333,
-        336,
-        340,
-        337,
-        335,
-        334,
-        346,
-        345,
-        347,
-        343,
-        348,
-        344
+        329, 326, 328, 327, 331, 330, 332, 333, 336, 340, 337, 335, 334, 346,
+        345, 347, 343, 348, 344
       ],
       "totalPoints": 19,
       "rewards": [
@@ -30663,12 +30143,7 @@
       "reward": "101 SP Jacob Misiorowski",
       "category": "Future Legends",
       "cards": [],
-      "missionIds": [
-        350,
-        351,
-        353,
-        352
-      ],
+      "missionIds": [350, 351, 353, 352],
       "totalPoints": 4,
       "rewards": [
         {
@@ -31315,12 +30790,7 @@
       "reward": "1x Historical Perfect Pack",
       "category": "Launch Plus",
       "cards": [],
-      "missionIds": [
-        356,
-        355,
-        358,
-        357
-      ],
+      "missionIds": [356, 355, 358, 357],
       "totalPoints": 4,
       "rewards": [
         {
@@ -31338,10 +30808,7 @@
       "reward": "1x Historical Rainbow Pack",
       "category": "Launch Plus",
       "cards": [],
-      "missionIds": [
-        360,
-        361
-      ],
+      "missionIds": [360, 361],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37737,10 +37204,7 @@
       "reward": "PT Elite 2 SS Bobby Witt Jr. KC 2025, Park: 1946 Briggs Stadium",
       "category": "PT Elite",
       "cards": [],
-      "missionIds": [
-        365,
-        405
-      ],
+      "missionIds": [365, 405],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37761,10 +37225,7 @@
       "reward": "PT Elite 2 1B Vladimir Guerrero Jr. TOR 2025, Park: 1903 Hilltop Park",
       "category": "PT Elite",
       "cards": [],
-      "missionIds": [
-        366,
-        406
-      ],
+      "missionIds": [366, 406],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37785,10 +37246,7 @@
       "reward": "PT Elite 2 C Cal Raleigh SEA 2025, Park: 1961 LA Wrigley Field 1961",
       "category": "PT Elite",
       "cards": [],
-      "missionIds": [
-        367,
-        407
-      ],
+      "missionIds": [367, 407],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37809,10 +37267,7 @@
       "reward": "PT Elite 2 CF Pete Crow-Armstrong CHC 2025, Park: 1927 Sportsmans Park",
       "category": "PT Elite",
       "cards": [],
-      "missionIds": [
-        389,
-        390
-      ],
+      "missionIds": [389, 390],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37833,10 +37288,7 @@
       "reward": "PT Elite 2 SP Cristopher Sanchez PHI 2025, Park: 1940 Braves Field",
       "category": "PT Elite",
       "cards": [],
-      "missionIds": [
-        391,
-        408
-      ],
+      "missionIds": [391, 408],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37857,10 +37309,7 @@
       "reward": "PT Elite 2 SP Yoshinobu Yamamoto LAD 2025, Park: 2003 Dodger Stadium",
       "category": "PT Elite",
       "cards": [],
-      "missionIds": [
-        392,
-        409
-      ],
+      "missionIds": [392, 409],
       "totalPoints": 2,
       "rewards": [
         {
@@ -39290,12 +38739,7 @@
       "reward": "Joey Bats - Historical All-Star RF Jose Bautista TOR 2015",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        418,
-        426,
-        428,
-        416
-      ],
+      "missionIds": [418, 426, 428, 416],
       "totalPoints": 4,
       "rewards": [
         {
@@ -39312,10 +38756,7 @@
       "reward": "Playoff Stars - Baseball Reference 9 CF Carlos Beltran HOU 2004",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        417,
-        425
-      ],
+      "missionIds": [417, 425],
       "totalPoints": 2,
       "rewards": [
         {
@@ -39332,10 +38773,7 @@
       "reward": "Playoff Stars - Baseball Reference 9 C A.J. Ellis LAD 2013",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        419,
-        427
-      ],
+      "missionIds": [419, 427],
       "totalPoints": 2,
       "rewards": [
         {
@@ -39352,11 +38790,7 @@
       "reward": "Playoff Moments - Snapshot RF Kirk Gibson DET 1984",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        423,
-        432,
-        416
-      ],
+      "missionIds": [423, 432, 416],
       "totalPoints": 3,
       "rewards": [
         {
@@ -39373,10 +38807,7 @@
       "reward": "Playoff Stars - Baseball Reference 9 SP Sterling Hitchcock SD 1998",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        421,
-        431
-      ],
+      "missionIds": [421, 431],
       "totalPoints": 2,
       "rewards": [
         {
@@ -39393,10 +38824,7 @@
       "reward": "Playoff Stars - Baseball Reference 9 3B Royce Lewis MIN 2023",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        422,
-        433
-      ],
+      "missionIds": [422, 433],
       "totalPoints": 2,
       "rewards": [
         {
@@ -39413,16 +38841,7 @@
       "reward": "Baseball Reference 9 SP Madison Bumgarner SF 2014",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [
-        420,
-        429,
-        430,
-        424,
-        436,
-        438,
-        439,
-        435
-      ],
+      "missionIds": [420, 429, 430, 424, 436, 438, 439, 435],
       "totalPoints": 8,
       "rewards": [
         {
@@ -39440,31 +38859,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        419,
-        427,
-        421,
-        431,
-        422,
-        433,
-        417,
-        425,
-        423,
-        432,
-        418,
-        426,
-        428,
-        420,
-        429,
-        430,
-        416,
-        424,
-        436,
-        438,
-        439,
-        435,
-        437,
-        434,
-        440
+        419, 427, 421, 431, 422, 433, 417, 425, 423, 432, 418, 426, 428, 420,
+        429, 430, 416, 424, 436, 438, 439, 435, 437, 434, 440
       ],
       "totalPoints": 25,
       "rewards": [
@@ -39484,31 +38880,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        419,
-        427,
-        421,
-        431,
-        422,
-        433,
-        417,
-        425,
-        423,
-        432,
-        418,
-        426,
-        428,
-        420,
-        429,
-        430,
-        416,
-        424,
-        436,
-        438,
-        439,
-        435,
-        437,
-        434,
-        440
+        419, 427, 421, 431, 422, 433, 417, 425, 423, 432, 418, 426, 428, 420,
+        429, 430, 416, 424, 436, 438, 439, 435, 437, 434, 440
       ],
       "totalPoints": 25,
       "rewards": [
@@ -39528,31 +38901,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        419,
-        427,
-        421,
-        431,
-        422,
-        433,
-        417,
-        425,
-        423,
-        432,
-        418,
-        426,
-        428,
-        420,
-        429,
-        430,
-        416,
-        424,
-        436,
-        438,
-        439,
-        435,
-        437,
-        434,
-        440
+        419, 427, 421, 431, 422, 433, 417, 425, 423, 432, 418, 426, 428, 420,
+        429, 430, 416, 424, 436, 438, 439, 435, 437, 434, 440
       ],
       "totalPoints": 25,
       "rewards": [
@@ -39572,31 +38922,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        419,
-        427,
-        421,
-        431,
-        422,
-        433,
-        417,
-        425,
-        423,
-        432,
-        418,
-        426,
-        428,
-        420,
-        429,
-        430,
-        416,
-        424,
-        436,
-        438,
-        439,
-        435,
-        437,
-        434,
-        440
+        419, 427, 421, 431, 422, 433, 417, 425, 423, 432, 418, 426, 428, 420,
+        429, 430, 416, 424, 436, 438, 439, 435, 437, 434, 440
       ],
       "totalPoints": 25,
       "rewards": [
@@ -41881,17 +41208,7 @@
       "reward": "Arriba - October Missions RF Roberto Clemente PIT Peak, Rainbow Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [
-        464,
-        462,
-        458,
-        468,
-        467,
-        461,
-        448,
-        454,
-        451
-      ],
+      "missionIds": [464, 462, 458, 468, 467, 461, 448, 454, 451],
       "totalPoints": 9,
       "rewards": [
         {
@@ -41913,13 +41230,7 @@
       "reward": "October Missions - Unsung Heroes RP Brooks Kieschnick MIL 2003, 5x Standard Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [
-        449,
-        446,
-        450,
-        457,
-        463
-      ],
+      "missionIds": [449, 446, 450, 457, 463],
       "totalPoints": 5,
       "rewards": [
         {
@@ -41941,13 +41252,7 @@
       "reward": "October Missions - Historical All-Star CF Mickey Mantle NYY 1954, 3x Historical Diamond Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [
-        466,
-        459,
-        447,
-        452,
-        453
-      ],
+      "missionIds": [466, 459, 447, 452, 453],
       "totalPoints": 5,
       "rewards": [
         {
@@ -41969,14 +41274,7 @@
       "reward": "October Missions - All-Time Legend C Jeff Mathis ARI Peak, 10X Standard Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [
-        456,
-        446,
-        445,
-        455,
-        465,
-        447
-      ],
+      "missionIds": [456, 446, 445, 455, 465, 447],
       "totalPoints": 6,
       "rewards": [
         {
@@ -41998,13 +41296,7 @@
       "reward": "October Missions - Hardware Heroes CF Stan Musial STL 1952, Perfect Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [
-        467,
-        460,
-        447,
-        454,
-        451
-      ],
+      "missionIds": [467, 460, 447, 454, 451],
       "totalPoints": 5,
       "rewards": [
         {
@@ -42026,12 +41318,7 @@
       "reward": "October Missions - Baseball Reference 2 C Ted Simmons ML4 1983, 15x Standard Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [
-        459,
-        456,
-        463,
-        452
-      ],
+      "missionIds": [459, 456, 463, 452],
       "totalPoints": 4,
       "rewards": [
         {
@@ -42054,36 +41341,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        464,
-        462,
-        458,
-        468,
-        466,
-        467,
-        459,
-        460,
-        461,
-        456,
-        449,
-        446,
-        450,
-        457,
-        463,
-        445,
-        455,
-        465,
-        447,
-        448,
-        452,
-        454,
-        453,
-        451,
-        469,
-        473,
-        471,
-        474,
-        472,
-        470
+        464, 462, 458, 468, 466, 467, 459, 460, 461, 456, 449, 446, 450, 457,
+        463, 445, 455, 465, 447, 448, 452, 454, 453, 451, 469, 473, 471, 474,
+        472, 470
       ],
       "totalPoints": 30,
       "rewards": [
@@ -42103,36 +41363,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        464,
-        462,
-        458,
-        468,
-        466,
-        467,
-        459,
-        460,
-        461,
-        456,
-        449,
-        446,
-        450,
-        457,
-        463,
-        445,
-        455,
-        465,
-        447,
-        448,
-        452,
-        454,
-        453,
-        451,
-        469,
-        473,
-        471,
-        474,
-        472,
-        470
+        464, 462, 458, 468, 466, 467, 459, 460, 461, 456, 449, 446, 450, 457,
+        463, 445, 455, 465, 447, 448, 452, 454, 453, 451, 469, 473, 471, 474,
+        472, 470
       ],
       "totalPoints": 30,
       "rewards": [
@@ -42152,36 +41385,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        464,
-        462,
-        458,
-        468,
-        466,
-        467,
-        459,
-        460,
-        461,
-        456,
-        449,
-        446,
-        450,
-        457,
-        463,
-        445,
-        455,
-        465,
-        447,
-        448,
-        452,
-        454,
-        453,
-        451,
-        469,
-        473,
-        471,
-        474,
-        472,
-        470
+        464, 462, 458, 468, 466, 467, 459, 460, 461, 456, 449, 446, 450, 457,
+        463, 445, 455, 465, 447, 448, 452, 454, 453, 451, 469, 473, 471, 474,
+        472, 470
       ],
       "totalPoints": 30,
       "rewards": [
@@ -42201,36 +41407,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        464,
-        462,
-        458,
-        468,
-        466,
-        467,
-        459,
-        460,
-        461,
-        456,
-        449,
-        446,
-        450,
-        457,
-        463,
-        445,
-        455,
-        465,
-        447,
-        448,
-        452,
-        454,
-        453,
-        451,
-        469,
-        473,
-        471,
-        474,
-        472,
-        470
+        464, 462, 458, 468, 466, 467, 459, 460, 461, 456, 449, 446, 450, 457,
+        463, 445, 455, 465, 447, 448, 452, 454, 453, 451, 469, 473, 471, 474,
+        472, 470
       ],
       "totalPoints": 30,
       "rewards": [
@@ -43108,17 +42287,7 @@
       "reward": "5x Historical Gold Pack",
       "category": "Holiday Times",
       "cards": [],
-      "missionIds": [
-        484,
-        480,
-        479,
-        486,
-        485,
-        481,
-        482,
-        488,
-        489
-      ],
+      "missionIds": [484, 480, 479, 486, 485, 481, 482, 488, 489],
       "totalPoints": 9,
       "rewards": [
         {
@@ -43136,13 +42305,7 @@
       "reward": "Stocking Stuffers 2 - Immortal Seasons LF Rickey Henderson OAK 1990, Historical Rainbow Pack",
       "category": "Holiday Times",
       "cards": [],
-      "missionIds": [
-        487,
-        490,
-        491,
-        492,
-        483
-      ],
+      "missionIds": [487, 490, 491, 492, 483],
       "totalPoints": 5,
       "rewards": [
         {
@@ -43165,20 +42328,7 @@
       "category": "Holiday Times",
       "cards": [],
       "missionIds": [
-        484,
-        480,
-        479,
-        486,
-        485,
-        481,
-        482,
-        488,
-        489,
-        487,
-        490,
-        491,
-        492,
-        483,
+        484, 480, 479, 486, 485, 481, 482, 488, 489, 487, 490, 491, 492, 483,
         493
       ],
       "totalPoints": 15,
@@ -43199,20 +42349,7 @@
       "category": "Holiday Times",
       "cards": [],
       "missionIds": [
-        484,
-        480,
-        479,
-        486,
-        485,
-        481,
-        482,
-        488,
-        489,
-        487,
-        490,
-        491,
-        492,
-        483,
+        484, 480, 479, 486, 485, 481, 482, 488, 489, 487, 490, 491, 492, 483,
         493
       ],
       "totalPoints": 15,
@@ -43233,20 +42370,7 @@
       "category": "Holiday Times",
       "cards": [],
       "missionIds": [
-        484,
-        480,
-        479,
-        486,
-        485,
-        481,
-        482,
-        488,
-        489,
-        487,
-        490,
-        491,
-        492,
-        483,
+        484, 480, 479, 486, 485, 481, 482, 488, 489, 487, 490, 491, 492, 483,
         493
       ],
       "totalPoints": 15,
@@ -44838,22 +43962,8 @@
       "category": "Final Mission Set",
       "cards": [],
       "missionIds": [
-        507,
-        505,
-        506,
-        508,
-        503,
-        502,
-        499,
-        504,
-        501,
-        500,
-        497,
-        498,
-        512,
-        511,
-        509,
-        510
+        507, 505, 506, 508, 503, 502, 499, 504, 501, 500, 497, 498, 512, 511,
+        509, 510
       ],
       "totalPoints": 16,
       "rewards": [
@@ -44877,22 +43987,8 @@
       "category": "Final Mission Set",
       "cards": [],
       "missionIds": [
-        507,
-        505,
-        506,
-        508,
-        503,
-        502,
-        499,
-        504,
-        501,
-        500,
-        497,
-        498,
-        512,
-        511,
-        509,
-        510
+        507, 505, 506, 508, 503, 502, 499, 504, 501, 500, 497, 498, 512, 511,
+        509, 510
       ],
       "totalPoints": 16,
       "rewards": [
@@ -44916,22 +44012,8 @@
       "category": "Final Mission Set",
       "cards": [],
       "missionIds": [
-        507,
-        505,
-        506,
-        508,
-        503,
-        502,
-        499,
-        504,
-        501,
-        500,
-        497,
-        498,
-        512,
-        511,
-        509,
-        510
+        507, 505, 506, 508, 503, 502, 499, 504, 501, 500, 497, 498, 512, 511,
+        509, 510
       ],
       "totalPoints": 16,
       "rewards": [
