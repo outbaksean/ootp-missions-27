@@ -59,7 +59,7 @@ public class FullTransformationService
         _lws.StripDetailTrailingCommas(result);
         DeduplicateMissionDetails(result);
 
-        BackfillRewardStrings(result);
+        BackfillFields(result);
 
         var errors = ValidateFields(result);
         var errorMissionIds = new HashSet<int>(errors.Select(e => e.Mission.Id));
@@ -93,12 +93,26 @@ public class FullTransformationService
         return errors;
     }
 
-    private void BackfillRewardStrings(List<Mission> missions)
+    private void BackfillFields(List<Mission> missions)
     {
         foreach (var m in missions)
         {
             if (string.IsNullOrWhiteSpace(m.Reward) && m.Rewards?.Count > 0)
                 m.Reward = _rewardMapping.GenerateRewardString(m.Rewards);
+
+            if (string.IsNullOrWhiteSpace(m.Status) && m.Type.HasValue)
+                m.Status = m.Type.Value switch
+                {
+                    MissionType.Count    => $"0 / {m.RequiredCount} out of {m.RequiredCount}",
+                    MissionType.Points   => $"0 / {m.RequiredCount} Points",
+                    MissionType.Missions => $"0 / {m.RequiredCount} Missions",
+                    _                    => m.Status
+                };
+
+            if ((m.MissionDetails == null || m.MissionDetails.Count == 0) && m.Cards?.Count > 0)
+                m.MissionDetails = m.Cards
+                    .Select(c => _cardMapping.TryLookupById(c.CardId, out var title) ? title : c.CardId.ToString())
+                    .ToList();
         }
     }
 

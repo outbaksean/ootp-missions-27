@@ -324,6 +324,13 @@ function buildActionRow(m) {
     }
   }
 
+  if (!m.readOnly) {
+    const reverseBtn = document.createElement('button');
+    reverseBtn.textContent = 'Reverse Parse';
+    reverseBtn.onclick = function() { missionReverseParse(this); };
+    saveRow.appendChild(reverseBtn);
+  }
+
   const transformBtn = document.createElement('button');
   transformBtn.textContent = 'Transform';
   transformBtn.onclick = function() { runTransform(); };
@@ -457,6 +464,7 @@ function buildTextField(field, value, debugImages, missionErrorTypes, readOnly =
 function buildDetailsField(details, debugImages, missionErrorTypes, readOnly = false) {
   const row = document.createElement('div');
   row.className = 'field-row';
+  row.dataset.fieldContainer = 'missionDetails';
 
   const detailErrors = missionErrorTypes.filter(e => errorTypeToField(e) === 'missionDetails');
   const errorIndices = new Set();
@@ -589,10 +597,46 @@ function generateRewardStringFromDOM(det) {
   return parts.join(', ');
 }
 
-function reverseParseReward(btn) {
+function missionReverseParse(btn) {
   const det = btn.closest('details');
+  const id = parseInt(det.dataset.id, 10);
+  const mission = cachedMissions.find(m => m.id === id);
+
   const rewardInput = det.querySelector('input[data-field="reward"]');
-  if (rewardInput) rewardInput.value = generateRewardStringFromDOM(det);
+  if (rewardInput && !rewardInput.value.trim())
+    rewardInput.value = generateRewardStringFromDOM(det);
+
+  const statusInput = det.querySelector('input[data-field="status"]');
+  if (statusInput && !statusInput.value.trim() && mission?.type) {
+    const n = mission.requiredCount ?? 1;
+    const typeMap = { count: `0 / ${n} out of ${n}`, points: `0 / ${n} Points`, missions: `0 / ${n} Missions` };
+    const generated = typeMap[mission.type];
+    if (generated) statusInput.value = generated;
+  }
+
+  if (mission?.cards?.length > 0) {
+    const detailsRow = det.querySelector('[data-field-container="missionDetails"]');
+    if (detailsRow) {
+      const existing = detailsRow.querySelectorAll('input[data-field="missionDetails"]');
+      if (existing.length === 0 || Array.from(existing).every(i => !i.value.trim())) {
+        detailsRow.querySelectorAll('.detail-entry').forEach(e => e.remove());
+        const addBtn = detailsRow.querySelector('button:not(.btn-delete)');
+        for (const card of mission.cards) {
+          const title = allCards.find(c => c.cardId === card.cardId)?.title ?? String(card.cardId);
+          const entry = document.createElement('div');
+          entry.className = 'detail-entry';
+          const input = document.createElement('input');
+          input.type = 'text'; input.dataset.field = 'missionDetails'; input.value = title;
+          entry.appendChild(input);
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = 'Remove'; removeBtn.className = 'btn-delete';
+          removeBtn.onclick = function() { entry.remove(); };
+          entry.appendChild(removeBtn);
+          detailsRow.insertBefore(entry, addBtn);
+        }
+      }
+    }
+  }
 }
 
 function buildRewardEntry(reward, readOnly) {
@@ -664,10 +708,6 @@ function buildRewardsField(rewards, readOnly) {
       btn.onclick = () => container.appendChild(buildRewardEntry({ type, count: 1 }, false));
       btnRow.appendChild(btn);
     }
-    const reverseBtn = document.createElement('button');
-    reverseBtn.textContent = 'Reverse Parse';
-    reverseBtn.onclick = function() { reverseParseReward(this); };
-    btnRow.appendChild(reverseBtn);
     row.appendChild(btnRow);
   }
 
