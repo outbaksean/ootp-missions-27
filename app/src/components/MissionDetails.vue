@@ -1088,4 +1088,19 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 .shared-mission-link:hover {
   color: #1d4ed8;
 }
+
+@media (max-width: 767px) {
+  .detail-item {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .item-price-area {
+    align-items: flex-start;
+  }
+
+  .item-badges {
+    flex-wrap: wrap;
+  }
+}
 </style>

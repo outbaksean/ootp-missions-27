@@ -3,11 +3,17 @@
 html,
 body {
   height: 100%;
+  /* dvh tracks the visible viewport as the browser toolbar shows/hides.
+     On Firefox Android, plain 100% resolves to the layout viewport (toolbar
+     scrolled away), causing ~50px of top content to hide behind the address
+     bar on page load.  Browsers that don't support dvh fall back to 100%. */
+  height: 100dvh;
   overflow: hidden;
 }
 
 #app {
   height: 100%;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   font-weight: normal;
