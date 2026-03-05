@@ -65,6 +65,7 @@ label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
   </select>
   <label><input type="checkbox" id="include-points"> Include points</label>
   <button onclick="generatePTEliteMissions()">Generate PT Elite Missions</button>
+  <button onclick="addPTEliteToState()">Add PT Elite to State</button>
   <span id="status"></span>
 </div>
 
@@ -78,6 +79,7 @@ label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
 
 <script>
 let currentOutput = '';
+let ptEliteMissions = null;
 
 function cardValueToPoints(value) {
   if (value < 60)  return 1;
@@ -169,11 +171,40 @@ async function generatePTEliteMissions() {
     };
   });
 
+  ptEliteMissions = missions;
   currentOutput = missions.map(m => JSON.stringify(m, null, 2)).join(',\n') + ',';
   document.getElementById('results-title').textContent = `PT Elite Missions (${missions.length} teams)`;
   document.getElementById('output').textContent = currentOutput;
   document.getElementById('results').style.display = '';
   setStatus('');
+}
+
+async function addPTEliteToState() {
+  if (!ptEliteMissions) { setStatus('Generate PT Elite Missions first.'); return; }
+
+  setStatus('Adding to state...');
+  let existing;
+  try {
+    const res = await fetch('/api/missions');
+    const data = await res.json();
+    existing = data.missions ?? [];
+  } catch {
+    setStatus('Failed to fetch current missions.');
+    return;
+  }
+
+  const combined = [...existing, ...ptEliteMissions];
+  try {
+    const res = await fetch('/api/missions/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(combined)
+    });
+    const data = await res.json();
+    setStatus(`Added. State now has ${data.missionCount} missions.`);
+  } catch {
+    setStatus('Failed to import missions.');
+  }
 }
 
 function setStatus(msg) {
