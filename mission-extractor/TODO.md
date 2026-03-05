@@ -35,6 +35,7 @@
 - Updated `Bo Knows Iron` and `PG Associates` using manage missions screen, it was pretty nice
 - Re-captured `PG Heroes` and `Stars` and added to running cleaned missions, these have duplicate mission names
 - Cleaned up `PT27`, `PT26` manually in the json, the name spacing and category casing were wrong
+- Added `PT Elite` live missions to running cleaned missions
 
 ## Next
 
@@ -111,7 +112,7 @@
 - Final Mission Set
   - Complete, not deployed
 - Total
-  - 44 missions left
+  - 14 missions left
 
 ## Combine with previous missions
 

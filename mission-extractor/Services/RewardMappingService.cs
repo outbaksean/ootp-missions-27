@@ -80,18 +80,18 @@ public class RewardMappingService
 
         foreach (var r in rewards)
         {
-            if (r.Type == "Park")
+            if (r.Type.Equals("Park", StringComparison.OrdinalIgnoreCase))
             {
                 parts.Add($"Park: {r.Park}");
             }
-            else if (r.Type == "Pack")
+            else if (r.Type.Equals("Pack", StringComparison.OrdinalIgnoreCase))
             {
                 var name = r.PackType != null && PackTypeToDisplayName.TryGetValue(r.PackType, out var display)
                     ? display
                     : r.PackType ?? "Pack";
                 parts.Add(r.Count > 1 ? $"{r.Count}x {name}" : name);
             }
-            else if (r.Type == "Card" && r.CardId.HasValue)
+            else if (r.Type.Equals("Card", StringComparison.OrdinalIgnoreCase) && r.CardId.HasValue)
             {
                 parts.Add(_cardMapping.TryLookupById(r.CardId.Value, out var title)
                     ? title

@@ -507,6 +507,7 @@ function buildDetailsField(details, debugImages, missionErrorTypes, readOnly = f
     input.type = 'text';
     input.dataset.field = 'missionDetails';
     input.value = details[i] ?? '';
+    input.addEventListener('focus', function() { this.select(); });
     if (readOnly) input.disabled = true;
     entry.appendChild(input);
 
@@ -548,6 +549,7 @@ function buildDetailsField(details, debugImages, missionErrorTypes, readOnly = f
       input.type = 'text';
       input.dataset.field = 'missionDetails';
       input.value = '';
+      input.addEventListener('focus', function() { this.select(); });
       entry.appendChild(input);
 
       const removeBtn = document.createElement('button');
@@ -627,6 +629,7 @@ function missionReverseParse(btn) {
           entry.className = 'detail-entry';
           const input = document.createElement('input');
           input.type = 'text'; input.dataset.field = 'missionDetails'; input.value = title;
+          input.addEventListener('focus', function() { this.select(); });
           entry.appendChild(input);
           const removeBtn = document.createElement('button');
           removeBtn.textContent = 'Remove'; removeBtn.className = 'btn-delete';
@@ -1207,6 +1210,7 @@ document.querySelectorAll('#cards-table th').forEach(th => {
 });
 
 document.getElementById('cards-search').addEventListener('input', renderCards);
+document.getElementById('cards-search').addEventListener('focus', function() { this.select(); });
 
 // ── Divider drag ───────────────────────────────────────────────────────────────
 
