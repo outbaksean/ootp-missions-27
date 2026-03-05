@@ -81,7 +81,14 @@ export const useMissionStore = defineStore("mission", () => {
   function loadManualCompleteOverrides(): Set<number> {
     try {
       const stored = localStorage.getItem(MANUAL_COMPLETE_KEY);
-      return stored ? new Set(JSON.parse(stored) as number[]) : new Set();
+      if (!stored) return new Set();
+      const parsed = JSON.parse(stored) as
+        | number[]
+        | { version: string; ids: number[] };
+      // Old format: plain array — treat as versionless, will be cleared on first
+      // missions load via validateManualCompletes().
+      if (Array.isArray(parsed)) return new Set(parsed);
+      return new Set(parsed.ids);
     } catch {
       return new Set();
     }
@@ -90,8 +97,35 @@ export const useMissionStore = defineStore("mission", () => {
   function saveManualCompleteOverrides() {
     localStorage.setItem(
       MANUAL_COMPLETE_KEY,
-      JSON.stringify([...manualCompleteOverrides.value]),
+      JSON.stringify({
+        version: missionsVersion.value,
+        ids: [...manualCompleteOverrides.value],
+      }),
     );
+  }
+
+  /**
+   * Discard manualCompleteOverrides if they were saved under a different
+   * missions version.  Mission IDs are reassigned when the data is rebuilt, so
+   * completions from a previous version would incorrectly mark unrelated
+   * missions as done.
+   */
+  function validateManualCompletes() {
+    try {
+      const stored = localStorage.getItem(MANUAL_COMPLETE_KEY);
+      if (!stored) return;
+      const parsed = JSON.parse(stored) as
+        | number[]
+        | { version: string; ids: number[] };
+      const storedVersion = Array.isArray(parsed) ? null : parsed.version;
+      if (storedVersion !== missionsVersion.value) {
+        manualCompleteOverrides.value = new Set();
+        saveManualCompleteOverrides();
+      }
+    } catch {
+      manualCompleteOverrides.value = new Set();
+      saveManualCompleteOverrides();
+    }
   }
 
   const manualCompleteOverrides = ref<Set<number>>(
@@ -505,6 +539,7 @@ export const useMissionStore = defineStore("mission", () => {
     if (cacheUsable && !cacheExpired) {
       missions.value = cached.data;
       missionsVersion.value = cached.version;
+      validateManualCompletes();
       buildUserMissions();
       await calculateAllNotCalculatedMissions(
         missions.value.map((mission) => mission.id),
@@ -516,6 +551,7 @@ export const useMissionStore = defineStore("mission", () => {
           if (fresh.version !== missionsVersion.value) {
             missions.value = fresh.missions;
             missionsVersion.value = fresh.version;
+            validateManualCompletes();
             buildUserMissions();
             calculateAllNotCalculatedMissions(
               missions.value.map((mission) => mission.id),
@@ -544,6 +580,7 @@ export const useMissionStore = defineStore("mission", () => {
       }
     }
 
+    validateManualCompletes();
     buildUserMissions();
     await calculateAllNotCalculatedMissions(
       missions.value.map((mission) => mission.id),
