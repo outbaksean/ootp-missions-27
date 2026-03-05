@@ -81,7 +81,7 @@ namespace mission_extractor.Services
             int noDataCount = 0;
             int maxNoDataCount = 2;
             int rowIndex = 0;
-            int maxRowIndex = 2;
+            int maxRowIndex = noImageOffsets ? 5 : 2;
             int colIndex = 0;
             int maxColIndex = _missionBoundryService.MaxColumnIndex;
             int detailsAdded = 0;

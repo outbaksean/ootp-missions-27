@@ -36,6 +36,7 @@
 - Re-captured `PG Heroes` and `Stars` and added to running cleaned missions, these have duplicate mission names
 - Cleaned up `PT27`, `PT26` manually in the json, the name spacing and category casing were wrong
 - Added `PT Elite` live missions to running cleaned missions
+- Added remaining `PT Elite` Missions
 
 ## Next
 
@@ -102,7 +103,7 @@
 - Launch Plus
   - Complete previously
 - PT Elite
-  - To be done, 43 missions
+  - Complete, not deployed
 - Playoff Moments
   - Complete, not deployed
 - World Series Start
@@ -112,7 +113,7 @@
 - Final Mission Set
   - Complete, not deployed
 - Total
-  - 14 missions left
+  - 1 missions left
 
 ## Combine with previous missions
 

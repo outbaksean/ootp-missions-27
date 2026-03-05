@@ -30820,6 +30820,247 @@
     },
     {
       "id": 363,
+      "name": "PT Elite - AL",
+      "type": "count",
+      "requiredCount": 34,
+      "reward": "PT Elite 3 SP Tarik Skubal DET 2025, 3x Historical Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76073
+        },
+        {
+          "cardId": 75997
+        },
+        {
+          "cardId": 76043
+        },
+        {
+          "cardId": 76079
+        },
+        {
+          "cardId": 76054
+        },
+        {
+          "cardId": 76039
+        },
+        {
+          "cardId": 76055
+        },
+        {
+          "cardId": 76086
+        },
+        {
+          "cardId": 76057
+        },
+        {
+          "cardId": 76074
+        },
+        {
+          "cardId": 76031
+        },
+        {
+          "cardId": 76080
+        },
+        {
+          "cardId": 76044
+        },
+        {
+          "cardId": 76037
+        },
+        {
+          "cardId": 76058
+        },
+        {
+          "cardId": 76263
+        },
+        {
+          "cardId": 76046
+        },
+        {
+          "cardId": 76040
+        },
+        {
+          "cardId": 71498
+        },
+        {
+          "cardId": 76065
+        },
+        {
+          "cardId": 76195
+        },
+        {
+          "cardId": 76061
+        },
+        {
+          "cardId": 76045
+        },
+        {
+          "cardId": 76052
+        },
+        {
+          "cardId": 76025
+        },
+        {
+          "cardId": 76100
+        },
+        {
+          "cardId": 76071
+        },
+        {
+          "cardId": 76033
+        },
+        {
+          "cardId": 76089
+        },
+        {
+          "cardId": 76042
+        },
+        {
+          "cardId": 76095
+        },
+        {
+          "cardId": 76059
+        },
+        {
+          "cardId": 76022
+        },
+        {
+          "cardId": 76048
+        },
+        {
+          "cardId": 76072
+        },
+        {
+          "cardId": 76193
+        },
+        {
+          "cardId": 76076
+        },
+        {
+          "cardId": 76019
+        },
+        {
+          "cardId": 75801
+        },
+        {
+          "cardId": 76023
+        }
+      ],
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 76075
+        },
+        {
+          "type": "Pack",
+          "packType": "HistPerfect",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": 364,
+      "name": "PT Elite - ALC 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76074
+        },
+        {
+          "cardId": 76263
+        },
+        {
+          "cardId": 76067
+        },
+        {
+          "cardId": 76065
+        },
+        {
+          "cardId": 76059
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 365,
+      "name": "PT Elite - ALE 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76046
+        },
+        {
+          "cardId": 76025
+        },
+        {
+          "cardId": 76042
+        },
+        {
+          "cardId": 76022
+        },
+        {
+          "cardId": 76048
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 366,
+      "name": "PT Elite - ALW 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76086
+        },
+        {
+          "cardId": 76080
+        },
+        {
+          "cardId": 76089
+        },
+        {
+          "cardId": 76095
+        },
+        {
+          "cardId": 76193
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 367,
       "name": "PT Elite - ATH",
       "type": "count",
       "requiredCount": 51,
@@ -30994,7 +31235,7 @@
       ]
     },
     {
-      "id": 364,
+      "id": 368,
       "name": "PT Elite - ATL",
       "type": "count",
       "requiredCount": 56,
@@ -31184,7 +31425,7 @@
       ]
     },
     {
-      "id": 365,
+      "id": 369,
       "name": "PT Elite - AZ",
       "type": "count",
       "requiredCount": 53,
@@ -31365,7 +31606,7 @@
       ]
     },
     {
-      "id": 366,
+      "id": 370,
       "name": "PT Elite - BAL",
       "type": "count",
       "requiredCount": 52,
@@ -31543,7 +31784,7 @@
       ]
     },
     {
-      "id": 367,
+      "id": 371,
       "name": "PT Elite - BOS",
       "type": "count",
       "requiredCount": 53,
@@ -31724,7 +31965,7 @@
       ]
     },
     {
-      "id": 368,
+      "id": 372,
       "name": "PT Elite - CHC",
       "type": "count",
       "requiredCount": 51,
@@ -31899,7 +32140,7 @@
       ]
     },
     {
-      "id": 369,
+      "id": 373,
       "name": "PT Elite - CIN",
       "type": "count",
       "requiredCount": 44,
@@ -32053,7 +32294,7 @@
       ]
     },
     {
-      "id": 370,
+      "id": 374,
       "name": "PT Elite - CLE",
       "type": "count",
       "requiredCount": 47,
@@ -32216,7 +32457,7 @@
       ]
     },
     {
-      "id": 371,
+      "id": 375,
       "name": "PT Elite - COL",
       "type": "count",
       "requiredCount": 48,
@@ -32382,7 +32623,44 @@
       ]
     },
     {
-      "id": 372,
+      "id": 376,
+      "name": "PT Elite - Complete",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "PT Elite 3 DH Shohei Ohtani LAD 2025, 2x Historical Rainbow Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 75932
+        },
+        {
+          "cardId": 76047
+        },
+        {
+          "cardId": 76075
+        },
+        {
+          "cardId": 75951
+        },
+        {
+          "cardId": 76023
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 75989
+        },
+        {
+          "type": "Pack",
+          "packType": "HistRainbow",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 377,
       "name": "PT Elite - CWS",
       "type": "count",
       "requiredCount": 51,
@@ -32557,7 +32835,7 @@
       ]
     },
     {
-      "id": 373,
+      "id": 378,
       "name": "PT Elite - DET",
       "type": "count",
       "requiredCount": 51,
@@ -32732,7 +33010,161 @@
       ]
     },
     {
-      "id": 374,
+      "id": 379,
+      "name": "PT Elite - Hitters",
+      "type": "count",
+      "requiredCount": 35,
+      "reward": "PT Elite 3 RF Juan Soto NYM 2025, 3x Historical Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76073
+        },
+        {
+          "cardId": 76002
+        },
+        {
+          "cardId": 75997
+        },
+        {
+          "cardId": 75987
+        },
+        {
+          "cardId": 76043
+        },
+        {
+          "cardId": 76055
+        },
+        {
+          "cardId": 75959
+        },
+        {
+          "cardId": 75983
+        },
+        {
+          "cardId": 76057
+        },
+        {
+          "cardId": 76086
+        },
+        {
+          "cardId": 75965
+        },
+        {
+          "cardId": 76031
+        },
+        {
+          "cardId": 76074
+        },
+        {
+          "cardId": 75973
+        },
+        {
+          "cardId": 75930
+        },
+        {
+          "cardId": 76080
+        },
+        {
+          "cardId": 76044
+        },
+        {
+          "cardId": 76037
+        },
+        {
+          "cardId": 75972
+        },
+        {
+          "cardId": 76058
+        },
+        {
+          "cardId": 76046
+        },
+        {
+          "cardId": 75939
+        },
+        {
+          "cardId": 76000
+        },
+        {
+          "cardId": 76040
+        },
+        {
+          "cardId": 76007
+        },
+        {
+          "cardId": 75979
+        },
+        {
+          "cardId": 76195
+        },
+        {
+          "cardId": 75946
+        },
+        {
+          "cardId": 76008
+        },
+        {
+          "cardId": 76097
+        },
+        {
+          "cardId": 76045
+        },
+        {
+          "cardId": 76052
+        },
+        {
+          "cardId": 75954
+        },
+        {
+          "cardId": 76100
+        },
+        {
+          "cardId": 76071
+        },
+        {
+          "cardId": 75994
+        },
+        {
+          "cardId": 76174
+        },
+        {
+          "cardId": 75929
+        },
+        {
+          "cardId": 76042
+        },
+        {
+          "cardId": 76072
+        },
+        {
+          "cardId": 75801
+        },
+        {
+          "cardId": 76076
+        },
+        {
+          "cardId": 76019
+        },
+        {
+          "cardId": 76023
+        }
+      ],
+      "totalPoints": 44,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 75932
+        },
+        {
+          "type": "Pack",
+          "packType": "HistPerfect",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": 380,
       "name": "PT Elite - HOU",
       "type": "count",
       "requiredCount": 56,
@@ -32922,7 +33354,7 @@
       ]
     },
     {
-      "id": 375,
+      "id": 381,
       "name": "PT Elite - KCR",
       "type": "count",
       "requiredCount": 47,
@@ -33085,7 +33517,7 @@
       ]
     },
     {
-      "id": 376,
+      "id": 382,
       "name": "PT Elite - LAA",
       "type": "count",
       "requiredCount": 57,
@@ -33278,7 +33710,7 @@
       ]
     },
     {
-      "id": 377,
+      "id": 383,
       "name": "PT Elite - LAD",
       "type": "count",
       "requiredCount": 54,
@@ -33462,7 +33894,7 @@
       ]
     },
     {
-      "id": 378,
+      "id": 384,
       "name": "PT Elite - MIA",
       "type": "count",
       "requiredCount": 47,
@@ -33625,7 +34057,7 @@
       ]
     },
     {
-      "id": 379,
+      "id": 385,
       "name": "PT Elite - MIL",
       "type": "count",
       "requiredCount": 49,
@@ -33794,7 +34226,7 @@
       ]
     },
     {
-      "id": 380,
+      "id": 386,
       "name": "PT Elite - MIN",
       "type": "count",
       "requiredCount": 43,
@@ -33945,7 +34377,437 @@
       ]
     },
     {
-      "id": 381,
+      "id": 387,
+      "name": "PT Elite - NL",
+      "type": "count",
+      "requiredCount": 35,
+      "reward": "PT Elite 3 SP Paul Skenes PIT 2025, 2x Historical Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76002
+        },
+        {
+          "cardId": 75987
+        },
+        {
+          "cardId": 75947
+        },
+        {
+          "cardId": 75959
+        },
+        {
+          "cardId": 75961
+        },
+        {
+          "cardId": 75983
+        },
+        {
+          "cardId": 76013
+        },
+        {
+          "cardId": 75965
+        },
+        {
+          "cardId": 75973
+        },
+        {
+          "cardId": 75967
+        },
+        {
+          "cardId": 75930
+        },
+        {
+          "cardId": 75937
+        },
+        {
+          "cardId": 75990
+        },
+        {
+          "cardId": 75966
+        },
+        {
+          "cardId": 75972
+        },
+        {
+          "cardId": 75939
+        },
+        {
+          "cardId": 75986
+        },
+        {
+          "cardId": 76000
+        },
+        {
+          "cardId": 76017
+        },
+        {
+          "cardId": 76007
+        },
+        {
+          "cardId": 75979
+        },
+        {
+          "cardId": 75946
+        },
+        {
+          "cardId": 76008
+        },
+        {
+          "cardId": 75926
+        },
+        {
+          "cardId": 75945
+        },
+        {
+          "cardId": 76097
+        },
+        {
+          "cardId": 76098
+        },
+        {
+          "cardId": 76174
+        },
+        {
+          "cardId": 75954
+        },
+        {
+          "cardId": 75929
+        },
+        {
+          "cardId": 75928
+        },
+        {
+          "cardId": 75994
+        },
+        {
+          "cardId": 75969
+        },
+        {
+          "cardId": 75978
+        },
+        {
+          "cardId": 76005
+        },
+        {
+          "cardId": 75940
+        },
+        {
+          "cardId": 75924
+        },
+        {
+          "cardId": 76006
+        },
+        {
+          "cardId": 75998
+        },
+        {
+          "cardId": 76275
+        }
+      ],
+      "totalPoints": 40,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 75951
+        },
+        {
+          "type": "Pack",
+          "packType": "HistPerfect",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 388,
+      "name": "PT Elite - NLC 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 75959
+        },
+        {
+          "cardId": 75967
+        },
+        {
+          "cardId": 75972
+        },
+        {
+          "cardId": 75979
+        },
+        {
+          "cardId": 75969
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 389,
+      "name": "PT Elite - NLC 2",
+      "type": "count",
+      "requiredCount": 53,
+      "reward": "2x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 75899
+        },
+        {
+          "cardId": 75905
+        },
+        {
+          "cardId": 74762
+        },
+        {
+          "cardId": 75848
+        },
+        {
+          "cardId": 75895
+        },
+        {
+          "cardId": 75910
+        },
+        {
+          "cardId": 76109
+        },
+        {
+          "cardId": 76210
+        },
+        {
+          "cardId": 75901
+        },
+        {
+          "cardId": 75842
+        },
+        {
+          "cardId": 75904
+        },
+        {
+          "cardId": 75907
+        },
+        {
+          "cardId": 75853
+        },
+        {
+          "cardId": 76233
+        },
+        {
+          "cardId": 75903
+        },
+        {
+          "cardId": 76133
+        },
+        {
+          "cardId": 76215
+        },
+        {
+          "cardId": 76116
+        },
+        {
+          "cardId": 74706
+        },
+        {
+          "cardId": 76134
+        },
+        {
+          "cardId": 76200
+        },
+        {
+          "cardId": 75832
+        },
+        {
+          "cardId": 76214
+        },
+        {
+          "cardId": 75987
+        },
+        {
+          "cardId": 74563
+        },
+        {
+          "cardId": 76079
+        },
+        {
+          "cardId": 76234
+        },
+        {
+          "cardId": 74151
+        },
+        {
+          "cardId": 75827
+        },
+        {
+          "cardId": 76104
+        },
+        {
+          "cardId": 74668
+        },
+        {
+          "cardId": 74168
+        },
+        {
+          "cardId": 75821
+        },
+        {
+          "cardId": 75902
+        },
+        {
+          "cardId": 76128
+        },
+        {
+          "cardId": 76136
+        },
+        {
+          "cardId": 74702
+        },
+        {
+          "cardId": 76167
+        },
+        {
+          "cardId": 76236
+        },
+        {
+          "cardId": 75813
+        },
+        {
+          "cardId": 76055
+        },
+        {
+          "cardId": 76207
+        },
+        {
+          "cardId": 76212
+        },
+        {
+          "cardId": 75898
+        },
+        {
+          "cardId": 76131
+        },
+        {
+          "cardId": 76226
+        },
+        {
+          "cardId": 76156
+        },
+        {
+          "cardId": 75983
+        },
+        {
+          "cardId": 75840
+        },
+        {
+          "cardId": 75830
+        },
+        {
+          "cardId": 75897
+        },
+        {
+          "cardId": 68259
+        },
+        {
+          "cardId": 76031
+        },
+        {
+          "cardId": 76138
+        },
+        {
+          "cardId": 76165
+        },
+        {
+          "cardId": 74919
+        },
+        {
+          "cardId": 75804
+        }
+      ],
+      "totalPoints": 57,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 390,
+      "name": "PT Elite - NLE 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 75947
+        },
+        {
+          "cardId": 75930
+        },
+        {
+          "cardId": 75945
+        },
+        {
+          "cardId": 75929
+        },
+        {
+          "cardId": 75940
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 391,
+      "name": "PT Elite - NLW 1",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "4x Historical Diamond Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76002
+        },
+        {
+          "cardId": 75986
+        },
+        {
+          "cardId": 76008
+        },
+        {
+          "cardId": 76005
+        },
+        {
+          "cardId": 76006
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 392,
       "name": "PT Elite - NYM",
       "type": "count",
       "requiredCount": 58,
@@ -34141,7 +35003,7 @@
       ]
     },
     {
-      "id": 382,
+      "id": 393,
       "name": "PT Elite - NYY",
       "type": "count",
       "requiredCount": 48,
@@ -34307,7 +35169,7 @@
       ]
     },
     {
-      "id": 383,
+      "id": 394,
       "name": "PT Elite - PHI",
       "type": "count",
       "requiredCount": 39,
@@ -34446,7 +35308,7 @@
       ]
     },
     {
-      "id": 384,
+      "id": 395,
       "name": "PT Elite - PIT",
       "type": "count",
       "requiredCount": 49,
@@ -34615,7 +35477,7 @@
       ]
     },
     {
-      "id": 385,
+      "id": 396,
       "name": "PT Elite - SDP",
       "type": "count",
       "requiredCount": 50,
@@ -34787,7 +35649,7 @@
       ]
     },
     {
-      "id": 386,
+      "id": 397,
       "name": "PT Elite - SEA",
       "type": "count",
       "requiredCount": 46,
@@ -34947,7 +35809,7 @@
       ]
     },
     {
-      "id": 387,
+      "id": 398,
       "name": "PT Elite - SFG",
       "type": "count",
       "requiredCount": 43,
@@ -35098,7 +35960,7 @@
       ]
     },
     {
-      "id": 388,
+      "id": 399,
       "name": "PT Elite - STL",
       "type": "count",
       "requiredCount": 38,
@@ -35234,7 +36096,7 @@
       ]
     },
     {
-      "id": 389,
+      "id": 400,
       "name": "PT Elite - TBR",
       "type": "count",
       "requiredCount": 47,
@@ -35397,7 +36259,7 @@
       ]
     },
     {
-      "id": 390,
+      "id": 401,
       "name": "PT Elite - TEX",
       "type": "count",
       "requiredCount": 50,
@@ -35569,7 +36431,7 @@
       ]
     },
     {
-      "id": 391,
+      "id": 402,
       "name": "PT Elite - TOR",
       "type": "count",
       "requiredCount": 50,
@@ -35741,7 +36603,7 @@
       ]
     },
     {
-      "id": 392,
+      "id": 403,
       "name": "PT Elite - WSH",
       "type": "count",
       "requiredCount": 46,
@@ -35901,7 +36763,567 @@
       ]
     },
     {
-      "id": 393,
+      "id": 404,
+      "name": "PT Elite - ALC 2",
+      "type": "points",
+      "requiredCount": 360,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 75635,
+          "points": 5
+        },
+        {
+          "cardId": 76235,
+          "points": 5
+        },
+        {
+          "cardId": 75909,
+          "points": 5
+        },
+        {
+          "cardId": 76112,
+          "points": 5
+        },
+        {
+          "cardId": 75476,
+          "points": 5
+        },
+        {
+          "cardId": 76239,
+          "points": 10
+        },
+        {
+          "cardId": 74897,
+          "points": 10
+        },
+        {
+          "cardId": 76221,
+          "points": 15
+        },
+        {
+          "cardId": 75618,
+          "points": 75
+        },
+        {
+          "cardId": 74811,
+          "points": 75
+        },
+        {
+          "cardId": 74733,
+          "points": 75
+        },
+        {
+          "cardId": 74869,
+          "points": 75
+        },
+        {
+          "cardId": 74704,
+          "points": 200
+        },
+        {
+          "cardId": 76071,
+          "points": 200
+        }
+      ],
+      "totalPoints": 760,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 405,
+      "name": "PT Elite - ALE 2",
+      "type": "points",
+      "requiredCount": 540,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76105,
+          "points": 10
+        },
+        {
+          "cardId": 75419,
+          "points": 10
+        },
+        {
+          "cardId": 75844,
+          "points": 15
+        },
+        {
+          "cardId": 75598,
+          "points": 15
+        },
+        {
+          "cardId": 76211,
+          "points": 15
+        },
+        {
+          "cardId": 76007,
+          "points": 50
+        },
+        {
+          "cardId": 75620,
+          "points": 50
+        },
+        {
+          "cardId": 75887,
+          "points": 75
+        },
+        {
+          "cardId": 76045,
+          "points": 75
+        },
+        {
+          "cardId": 76052,
+          "points": 75
+        },
+        {
+          "cardId": 76160,
+          "points": 200
+        },
+        {
+          "cardId": 74208,
+          "points": 200
+        },
+        {
+          "cardId": 76202,
+          "points": 200
+        },
+        {
+          "cardId": 76197,
+          "points": 200
+        }
+      ],
+      "totalPoints": 1190,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 406,
+      "name": "PT Elite - ALW 2",
+      "type": "points",
+      "requiredCount": 755,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76044,
+          "points": 10
+        },
+        {
+          "cardId": 76213,
+          "points": 10
+        },
+        {
+          "cardId": 76237,
+          "points": 10
+        },
+        {
+          "cardId": 76058,
+          "points": 10
+        },
+        {
+          "cardId": 75908,
+          "points": 10
+        },
+        {
+          "cardId": 75939,
+          "points": 15
+        },
+        {
+          "cardId": 76106,
+          "points": 15
+        },
+        {
+          "cardId": 75803,
+          "points": 15
+        },
+        {
+          "cardId": 76040,
+          "points": 15
+        },
+        {
+          "cardId": 74613,
+          "points": 50
+        },
+        {
+          "cardId": 72737,
+          "points": 50
+        },
+        {
+          "cardId": 76231,
+          "points": 50
+        },
+        {
+          "cardId": 75607,
+          "points": 50
+        },
+        {
+          "cardId": 76141,
+          "points": 75
+        },
+        {
+          "cardId": 76183,
+          "points": 200
+        },
+        {
+          "cardId": 76100,
+          "points": 200
+        },
+        {
+          "cardId": 76174,
+          "points": 200
+        },
+        {
+          "cardId": 75994,
+          "points": 200
+        },
+        {
+          "cardId": 75383,
+          "points": 200
+        },
+        {
+          "cardId": 75148,
+          "points": 200
+        },
+        {
+          "cardId": 75427,
+          "points": 200
+        },
+        {
+          "cardId": 76262,
+          "points": 200
+        }
+      ],
+      "totalPoints": 1985,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 407,
+      "name": "PT Elite - NLE 2",
+      "type": "points",
+      "requiredCount": 325,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76061,
+          "points": 50
+        },
+        {
+          "cardId": 75926,
+          "points": 50
+        },
+        {
+          "cardId": 75807,
+          "points": 75
+        },
+        {
+          "cardId": 75565,
+          "points": 75
+        },
+        {
+          "cardId": 75831,
+          "points": 200
+        },
+        {
+          "cardId": 75978,
+          "points": 200
+        },
+        {
+          "cardId": 76126,
+          "points": 200
+        },
+        {
+          "cardId": 74064,
+          "points": 200
+        },
+        {
+          "cardId": 75652,
+          "points": 200
+        },
+        {
+          "cardId": 76122,
+          "points": 200
+        }
+      ],
+      "totalPoints": 1450,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 408,
+      "name": "PT Elite - NLW 2",
+      "type": "points",
+      "requiredCount": 640,
+      "reward": "Perfect Pack",
+      "category": "PT Elite",
+      "cards": [
+        {
+          "cardId": 76249,
+          "points": 10
+        },
+        {
+          "cardId": 75892,
+          "points": 10
+        },
+        {
+          "cardId": 76155,
+          "points": 10
+        },
+        {
+          "cardId": 75966,
+          "points": 10
+        },
+        {
+          "cardId": 76123,
+          "points": 15
+        },
+        {
+          "cardId": 76132,
+          "points": 15
+        },
+        {
+          "cardId": 76127,
+          "points": 15
+        },
+        {
+          "cardId": 76017,
+          "points": 15
+        },
+        {
+          "cardId": 75876,
+          "points": 15
+        },
+        {
+          "cardId": 75819,
+          "points": 50
+        },
+        {
+          "cardId": 75839,
+          "points": 50
+        },
+        {
+          "cardId": 76147,
+          "points": 75
+        },
+        {
+          "cardId": 76098,
+          "points": 75
+        },
+        {
+          "cardId": 75526,
+          "points": 75
+        },
+        {
+          "cardId": 76241,
+          "points": 200
+        },
+        {
+          "cardId": 76124,
+          "points": 200
+        },
+        {
+          "cardId": 76146,
+          "points": 200
+        },
+        {
+          "cardId": 75928,
+          "points": 200
+        },
+        {
+          "cardId": 76033,
+          "points": 200
+        },
+        {
+          "cardId": 76162,
+          "points": 200
+        },
+        {
+          "cardId": 73878,
+          "points": 200
+        },
+        {
+          "cardId": 76121,
+          "points": 200
+        },
+        {
+          "cardId": 75998,
+          "points": 200
+        },
+        {
+          "cardId": 75631,
+          "points": 200
+        },
+        {
+          "cardId": 75529,
+          "points": 200
+        },
+        {
+          "cardId": 75527,
+          "points": 200
+        }
+      ],
+      "totalPoints": 2840,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Perfect",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 409,
+      "name": "PT Elite - ALC",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 SS Bobby Witt Jr. KC 2025, Park: 1946 Briggs Stadium",
+      "category": "PT Elite",
+      "cards": [],
+      "missionIds": [364, 404],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 76072
+        },
+        {
+          "type": "Park",
+          "park": "1946 Briggs Stadium"
+        }
+      ]
+    },
+    {
+      "id": 410,
+      "name": "PT Elite - ALE",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 1B Vladimir Guerrero Jr. TOR 2025, Park: 1903 Hilltop Park",
+      "category": "PT Elite",
+      "cards": [],
+      "missionIds": [365, 405],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 76019
+        },
+        {
+          "type": "Park",
+          "park": "1903 Hilltop Park"
+        }
+      ]
+    },
+    {
+      "id": 411,
+      "name": "PT Elite - ALW",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 C Cal Raleigh SEA 2025, Park: 1961 LA Wrigley Field 1961",
+      "category": "PT Elite",
+      "cards": [],
+      "missionIds": [366, 406],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 75801
+        },
+        {
+          "type": "Park",
+          "park": "1961 LA Wrigley Field 1961"
+        }
+      ]
+    },
+    {
+      "id": 412,
+      "name": "PT Elite - NLC",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 CF Pete Crow-Armstrong CHC 2025, Park: 1927 Sportsmans Park",
+      "category": "PT Elite",
+      "cards": [],
+      "missionIds": [388, 389],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 75954
+        },
+        {
+          "type": "Park",
+          "park": "1927 Sportsmans Park"
+        }
+      ]
+    },
+    {
+      "id": 413,
+      "name": "PT Elite - NLE",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 SP Cristopher Sanchez PHI 2025, Park: 1940 Braves Field",
+      "category": "PT Elite",
+      "cards": [],
+      "missionIds": [390, 407],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 75924
+        },
+        {
+          "type": "Park",
+          "park": "1940 Braves Field"
+        }
+      ]
+    },
+    {
+      "id": 414,
+      "name": "PT Elite - NLW",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "PT Elite 2 SP Yoshinobu Yamamoto LAD 2025, Park: 2003 Dodger Stadium",
+      "category": "PT Elite",
+      "cards": [],
+      "missionIds": [391, 408],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 76275
+        },
+        {
+          "type": "Park",
+          "park": "2003 Dodger Stadium"
+        }
+      ]
+    },
+    {
+      "id": 415,
       "name": "A Moment Like This",
       "type": "count",
       "requiredCount": 8,
@@ -35946,7 +37368,7 @@
       ]
     },
     {
-      "id": 394,
+      "id": 416,
       "name": "Average Astros",
       "type": "count",
       "requiredCount": 23,
@@ -36033,7 +37455,7 @@
       ]
     },
     {
-      "id": 395,
+      "id": 417,
       "name": "Basic Blue Jays",
       "type": "count",
       "requiredCount": 11,
@@ -36084,7 +37506,7 @@
       ]
     },
     {
-      "id": 396,
+      "id": 418,
       "name": "Daily Dodgers",
       "type": "count",
       "requiredCount": 15,
@@ -36150,7 +37572,7 @@
       ]
     },
     {
-      "id": 397,
+      "id": 419,
       "name": "Gentle Giants",
       "type": "count",
       "requiredCount": 28,
@@ -36255,7 +37677,7 @@
       ]
     },
     {
-      "id": 398,
+      "id": 420,
       "name": "plain Padres",
       "type": "count",
       "requiredCount": 17,
@@ -36324,7 +37746,7 @@
       ]
     },
     {
-      "id": 399,
+      "id": 421,
       "name": "Tame Twins",
       "type": "count",
       "requiredCount": 42,
@@ -36468,7 +37890,7 @@
       ]
     },
     {
-      "id": 400,
+      "id": 422,
       "name": "Timid Tigers",
       "type": "count",
       "requiredCount": 38,
@@ -36606,7 +38028,7 @@
       ]
     },
     {
-      "id": 401,
+      "id": 423,
       "name": "A Moment Lasts Forever",
       "type": "points",
       "requiredCount": 250,
@@ -36644,7 +38066,7 @@
       ]
     },
     {
-      "id": 402,
+      "id": 424,
       "name": "Awesome Astros",
       "type": "points",
       "requiredCount": 200,
@@ -36690,7 +38112,7 @@
       ]
     },
     {
-      "id": 403,
+      "id": 425,
       "name": "Beastly Blue Jays",
       "type": "points",
       "requiredCount": 260,
@@ -36752,7 +38174,7 @@
       ]
     },
     {
-      "id": 404,
+      "id": 426,
       "name": "Deadly Dodgers",
       "type": "points",
       "requiredCount": 190,
@@ -36822,7 +38244,7 @@
       ]
     },
     {
-      "id": 405,
+      "id": 427,
       "name": "Fierce Fighters",
       "type": "points",
       "requiredCount": 480,
@@ -36904,7 +38326,7 @@
       ]
     },
     {
-      "id": 406,
+      "id": 428,
       "name": "Gritty Giants",
       "type": "points",
       "requiredCount": 290,
@@ -36962,7 +38384,7 @@
       ]
     },
     {
-      "id": 407,
+      "id": 429,
       "name": "Hardy Hurlers",
       "type": "points",
       "requiredCount": 410,
@@ -37040,7 +38462,7 @@
       ]
     },
     {
-      "id": 408,
+      "id": 430,
       "name": "Plucky Padres",
       "type": "points",
       "requiredCount": 95,
@@ -37110,7 +38532,7 @@
       ]
     },
     {
-      "id": 409,
+      "id": 431,
       "name": "Tenacious Tigers",
       "type": "points",
       "requiredCount": 510,
@@ -37236,7 +38658,7 @@
       ]
     },
     {
-      "id": 410,
+      "id": 432,
       "name": "Trouble Twins",
       "type": "points",
       "requiredCount": 215,
@@ -37310,14 +38732,14 @@
       ]
     },
     {
-      "id": 411,
+      "id": 433,
       "name": "Playoff Moments - Bautista",
       "type": "missions",
       "requiredCount": 4,
       "reward": "Joey Bats - Historical All-Star RF Jose Bautista TOR 2015",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [395, 403, 405, 393],
+      "missionIds": [417, 425, 427, 415],
       "totalPoints": 4,
       "rewards": [
         {
@@ -37327,14 +38749,14 @@
       ]
     },
     {
-      "id": 412,
+      "id": 434,
       "name": "Playoff Moments - Beltran",
       "type": "missions",
       "requiredCount": 2,
       "reward": "Playoff Stars - Baseball Reference 9 CF Carlos Beltran HOU 2004",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [394, 402],
+      "missionIds": [416, 424],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37344,14 +38766,14 @@
       ]
     },
     {
-      "id": 413,
+      "id": 435,
       "name": "Playoff Moments - Ellis",
       "type": "missions",
       "requiredCount": 2,
       "reward": "Playoff Stars - Baseball Reference 9 C A.J. Ellis LAD 2013",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [396, 404],
+      "missionIds": [418, 426],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37361,14 +38783,14 @@
       ]
     },
     {
-      "id": 414,
+      "id": 436,
       "name": "Playoff Moments - Gibson",
       "type": "missions",
       "requiredCount": 3,
       "reward": "Playoff Moments - Snapshot RF Kirk Gibson DET 1984",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [400, 409, 393],
+      "missionIds": [422, 431, 415],
       "totalPoints": 3,
       "rewards": [
         {
@@ -37378,14 +38800,14 @@
       ]
     },
     {
-      "id": 415,
+      "id": 437,
       "name": "Playoff Moments - Hitchcock",
       "type": "missions",
       "requiredCount": 2,
       "reward": "Playoff Stars - Baseball Reference 9 SP Sterling Hitchcock SD 1998",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [398, 408],
+      "missionIds": [420, 430],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37395,14 +38817,14 @@
       ]
     },
     {
-      "id": 416,
+      "id": 438,
       "name": "Playoff Moments - Lewis",
       "type": "missions",
       "requiredCount": 2,
       "reward": "Playoff Stars - Baseball Reference 9 3B Royce Lewis MIN 2023",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [399, 410],
+      "missionIds": [421, 432],
       "totalPoints": 2,
       "rewards": [
         {
@@ -37412,14 +38834,14 @@
       ]
     },
     {
-      "id": 417,
+      "id": 439,
       "name": "Playoff Moments - Bumgarner",
       "type": "missions",
       "requiredCount": 8,
       "reward": "Baseball Reference 9 SP Madison Bumgarner SF 2014",
       "category": "Playoff Moments",
       "cards": [],
-      "missionIds": [397, 406, 407, 401, 413, 415, 416, 412],
+      "missionIds": [419, 428, 429, 423, 435, 437, 438, 434],
       "totalPoints": 8,
       "rewards": [
         {
@@ -37429,7 +38851,7 @@
       ]
     },
     {
-      "id": 418,
+      "id": 440,
       "name": "Playoff Moments - Checkpoint 1",
       "type": "missions",
       "requiredCount": 10,
@@ -37437,8 +38859,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        396, 404, 398, 408, 399, 410, 394, 402, 400, 409, 395, 403, 405, 397,
-        406, 407, 393, 401, 413, 415, 416, 412, 414, 411, 417
+        418, 426, 420, 430, 421, 432, 416, 424, 422, 431, 417, 425, 427, 419,
+        428, 429, 415, 423, 435, 437, 438, 434, 436, 433, 439
       ],
       "totalPoints": 25,
       "rewards": [
@@ -37450,7 +38872,7 @@
       ]
     },
     {
-      "id": 419,
+      "id": 441,
       "name": "Playoff Moments - Checkpoint 2",
       "type": "missions",
       "requiredCount": 15,
@@ -37458,8 +38880,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        396, 404, 398, 408, 399, 410, 394, 402, 400, 409, 395, 403, 405, 397,
-        406, 407, 393, 401, 413, 415, 416, 412, 414, 411, 417
+        418, 426, 420, 430, 421, 432, 416, 424, 422, 431, 417, 425, 427, 419,
+        428, 429, 415, 423, 435, 437, 438, 434, 436, 433, 439
       ],
       "totalPoints": 25,
       "rewards": [
@@ -37471,7 +38893,7 @@
       ]
     },
     {
-      "id": 420,
+      "id": 442,
       "name": "Playoff Moments - Checkpoint 3",
       "type": "missions",
       "requiredCount": 20,
@@ -37479,8 +38901,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        396, 404, 398, 408, 399, 410, 394, 402, 400, 409, 395, 403, 405, 397,
-        406, 407, 393, 401, 413, 415, 416, 412, 414, 411, 417
+        418, 426, 420, 430, 421, 432, 416, 424, 422, 431, 417, 425, 427, 419,
+        428, 429, 415, 423, 435, 437, 438, 434, 436, 433, 439
       ],
       "totalPoints": 25,
       "rewards": [
@@ -37492,7 +38914,7 @@
       ]
     },
     {
-      "id": 421,
+      "id": 443,
       "name": "Playoff Moments - Checkpoint 4",
       "type": "missions",
       "requiredCount": 25,
@@ -37500,8 +38922,8 @@
       "category": "Playoff Moments",
       "cards": [],
       "missionIds": [
-        396, 404, 398, 408, 399, 410, 394, 402, 400, 409, 395, 403, 405, 397,
-        406, 407, 393, 401, 413, 415, 416, 412, 414, 411, 417
+        418, 426, 420, 430, 421, 432, 416, 424, 422, 431, 417, 425, 427, 419,
+        428, 429, 415, 423, 435, 437, 438, 434, 436, 433, 439
       ],
       "totalPoints": 25,
       "rewards": [
@@ -37513,7 +38935,7 @@
       ]
     },
     {
-      "id": 422,
+      "id": 444,
       "name": "Big Stick",
       "type": "count",
       "requiredCount": 30,
@@ -37627,7 +39049,7 @@
       ]
     },
     {
-      "id": 423,
+      "id": 445,
       "name": "Bronze Bonanza 2",
       "type": "count",
       "requiredCount": 13,
@@ -37687,7 +39109,7 @@
       ]
     },
     {
-      "id": 424,
+      "id": 446,
       "name": "Defensive Gems",
       "type": "count",
       "requiredCount": 10,
@@ -37804,7 +39226,7 @@
       ]
     },
     {
-      "id": 425,
+      "id": 447,
       "name": "Highlight Reel",
       "type": "count",
       "requiredCount": 15,
@@ -37921,7 +39343,7 @@
       ]
     },
     {
-      "id": 426,
+      "id": 448,
       "name": "Iron Infusion 3",
       "type": "count",
       "requiredCount": 19,
@@ -37999,7 +39421,7 @@
       ]
     },
     {
-      "id": 427,
+      "id": 449,
       "name": "Ironman",
       "type": "count",
       "requiredCount": 33,
@@ -38119,7 +39541,7 @@
       ]
     },
     {
-      "id": 428,
+      "id": 450,
       "name": "Left Field Brewery",
       "type": "count",
       "requiredCount": 20,
@@ -38245,7 +39667,7 @@
       ]
     },
     {
-      "id": 429,
+      "id": 451,
       "name": "Mind the Gap",
       "type": "count",
       "requiredCount": 10,
@@ -38362,7 +39784,7 @@
       ]
     },
     {
-      "id": 430,
+      "id": 452,
       "name": "Mitten Brewing",
       "type": "count",
       "requiredCount": 15,
@@ -38491,7 +39913,7 @@
       ]
     },
     {
-      "id": 431,
+      "id": 453,
       "name": "Platform Screen Doors",
       "type": "count",
       "requiredCount": 15,
@@ -38608,7 +40030,7 @@
       ]
     },
     {
-      "id": 432,
+      "id": 454,
       "name": "Plumbers",
       "type": "count",
       "requiredCount": 24,
@@ -38701,7 +40123,7 @@
       ]
     },
     {
-      "id": 433,
+      "id": 455,
       "name": "Silver Surge",
       "type": "count",
       "requiredCount": 9,
@@ -38755,7 +40177,7 @@
       ]
     },
     {
-      "id": 434,
+      "id": 456,
       "name": "suntanned",
       "type": "count",
       "requiredCount": 21,
@@ -38839,7 +40261,7 @@
       ]
     },
     {
-      "id": 435,
+      "id": 457,
       "name": "Talk Like a Pirate",
       "type": "count",
       "requiredCount": 15,
@@ -38911,7 +40333,7 @@
       ]
     },
     {
-      "id": 436,
+      "id": 458,
       "name": "Bludgers 1",
       "type": "points",
       "requiredCount": 170,
@@ -38993,7 +40415,7 @@
       ]
     },
     {
-      "id": 437,
+      "id": 459,
       "name": "Bludgers 2",
       "type": "points",
       "requiredCount": 370,
@@ -39075,7 +40497,7 @@
       ]
     },
     {
-      "id": 438,
+      "id": 460,
       "name": "Bludgers 3",
       "type": "points",
       "requiredCount": 570,
@@ -39157,7 +40579,7 @@
       ]
     },
     {
-      "id": 439,
+      "id": 461,
       "name": "Bonus Babies",
       "type": "points",
       "requiredCount": 220,
@@ -39223,7 +40645,7 @@
       ]
     },
     {
-      "id": 440,
+      "id": 462,
       "name": "Forearms",
       "type": "points",
       "requiredCount": 115,
@@ -39293,7 +40715,7 @@
       ]
     },
     {
-      "id": 441,
+      "id": 463,
       "name": "In the Era",
       "type": "points",
       "requiredCount": 85,
@@ -39439,7 +40861,7 @@
       ]
     },
     {
-      "id": 442,
+      "id": 464,
       "name": "Lumberjacks",
       "type": "points",
       "requiredCount": 215,
@@ -39541,7 +40963,7 @@
       ]
     },
     {
-      "id": 443,
+      "id": 465,
       "name": "Mining Mission",
       "type": "points",
       "requiredCount": 400,
@@ -39619,7 +41041,7 @@
       ]
     },
     {
-      "id": 444,
+      "id": 466,
       "name": "Mining Mission 2",
       "type": "points",
       "requiredCount": 575,
@@ -39697,7 +41119,7 @@
       ]
     },
     {
-      "id": 445,
+      "id": 467,
       "name": "Walk the Plank",
       "type": "points",
       "requiredCount": 355,
@@ -39779,14 +41201,14 @@
       ]
     },
     {
-      "id": 446,
+      "id": 468,
       "name": "Sporer Spotlight - Clemente",
       "type": "missions",
       "requiredCount": 8,
       "reward": "Arriba - October Missions RF Roberto Clemente PIT Peak, Rainbow Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [441, 439, 435, 445, 444, 438, 425, 431, 428],
+      "missionIds": [463, 461, 457, 467, 466, 460, 447, 453, 450],
       "totalPoints": 9,
       "rewards": [
         {
@@ -39801,14 +41223,14 @@
       ]
     },
     {
-      "id": 447,
+      "id": 469,
       "name": "Sporer Spotlight - Kieschnick",
       "type": "missions",
       "requiredCount": 4,
       "reward": "October Missions - Unsung Heroes RP Brooks Kieschnick MIL 2003, 5x Standard Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [426, 423, 427, 434, 440],
+      "missionIds": [448, 445, 449, 456, 462],
       "totalPoints": 5,
       "rewards": [
         {
@@ -39823,14 +41245,14 @@
       ]
     },
     {
-      "id": 448,
+      "id": 470,
       "name": "Sporer Spotlight - Mantle",
       "type": "missions",
       "requiredCount": 4,
       "reward": "October Missions - Historical All-Star CF Mickey Mantle NYY 1954, 3x Historical Diamond Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [443, 436, 424, 429, 430],
+      "missionIds": [465, 458, 446, 451, 452],
       "totalPoints": 5,
       "rewards": [
         {
@@ -39845,14 +41267,14 @@
       ]
     },
     {
-      "id": 449,
+      "id": 471,
       "name": "Sporer Spotlight - Mathis",
       "type": "missions",
       "requiredCount": 5,
       "reward": "October Missions - All-Time Legend C Jeff Mathis ARI Peak, 10X Standard Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [433, 423, 422, 432, 442, 424],
+      "missionIds": [455, 445, 444, 454, 464, 446],
       "totalPoints": 6,
       "rewards": [
         {
@@ -39867,14 +41289,14 @@
       ]
     },
     {
-      "id": 450,
+      "id": 472,
       "name": "Sporer Spotlight - Musial",
       "type": "missions",
       "requiredCount": 4,
       "reward": "October Missions - Hardware Heroes CF Stan Musial STL 1952, Perfect Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [444, 437, 424, 431, 428],
+      "missionIds": [466, 459, 446, 453, 450],
       "totalPoints": 5,
       "rewards": [
         {
@@ -39889,14 +41311,14 @@
       ]
     },
     {
-      "id": 451,
+      "id": 473,
       "name": "Sporer Spotlight - Simmons",
       "type": "missions",
       "requiredCount": 3,
       "reward": "October Missions - Baseball Reference 2 C Ted Simmons ML4 1983, 15x Standard Pack",
       "category": "World Series Start",
       "cards": [],
-      "missionIds": [436, 433, 440, 429],
+      "missionIds": [458, 455, 462, 451],
       "totalPoints": 4,
       "rewards": [
         {
@@ -39911,7 +41333,7 @@
       ]
     },
     {
-      "id": 452,
+      "id": 474,
       "name": "Cake Day 1",
       "type": "missions",
       "requiredCount": 15,
@@ -39919,9 +41341,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        441, 439, 435, 445, 443, 444, 436, 437, 438, 433, 426, 423, 427, 434,
-        440, 422, 432, 442, 424, 425, 429, 431, 430, 428, 446, 450, 448, 451,
-        449, 447
+        463, 461, 457, 467, 465, 466, 458, 459, 460, 455, 448, 445, 449, 456,
+        462, 444, 454, 464, 446, 447, 451, 453, 452, 450, 468, 472, 470, 473,
+        471, 469
       ],
       "totalPoints": 30,
       "rewards": [
@@ -39933,7 +41355,7 @@
       ]
     },
     {
-      "id": 453,
+      "id": 475,
       "name": "Cake Day 2",
       "type": "missions",
       "requiredCount": 20,
@@ -39941,9 +41363,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        441, 439, 435, 445, 443, 444, 436, 437, 438, 433, 426, 423, 427, 434,
-        440, 422, 432, 442, 424, 425, 429, 431, 430, 428, 446, 450, 448, 451,
-        449, 447
+        463, 461, 457, 467, 465, 466, 458, 459, 460, 455, 448, 445, 449, 456,
+        462, 444, 454, 464, 446, 447, 451, 453, 452, 450, 468, 472, 470, 473,
+        471, 469
       ],
       "totalPoints": 30,
       "rewards": [
@@ -39955,7 +41377,7 @@
       ]
     },
     {
-      "id": 454,
+      "id": 476,
       "name": "Cake Day 3",
       "type": "missions",
       "requiredCount": 25,
@@ -39963,9 +41385,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        441, 439, 435, 445, 443, 444, 436, 437, 438, 433, 426, 423, 427, 434,
-        440, 422, 432, 442, 424, 425, 429, 431, 430, 428, 446, 450, 448, 451,
-        449, 447
+        463, 461, 457, 467, 465, 466, 458, 459, 460, 455, 448, 445, 449, 456,
+        462, 444, 454, 464, 446, 447, 451, 453, 452, 450, 468, 472, 470, 473,
+        471, 469
       ],
       "totalPoints": 30,
       "rewards": [
@@ -39977,7 +41399,7 @@
       ]
     },
     {
-      "id": 455,
+      "id": 477,
       "name": "Cake Day 4",
       "type": "missions",
       "requiredCount": 30,
@@ -39985,9 +41407,9 @@
       "category": "World Series Start",
       "cards": [],
       "missionIds": [
-        441, 439, 435, 445, 443, 444, 436, 437, 438, 433, 426, 423, 427, 434,
-        440, 422, 432, 442, 424, 425, 429, 431, 430, 428, 446, 450, 448, 451,
-        449, 447
+        463, 461, 457, 467, 465, 466, 458, 459, 460, 455, 448, 445, 449, 456,
+        462, 444, 454, 464, 446, 447, 451, 453, 452, 450, 468, 472, 470, 473,
+        471, 469
       ],
       "totalPoints": 30,
       "rewards": [
@@ -39999,7 +41421,7 @@
       ]
     },
     {
-      "id": 456,
+      "id": 478,
       "name": "Butter Toffee",
       "type": "count",
       "requiredCount": 19,
@@ -40078,7 +41500,7 @@
       ]
     },
     {
-      "id": 457,
+      "id": 479,
       "name": "Candy Canes",
       "type": "count",
       "requiredCount": 11,
@@ -40139,7 +41561,7 @@
       ]
     },
     {
-      "id": 458,
+      "id": 480,
       "name": "Chocolate Fudge",
       "type": "count",
       "requiredCount": 6,
@@ -40194,7 +41616,7 @@
       ]
     },
     {
-      "id": 459,
+      "id": 481,
       "name": "Gingerbread",
       "type": "count",
       "requiredCount": 3,
@@ -40231,7 +41653,7 @@
       ]
     },
     {
-      "id": 460,
+      "id": 482,
       "name": "Leading Off",
       "type": "count",
       "requiredCount": 10,
@@ -40279,7 +41701,7 @@
       ]
     },
     {
-      "id": 461,
+      "id": 483,
       "name": "Not just Coal",
       "type": "count",
       "requiredCount": 22,
@@ -40367,7 +41789,7 @@
       ]
     },
     {
-      "id": 462,
+      "id": 484,
       "name": "Peanut Brittle",
       "type": "count",
       "requiredCount": 3,
@@ -40401,7 +41823,7 @@
       ]
     },
     {
-      "id": 463,
+      "id": 485,
       "name": "Peppermint Bark",
       "type": "count",
       "requiredCount": 9,
@@ -40459,7 +41881,7 @@
       ]
     },
     {
-      "id": 464,
+      "id": 486,
       "name": "Rickey knows Rickey",
       "type": "count",
       "requiredCount": 5,
@@ -40492,7 +41914,7 @@
       ]
     },
     {
-      "id": 465,
+      "id": 487,
       "name": "Shortbread",
       "type": "count",
       "requiredCount": 4,
@@ -40529,7 +41951,7 @@
       ]
     },
     {
-      "id": 466,
+      "id": 488,
       "name": "Sugar Cookies",
       "type": "count",
       "requiredCount": 2,
@@ -40578,7 +42000,7 @@
       ]
     },
     {
-      "id": 467,
+      "id": 489,
       "name": "Hot Cocoa",
       "type": "points",
       "requiredCount": 1115,
@@ -40728,7 +42150,7 @@
       ]
     },
     {
-      "id": 468,
+      "id": 490,
       "name": "Keep Running",
       "type": "points",
       "requiredCount": 510,
@@ -40858,14 +42280,14 @@
       ]
     },
     {
-      "id": 469,
+      "id": 491,
       "name": "Holiday Treats",
       "type": "missions",
       "requiredCount": 9,
       "reward": "5x Historical Gold Pack",
       "category": "Holiday Times",
       "cards": [],
-      "missionIds": [461, 457, 456, 463, 462, 458, 459, 465, 466],
+      "missionIds": [483, 479, 478, 485, 484, 480, 481, 487, 488],
       "totalPoints": 9,
       "rewards": [
         {
@@ -40876,14 +42298,14 @@
       ]
     },
     {
-      "id": 470,
+      "id": 492,
       "name": "Man of Steal",
       "type": "missions",
       "requiredCount": 5,
       "reward": "Stocking Stuffers 2 - Immortal Seasons LF Rickey Henderson OAK 1990, Historical Rainbow Pack",
       "category": "Holiday Times",
       "cards": [],
-      "missionIds": [464, 467, 468, 469, 460],
+      "missionIds": [486, 489, 490, 491, 482],
       "totalPoints": 5,
       "rewards": [
         {
@@ -40898,7 +42320,7 @@
       ]
     },
     {
-      "id": 471,
+      "id": 493,
       "name": "All the best",
       "type": "missions",
       "requiredCount": 6,
@@ -40906,8 +42328,8 @@
       "category": "Holiday Times",
       "cards": [],
       "missionIds": [
-        461, 457, 456, 463, 462, 458, 459, 465, 466, 464, 467, 468, 469, 460,
-        470
+        483, 479, 478, 485, 484, 480, 481, 487, 488, 486, 489, 490, 491, 482,
+        492
       ],
       "totalPoints": 15,
       "rewards": [
@@ -40919,7 +42341,7 @@
       ]
     },
     {
-      "id": 472,
+      "id": 494,
       "name": "And your family",
       "type": "missions",
       "requiredCount": 10,
@@ -40927,8 +42349,8 @@
       "category": "Holiday Times",
       "cards": [],
       "missionIds": [
-        461, 457, 456, 463, 462, 458, 459, 465, 466, 464, 467, 468, 469, 460,
-        470
+        483, 479, 478, 485, 484, 480, 481, 487, 488, 486, 489, 490, 491, 482,
+        492
       ],
       "totalPoints": 15,
       "rewards": [
@@ -40940,7 +42362,7 @@
       ]
     },
     {
-      "id": 473,
+      "id": 495,
       "name": "To you",
       "type": "missions",
       "requiredCount": 8,
@@ -40948,8 +42370,8 @@
       "category": "Holiday Times",
       "cards": [],
       "missionIds": [
-        461, 457, 456, 463, 462, 458, 459, 465, 466, 464, 467, 468, 469, 460,
-        470
+        483, 479, 478, 485, 484, 480, 481, 487, 488, 486, 489, 490, 491, 482,
+        492
       ],
       "totalPoints": 15,
       "rewards": [
@@ -40961,7 +42383,7 @@
       ]
     },
     {
-      "id": 474,
+      "id": 496,
       "name": "Last Call 100s",
       "type": "count",
       "requiredCount": 3,
@@ -41039,7 +42461,7 @@
       ]
     },
     {
-      "id": 475,
+      "id": 497,
       "name": "Last Call 101\u002B",
       "type": "count",
       "requiredCount": 4,
@@ -41141,7 +42563,7 @@
       ]
     },
     {
-      "id": 476,
+      "id": 498,
       "name": "Last Call Bronze",
       "type": "count",
       "requiredCount": 13,
@@ -41255,7 +42677,7 @@
       ]
     },
     {
-      "id": 477,
+      "id": 499,
       "name": "Last Call Diamond",
       "type": "count",
       "requiredCount": 5,
@@ -41333,7 +42755,7 @@
       ]
     },
     {
-      "id": 478,
+      "id": 500,
       "name": "Last Call Gold",
       "type": "count",
       "requiredCount": 8,
@@ -41423,7 +42845,7 @@
       ]
     },
     {
-      "id": 479,
+      "id": 501,
       "name": "Last Call High Iron",
       "type": "count",
       "requiredCount": 15,
@@ -41558,7 +42980,7 @@
       ]
     },
     {
-      "id": 480,
+      "id": 502,
       "name": "Last Call Low Iron",
       "type": "count",
       "requiredCount": 18,
@@ -41669,7 +43091,7 @@
       ]
     },
     {
-      "id": 481,
+      "id": 503,
       "name": "Last Call Silver",
       "type": "count",
       "requiredCount": 11,
@@ -41816,7 +43238,7 @@
       ]
     },
     {
-      "id": 482,
+      "id": 504,
       "name": "HOF Hardware",
       "type": "points",
       "requiredCount": 600,
@@ -41898,7 +43320,7 @@
       ]
     },
     {
-      "id": 483,
+      "id": 505,
       "name": "HOF Heroes",
       "type": "points",
       "requiredCount": 600,
@@ -41984,7 +43406,7 @@
       ]
     },
     {
-      "id": 484,
+      "id": 506,
       "name": "HOF Peak",
       "type": "points",
       "requiredCount": 400,
@@ -42038,7 +43460,7 @@
       ]
     },
     {
-      "id": 485,
+      "id": 507,
       "name": "Immortals",
       "type": "points",
       "requiredCount": 600,
@@ -42124,7 +43546,7 @@
       ]
     },
     {
-      "id": 486,
+      "id": 508,
       "name": "Last Call IF",
       "type": "points",
       "requiredCount": 460,
@@ -42254,7 +43676,7 @@
       ]
     },
     {
-      "id": 487,
+      "id": 509,
       "name": "Last Call OF",
       "type": "points",
       "requiredCount": 210,
@@ -42332,7 +43754,7 @@
       ]
     },
     {
-      "id": 488,
+      "id": 510,
       "name": "Last Call RP",
       "type": "points",
       "requiredCount": 345,
@@ -42402,7 +43824,7 @@
       ]
     },
     {
-      "id": 489,
+      "id": 511,
       "name": "Last Call SP",
       "type": "points",
       "requiredCount": 570,
@@ -42532,7 +43954,7 @@
       ]
     },
     {
-      "id": 490,
+      "id": 512,
       "name": "Golden Heart",
       "type": "missions",
       "requiredCount": 6,
@@ -42540,8 +43962,8 @@
       "category": "Final Mission Set",
       "cards": [],
       "missionIds": [
-        484, 482, 483, 485, 480, 479, 476, 481, 478, 477, 474, 475, 489, 488,
-        486, 487
+        506, 504, 505, 507, 502, 501, 498, 503, 500, 499, 496, 497, 511, 510,
+        508, 509
       ],
       "totalPoints": 16,
       "rewards": [
@@ -42557,7 +43979,7 @@
       ]
     },
     {
-      "id": 491,
+      "id": 513,
       "name": "Mr Tiger",
       "type": "missions",
       "requiredCount": 16,
@@ -42565,8 +43987,8 @@
       "category": "Final Mission Set",
       "cards": [],
       "missionIds": [
-        484, 482, 483, 485, 480, 479, 476, 481, 478, 477, 474, 475, 489, 488,
-        486, 487
+        506, 504, 505, 507, 502, 501, 498, 503, 500, 499, 496, 497, 511, 510,
+        508, 509
       ],
       "totalPoints": 16,
       "rewards": [
@@ -42582,7 +44004,7 @@
       ]
     },
     {
-      "id": 492,
+      "id": 514,
       "name": "The Thomenator",
       "type": "missions",
       "requiredCount": 12,
@@ -42590,8 +44012,8 @@
       "category": "Final Mission Set",
       "cards": [],
       "missionIds": [
-        484, 482, 483, 485, 480, 479, 476, 481, 478, 477, 474, 475, 489, 488,
-        486, 487
+        506, 504, 505, 507, 502, 501, 498, 503, 500, 499, 496, 497, 511, 510,
+        508, 509
       ],
       "totalPoints": 16,
       "rewards": [
