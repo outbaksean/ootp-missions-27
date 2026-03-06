@@ -527,9 +527,12 @@ const formatPrice = (price: number) =>
 const selectedMissionSubMissions = computed(() => {
   if (props.selectedMission?.rawMission.type === "missions" && props.missions) {
     const missionIds = props.selectedMission.rawMission.missionIds || [];
-    return props.missions.filter((mission: UserMission) =>
-      missionIds.includes(mission.id),
-    );
+    return props.missions
+      .filter((mission: UserMission) => missionIds.includes(mission.id))
+      .sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return a.remainingPrice - b.remainingPrice;
+      });
   }
   return [];
 });
