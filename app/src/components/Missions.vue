@@ -71,64 +71,88 @@
       <div class="sidebar-divider" />
 
       <div class="sidebar-section sidebar-toggles">
-        <label
-          class="toggle-label"
-          title="Uses the lowest active sell order price instead of the last completed sale price. More accurate for cards you can buy right now."
-        >
+        <label class="toggle-label">
           <input
             type="checkbox"
             class="toggle-input"
             v-model="useSellPrice"
             @change="updatePriceType"
           />
-          Use Sell Price <span class="tooltip-hint">(?)</span>
+          Use Sell Price
+          <span
+            class="tooltip-hint"
+            data-tooltip="Uses the lowest active sell order price instead of the last 10 price."
+            @mouseenter="onTooltipEnter('sell-price', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('sell-price', $event)"
+            >(?)</span
+          >
         </label>
         <label class="toggle-label">
           <input type="checkbox" class="toggle-input" v-model="hideCompleted" />
           Hide Completed
         </label>
-        <label
-          class="toggle-label"
-          title="Only shows missions where the reward value exceeds the cost to complete them."
-        >
+        <label class="toggle-label">
           <input
             type="checkbox"
             class="toggle-input"
             v-model="showPositiveOnly"
           />
-          Positive Value Only <span class="tooltip-hint">(?)</span>
+          Positive Value Only
+          <span
+            class="tooltip-hint"
+            data-tooltip="Only shows missions where the reward value exceeds the cost to complete them."
+            @mouseenter="onTooltipEnter('positive-only', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('positive-only', $event)"
+            >(?)</span
+          >
         </label>
-        <label
-          class="toggle-label"
-          title="Locking owned cards means you can no longer sell them. This deducts their sell value from net value to reflect the full cost of completing the mission."
-        >
+        <label class="toggle-label">
           <input
             type="checkbox"
             class="toggle-input"
             :checked="settingsStore.subtractUnlockedCards"
             @change="handleIncludeUnlockedChange($event)"
           />
-          Include unlocked cards in net value
-          <span class="tooltip-hint">(?)</span>
+          Use unlocked price in Net
+          <span
+            class="tooltip-hint"
+            data-tooltip="This will include the price of any owned but unlocked cards as part of the mission cost when calculating the Net Value."
+            @mouseenter="onTooltipEnter('unlocked-net', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('unlocked-net', $event)"
+            >(?)</span
+          >
         </label>
-        <label
-          class="toggle-label"
-          title="Instead of always buying unowned cards, finds the cheapest combination of buying new cards and locking ones you already own."
-        >
+        <label class="toggle-label">
           <input
             type="checkbox"
             class="toggle-input"
             :checked="settingsStore.optimizeCardSelection"
             @change="handleOptimizeChange($event)"
           />
-          Optimize card assignment <span class="tooltip-hint">(?)</span>
+          Optimize card assignment
+          <span
+            class="tooltip-hint"
+            data-tooltip="Instead of always buying unowned cards, finds the cheapest combination of buying new cards and locking ones you already own. 'Use unlocked price in Net' should be enabled for this."
+            @mouseenter="onTooltipEnter('optimize', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('optimize', $event)"
+            >(?)</span
+          >
         </label>
-        <div
-          class="discount-row"
-          title="How much less you receive selling a card vs its listed price (market spread). Applied when calculating the opportunity cost of locking cards you own."
-        >
+        <div class="discount-row">
           <span class="discount-label"
-            >Sell - Buy difference <span class="tooltip-hint">(?)</span></span
+            >Sell - Buy difference
+            <span
+              class="tooltip-hint"
+              data-tooltip="How much less you receive selling a card vs its current price. Applied when calculating the opportunity cost of locking cards you own."
+              @mouseenter="onTooltipEnter('sell-discount', $event)"
+              @mouseleave="onTooltipLeave"
+              @click.stop="onTooltipClick('sell-discount', $event)"
+              >(?)</span
+            ></span
           >
           <div class="discount-input-wrap">
             <input
@@ -148,16 +172,35 @@
       <div class="sidebar-divider" />
 
       <div class="sidebar-section">
-        <button class="btn-mark-all-complete" @click="markAllComplete">
-          Set All Complete
-        </button>
-        <span class="calc-hint">Marks missions with enough owned cards</span>
-        <button
-          class="btn-unmark-all-complete"
-          @click="missionStore.clearAllManualCompletions()"
-        >
-          Unset All Complete
-        </button>
+        <div class="mark-complete-row">
+          <button class="btn-mark-all-complete" @click="markAllComplete">
+            Set All Complete
+          </button>
+          <span
+            class="tooltip-hint"
+            data-tooltip="Sets all visible missions as completed where you already own enough cards to complete them. This should only be needed if you are not uploading or setting lock status as having enough locked cards to complete a mission sets it complete."
+            @mouseenter="onTooltipEnter('mark-complete', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('mark-complete', $event)"
+            >(?)</span
+          >
+        </div>
+        <div class="mark-complete-row">
+          <button
+            class="btn-unmark-all-complete"
+            @click="missionStore.clearAllManualCompletions()"
+          >
+            Unset All Complete
+          </button>
+          <span
+            class="tooltip-hint"
+            data-tooltip="Reverts 'Set All Complete'."
+            @mouseenter="onTooltipEnter('unmark-complete', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('unmark-complete', $event)"
+            >(?)</span
+          >
+        </div>
       </div>
 
       <PackPriceSettings />
@@ -345,6 +388,20 @@
       </div>
     </div>
   </div>
+
+  <!-- ─── TOOLTIP PORTAL ─── -->
+  <Teleport to="body">
+    <div
+      v-if="openTooltipId"
+      class="sidebar-tooltip-portal"
+      :style="{
+        top: tooltipAnchor.top + 'px',
+        left: tooltipAnchor.left + 'px',
+      }"
+    >
+      {{ tooltipContent }}
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -368,6 +425,45 @@ const SIDEBAR_COLLAPSED_KEY = "ootp-sidebar-collapsed";
 const isSidebarCollapsed = ref(
   localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true",
 );
+
+const openTooltipId = ref<string | null>(null);
+const tooltipContent = ref("");
+const tooltipAnchor = ref({ top: 0, left: 0 });
+
+function getTooltipInfo(event: Event) {
+  const el = event.currentTarget as HTMLElement;
+  const rect = el.getBoundingClientRect();
+  return { top: rect.top, left: rect.left, text: el.dataset.tooltip ?? "" };
+}
+
+function onTooltipEnter(id: string, event: Event) {
+  if (isMobile.value) return;
+  const { top, left, text } = getTooltipInfo(event);
+  tooltipContent.value = text;
+  tooltipAnchor.value = { top, left };
+  openTooltipId.value = id;
+}
+
+function onTooltipLeave() {
+  if (isMobile.value) return;
+  openTooltipId.value = null;
+}
+
+function onTooltipClick(id: string, event: Event) {
+  if (!isMobile.value) return;
+  if (openTooltipId.value === id) {
+    openTooltipId.value = null;
+    return;
+  }
+  const { top, left, text } = getTooltipInfo(event);
+  tooltipContent.value = text;
+  tooltipAnchor.value = { top, left };
+  openTooltipId.value = id;
+}
+
+function closeTooltips() {
+  openTooltipId.value = null;
+}
 
 function toggleSidebar() {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -395,6 +491,7 @@ onMounted(() => {
   if (isMobile.value && localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === null) {
     isSidebarCollapsed.value = true;
   }
+  document.addEventListener("click", closeTooltips);
 });
 
 const LIST_PANEL_WIDTH_KEY = "ootp-list-panel-width";
@@ -443,6 +540,7 @@ onUnmounted(() => {
     window.removeEventListener("resize", onWindowResize);
     windowResizeListenerAdded = false;
   }
+  document.removeEventListener("click", closeTooltips);
 });
 const settingsStore = useSettingsStore();
 const hasUserCards = computed(
@@ -867,8 +965,20 @@ watch(
 
 .tooltip-hint {
   font-size: 0.75em;
-  opacity: 0.5;
+  color: var(--sidebar-muted);
   cursor: help;
+  user-select: none;
+}
+
+/* Set All Complete row: button + tooltip hint side by side */
+.mark-complete-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mark-complete-row .btn-mark-all-complete {
+  flex: 1;
 }
 
 .btn-mark-all-complete {
@@ -1287,5 +1397,25 @@ watch(
   background: rgba(255, 255, 255, 0.13);
   border-color: rgba(255, 255, 255, 0.18);
   color: #f1f5f9;
+}
+</style>
+
+<style>
+.sidebar-tooltip-portal {
+  position: fixed;
+  z-index: 9999;
+  width: 280px;
+  background: #fff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.74rem;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  transform: translateY(calc(-100% - 6px));
 }
 </style>
