@@ -79,7 +79,7 @@
               v-for="item in groupRemainingRewardItems(group.missions)"
               :key="'remaining-' + item.label"
               class="group-reward-chip"
-              :class="packChipClass(item.label)"
+              :class="item.ispark ? 'chip--park' : packChipClass(item.label)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
@@ -89,7 +89,7 @@
               v-for="item in groupCompletedRewardItems(group.missions)"
               :key="'done-' + item.label"
               class="group-reward-chip group-reward-chip--done"
-              :class="packChipClass(item.label)"
+              :class="item.ispark ? 'chip--park' : packChipClass(item.label)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
@@ -128,7 +128,7 @@
               v-for="item in collectRewardItems([mission])"
               :key="item.label"
               class="group-reward-chip"
-              :class="packChipClass(item.label)"
+              :class="item.ispark ? 'chip--park' : packChipClass(item.label)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </div>
@@ -488,9 +488,10 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
 
 function collectRewardItems(
   missions: UserMission[],
-): { label: string; count: number }[] {
+): { label: string; count: number; ispark?: boolean }[] {
   const packCounts = new Map<string, number>();
   const cardCounts = new Map<string, number>();
+  const parkCounts = new Map<string, number>();
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
       const type = (reward.type as string).toLowerCase();
@@ -505,6 +506,9 @@ function collectRewardItems(
           ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
           : `Card #${r.cardId}`;
         cardCounts.set(title, (cardCounts.get(title) ?? 0) + (r.count ?? 1));
+      } else if (type === "park") {
+        const r = reward as { park: string };
+        parkCounts.set(r.park, (parkCounts.get(r.park) ?? 0) + 1);
       }
     }
   }
@@ -521,11 +525,15 @@ function collectRewardItems(
     label: PACK_TYPE_LABELS[key] ?? key,
     count,
   }));
-  const cards: { label: string; count: number }[] = [];
+  const cards: { label: string; count: number; ispark?: boolean }[] = [];
   for (const [title, count] of cardCounts) {
     cards.push({ label: title, count });
   }
-  return [...cards, ...packs];
+  const parks: { label: string; count: number; ispark?: boolean }[] = [];
+  for (const [park, count] of parkCounts) {
+    parks.push({ label: park, count, ispark: true });
+  }
+  return [...parks, ...cards, ...packs];
 }
 
 function groupRemainingRewardItems(
@@ -752,6 +760,12 @@ defineExpose({
   color: #fff;
   border-color: transparent;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.55);
+}
+
+.chip--park {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
 }
 
 /* ─── MISSION CARD ─── */
