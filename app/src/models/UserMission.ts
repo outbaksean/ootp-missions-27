@@ -11,5 +11,6 @@ export interface UserMission {
   remainingPrice: number;
   unlockedCardsPrice: number;
   rewardValue?: number;
+  combinedRewardValue?: number;
   missionValue?: number;
 }

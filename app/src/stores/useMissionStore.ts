@@ -295,12 +295,25 @@ export const useMissionStore = defineStore("mission", () => {
       selectedPriceType.value.sellPrice,
     );
     userMission.rewardValue = rewardValueMissions;
+
+    // Combined reward = this mission's own reward + all sub-missions' rewards.
+    // Only defined when at least one mission in the chain has reward data.
+    const hasAnyRewardData =
+      rewardValueMissions !== undefined ||
+      subMissions.some((m) => m.rewardValue !== undefined);
+    const combinedRewardValue = hasAnyRewardData
+      ? (rewardValueMissions ?? 0) +
+        subMissions.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0)
+      : undefined;
+    userMission.combinedRewardValue = combinedRewardValue;
+
     const unlockedDeductionMissions = settingsStore.subtractUnlockedCards
       ? totalUnlockedCardsPrice
       : 0;
+    // Use combinedRewardValue for Net so it reflects the full reward from the chain.
     userMission.missionValue =
-      rewardValueMissions !== undefined
-        ? rewardValueMissions - totalRemainingPrice - unlockedDeductionMissions
+      combinedRewardValue !== undefined
+        ? combinedRewardValue - totalRemainingPrice - unlockedDeductionMissions
         : undefined;
   }
 
@@ -491,6 +504,9 @@ export const useMissionStore = defineStore("mission", () => {
   function recomputeMissionValues() {
     const cardStore = useCardStore();
     const settingsStore = useSettingsStore();
+    // Missions are in ascending ID order; children always precede parents,
+    // so by the time we process a missions-type mission its sub-missions
+    // already have updated rewardValues.
     for (const um of userMissions.value) {
       if (um.progressText === "Not Calculated") continue;
       const rewardValue = MissionHelper.calculateRewardValue(
@@ -503,10 +519,28 @@ export const useMissionStore = defineStore("mission", () => {
       const unlockedDeduction = settingsStore.subtractUnlockedCards
         ? um.unlockedCardsPrice
         : 0;
-      um.missionValue =
-        rewardValue !== undefined
-          ? rewardValue - um.remainingPrice - unlockedDeduction
+      if (um.rawMission.type === "missions") {
+        const subMissions = userMissions.value.filter((sub) =>
+          um.rawMission.missionIds?.includes(sub.rawMission.id),
+        );
+        const hasAnyRewardData =
+          rewardValue !== undefined ||
+          subMissions.some((m) => m.rewardValue !== undefined);
+        const combinedRewardValue = hasAnyRewardData
+          ? (rewardValue ?? 0) +
+            subMissions.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0)
           : undefined;
+        um.combinedRewardValue = combinedRewardValue;
+        um.missionValue =
+          combinedRewardValue !== undefined
+            ? combinedRewardValue - um.remainingPrice - unlockedDeduction
+            : undefined;
+      } else {
+        um.missionValue =
+          rewardValue !== undefined
+            ? rewardValue - um.remainingPrice - unlockedDeduction
+            : undefined;
+      }
     }
   }
 
