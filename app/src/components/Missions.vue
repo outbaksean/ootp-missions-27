@@ -744,15 +744,34 @@ const groupedMissions = computed(
     }
 
     if (groupBy.value === "category") {
-      const groups = new Map<string, UserMission[]>();
+      const groupMap = new Map<string, UserMission[]>();
       for (const m of filteredMissions.value) {
         const label = m.rawMission.category || "Other";
-        if (!groups.has(label)) groups.set(label, []);
-        groups.get(label)!.push(m);
+        if (!groupMap.has(label)) groupMap.set(label, []);
+        groupMap.get(label)!.push(m);
       }
-      return Array.from(groups.entries())
-        .sort(([a], [b]) => categoryPriority(a) - categoryPriority(b))
-        .map(([label, missions]) => ({ label, missions }));
+      const groups = Array.from(groupMap.entries()).map(([label, missions]) => ({
+        label,
+        missions,
+      }));
+      if (sortBy.value === "price") {
+        groups.sort((a, b) => {
+          const aTotal = a.missions.reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions.reduce((s, m) => s + m.remainingPrice, 0);
+          return aTotal - bTotal;
+        });
+      } else if (sortBy.value === "value") {
+        groups.sort((a, b) => {
+          const aMax = Math.max(...a.missions.map((m) => m.missionValue ?? -Infinity));
+          const bMax = Math.max(...b.missions.map((m) => m.missionValue ?? -Infinity));
+          return bMax - aMax;
+        });
+      } else if (sortBy.value === "name") {
+        groups.sort((a, b) => a.label.localeCompare(b.label));
+      } else {
+        groups.sort((a, b) => categoryPriority(a.label) - categoryPriority(b.label));
+      }
+      return groups;
     }
 
     if (groupBy.value === "chain") {
@@ -771,7 +790,11 @@ const groupedMissions = computed(
       const chainRoots = filteredMissions.value.filter(
         (m) => m.rawMission.type === "missions" && !allSubIds.has(m.id),
       );
-      const groups: Array<{ label: string; missions: UserMission[] }> = [];
+      const chainGroups: Array<{
+        label: string;
+        missions: UserMission[];
+        rootCategory: string;
+      }> = [];
       const assignedIds = new Set<number>();
       for (const root of chainRoots) {
         const subIds = collectDescendantIds(root.id, missionById);
@@ -779,16 +802,44 @@ const groupedMissions = computed(
           (m) => m.id === root.id || subIds.has(m.id),
         );
         members.forEach((m) => assignedIds.add(m.id));
-        groups.push({ label: root.rawMission.name, missions: members });
+        chainGroups.push({
+          label: root.rawMission.name,
+          missions: members,
+          rootCategory: root.rawMission.category,
+        });
       }
-      // Standalone: anything not in a chain
+      if (sortBy.value === "price") {
+        chainGroups.sort((a, b) => {
+          const aTotal = a.missions.reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions.reduce((s, m) => s + m.remainingPrice, 0);
+          return aTotal - bTotal;
+        });
+      } else if (sortBy.value === "value") {
+        chainGroups.sort((a, b) => {
+          const aMax = Math.max(...a.missions.map((m) => m.missionValue ?? -Infinity));
+          const bMax = Math.max(...b.missions.map((m) => m.missionValue ?? -Infinity));
+          return bMax - aMax;
+        });
+      } else if (sortBy.value === "name") {
+        chainGroups.sort((a, b) => a.label.localeCompare(b.label));
+      } else {
+        // default: category priority order, then alphabetically within same category
+        chainGroups.sort((a, b) => {
+          const catDiff =
+            categoryPriority(a.rootCategory) - categoryPriority(b.rootCategory);
+          return catDiff !== 0 ? catDiff : a.label.localeCompare(b.label);
+        });
+      }
+      const result: Array<{ label: string; missions: UserMission[] }> =
+        chainGroups.map(({ label, missions }) => ({ label, missions }));
+      // Standalone: anything not in a chain — always last
       const standalone = filteredMissions.value.filter(
         (m) => !assignedIds.has(m.id),
       );
       if (standalone.length > 0) {
-        groups.push({ label: "Standalone", missions: standalone });
+        result.push({ label: "Standalone", missions: standalone });
       }
-      return groups;
+      return result;
     }
 
     return [{ label: "", missions: filteredMissions.value }];
