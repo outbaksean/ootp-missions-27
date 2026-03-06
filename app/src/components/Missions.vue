@@ -81,9 +81,10 @@
           Use Sell Price
           <span
             class="tooltip-hint"
-            :class="{ 'tooltip-open': openTooltipId === 'sell-price' }"
             data-tooltip="Uses the lowest active sell order price instead of the last 10 price."
-            @click.stop="toggleTooltip('sell-price')"
+            @mouseenter="onTooltipEnter('sell-price', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('sell-price', $event)"
             >(?)</span
           >
         </label>
@@ -100,9 +101,10 @@
           Positive Value Only
           <span
             class="tooltip-hint"
-            :class="{ 'tooltip-open': openTooltipId === 'positive-only' }"
             data-tooltip="Only shows missions where the reward value exceeds the cost to complete them."
-            @click.stop="toggleTooltip('positive-only')"
+            @mouseenter="onTooltipEnter('positive-only', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('positive-only', $event)"
             >(?)</span
           >
         </label>
@@ -116,9 +118,10 @@
           Use unlocked price in Net
           <span
             class="tooltip-hint"
-            :class="{ 'tooltip-open': openTooltipId === 'unlocked-net' }"
             data-tooltip="This will include the price of any owned but unlocked cards as part of the mission cost when calculating the Net Value."
-            @click.stop="toggleTooltip('unlocked-net')"
+            @mouseenter="onTooltipEnter('unlocked-net', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('unlocked-net', $event)"
             >(?)</span
           >
         </label>
@@ -132,9 +135,10 @@
           Optimize card assignment
           <span
             class="tooltip-hint"
-            :class="{ 'tooltip-open': openTooltipId === 'optimize' }"
             data-tooltip="Instead of always buying unowned cards, finds the cheapest combination of buying new cards and locking ones you already own. 'Use unlocked price in Net' should be enabled for this."
-            @click.stop="toggleTooltip('optimize')"
+            @mouseenter="onTooltipEnter('optimize', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('optimize', $event)"
             >(?)</span
           >
         </label>
@@ -143,9 +147,10 @@
             >Sell - Buy difference
             <span
               class="tooltip-hint"
-              :class="{ 'tooltip-open': openTooltipId === 'sell-discount' }"
               data-tooltip="How much less you receive selling a card vs its current price. Applied when calculating the opportunity cost of locking cards you own."
-              @click.stop="toggleTooltip('sell-discount')"
+              @mouseenter="onTooltipEnter('sell-discount', $event)"
+              @mouseleave="onTooltipLeave"
+              @click.stop="onTooltipClick('sell-discount', $event)"
               >(?)</span
             ></span
           >
@@ -173,9 +178,10 @@
           </button>
           <span
             class="tooltip-hint"
-            :class="{ 'tooltip-open': openTooltipId === 'mark-complete' }"
-            data-tooltip="Sets all visible missions where you already own enough cards or points to complete them. This should only be needed if you are not uploading or setting lock status as having enough locked cards to complete a mission sets it complete."
-            @click.stop="toggleTooltip('mark-complete')"
+            data-tooltip="Sets all visible missions as completed where you already own enough cards to complete them. This should only be needed if you are not uploading or setting lock status as having enough locked cards to complete a mission sets it complete."
+            @mouseenter="onTooltipEnter('mark-complete', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('mark-complete', $event)"
             >(?)</span
           >
         </div>
@@ -188,9 +194,10 @@
           </button>
           <span
             class="tooltip-hint"
-            :class="{ 'tooltip-open': openTooltipId === 'unmark-complete' }"
             data-tooltip="Reverts 'Set All Complete'."
-            @click.stop="toggleTooltip('unmark-complete')"
+            @mouseenter="onTooltipEnter('unmark-complete', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('unmark-complete', $event)"
             >(?)</span
           >
         </div>
@@ -381,6 +388,20 @@
       </div>
     </div>
   </div>
+
+  <!-- ─── TOOLTIP PORTAL ─── -->
+  <Teleport to="body">
+    <div
+      v-if="openTooltipId"
+      class="sidebar-tooltip-portal"
+      :style="{
+        top: tooltipAnchor.top + 'px',
+        left: tooltipAnchor.left + 'px',
+      }"
+    >
+      {{ tooltipContent }}
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -406,9 +427,38 @@ const isSidebarCollapsed = ref(
 );
 
 const openTooltipId = ref<string | null>(null);
+const tooltipContent = ref("");
+const tooltipAnchor = ref({ top: 0, left: 0 });
 
-function toggleTooltip(id: string) {
-  openTooltipId.value = openTooltipId.value === id ? null : id;
+function getTooltipInfo(event: Event) {
+  const el = event.currentTarget as HTMLElement;
+  const rect = el.getBoundingClientRect();
+  return { top: rect.top, left: rect.left, text: el.dataset.tooltip ?? "" };
+}
+
+function onTooltipEnter(id: string, event: Event) {
+  if (isMobile.value) return;
+  const { top, left, text } = getTooltipInfo(event);
+  tooltipContent.value = text;
+  tooltipAnchor.value = { top, left };
+  openTooltipId.value = id;
+}
+
+function onTooltipLeave() {
+  if (isMobile.value) return;
+  openTooltipId.value = null;
+}
+
+function onTooltipClick(id: string, event: Event) {
+  if (!isMobile.value) return;
+  if (openTooltipId.value === id) {
+    openTooltipId.value = null;
+    return;
+  }
+  const { top, left, text } = getTooltipInfo(event);
+  tooltipContent.value = text;
+  tooltipAnchor.value = { top, left };
+  openTooltipId.value = id;
 }
 
 function closeTooltips() {
@@ -914,49 +964,10 @@ watch(
 }
 
 .tooltip-hint {
-  position: relative;
   font-size: 0.75em;
   color: var(--sidebar-muted);
   cursor: help;
   user-select: none;
-}
-
-.tooltip-hint::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 6px);
-  width: 190px;
-  background: #fff;
-  color: #1e293b;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 7px 10px;
-  font-size: 0.74rem;
-  font-weight: 400;
-  line-height: 1.5;
-  white-space: normal;
-  text-transform: none;
-  letter-spacing: normal;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  z-index: 400;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-}
-
-/* Desktop: show on hover */
-@media (hover: hover) {
-  .tooltip-hint:hover::after {
-    opacity: 1;
-  }
-}
-
-/* Mobile: show on click (.tooltip-open class) */
-@media (hover: none) {
-  .tooltip-hint.tooltip-open::after {
-    opacity: 1;
-  }
 }
 
 /* Set All Complete row: button + tooltip hint side by side */
@@ -1386,5 +1397,25 @@ watch(
   background: rgba(255, 255, 255, 0.13);
   border-color: rgba(255, 255, 255, 0.18);
   color: #f1f5f9;
+}
+</style>
+
+<style>
+.sidebar-tooltip-portal {
+  position: fixed;
+  z-index: 9999;
+  width: 280px;
+  background: #fff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.74rem;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  transform: translateY(calc(-100% - 6px));
 }
 </style>
