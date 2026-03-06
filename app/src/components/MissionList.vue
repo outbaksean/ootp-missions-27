@@ -278,7 +278,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import type { PropType } from "vue";
+import type { PropType, ComponentPublicInstance } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
 import { useSettingsStore, PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
@@ -348,9 +348,9 @@ function toggleGroup(label: string) {
   collapsed.value = next;
 }
 
-function setMissionRef(missionId: number, el: Element | null) {
-  if (el) {
-    missionRefs.value.set(missionId, el as HTMLElement);
+function setMissionRef(missionId: number, el: Element | ComponentPublicInstance | null) {
+  if (el instanceof HTMLElement) {
+    missionRefs.value.set(missionId, el);
   } else {
     missionRefs.value.delete(missionId);
   }
