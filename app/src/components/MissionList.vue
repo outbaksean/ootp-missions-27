@@ -80,7 +80,7 @@
               :key="'remaining-' + item.label"
               class="group-reward-chip"
               :class="packChipClass(item.label)"
-              >{{ item.count }}x {{ item.label }}</span
+              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
           <template v-if="groupCompletedRewardItems(group.missions).length">
@@ -90,7 +90,7 @@
               :key="'done-' + item.label"
               class="group-reward-chip group-reward-chip--done"
               :class="packChipClass(item.label)"
-              >{{ item.count }}x {{ item.label }}</span
+              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
         </div>
@@ -123,7 +123,18 @@
           </div>
 
           <!-- Reward -->
-          <div class="card-reward">{{ mission.rawMission.reward }}</div>
+          <div class="card-reward">
+            <span v-if="mission.rawMission.reward" class="card-reward-text">{{
+              mission.rawMission.reward
+            }}</span>
+            <span
+              v-for="item in collectRewardItems([mission])"
+              :key="item.label"
+              class="group-reward-chip"
+              :class="packChipClass(item.label)"
+              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
+            >
+          </div>
 
           <!-- Progress -->
           <div class="card-progress">
@@ -274,6 +285,7 @@ import type { PropType } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
 import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useCardStore } from "@/stores/useCardStore";
 
 const props = defineProps({
   groups: {
@@ -305,6 +317,15 @@ defineEmits<{
 
 const missionStore = useMissionStore();
 const settingsStore = useSettingsStore();
+const cardStore = useCardStore();
+
+// Strips everything before the position code and prepends the card value.
+// e.g. cardValue=100, "Hall of Fame RF Vladimir Guerrero MON 2002" → "100 - RF Vladimir Guerrero MON 2002"
+function cardTitleShort(title: string, cardValue: number): string {
+  const match = title.match(/\b(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b/);
+  const fromPosition = match?.index !== undefined ? title.slice(match.index) : title;
+  return `${cardValue} - ${fromPosition}`;
+}
 
 function packChipClass(label: string): string {
   const l = label.toLowerCase();
@@ -472,7 +493,7 @@ function collectRewardItems(
   missions: UserMission[],
 ): { label: string; count: number }[] {
   const packCounts = new Map<string, number>();
-  let cardCount = 0;
+  const cardCounts = new Map<string, number>();
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
       const type = (reward.type as string).toLowerCase();
@@ -481,22 +502,29 @@ function collectRewardItems(
         packCounts.set(r.packType, (packCounts.get(r.packType) ?? 0) + r.count);
       } else if (type === "card") {
         const r = reward as { cardId: number; count?: number };
-        cardCount += r.count ?? 1;
+        if (r.cardId === 0) continue;
+        const shopCard = cardStore.shopCardsById.get(r.cardId);
+        const title = shopCard
+          ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
+          : `Card #${r.cardId}`;
+        cardCounts.set(title, (cardCounts.get(title) ?? 0) + (r.count ?? 1));
       }
     }
   }
-  const items: { label: string; count: number }[] = [];
+  const packs: { label: string; count: number }[] = [];
   for (const [packType, count] of packCounts) {
-    items.push({ label: packType, count });
+    packs.push({ label: packType, count });
   }
-  if (cardCount > 0) {
-    items.push({ label: "Card", count: cardCount });
-  }
-  return items.sort((a, b) => {
+  packs.sort((a, b) => {
     const aVal = settingsStore.packPrices.get(a.label) ?? 0;
     const bVal = settingsStore.packPrices.get(b.label) ?? 0;
     return bVal - aVal;
   });
+  const cards: { label: string; count: number }[] = [];
+  for (const [title, count] of cardCounts) {
+    cards.push({ label: title, count });
+  }
+  return [...packs, ...cards];
 }
 
 function groupRemainingRewardItems(
@@ -786,9 +814,17 @@ defineExpose({
 
 /* Reward */
 .card-reward {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.76rem;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
+}
+
+.card-reward-text {
+  flex-shrink: 0;
 }
 
 /* Progress */
