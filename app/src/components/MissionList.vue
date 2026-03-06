@@ -511,7 +511,7 @@ function collectRewardItems(missions: UserMission[]): RewardItem[] {
           value: shopCard?.cardValue ?? prev?.value ?? 0,
         });
       } else if (type === "park") {
-        const r = reward as { park: string };
+        const r = reward as unknown as { park: string };
         parkCounts.set(r.park, (parkCounts.get(r.park) ?? 0) + 1);
       }
     }
