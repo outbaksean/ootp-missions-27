@@ -124,9 +124,6 @@
 
           <!-- Reward -->
           <div class="card-reward">
-            <span v-if="mission.rawMission.reward" class="card-reward-text">{{
-              mission.rawMission.reward
-            }}</span>
             <span
               v-for="item in collectRewardItems([mission])"
               :key="item.label"
@@ -284,7 +281,7 @@ import { ref } from "vue";
 import type { PropType } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
-import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useSettingsStore, PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
 import { useCardStore } from "@/stores/useCardStore";
 
 const props = defineProps({
@@ -511,20 +508,24 @@ function collectRewardItems(
       }
     }
   }
-  const packs: { label: string; count: number }[] = [];
+  const packsRaw: { key: string; count: number }[] = [];
   for (const [packType, count] of packCounts) {
-    packs.push({ label: packType, count });
+    packsRaw.push({ key: packType, count });
   }
-  packs.sort((a, b) => {
-    const aVal = settingsStore.packPrices.get(a.label) ?? 0;
-    const bVal = settingsStore.packPrices.get(b.label) ?? 0;
+  packsRaw.sort((a, b) => {
+    const aVal = settingsStore.packPrices.get(a.key) ?? 0;
+    const bVal = settingsStore.packPrices.get(b.key) ?? 0;
     return bVal - aVal;
   });
+  const packs = packsRaw.map(({ key, count }) => ({
+    label: PACK_TYPE_LABELS[key] ?? key,
+    count,
+  }));
   const cards: { label: string; count: number }[] = [];
   for (const [title, count] of cardCounts) {
     cards.push({ label: title, count });
   }
-  return [...packs, ...cards];
+  return [...cards, ...packs];
 }
 
 function groupRemainingRewardItems(
@@ -821,10 +822,6 @@ defineExpose({
   font-size: 0.76rem;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
-}
-
-.card-reward-text {
-  flex-shrink: 0;
 }
 
 /* Progress */
