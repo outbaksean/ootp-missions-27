@@ -79,7 +79,7 @@
               v-for="item in groupRemainingRewardItems(group.missions)"
               :key="'remaining-' + item.label"
               class="group-reward-chip"
-              :class="item.ispark ? 'chip--park' : packChipClass(item.label)"
+              :class="chipClass(item)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
@@ -89,7 +89,7 @@
               v-for="item in groupCompletedRewardItems(group.missions)"
               :key="'done-' + item.label"
               class="group-reward-chip group-reward-chip--done"
-              :class="item.ispark ? 'chip--park' : packChipClass(item.label)"
+              :class="chipClass(item)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
@@ -128,7 +128,7 @@
               v-for="item in collectRewardItems([mission])"
               :key="item.label"
               class="group-reward-chip"
-              :class="item.ispark ? 'chip--park' : packChipClass(item.label)"
+              :class="chipClass(item)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </div>
@@ -486,9 +486,9 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   );
 }
 
-function collectRewardItems(
-  missions: UserMission[],
-): { label: string; count: number; ispark?: boolean }[] {
+type RewardItem = { label: string; count: number; type: "pack" | "card" | "park" };
+
+function collectRewardItems(missions: UserMission[]): RewardItem[] {
   const packCounts = new Map<string, number>();
   const cardCounts = new Map<string, number>();
   const parkCounts = new Map<string, number>();
@@ -521,30 +521,33 @@ function collectRewardItems(
     const bVal = settingsStore.packPrices.get(b.key) ?? 0;
     return bVal - aVal;
   });
-  const packs = packsRaw.map(({ key, count }) => ({
+  const packs: RewardItem[] = packsRaw.map(({ key, count }) => ({
     label: PACK_TYPE_LABELS[key] ?? key,
     count,
+    type: "pack",
   }));
-  const cards: { label: string; count: number; ispark?: boolean }[] = [];
+  const cards: RewardItem[] = [];
   for (const [title, count] of cardCounts) {
-    cards.push({ label: title, count });
+    cards.push({ label: title, count, type: "card" });
   }
-  const parks: { label: string; count: number; ispark?: boolean }[] = [];
+  const parks: RewardItem[] = [];
   for (const [park, count] of parkCounts) {
-    parks.push({ label: park, count, ispark: true });
+    parks.push({ label: park, count, type: "park" });
   }
-  return [...parks, ...cards, ...packs];
+  return [...cards, ...packs, ...parks];
 }
 
-function groupRemainingRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
+function chipClass(item: RewardItem): string {
+  if (item.type === "park") return "chip--park";
+  if (item.type === "card") return "chip--card";
+  return packChipClass(item.label);
+}
+
+function groupRemainingRewardItems(missions: UserMission[]): RewardItem[] {
   return collectRewardItems(missions.filter((m) => !m.completed));
 }
 
-function groupCompletedRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
+function groupCompletedRewardItems(missions: UserMission[]): RewardItem[] {
   return collectRewardItems(missions.filter((m) => m.completed));
 }
 
@@ -766,6 +769,12 @@ defineExpose({
   background: #d1fae5;
   color: #065f46;
   border-color: #6ee7b7;
+}
+
+.chip--card {
+  background: #ede9fe;
+  color: #4c1d95;
+  border-color: #c4b5fd;
 }
 
 /* ─── MISSION CARD ─── */
