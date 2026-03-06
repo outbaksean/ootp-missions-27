@@ -662,7 +662,7 @@ export const useMissionStore = defineStore("mission", () => {
     loading.value = false;
   }
 
-  async function updateCardLockedState(cardId: number, _locked: boolean) {
+  async function updateCardLockedState(cardId: number) {
     await recalculateMissionsForCardIds(new Set([cardId]));
   }
 

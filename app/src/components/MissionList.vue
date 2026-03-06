@@ -348,7 +348,7 @@ function toggleGroup(label: string) {
   collapsed.value = next;
 }
 
-function setMissionRef(missionId: number, el: any) {
+function setMissionRef(missionId: number, el: Element | null) {
   if (el) {
     missionRefs.value.set(missionId, el as HTMLElement);
   } else {
