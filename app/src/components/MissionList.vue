@@ -79,7 +79,8 @@
               v-for="item in groupRemainingRewardItems(group.missions)"
               :key="'remaining-' + item.label"
               class="group-reward-chip"
-              :class="chipClass(item)"
+              :class="[chipClass(item), item.type === 'card' ? 'chip--clickable' : '']"
+              @click.stop="item.cardId !== undefined && scrollToMissionWithCard(group.missions, item.cardId)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
@@ -89,7 +90,8 @@
               v-for="item in groupCompletedRewardItems(group.missions)"
               :key="'done-' + item.label"
               class="group-reward-chip group-reward-chip--done"
-              :class="chipClass(item)"
+              :class="[chipClass(item), item.type === 'card' ? 'chip--clickable' : '']"
+              @click.stop="item.cardId !== undefined && scrollToMissionWithCard(group.missions, item.cardId)"
               >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
@@ -378,6 +380,17 @@ function scrollToMission(missionId: number) {
   }, 100);
 }
 
+function scrollToMissionWithCard(missions: UserMission[], cardId: number) {
+  const mission = missions.find((m) =>
+    m.rawMission.rewards?.some(
+      (r) =>
+        (r.type as string).toLowerCase() === "card" &&
+        (r as unknown as { cardId: number }).cardId === cardId,
+    ),
+  );
+  if (mission) scrollToMission(mission.id);
+}
+
 function groupHasUncalculated(missions: UserMission[]): boolean {
   return missions.some(
     (m) => !m.completed && m.progressText === "Not Calculated",
@@ -486,11 +499,11 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   );
 }
 
-type RewardItem = { label: string; count: number; type: "pack" | "card" | "park" };
+type RewardItem = { label: string; count: number; type: "pack" | "card" | "park"; cardId?: number };
 
 function collectRewardItems(missions: UserMission[]): RewardItem[] {
   const packCounts = new Map<string, number>();
-  const cardCounts = new Map<string, { count: number; value: number }>();
+  const cardCounts = new Map<string, { count: number; value: number; cardId: number }>();
   const parkCounts = new Map<string, number>();
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
@@ -509,6 +522,7 @@ function collectRewardItems(missions: UserMission[]): RewardItem[] {
         cardCounts.set(title, {
           count: (prev?.count ?? 0) + (r.count ?? 1),
           value: shopCard?.cardValue ?? prev?.value ?? 0,
+          cardId: r.cardId,
         });
       } else if (type === "park") {
         const r = reward as unknown as { park: string };
@@ -532,7 +546,7 @@ function collectRewardItems(missions: UserMission[]): RewardItem[] {
   }));
   const cards: RewardItem[] = Array.from(cardCounts.entries())
     .sort((a, b) => b[1].value - a[1].value)
-    .map(([title, { count }]) => ({ label: title, count, type: "card" as const }));
+    .map(([title, { count, cardId }]) => ({ label: title, count, type: "card" as const, cardId }));
   const parks: RewardItem[] = [];
   for (const [park, count] of parkCounts) {
     parks.push({ label: park, count, type: "park" });
@@ -778,6 +792,14 @@ defineExpose({
   background: #ede9fe;
   color: #4c1d95;
   border-color: #c4b5fd;
+}
+
+.chip--clickable {
+  cursor: pointer;
+}
+
+.chip--clickable:hover {
+  filter: brightness(0.92);
 }
 
 /* ─── MISSION CARD ─── */
