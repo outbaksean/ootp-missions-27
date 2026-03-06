@@ -271,6 +271,7 @@ import { ref } from "vue";
 import type { PropType } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 
 const props = defineProps({
   groups: {
@@ -301,6 +302,7 @@ defineEmits<{
 }>();
 
 const missionStore = useMissionStore();
+const settingsStore = useSettingsStore();
 
 const collapsed = ref<Set<string>>(new Set());
 const missionRefs = ref<Map<number, HTMLElement>>(new Map());
@@ -460,13 +462,13 @@ function collectRewardItems(
   let cardCount = 0;
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
-      if (reward.type === "pack") {
-        packCounts.set(
-          reward.packType,
-          (packCounts.get(reward.packType) ?? 0) + reward.count,
-        );
-      } else if (reward.type === "card") {
-        cardCount += reward.count ?? 1;
+      const type = (reward.type as string).toLowerCase();
+      if (type === "pack") {
+        const r = reward as { packType: string; count: number };
+        packCounts.set(r.packType, (packCounts.get(r.packType) ?? 0) + r.count);
+      } else if (type === "card") {
+        const r = reward as { cardId: number; count?: number };
+        cardCount += r.count ?? 1;
       }
     }
   }
@@ -477,7 +479,11 @@ function collectRewardItems(
   if (cardCount > 0) {
     items.push({ label: "Card", count: cardCount });
   }
-  return items.sort((a, b) => b.count - a.count);
+  return items.sort((a, b) => {
+    const aVal = settingsStore.packPrices.get(a.label) ?? 0;
+    const bVal = settingsStore.packPrices.get(b.label) ?? 0;
+    return bVal - aVal;
+  });
 }
 
 function groupRemainingRewardItems(
