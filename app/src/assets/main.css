@@ -3,18 +3,17 @@
 html,
 body {
   height: 100%;
-  /* svh = small viewport height (toolbar always visible), stable unlike dvh
-     which reflows the layout every time the browser toolbar shows/hides.
-     Fixes Firefox Android where 100% resolves to the layout viewport causing
-     top content to hide behind the address bar. Browsers without svh support
-     fall back to 100%. */
-  height: 100svh;
   overflow: hidden;
 }
 
 #app {
-  height: 100%;
-  height: 100svh;
+  /* position: fixed + inset: 0 anchors to the visual viewport, not the layout
+     viewport. This fixes Firefox Android where the layout viewport origin is
+     behind the address bar, causing top content to be clipped and a gap to
+     appear below the footer. Fixed positioning always aligns to what the user
+     can actually see, regardless of where the browser chrome sits. */
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   font-weight: normal;
