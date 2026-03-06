@@ -79,7 +79,8 @@
               v-for="item in groupRemainingRewardItems(group.missions)"
               :key="'remaining-' + item.label"
               class="group-reward-chip"
-              >{{ item.count }}x {{ item.label }}</span
+              :class="chipClass(item)"
+              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
           <template v-if="groupCompletedRewardItems(group.missions).length">
@@ -88,7 +89,8 @@
               v-for="item in groupCompletedRewardItems(group.missions)"
               :key="'done-' + item.label"
               class="group-reward-chip group-reward-chip--done"
-              >{{ item.count }}x {{ item.label }}</span
+              :class="chipClass(item)"
+              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
             >
           </template>
         </div>
@@ -121,7 +123,15 @@
           </div>
 
           <!-- Reward -->
-          <div class="card-reward">{{ mission.rawMission.reward }}</div>
+          <div class="card-reward">
+            <span
+              v-for="item in collectRewardItems([mission])"
+              :key="item.label"
+              class="group-reward-chip"
+              :class="chipClass(item)"
+              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
+            >
+          </div>
 
           <!-- Progress -->
           <div class="card-progress">
@@ -268,9 +278,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import type { PropType } from "vue";
+import type { PropType, ComponentPublicInstance } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
+import { useSettingsStore, PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
+import { useCardStore } from "@/stores/useCardStore";
 
 const props = defineProps({
   groups: {
@@ -301,6 +313,27 @@ defineEmits<{
 }>();
 
 const missionStore = useMissionStore();
+const settingsStore = useSettingsStore();
+const cardStore = useCardStore();
+
+// Strips everything before the position code and prepends the card value.
+// e.g. cardValue=100, "Hall of Fame RF Vladimir Guerrero MON 2002" → "100 - RF Vladimir Guerrero MON 2002"
+function cardTitleShort(title: string, cardValue: number): string {
+  const match = title.match(/\b(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b/);
+  const fromPosition = match?.index !== undefined ? title.slice(match.index) : title;
+  return `${cardValue} - ${fromPosition}`;
+}
+
+function packChipClass(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes("rainbow"))  return "chip--rainbow";
+  if (l.includes("perfect"))  return "chip--perfect";
+  if (l.includes("diamond"))  return "chip--diamond";
+  if (l.includes("gold"))     return "chip--gold";
+  if (l.includes("silver"))   return "chip--silver";
+  if (l.includes("standard")) return "chip--standard";
+  return "";
+}
 
 const collapsed = ref<Set<string>>(new Set());
 const missionRefs = ref<Map<number, HTMLElement>>(new Map());
@@ -315,9 +348,9 @@ function toggleGroup(label: string) {
   collapsed.value = next;
 }
 
-function setMissionRef(missionId: number, el: any) {
-  if (el) {
-    missionRefs.value.set(missionId, el as HTMLElement);
+function setMissionRef(missionId: number, el: Element | ComponentPublicInstance | null) {
+  if (el instanceof HTMLElement) {
+    missionRefs.value.set(missionId, el);
   } else {
     missionRefs.value.delete(missionId);
   }
@@ -453,42 +486,71 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   );
 }
 
-function collectRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
+type RewardItem = { label: string; count: number; type: "pack" | "card" | "park" };
+
+function collectRewardItems(missions: UserMission[]): RewardItem[] {
   const packCounts = new Map<string, number>();
-  let cardCount = 0;
+  const cardCounts = new Map<string, { count: number; value: number }>();
+  const parkCounts = new Map<string, number>();
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
-      if (reward.type === "pack") {
-        packCounts.set(
-          reward.packType,
-          (packCounts.get(reward.packType) ?? 0) + reward.count,
-        );
-      } else if (reward.type === "card") {
-        cardCount += reward.count ?? 1;
+      const type = (reward.type as string).toLowerCase();
+      if (type === "pack") {
+        const r = reward as { packType: string; count: number };
+        packCounts.set(r.packType, (packCounts.get(r.packType) ?? 0) + r.count);
+      } else if (type === "card") {
+        const r = reward as { cardId: number; count?: number };
+        if (r.cardId === 0) continue;
+        const shopCard = cardStore.shopCardsById.get(r.cardId);
+        const title = shopCard
+          ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
+          : `Card #${r.cardId}`;
+        const prev = cardCounts.get(title);
+        cardCounts.set(title, {
+          count: (prev?.count ?? 0) + (r.count ?? 1),
+          value: shopCard?.cardValue ?? prev?.value ?? 0,
+        });
+      } else if (type === "park") {
+        const r = reward as unknown as { park: string };
+        parkCounts.set(r.park, (parkCounts.get(r.park) ?? 0) + 1);
       }
     }
   }
-  const items: { label: string; count: number }[] = [];
+  const packsRaw: { key: string; count: number }[] = [];
   for (const [packType, count] of packCounts) {
-    items.push({ label: packType, count });
+    packsRaw.push({ key: packType, count });
   }
-  if (cardCount > 0) {
-    items.push({ label: "Card", count: cardCount });
+  packsRaw.sort((a, b) => {
+    const aVal = settingsStore.packPrices.get(a.key) ?? 0;
+    const bVal = settingsStore.packPrices.get(b.key) ?? 0;
+    return bVal - aVal;
+  });
+  const packs: RewardItem[] = packsRaw.map(({ key, count }) => ({
+    label: PACK_TYPE_LABELS[key] ?? key,
+    count,
+    type: "pack",
+  }));
+  const cards: RewardItem[] = Array.from(cardCounts.entries())
+    .sort((a, b) => b[1].value - a[1].value)
+    .map(([title, { count }]) => ({ label: title, count, type: "card" as const }));
+  const parks: RewardItem[] = [];
+  for (const [park, count] of parkCounts) {
+    parks.push({ label: park, count, type: "park" });
   }
-  return items.sort((a, b) => b.count - a.count);
+  return [...cards, ...packs, ...parks];
 }
 
-function groupRemainingRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
+function chipClass(item: RewardItem): string {
+  if (item.type === "park") return "chip--park";
+  if (item.type === "card") return "chip--card";
+  return packChipClass(item.label);
+}
+
+function groupRemainingRewardItems(missions: UserMission[]): RewardItem[] {
   return collectRewardItems(missions.filter((m) => !m.completed));
 }
 
-function groupCompletedRewardItems(
-  missions: UserMission[],
-): { label: string; count: number }[] {
+function groupCompletedRewardItems(missions: UserMission[]): RewardItem[] {
   return collectRewardItems(missions.filter((m) => m.completed));
 }
 
@@ -666,9 +728,56 @@ defineExpose({
 }
 
 .group-reward-chip--done {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #86efac;
+  opacity: 0.55;
+}
+
+.chip--standard {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.chip--silver {
+  background: #cbd5e1;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+.chip--gold {
+  background: #fbbf24;
+  color: #78350f;
+  border-color: #f59e0b;
+}
+
+.chip--diamond {
+  background: #bae6fd;
+  color: #0c4a6e;
+  border-color: #7dd3fc;
+}
+
+.chip--perfect {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.chip--rainbow {
+  background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6);
+  color: #fff;
+  border-color: transparent;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.55);
+}
+
+.chip--park {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.chip--card {
+  background: #ede9fe;
+  color: #4c1d95;
+  border-color: #c4b5fd;
 }
 
 /* ─── MISSION CARD ─── */
@@ -732,6 +841,10 @@ defineExpose({
 
 /* Reward */
 .card-reward {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.76rem;
   color: var(--text-muted);
   margin-bottom: 0.5rem;

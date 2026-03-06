@@ -473,8 +473,7 @@ watch(
 
 async function toggleLock(cardId: number) {
   await cardStore.toggleCardLocked(cardId);
-  const locked = cardStore.shopCardsById.get(cardId)?.locked ?? false;
-  await missionStore.updateCardLockedState(cardId, locked);
+  await missionStore.updateCardLockedState(cardId);
 }
 
 async function toggleOwn(cardId: number) {
