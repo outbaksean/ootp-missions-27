@@ -18,6 +18,11 @@
         </div>
         <div class="detail-mission-title-row">
           <div class="title-and-progress">
+            <span
+              v-if="selectedMission.rawMission.category"
+              class="detail-category"
+              >{{ selectedMission.rawMission.category }}</span
+            >
             <h3 class="detail-mission-name">
               {{ selectedMission.rawMission.name }}
             </h3>
@@ -158,6 +163,11 @@
         </div>
         <div class="detail-mission-title-row">
           <div class="title-and-progress">
+            <span
+              v-if="selectedMission.rawMission.category"
+              class="detail-category"
+              >{{ selectedMission.rawMission.category }}</span
+            >
             <h3 class="detail-mission-name">
               {{ selectedMission.rawMission.name }}
             </h3>
@@ -598,6 +608,14 @@ const isMissionComplete = (mission: UserMission) => mission.completed;
 
 .parent-link:hover {
   color: #2563eb;
+}
+
+.detail-category {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .detail-mission-name {
