@@ -490,7 +490,7 @@ type RewardItem = { label: string; count: number; type: "pack" | "card" | "park"
 
 function collectRewardItems(missions: UserMission[]): RewardItem[] {
   const packCounts = new Map<string, number>();
-  const cardCounts = new Map<string, number>();
+  const cardCounts = new Map<string, { count: number; value: number }>();
   const parkCounts = new Map<string, number>();
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
@@ -505,7 +505,11 @@ function collectRewardItems(missions: UserMission[]): RewardItem[] {
         const title = shopCard
           ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
           : `Card #${r.cardId}`;
-        cardCounts.set(title, (cardCounts.get(title) ?? 0) + (r.count ?? 1));
+        const prev = cardCounts.get(title);
+        cardCounts.set(title, {
+          count: (prev?.count ?? 0) + (r.count ?? 1),
+          value: shopCard?.cardValue ?? prev?.value ?? 0,
+        });
       } else if (type === "park") {
         const r = reward as { park: string };
         parkCounts.set(r.park, (parkCounts.get(r.park) ?? 0) + 1);
@@ -526,10 +530,9 @@ function collectRewardItems(missions: UserMission[]): RewardItem[] {
     count,
     type: "pack",
   }));
-  const cards: RewardItem[] = [];
-  for (const [title, count] of cardCounts) {
-    cards.push({ label: title, count, type: "card" });
-  }
+  const cards: RewardItem[] = Array.from(cardCounts.entries())
+    .sort((a, b) => b[1].value - a[1].value)
+    .map(([title, { count }]) => ({ label: title, count, type: "card" as const }));
   const parks: RewardItem[] = [];
   for (const [park, count] of parkCounts) {
     parks.push({ label: park, count, type: "park" });
