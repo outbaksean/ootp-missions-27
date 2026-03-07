@@ -79,9 +79,16 @@
               v-for="item in groupRemainingRewardItems(group.missions)"
               :key="'remaining-' + item.label"
               class="group-reward-chip"
-              :class="[chipClass(item), item.type === 'card' ? 'chip--clickable' : '']"
-              @click.stop="item.cardId !== undefined && scrollToMissionWithCard(group.missions, item.cardId)"
-              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
+              :class="[
+                chipClass(item),
+                item.type === 'card' ? 'chip--clickable' : '',
+              ]"
+              @click.stop="
+                item.cardId !== undefined &&
+                scrollToMissionWithCard(group.missions, item.cardId)
+              "
+              >{{ item.count > 1 ? item.count + "x " : ""
+              }}{{ item.label }}</span
             >
           </template>
           <template v-if="groupCompletedRewardItems(group.missions).length">
@@ -90,9 +97,16 @@
               v-for="item in groupCompletedRewardItems(group.missions)"
               :key="'done-' + item.label"
               class="group-reward-chip group-reward-chip--done"
-              :class="[chipClass(item), item.type === 'card' ? 'chip--clickable' : '']"
-              @click.stop="item.cardId !== undefined && scrollToMissionWithCard(group.missions, item.cardId)"
-              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
+              :class="[
+                chipClass(item),
+                item.type === 'card' ? 'chip--clickable' : '',
+              ]"
+              @click.stop="
+                item.cardId !== undefined &&
+                scrollToMissionWithCard(group.missions, item.cardId)
+              "
+              >{{ item.count > 1 ? item.count + "x " : ""
+              }}{{ item.label }}</span
             >
           </template>
         </div>
@@ -127,11 +141,12 @@
           <!-- Reward -->
           <div class="card-reward">
             <span
-              v-for="item in collectRewardItems([mission])"
+              v-for="item in missionRewardItems(mission)"
               :key="item.label"
               class="group-reward-chip"
               :class="chipClass(item)"
-              >{{ item.count > 1 ? item.count + "x " : "" }}{{ item.label }}</span
+              >{{ item.count > 1 ? item.count + "x " : ""
+              }}{{ item.label }}</span
             >
           </div>
 
@@ -285,6 +300,11 @@ import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
 import { useSettingsStore, PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
 import { useCardStore } from "@/stores/useCardStore";
+import {
+  collectRewardItems,
+  chipClass,
+  type RewardItem,
+} from "@/helpers/RewardItemsHelper";
 
 const props = defineProps({
   groups: {
@@ -318,25 +338,6 @@ const missionStore = useMissionStore();
 const settingsStore = useSettingsStore();
 const cardStore = useCardStore();
 
-// Strips everything before the position code and prepends the card value.
-// e.g. cardValue=100, "Hall of Fame RF Vladimir Guerrero MON 2002" → "100 - RF Vladimir Guerrero MON 2002"
-function cardTitleShort(title: string, cardValue: number): string {
-  const match = title.match(/\b(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b/);
-  const fromPosition = match?.index !== undefined ? title.slice(match.index) : title;
-  return `${cardValue} - ${fromPosition}`;
-}
-
-function packChipClass(label: string): string {
-  const l = label.toLowerCase();
-  if (l.includes("rainbow"))  return "chip--rainbow";
-  if (l.includes("perfect"))  return "chip--perfect";
-  if (l.includes("diamond"))  return "chip--diamond";
-  if (l.includes("gold"))     return "chip--gold";
-  if (l.includes("silver"))   return "chip--silver";
-  if (l.includes("standard")) return "chip--standard";
-  return "";
-}
-
 const collapsed = ref<Set<string>>(new Set());
 const missionRefs = ref<Map<number, HTMLElement>>(new Map());
 
@@ -350,7 +351,10 @@ function toggleGroup(label: string) {
   collapsed.value = next;
 }
 
-function setMissionRef(missionId: number, el: Element | ComponentPublicInstance | null) {
+function setMissionRef(
+  missionId: number,
+  el: Element | ComponentPublicInstance | null,
+) {
   if (el instanceof HTMLElement) {
     missionRefs.value.set(missionId, el);
   } else {
@@ -494,78 +498,37 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   const topLevel = missions.filter(
     (m) => !m.completed && !childIds.has(m.rawMission.id),
   );
-  return (
-    topLevel.reduce((sum, m) => sum + (m.missionValue ?? 0), 0) >= 0
-  );
-}
-
-type RewardItem = { label: string; count: number; type: "pack" | "card" | "park"; cardId?: number };
-
-function collectRewardItems(missions: UserMission[]): RewardItem[] {
-  const packCounts = new Map<string, number>();
-  const cardCounts = new Map<string, { count: number; value: number; cardId: number }>();
-  const parkCounts = new Map<string, number>();
-  for (const mission of missions) {
-    for (const reward of mission.rawMission.rewards ?? []) {
-      const type = (reward.type as string).toLowerCase();
-      if (type === "pack") {
-        const r = reward as { packType: string; count: number };
-        packCounts.set(r.packType, (packCounts.get(r.packType) ?? 0) + r.count);
-      } else if (type === "card") {
-        const r = reward as { cardId: number; count?: number };
-        if (r.cardId === 0) continue;
-        const shopCard = cardStore.shopCardsById.get(r.cardId);
-        const title = shopCard
-          ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
-          : `Card #${r.cardId}`;
-        const prev = cardCounts.get(title);
-        cardCounts.set(title, {
-          count: (prev?.count ?? 0) + (r.count ?? 1),
-          value: shopCard?.cardValue ?? prev?.value ?? 0,
-          cardId: r.cardId,
-        });
-      } else if (type === "park") {
-        const r = reward as unknown as { park: string };
-        parkCounts.set(r.park, (parkCounts.get(r.park) ?? 0) + 1);
-      }
-    }
-  }
-  const packsRaw: { key: string; count: number }[] = [];
-  for (const [packType, count] of packCounts) {
-    packsRaw.push({ key: packType, count });
-  }
-  packsRaw.sort((a, b) => {
-    const aVal = settingsStore.packPrices.get(a.key) ?? 0;
-    const bVal = settingsStore.packPrices.get(b.key) ?? 0;
-    return bVal - aVal;
-  });
-  const packs: RewardItem[] = packsRaw.map(({ key, count }) => ({
-    label: PACK_TYPE_LABELS[key] ?? key,
-    count,
-    type: "pack",
-  }));
-  const cards: RewardItem[] = Array.from(cardCounts.entries())
-    .sort((a, b) => b[1].value - a[1].value)
-    .map(([title, { count, cardId }]) => ({ label: title, count, type: "card" as const, cardId }));
-  const parks: RewardItem[] = [];
-  for (const [park, count] of parkCounts) {
-    parks.push({ label: park, count, type: "park" });
-  }
-  return [...cards, ...packs, ...parks];
-}
-
-function chipClass(item: RewardItem): string {
-  if (item.type === "park") return "chip--park";
-  if (item.type === "card") return "chip--card";
-  return packChipClass(item.label);
+  return topLevel.reduce((sum, m) => sum + (m.missionValue ?? 0), 0) >= 0;
 }
 
 function groupRemainingRewardItems(missions: UserMission[]): RewardItem[] {
-  return collectRewardItems(missions.filter((m) => !m.completed));
+  return collectRewardItems(
+    missions.filter((m) => !m.completed),
+    {
+      packPrices: settingsStore.packPrices,
+      packTypeLabels: PACK_TYPE_LABELS,
+      shopCardsById: cardStore.shopCardsById,
+    },
+  );
 }
 
 function groupCompletedRewardItems(missions: UserMission[]): RewardItem[] {
-  return collectRewardItems(missions.filter((m) => m.completed));
+  return collectRewardItems(
+    missions.filter((m) => m.completed),
+    {
+      packPrices: settingsStore.packPrices,
+      packTypeLabels: PACK_TYPE_LABELS,
+      shopCardsById: cardStore.shopCardsById,
+    },
+  );
+}
+
+function missionRewardItems(mission: UserMission): RewardItem[] {
+  return collectRewardItems([mission], {
+    packPrices: settingsStore.packPrices,
+    packTypeLabels: PACK_TYPE_LABELS,
+    shopCardsById: cardStore.shopCardsById,
+  });
 }
 
 function progressPercent(mission: UserMission): number {
@@ -776,7 +739,16 @@ defineExpose({
 }
 
 .chip--rainbow {
-  background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6);
+  background: linear-gradient(
+    90deg,
+    #f87171,
+    #fb923c,
+    #fbbf24,
+    #4ade80,
+    #60a5fa,
+    #a78bfa,
+    #f472b6
+  );
   color: #fff;
   border-color: transparent;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.55);
