@@ -67,48 +67,72 @@
             groupRemainingRewardItems(group.missions).length ||
             groupCompletedRewardItems(group.missions).length
           "
-          class="group-rewards-bar"
+          class="group-rewards-wrapper"
         >
-          <template v-if="groupRemainingRewardItems(group.missions).length">
-            <span
-              v-if="groupCompletedRewardItems(group.missions).length"
-              class="group-rewards-section-label"
-              >Remaining</span
-            >
-            <span
-              v-for="item in groupRemainingRewardItems(group.missions)"
-              :key="'remaining-' + item.label"
-              class="group-reward-chip"
-              :class="[
-                chipClass(item),
-                item.type === 'card' ? 'chip--clickable' : '',
-              ]"
-              @click.stop="
-                item.cardId !== undefined &&
-                scrollToMissionWithCard(group.missions, item.cardId)
-              "
-              >{{ item.count > 1 ? item.count + "x " : ""
-              }}{{ item.label }}</span
-            >
-          </template>
-          <template v-if="groupCompletedRewardItems(group.missions).length">
-            <span class="group-rewards-section-label">Done</span>
-            <span
-              v-for="item in groupCompletedRewardItems(group.missions)"
-              :key="'done-' + item.label"
-              class="group-reward-chip group-reward-chip--done"
-              :class="[
-                chipClass(item),
-                item.type === 'card' ? 'chip--clickable' : '',
-              ]"
-              @click.stop="
-                item.cardId !== undefined &&
-                scrollToMissionWithCard(group.missions, item.cardId)
-              "
-              >{{ item.count > 1 ? item.count + "x " : ""
-              }}{{ item.label }}</span
-            >
-          </template>
+          <div
+            class="group-rewards-bar"
+            :class="{
+              'group-rewards-bar--collapsed': isRewardsCollapsed(
+                group.label,
+                group.missions,
+              ),
+              'group-rewards-bar--collapsible': groupRewardsAreCollapsible(
+                group.missions,
+              ),
+            }"
+          >
+            <template v-if="groupRemainingRewardItems(group.missions).length">
+              <span
+                v-if="groupCompletedRewardItems(group.missions).length"
+                class="group-rewards-section-label"
+                >Remaining</span
+              >
+              <span
+                v-for="item in groupRemainingRewardItems(group.missions)"
+                :key="'remaining-' + item.label"
+                class="group-reward-chip"
+                :class="[
+                  chipClass(item),
+                  item.type === 'card' ? 'chip--clickable' : '',
+                ]"
+                @click.stop="
+                  item.cardId !== undefined &&
+                  scrollToMissionWithCard(group.missions, item.cardId)
+                "
+                >{{ item.count > 1 ? item.count + "x " : ""
+                }}{{ item.label }}</span
+              >
+            </template>
+            <template v-if="groupCompletedRewardItems(group.missions).length">
+              <span class="group-rewards-section-label">Done</span>
+              <span
+                v-for="item in groupCompletedRewardItems(group.missions)"
+                :key="'done-' + item.label"
+                class="group-reward-chip group-reward-chip--done"
+                :class="[
+                  chipClass(item),
+                  item.type === 'card' ? 'chip--clickable' : '',
+                ]"
+                @click.stop="
+                  item.cardId !== undefined &&
+                  scrollToMissionWithCard(group.missions, item.cardId)
+                "
+                >{{ item.count > 1 ? item.count + "x " : ""
+                }}{{ item.label }}</span
+              >
+            </template>
+          </div>
+          <button
+            v-if="groupRewardsAreCollapsible(group.missions)"
+            class="group-rewards-toggle"
+            @click.stop="toggleRewardsCollapsed(group.label)"
+          >
+            {{
+              isRewardsCollapsed(group.label, group.missions)
+                ? "Show All"
+                : "Show Less"
+            }}
+          </button>
         </div>
       </div>
 
@@ -337,9 +361,11 @@ defineEmits<{
 const missionStore = useMissionStore();
 const settingsStore = useSettingsStore();
 const cardStore = useCardStore();
+const GROUP_REWARDS_COLLAPSE_THRESHOLD = 20;
 
 const collapsed = ref<Set<string>>(new Set());
 const missionRefs = ref<Map<number, HTMLElement>>(new Map());
+const rewardsExpanded = ref<Set<string>>(new Set());
 
 function toggleGroup(label: string) {
   const next = new Set(collapsed.value);
@@ -360,6 +386,32 @@ function setMissionRef(
   } else {
     missionRefs.value.delete(missionId);
   }
+}
+
+function groupRewardsCount(missions: UserMission[]): number {
+  return (
+    groupRemainingRewardItems(missions).length +
+    groupCompletedRewardItems(missions).length
+  );
+}
+
+function groupRewardsAreCollapsible(missions: UserMission[]): boolean {
+  return groupRewardsCount(missions) > GROUP_REWARDS_COLLAPSE_THRESHOLD;
+}
+
+function isRewardsCollapsed(label: string, missions: UserMission[]): boolean {
+  if (!groupRewardsAreCollapsible(missions)) return false;
+  return !rewardsExpanded.value.has(label);
+}
+
+function toggleRewardsCollapsed(groupLabel: string) {
+  const next = new Set(rewardsExpanded.value);
+  if (next.has(groupLabel)) {
+    next.delete(groupLabel);
+  } else {
+    next.add(groupLabel);
+  }
+  rewardsExpanded.value = next;
 }
 
 function scrollToMission(missionId: number) {
@@ -662,13 +714,57 @@ defineExpose({
   color: #dc2626;
 }
 
+.group-rewards-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid #cbd5e1;
+}
+
 .group-rewards-bar {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  padding-top: 0.3rem;
-  border-top: 1px solid #cbd5e1;
+  transition: max-height 0.2s ease-out;
+}
+
+.group-rewards-bar--collapsible.group-rewards-bar--collapsed {
+  max-height: 3rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.group-rewards-bar--collapsible.group-rewards-bar--collapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  background: linear-gradient(to bottom, transparent, #e2e8f0);
+  pointer-events: none;
+}
+
+.group-rewards-toggle {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  color: #64748b;
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.group-rewards-toggle:hover {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #94a3b8;
 }
 
 .group-rewards-section-label {
