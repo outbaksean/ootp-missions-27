@@ -132,6 +132,142 @@ export const useMissionStore = defineStore("mission", () => {
     loadManualCompleteOverrides(),
   );
 
+  type MissionChainContribution = {
+    leafTotals: Map<
+      number,
+      { remainingPrice: number; unlockedCardsPrice: number }
+    >;
+    rewardByMissionId: Map<number, number>;
+    hasAnyRewardData: boolean;
+    isCompletable: boolean;
+  };
+
+  function sumLeafTotals(
+    leafTotals: Map<
+      number,
+      { remainingPrice: number; unlockedCardsPrice: number }
+    >,
+  ): { remainingPrice: number; unlockedCardsPrice: number } {
+    let remainingPrice = 0;
+    let unlockedCardsPrice = 0;
+    for (const value of leafTotals.values()) {
+      remainingPrice += value.remainingPrice;
+      unlockedCardsPrice += value.unlockedCardsPrice;
+    }
+    return { remainingPrice, unlockedCardsPrice };
+  }
+
+  function aggregateMissionChainContribution(
+    userMission: UserMission,
+    missionsByRawId: Map<number, UserMission>,
+    visiting = new Set<number>(),
+  ): MissionChainContribution {
+    const raw = userMission.rawMission;
+
+    if (visiting.has(raw.id)) {
+      return {
+        leafTotals: new Map(),
+        rewardByMissionId: new Map(),
+        hasAnyRewardData: false,
+        isCompletable: false,
+      };
+    }
+
+    if (raw.type !== "missions") {
+      const leafTotals = new Map<
+        number,
+        { remainingPrice: number; unlockedCardsPrice: number }
+      >();
+      const rewardByMissionId = new Map<number, number>();
+
+      if (!userMission.completed) {
+        leafTotals.set(raw.id, {
+          remainingPrice: userMission.remainingPrice,
+          unlockedCardsPrice: userMission.unlockedCardsPrice,
+        });
+        if (userMission.rewardValue !== undefined) {
+          rewardByMissionId.set(raw.id, userMission.rewardValue);
+        }
+      }
+
+      return {
+        leafTotals,
+        rewardByMissionId,
+        hasAnyRewardData:
+          !userMission.completed && userMission.rewardValue !== undefined,
+        isCompletable: userMission.completed || userMission.isCompletable,
+      };
+    }
+
+    const missionIds = raw.missionIds ?? [];
+    const subMissions = missionIds
+      .map((id) => missionsByRawId.get(id))
+      .filter((m): m is UserMission => Boolean(m));
+
+    const completedCount = subMissions.filter((m) => m.completed).length;
+    const completableCount = subMissions.filter(
+      (m) => m.completed || m.isCompletable,
+    ).length;
+    const remainingCount = Math.max(raw.requiredCount - completedCount, 0);
+
+    visiting.add(raw.id);
+
+    const candidates = subMissions
+      .filter((m) => !m.completed)
+      .map((m) => {
+        const contribution = aggregateMissionChainContribution(
+          m,
+          missionsByRawId,
+          visiting,
+        );
+        const totals = sumLeafTotals(contribution.leafTotals);
+        return {
+          mission: m,
+          contribution,
+          selectionCost: totals.remainingPrice,
+        };
+      })
+      .sort((a, b) => a.selectionCost - b.selectionCost)
+      .slice(0, remainingCount);
+
+    const leafTotals = new Map<
+      number,
+      { remainingPrice: number; unlockedCardsPrice: number }
+    >();
+    const rewardByMissionId = new Map<number, number>();
+    let hasAnyRewardData = false;
+
+    for (const candidate of candidates) {
+      for (const [leafId, totals] of candidate.contribution.leafTotals) {
+        if (!leafTotals.has(leafId)) {
+          leafTotals.set(leafId, totals);
+        }
+      }
+      for (const [missionId, rewardValue] of candidate.contribution
+        .rewardByMissionId) {
+        if (!rewardByMissionId.has(missionId)) {
+          rewardByMissionId.set(missionId, rewardValue);
+        }
+      }
+      hasAnyRewardData =
+        hasAnyRewardData || candidate.contribution.hasAnyRewardData;
+    }
+
+    if (!userMission.completed && userMission.rewardValue !== undefined) {
+      rewardByMissionId.set(raw.id, userMission.rewardValue);
+      hasAnyRewardData = true;
+    }
+
+    visiting.delete(raw.id);
+
+    return {
+      leafTotals,
+      rewardByMissionId,
+      hasAnyRewardData,
+      isCompletable: completableCount >= raw.requiredCount,
+    };
+  }
+
   function computeCompleted(
     missionId: number,
     rawMission: Mission,
@@ -261,33 +397,14 @@ export const useMissionStore = defineStore("mission", () => {
       return;
     }
 
-    const subMissions = userMissions.value.filter(
-      (um) =>
-        mission.missionIds &&
-        mission.missionIds.some((id) => id === um.rawMission.id),
+    const missionsByRawId = new Map(
+      userMissions.value.map((um) => [um.rawMission.id, um]),
     );
+    const subMissions = mission.missionIds
+      .map((id) => missionsByRawId.get(id))
+      .filter((um): um is UserMission => Boolean(um));
     const completedCount = subMissions.filter((m) => m.completed).length;
-    const completableCount = subMissions.filter((m) => m.isCompletable).length;
-    const remainingCount = mission.requiredCount - completedCount;
-    const totalRemainingPrice = subMissions
-      .filter((m) => !m.completed)
-      .filter((m) => m.remainingPrice > 0)
-      .map((m) => m.remainingPrice)
-      .sort((a, b) => a - b)
-      .slice(0, remainingCount)
-      .reduce((sum, price) => sum + price, 0);
 
-    const totalUnlockedCardsPrice = subMissions.reduce(
-      (sum, m) => sum + m.unlockedCardsPrice,
-      0,
-    );
-    userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
-    userMission.remainingPrice = totalRemainingPrice;
-    userMission.isCompletable = completableCount >= mission.requiredCount;
-    userMission.unlockedCardsPrice = totalUnlockedCardsPrice;
-    userMission.completed =
-      manualCompleteOverrides.value.has(mission.id) ||
-      completedCount >= mission.requiredCount;
     const rewardValueMissions = MissionHelper.calculateRewardValue(
       mission.rewards,
       settingsStore.packPrices,
@@ -296,24 +413,36 @@ export const useMissionStore = defineStore("mission", () => {
     );
     userMission.rewardValue = rewardValueMissions;
 
-    // Combined reward = this mission's own reward + all sub-missions' rewards.
-    // Only defined when at least one mission in the chain has reward data.
-    const hasAnyRewardData =
-      rewardValueMissions !== undefined ||
-      subMissions.some((m) => m.rewardValue !== undefined);
-    const combinedRewardValue = hasAnyRewardData
-      ? (rewardValueMissions ?? 0) +
-        subMissions.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0)
+    const chainContribution = aggregateMissionChainContribution(
+      userMission,
+      missionsByRawId,
+    );
+    const totals = sumLeafTotals(chainContribution.leafTotals);
+    userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
+    userMission.remainingPrice = totals.remainingPrice;
+    userMission.isCompletable = chainContribution.isCompletable;
+    userMission.unlockedCardsPrice = totals.unlockedCardsPrice;
+    userMission.completed =
+      manualCompleteOverrides.value.has(mission.id) ||
+      completedCount >= mission.requiredCount;
+
+    const combinedRewardValue = chainContribution.hasAnyRewardData
+      ? Array.from(chainContribution.rewardByMissionId.values()).reduce(
+          (sum, reward) => sum + reward,
+          0,
+        )
       : undefined;
     userMission.combinedRewardValue = combinedRewardValue;
 
     const unlockedDeductionMissions = settingsStore.subtractUnlockedCards
-      ? totalUnlockedCardsPrice
+      ? totals.unlockedCardsPrice
       : 0;
     // Use combinedRewardValue for Net so it reflects the full reward from the chain.
     userMission.missionValue =
       combinedRewardValue !== undefined
-        ? combinedRewardValue - totalRemainingPrice - unlockedDeductionMissions
+        ? combinedRewardValue -
+          totals.remainingPrice -
+          unlockedDeductionMissions
         : undefined;
   }
 
@@ -504,11 +633,9 @@ export const useMissionStore = defineStore("mission", () => {
   function recomputeMissionValues() {
     const cardStore = useCardStore();
     const settingsStore = useSettingsStore();
-    // Missions are in ascending ID order; children always precede parents,
-    // so by the time we process a missions-type mission its sub-missions
-    // already have updated rewardValues.
     for (const um of userMissions.value) {
       if (um.progressText === "Not Calculated") continue;
+      if (um.rawMission.type === "missions") continue;
       const rewardValue = MissionHelper.calculateRewardValue(
         um.rawMission.rewards,
         settingsStore.packPrices,
@@ -519,28 +646,22 @@ export const useMissionStore = defineStore("mission", () => {
       const unlockedDeduction = settingsStore.subtractUnlockedCards
         ? um.unlockedCardsPrice
         : 0;
-      if (um.rawMission.type === "missions") {
-        const subMissions = userMissions.value.filter((sub) =>
-          um.rawMission.missionIds?.includes(sub.rawMission.id),
-        );
-        const hasAnyRewardData =
-          rewardValue !== undefined ||
-          subMissions.some((m) => m.rewardValue !== undefined);
-        const combinedRewardValue = hasAnyRewardData
-          ? (rewardValue ?? 0) +
-            subMissions.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0)
+      um.missionValue =
+        rewardValue !== undefined
+          ? rewardValue - um.remainingPrice - unlockedDeduction
           : undefined;
-        um.combinedRewardValue = combinedRewardValue;
-        um.missionValue =
-          combinedRewardValue !== undefined
-            ? combinedRewardValue - um.remainingPrice - unlockedDeduction
-            : undefined;
-      } else {
-        um.missionValue =
-          rewardValue !== undefined
-            ? rewardValue - um.remainingPrice - unlockedDeduction
-            : undefined;
-      }
+    }
+
+    const missionsType = userMissions.value
+      .filter(
+        (um) =>
+          um.progressText !== "Not Calculated" &&
+          um.rawMission.type === "missions",
+      )
+      .sort((a, b) => a.id - b.id);
+
+    for (const missionType of missionsType) {
+      rebuildMissionsTypeMission(missionType);
     }
   }
 
