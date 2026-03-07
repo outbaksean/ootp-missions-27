@@ -653,6 +653,15 @@ function collectDescendantIds(
   return result;
 }
 
+const selectedMission = ref<UserMission | null>(null);
+const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
+const searchQuery = ref("");
+const selectedMissionFilter = ref<number | "">();
+const hideCompleted = ref(loadPref("ootp-display-hideCompleted", false));
+const selectedCategoryFilter = ref<string | null>(
+  loadPref("ootp-display-categoryFilter", null),
+);
+
 const missions = computed(() => missionStore.userMissions);
 const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === "missions"),
@@ -661,15 +670,25 @@ const missionDropdownQuery = ref("");
 const missionDropdownOpen = ref(false);
 const filteredMissionDropdownOptions = computed(() => {
   const query = missionDropdownQuery.value.trim().toLowerCase();
-  if (!query) return missionsOfTypeMissions.value;
-  return missionsOfTypeMissions.value.filter((mission) =>
+  let missions = missionsOfTypeMissions.value;
+  // Filter out completed missions if hideCompleted is enabled
+  if (hideCompleted.value) {
+    missions = missions.filter((mission) => !mission.completed);
+  }
+  if (!query) return missions;
+  return missions.filter((mission) =>
     mission.rawMission.name.toLowerCase().includes(query),
   );
 });
 
 // Collect all unique reward cards from all missions
 const allRewardCards = computed(() => {
-  const items = collectRewardItems(missions.value, {
+  // Filter missions based on hideCompleted setting
+  let missionsToUse = missions.value;
+  if (hideCompleted.value) {
+    missionsToUse = missions.value.filter((m) => !m.completed);
+  }
+  const items = collectRewardItems(missionsToUse, {
     packPrices: settingsStore.packPrices,
     packTypeLabels: PACK_TYPE_LABELS,
     shopCardsById: cardStore.shopCardsById,
@@ -826,14 +845,6 @@ const categoryPriority = (cat: string) => {
   return i === -1 ? CATEGORY_ORDER.length : i;
 };
 
-const selectedMission = ref<UserMission | null>(null);
-const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
-const searchQuery = ref("");
-const selectedMissionFilter = ref<number | "">();
-const hideCompleted = ref(loadPref("ootp-display-hideCompleted", false));
-const selectedCategoryFilter = ref<string | null>(
-  loadPref("ootp-display-categoryFilter", null),
-);
 const groupBy = ref<"none" | "chain" | "category">(
   loadPref("ootp-display-groupBy", "category"),
 );
