@@ -80,13 +80,14 @@
               {{ mission.rawMission.name }}
             </div>
             <div
-              v-if="
-                filteredMissionDropdownOptions.length === 0 &&
-                missionDropdownQuery.trim()
-              "
+              v-if="filteredMissionDropdownOptions.length === 0"
               class="combobox-empty"
             >
-              No missions found
+              {{
+                missionDropdownQuery.trim()
+                  ? "No missions found"
+                  : "No missions available"
+              }}
             </div>
           </div>
         </div>
@@ -131,13 +132,14 @@
               {{ card.label }}
             </div>
             <div
-              v-if="
-                filteredCardDropdownOptions.length === 0 &&
-                cardDropdownQuery.trim()
-              "
+              v-if="filteredCardDropdownOptions.length === 0"
               class="combobox-empty"
             >
-              No cards found
+              {{
+                cardDropdownQuery.trim()
+                  ? "No cards found"
+                  : "No cards available"
+              }}
             </div>
           </div>
         </div>
@@ -392,7 +394,17 @@
               />
             </template>
           </div>
+          <div
+            v-if="
+              groupedMissions.length === 0 ||
+              groupedMissions.every((g) => g.missions.length === 0)
+            "
+            class="empty-missions-message"
+          >
+            <p>No missions match the current filters.</p>
+          </div>
           <MissionList
+            v-else
             ref="missionListRef"
             :groups="groupedMissions"
             :isMissionComplete="isMissionComplete"
@@ -1437,6 +1449,20 @@ watch(
   padding: 1rem;
   background: #f1f5f9;
   min-width: 0;
+}
+
+.empty-missions-message {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-missions-message p {
+  font-size: 0.95rem;
+  margin: 0;
 }
 
 .upload-prompt {
