@@ -39,23 +39,57 @@
       </div>
 
       <div class="sidebar-section">
-        <label class="sidebar-label" for="target-mission-dropdown"
+        <label class="sidebar-label" for="target-mission-input"
           >Target Mission</label
         >
-        <select
-          id="target-mission-dropdown"
-          v-model="selectedMissionFilter"
-          class="sidebar-select"
-        >
-          <option value="">All Missions</option>
-          <option
-            v-for="mission in missionsOfTypeMissions"
-            :key="mission.id"
-            :value="mission.id"
+        <div class="combobox-wrapper">
+          <input
+            id="target-mission-input"
+            v-model="missionDropdownQuery"
+            type="text"
+            class="sidebar-input"
+            placeholder="All Missions"
+            @focus="missionDropdownOpen = true"
+            @blur="onMissionDropdownBlur"
+            @keydown="onMissionDropdownKeydown"
+          />
+          <div
+            v-if="missionDropdownOpen"
+            class="combobox-dropdown"
+            @mousedown.prevent
           >
-            {{ mission.rawMission.name }}
-          </option>
-        </select>
+            <div
+              class="combobox-option"
+              :class="{
+                'combobox-option--selected': selectedMissionFilter === '',
+              }"
+              @click="selectMissionOption('')"
+            >
+              All Missions
+            </div>
+            <div
+              v-for="mission in filteredMissionDropdownOptions"
+              :key="mission.id"
+              class="combobox-option"
+              :class="{
+                'combobox-option--selected':
+                  selectedMissionFilter === mission.id,
+              }"
+              @click="selectMissionOption(mission.id)"
+            >
+              {{ mission.rawMission.name }}
+            </div>
+            <div
+              v-if="
+                filteredMissionDropdownOptions.length === 0 &&
+                missionDropdownQuery.trim()
+              "
+              class="combobox-empty"
+            >
+              No missions found
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="sidebar-section">
@@ -570,6 +604,58 @@ const missions = computed(() => missionStore.userMissions);
 const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === "missions"),
 );
+const missionDropdownQuery = ref("");
+const missionDropdownOpen = ref(false);
+const filteredMissionDropdownOptions = computed(() => {
+  const query = missionDropdownQuery.value.trim().toLowerCase();
+  if (!query) return missionsOfTypeMissions.value;
+  return missionsOfTypeMissions.value.filter((mission) =>
+    mission.rawMission.name.toLowerCase().includes(query),
+  );
+});
+
+function selectMissionOption(missionId: number | "") {
+  selectedMissionFilter.value = missionId;
+  if (missionId === "") {
+    missionDropdownQuery.value = "";
+  } else {
+    const mission = missionsOfTypeMissions.value.find(
+      (m) => m.id === missionId,
+    );
+    if (mission) {
+      missionDropdownQuery.value = mission.rawMission.name;
+    }
+  }
+  missionDropdownOpen.value = false;
+}
+
+function onMissionDropdownBlur() {
+  // Delay to allow click events on dropdown items to fire
+  setTimeout(() => {
+    missionDropdownOpen.value = false;
+    // Reset display text if no valid selection
+    if (
+      selectedMissionFilter.value === "" ||
+      selectedMissionFilter.value === undefined
+    ) {
+      missionDropdownQuery.value = "";
+    } else {
+      const mission = missionsOfTypeMissions.value.find(
+        (m) => m.id === selectedMissionFilter.value,
+      );
+      if (mission) {
+        missionDropdownQuery.value = mission.rawMission.name;
+      }
+    }
+  }, 150);
+}
+
+function onMissionDropdownKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") {
+    missionDropdownOpen.value = false;
+    (e.target as HTMLInputElement).blur();
+  }
+}
 
 function loadPref<T>(key: string, fallback: T): T {
   try {
@@ -1022,6 +1108,67 @@ watch(
   letter-spacing: 0.06em;
   color: var(--sidebar-muted);
   font-weight: 600;
+}
+
+.sidebar-input {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--sidebar-text);
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.sidebar-input::placeholder {
+  color: var(--sidebar-muted);
+}
+
+.sidebar-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.combobox-wrapper {
+  position: relative;
+}
+
+.combobox-dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.combobox-option {
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.combobox-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.combobox-option--selected {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--accent);
+}
+
+.combobox-empty {
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  color: var(--sidebar-muted);
+  font-style: italic;
 }
 
 .sidebar-select {
