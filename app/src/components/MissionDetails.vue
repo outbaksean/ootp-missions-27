@@ -413,6 +413,7 @@ import type { MissionCard } from "@/models/MissionCard";
 import { useCardStore } from "@/stores/useCardStore";
 import { useMissionStore } from "@/stores/useMissionStore";
 import { useSettingsStore, PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
+import { collectRewardItems, chipClass } from "@/helpers/RewardItemsHelper";
 
 const props = defineProps({
   selectedMission: Object as () => UserMission | null,
@@ -590,107 +591,13 @@ const missionCardTitle = (card: MissionCard) => {
 
 const isMissionComplete = (mission: UserMission) => mission.completed;
 
-function cardTitleShort(title: string, cardValue: number): string {
-  const match = title.match(/\b(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b/);
-  const fromPosition =
-    match?.index !== undefined ? title.slice(match.index) : title;
-  return `${cardValue} - ${fromPosition}`;
-}
-
-function packChipClass(label: string): string {
-  const lower = label.toLowerCase();
-  if (lower.includes("rainbow")) return "chip--rainbow";
-  if (lower.includes("perfect")) return "chip--perfect";
-  if (lower.includes("diamond")) return "chip--diamond";
-  if (lower.includes("gold")) return "chip--gold";
-  if (lower.includes("silver")) return "chip--silver";
-  if (lower.includes("standard")) return "chip--standard";
-  return "";
-}
-
-type RewardItem = {
-  label: string;
-  count: number;
-  type: "pack" | "card" | "park";
-};
-
-function collectRewardItems(missions: UserMission[]): RewardItem[] {
-  const packCounts = new Map<string, number>();
-  const cardCounts = new Map<string, { count: number; value: number }>();
-  const parkCounts = new Map<string, number>();
-
-  for (const mission of missions) {
-    for (const reward of mission.rawMission.rewards ?? []) {
-      const type = (reward.type as string).toLowerCase();
-      if (type === "pack") {
-        const packReward = reward as { packType: string; count: number };
-        packCounts.set(
-          packReward.packType,
-          (packCounts.get(packReward.packType) ?? 0) + packReward.count,
-        );
-      } else if (type === "card") {
-        const cardReward = reward as { cardId: number; count?: number };
-        if (cardReward.cardId === 0) continue;
-        const shopCard = cardStore.shopCardsById.get(cardReward.cardId);
-        const title = shopCard
-          ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
-          : `Card #${cardReward.cardId}`;
-        const prev = cardCounts.get(title);
-        cardCounts.set(title, {
-          count: (prev?.count ?? 0) + (cardReward.count ?? 1),
-          value: shopCard?.cardValue ?? prev?.value ?? 0,
-        });
-      } else if (type === "park") {
-        const parkReward = reward as unknown as { park: string };
-        parkCounts.set(
-          parkReward.park,
-          (parkCounts.get(parkReward.park) ?? 0) + 1,
-        );
-      }
-    }
-  }
-
-  const packsRaw: { key: string; count: number }[] = [];
-  for (const [packType, count] of packCounts) {
-    packsRaw.push({ key: packType, count });
-  }
-  packsRaw.sort((a, b) => {
-    const aVal = settingsStore.packPrices.get(a.key) ?? 0;
-    const bVal = settingsStore.packPrices.get(b.key) ?? 0;
-    return bVal - aVal;
-  });
-
-  const packs: RewardItem[] = packsRaw.map(({ key, count }) => ({
-    label: PACK_TYPE_LABELS[key] ?? key,
-    count,
-    type: "pack",
-  }));
-
-  const cards: RewardItem[] = Array.from(cardCounts.entries())
-    .sort((a, b) => b[1].value - a[1].value)
-    .map(([title, { count }]) => ({
-      label: title,
-      count,
-      type: "card" as const,
-    }));
-
-  const parks: RewardItem[] = [];
-  for (const [park, count] of parkCounts) {
-    parks.push({ label: park, count, type: "park" });
-  }
-
-  return [...cards, ...packs, ...parks];
-}
-
-function chipClass(item: RewardItem): string {
-  if (item.type === "park") return "chip--park";
-  if (item.type === "card") return "chip--card";
-  return packChipClass(item.label);
-}
-
 const selectedMissionRewardItems = computed(() => {
   if (!props.selectedMission) return [];
-  return collectRewardItems([props.selectedMission]);
+  return collectRewardItems([props.selectedMission], {
+    packPrices: settingsStore.packPrices,
+    packTypeLabels: PACK_TYPE_LABELS,
+    shopCardsById: cardStore.shopCardsById,
+  });
 });
 </script>
 
