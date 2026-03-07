@@ -401,34 +401,22 @@ function groupHasUncalculated(missions: UserMission[]): boolean {
   );
 }
 
-/**
- * Returns the set of rawMission IDs that are children of a missions-type
- * mission also present in this group. These should be excluded from group
- * cost totals to avoid double-counting (the parent already aggregates its
- * children's costs into its own remainingPrice).
- */
-function getChildMissionIds(missions: UserMission[]): Set<number> {
-  const groupIds = new Set(missions.map((m) => m.rawMission.id));
-  const childIds = new Set<number>();
-  for (const m of missions) {
-    if (m.rawMission.type === "missions" && m.rawMission.missionIds) {
-      for (const id of m.rawMission.missionIds) {
-        if (groupIds.has(id)) childIds.add(id);
-      }
-    }
-  }
-  return childIds;
+function groupIncompleteMissions(missions: UserMission[]): UserMission[] {
+  return missions.filter((m) => !m.completed);
+}
+
+function groupLeafMissions(missions: UserMission[]): UserMission[] {
+  return groupIncompleteMissions(missions).filter(
+    (m) => m.rawMission.type !== "missions",
+  );
 }
 
 function groupRemainingTotal(missions: UserMission[]): string {
-  // Only show total when all missions have been calculated.
-  // Exclude child missions whose parent is also in the group — the parent's
-  // remainingPrice already aggregates the cheapest-N child costs.
   if (groupHasUncalculated(missions)) return "";
-  const childIds = getChildMissionIds(missions);
-  const total = missions
-    .filter((m) => !m.completed && !childIds.has(m.rawMission.id))
-    .reduce((sum, m) => sum + m.remainingPrice, 0);
+  const total = groupLeafMissions(missions).reduce(
+    (sum, m) => sum + m.remainingPrice,
+    0,
+  );
   if (total <= 0) return "";
   return (
     total.toLocaleString(undefined, {
@@ -440,10 +428,10 @@ function groupRemainingTotal(missions: UserMission[]): string {
 
 function groupUnlockedTotal(missions: UserMission[]): string {
   if (groupHasUncalculated(missions)) return "";
-  const childIds = getChildMissionIds(missions);
-  const total = missions
-    .filter((m) => !m.completed && !childIds.has(m.rawMission.id))
-    .reduce((sum, m) => sum + m.unlockedCardsPrice, 0);
+  const total = groupLeafMissions(missions).reduce(
+    (sum, m) => sum + m.unlockedCardsPrice,
+    0,
+  );
   if (total <= 0) return "";
   return (
     total.toLocaleString(undefined, {
@@ -455,8 +443,8 @@ function groupUnlockedTotal(missions: UserMission[]): string {
 
 function groupRewardText(missions: UserMission[]): string {
   if (groupHasUncalculated(missions)) return "";
-  const withReward = missions.filter(
-    (m) => !m.completed && m.rewardValue !== undefined,
+  const withReward = groupIncompleteMissions(missions).filter(
+    (m) => m.rewardValue !== undefined,
   );
   if (withReward.length === 0) return "";
   const total = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
@@ -471,17 +459,16 @@ function groupRewardText(missions: UserMission[]): string {
 
 function groupValueText(missions: UserMission[]): string {
   if (groupHasUncalculated(missions)) return "";
-  // Use only top-level missions (not children of a missions-type parent in
-  // this group) so costs aren't double-counted. missions-type missionValue
-  // already incorporates child rewards via combinedRewardValue, so top-level
-  // alone gives the correct group net.
-  const childIds = getChildMissionIds(missions);
-  const topLevel = missions.filter(
-    (m) => !m.completed && !childIds.has(m.rawMission.id),
-  );
-  const withValue = topLevel.filter((m) => m.missionValue !== undefined);
-  if (withValue.length === 0) return "";
-  const total = withValue.reduce((sum, m) => sum + m.missionValue!, 0);
+  const incomplete = groupIncompleteMissions(missions);
+  const withReward = incomplete.filter((m) => m.rewardValue !== undefined);
+  if (withReward.length === 0) return "";
+  const rewardTotal = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
+  const leafMissions = groupLeafMissions(missions);
+  const costTotal = leafMissions.reduce((sum, m) => sum + m.remainingPrice, 0);
+  const unlockedTotal = settingsStore.subtractUnlockedCards
+    ? leafMissions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
+    : 0;
+  const total = rewardTotal - costTotal - unlockedTotal;
   const sign = total >= 0 ? "+" : "";
   return (
     sign +
@@ -494,11 +481,16 @@ function groupValueText(missions: UserMission[]): string {
 }
 
 function groupValueIsPositive(missions: UserMission[]): boolean {
-  const childIds = getChildMissionIds(missions);
-  const topLevel = missions.filter(
-    (m) => !m.completed && !childIds.has(m.rawMission.id),
+  const withReward = groupIncompleteMissions(missions).filter(
+    (m) => m.rewardValue !== undefined,
   );
-  return topLevel.reduce((sum, m) => sum + (m.missionValue ?? 0), 0) >= 0;
+  const rewardTotal = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
+  const leafMissions = groupLeafMissions(missions);
+  const costTotal = leafMissions.reduce((sum, m) => sum + m.remainingPrice, 0);
+  const unlockedTotal = settingsStore.subtractUnlockedCards
+    ? leafMissions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
+    : 0;
+  return rewardTotal - costTotal - unlockedTotal >= 0;
 }
 
 function groupRemainingRewardItems(missions: UserMission[]): RewardItem[] {
