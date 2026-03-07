@@ -12,13 +12,19 @@ type RewardItemOptions = {
   packPrices: Map<string, number>;
   packTypeLabels: Record<string, string>;
   shopCardsById: Map<number, ShopCard>;
+  useSellPrice: boolean;
 };
 
-function cardTitleShort(title: string, cardValue: number): string {
+function cardTitleShort(
+  title: string,
+  cardValue: number,
+  price: number,
+): string {
   const match = title.match(/\b(SP|RP|CL|1B|2B|3B|SS|LF|CF|RF|DH|C)\b/);
   const fromPosition =
     match?.index !== undefined ? title.slice(match.index) : title;
-  return `${cardValue} - ${fromPosition}`;
+  const formattedPrice = price.toLocaleString();
+  return `${cardValue} - ${fromPosition} - ${formattedPrice} PP`;
 }
 
 function packChipClass(label: string): string {
@@ -42,7 +48,7 @@ export function collectRewardItems(
   missions: UserMission[],
   options: RewardItemOptions,
 ): RewardItem[] {
-  const { packPrices, packTypeLabels, shopCardsById } = options;
+  const { packPrices, packTypeLabels, shopCardsById, useSellPrice } = options;
 
   const packCounts = new Map<string, number>();
   const cardCounts = new Map<
@@ -64,8 +70,13 @@ export function collectRewardItems(
         const cardReward = reward as { cardId: number; count?: number };
         if (cardReward.cardId === 0) continue;
         const shopCard = shopCardsById.get(cardReward.cardId);
+        const price = shopCard
+          ? useSellPrice && shopCard.sellOrderLow > 0
+            ? shopCard.sellOrderLow
+            : shopCard.lastPrice
+          : 0;
         const title = shopCard
-          ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue)
+          ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue, price)
           : `Card #${cardReward.cardId}`;
         const prev = cardCounts.get(title);
         cardCounts.set(title, {
@@ -93,11 +104,18 @@ export function collectRewardItems(
     return bVal - aVal;
   });
 
-  const packs: RewardItem[] = packsRaw.map(({ key, count }) => ({
-    label: packTypeLabels[key] ?? key,
-    count,
-    type: "pack",
-  }));
+  const packs: RewardItem[] = packsRaw.map(({ key, count }) => {
+    const packLabel = packTypeLabels[key] ?? key;
+    const price = packPrices.get(key) ?? 0;
+    const totalPrice = price * count;
+    const formattedPrice = totalPrice.toLocaleString();
+    const label = price > 0 ? `${packLabel} - ${formattedPrice} PP` : packLabel;
+    return {
+      label,
+      count,
+      type: "pack",
+    };
+  });
 
   const cards: RewardItem[] = Array.from(cardCounts.entries())
     .sort((a, b) => b[1].value - a[1].value)
