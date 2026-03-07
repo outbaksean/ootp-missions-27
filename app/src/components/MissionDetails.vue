@@ -138,6 +138,10 @@
           v-for="subMission in selectedMissionSubMissions"
           :key="subMission.id"
           class="detail-item detail-item--sub detail-item--clickable"
+          :class="{
+            'item-highlighted':
+              shouldCompleteMission(subMission.id) && !subMission.completed,
+          }"
           @click="$emit('selectMission', subMission)"
         >
           <div class="sub-mission-info">
@@ -151,9 +155,21 @@
               {{ subMission.progressText }}
             </span>
           </div>
-          <span v-if="remainingPriceText(subMission)" class="item-price-inline">
-            {{ remainingPriceText(subMission) }}
-          </span>
+          <div class="sub-mission-badges">
+            <span
+              v-if="
+                shouldCompleteMission(subMission.id) && !subMission.completed
+              "
+              class="pill pill-use"
+              >Use</span
+            >
+            <span
+              v-if="remainingPriceText(subMission)"
+              class="item-price-inline"
+            >
+              {{ remainingPriceText(subMission) }}
+            </span>
+          </div>
         </li>
       </ul>
     </template>
@@ -560,6 +576,36 @@ const selectedMissionSubMissions = computed(() => {
   }
   return [];
 });
+
+const subMissionsToComplete = computed(() => {
+  if (
+    !props.selectedMission ||
+    props.selectedMission.rawMission.type !== "missions"
+  ) {
+    return new Set<number>();
+  }
+
+  const requiredCount = props.selectedMission.rawMission.requiredCount;
+  const subMissions = selectedMissionSubMissions.value;
+  const completedCount = subMissions.filter((m) => m.completed).length;
+  const remainingNeeded = Math.max(requiredCount - completedCount, 0);
+
+  if (remainingNeeded === 0) {
+    return new Set<number>();
+  }
+
+  // Select the cheapest incomplete missions to complete
+  const incompleteMissions = subMissions
+    .filter((m) => !m.completed)
+    .sort((a, b) => a.remainingPrice - b.remainingPrice)
+    .slice(0, remainingNeeded);
+
+  return new Set(incompleteMissions.map((m) => m.id));
+});
+
+const shouldCompleteMission = (missionId: number): boolean => {
+  return subMissionsToComplete.value.has(missionId);
+};
 
 const parentMissions = computed(() => {
   if (!props.selectedMission || !props.missions) return [];
@@ -998,6 +1044,13 @@ const selectedMissionRewardItems = computed(() => {
 
 .sub-mission-info .item-status {
   font-weight: 400;
+}
+
+.sub-mission-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .status-done {
