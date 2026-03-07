@@ -667,9 +667,42 @@ const handleDiscountChange = (event: Event) => {
   missionStore.buildUserMissions();
 };
 
-const updatePriceType = () => {
+const updatePriceType = async () => {
+  // Capture missions that were already calculated before the price type change
+  const calculatedMissions = missionStore.userMissions.filter(
+    (m) => m.progressText !== "Not Calculated",
+  );
+
   missionStore.setUseSellPrice(useSellPrice.value);
   missionStore.buildUserMissions();
+
+  if (calculatedMissions.length === 0) return;
+
+  // Show loading spinner during recalculation
+  missionStore.setLoading(true);
+
+  // Wait for browser to render the spinner
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  // Recalculate all missions that were previously calculated
+  // Calculate leaf missions (count/points) first, then parents in ascending ID order
+  const leaves = calculatedMissions.filter(
+    (m) => m.rawMission.type !== "missions",
+  );
+  const parents = calculatedMissions.filter(
+    (m) => m.rawMission.type === "missions",
+  );
+
+  await Promise.all(
+    leaves.map((m) => missionStore.calculateMissionDetails(m.id, true, true)),
+  );
+
+  parents.sort((a, b) => a.id - b.id);
+  for (const parent of parents) {
+    await missionStore.calculateMissionDetails(parent.id, true, true);
+  }
+
+  missionStore.setLoading(false);
 };
 
 const filteredMissions = computed(() => {
@@ -750,10 +783,12 @@ const groupedMissions = computed(
         if (!groupMap.has(label)) groupMap.set(label, []);
         groupMap.get(label)!.push(m);
       }
-      const groups = Array.from(groupMap.entries()).map(([label, missions]) => ({
-        label,
-        missions,
-      }));
+      const groups = Array.from(groupMap.entries()).map(
+        ([label, missions]) => ({
+          label,
+          missions,
+        }),
+      );
       if (sortBy.value === "price") {
         groups.sort((a, b) => {
           const aTotal = a.missions.reduce((s, m) => s + m.remainingPrice, 0);
@@ -762,14 +797,20 @@ const groupedMissions = computed(
         });
       } else if (sortBy.value === "value") {
         groups.sort((a, b) => {
-          const aMax = Math.max(...a.missions.map((m) => m.missionValue ?? -Infinity));
-          const bMax = Math.max(...b.missions.map((m) => m.missionValue ?? -Infinity));
+          const aMax = Math.max(
+            ...a.missions.map((m) => m.missionValue ?? -Infinity),
+          );
+          const bMax = Math.max(
+            ...b.missions.map((m) => m.missionValue ?? -Infinity),
+          );
           return bMax - aMax;
         });
       } else if (sortBy.value === "name") {
         groups.sort((a, b) => a.label.localeCompare(b.label));
       } else {
-        groups.sort((a, b) => categoryPriority(a.label) - categoryPriority(b.label));
+        groups.sort(
+          (a, b) => categoryPriority(a.label) - categoryPriority(b.label),
+        );
       }
       return groups;
     }
@@ -816,8 +857,12 @@ const groupedMissions = computed(
         });
       } else if (sortBy.value === "value") {
         chainGroups.sort((a, b) => {
-          const aMax = Math.max(...a.missions.map((m) => m.missionValue ?? -Infinity));
-          const bMax = Math.max(...b.missions.map((m) => m.missionValue ?? -Infinity));
+          const aMax = Math.max(
+            ...a.missions.map((m) => m.missionValue ?? -Infinity),
+          );
+          const bMax = Math.max(
+            ...b.missions.map((m) => m.missionValue ?? -Infinity),
+          );
           return bMax - aMax;
         });
       } else if (sortBy.value === "name") {
