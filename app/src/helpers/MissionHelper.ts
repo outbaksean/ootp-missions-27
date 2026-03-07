@@ -179,12 +179,12 @@ export default class MissionHelper {
    * Returns undefined when no rewards array is present (unstructured data → show "—").
    * Pack rewards with no price set contribute 0 (user hasn't configured pack values yet).
    * Card rewards with cardId === 0 (not yet mapped) contribute 0.
+   * Always uses lastPrice for card rewards, regardless of "Use Sell Price" setting.
    */
   static calculateRewardValue(
     rewards: MissionReward[] | undefined,
     packPrices: Map<string, number>,
     shopCardsById: Map<number, ShopCard>,
-    useSellPrice: boolean,
   ): number | undefined {
     if (!rewards || rewards.length === 0) return undefined;
 
@@ -199,11 +199,8 @@ export default class MissionHelper {
         if (r.cardId === 0) continue; // Needs manual cardId — treat as 0
         const card = shopCardsById.get(r.cardId);
         if (!card) continue;
-        const price =
-          useSellPrice && card.sellOrderLow > 0
-            ? card.sellOrderLow
-            : card.lastPrice;
-        total += price * (r.count ?? 1);
+        // Always use lastPrice for rewards
+        total += card.lastPrice * (r.count ?? 1);
       }
       // type:'park'/'other' → 0, no contribution
     }

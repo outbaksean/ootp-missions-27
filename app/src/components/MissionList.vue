@@ -500,7 +500,6 @@ function groupRemainingRewardItems(missions: UserMission[]): RewardItem[] {
       packPrices: settingsStore.packPrices,
       packTypeLabels: PACK_TYPE_LABELS,
       shopCardsById: cardStore.shopCardsById,
-      useSellPrice: missionStore.selectedPriceType.sellPrice,
     },
   );
 }
@@ -512,7 +511,6 @@ function groupCompletedRewardItems(missions: UserMission[]): RewardItem[] {
       packPrices: settingsStore.packPrices,
       packTypeLabels: PACK_TYPE_LABELS,
       shopCardsById: cardStore.shopCardsById,
-      useSellPrice: missionStore.selectedPriceType.sellPrice,
     },
   );
 }
@@ -522,7 +520,6 @@ function missionRewardItems(mission: UserMission): RewardItem[] {
     packPrices: settingsStore.packPrices,
     packTypeLabels: PACK_TYPE_LABELS,
     shopCardsById: cardStore.shopCardsById,
-    useSellPrice: missionStore.selectedPriceType.sellPrice,
   });
 }
 
