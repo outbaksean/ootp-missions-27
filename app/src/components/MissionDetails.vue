@@ -597,7 +597,6 @@ const selectedMissionRewardItems = computed(() => {
     packPrices: settingsStore.packPrices,
     packTypeLabels: PACK_TYPE_LABELS,
     shopCardsById: cardStore.shopCardsById,
-    useSellPrice: missionStore.selectedPriceType.sellPrice,
   });
 });
 </script>

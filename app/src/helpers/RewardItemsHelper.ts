@@ -12,7 +12,6 @@ type RewardItemOptions = {
   packPrices: Map<string, number>;
   packTypeLabels: Record<string, string>;
   shopCardsById: Map<number, ShopCard>;
-  useSellPrice: boolean;
 };
 
 function cardTitleShort(
@@ -48,7 +47,7 @@ export function collectRewardItems(
   missions: UserMission[],
   options: RewardItemOptions,
 ): RewardItem[] {
-  const { packPrices, packTypeLabels, shopCardsById, useSellPrice } = options;
+  const { packPrices, packTypeLabels, shopCardsById } = options;
 
   const packCounts = new Map<string, number>();
   const cardCounts = new Map<
@@ -70,11 +69,7 @@ export function collectRewardItems(
         const cardReward = reward as { cardId: number; count?: number };
         if (cardReward.cardId === 0) continue;
         const shopCard = shopCardsById.get(cardReward.cardId);
-        const price = shopCard
-          ? useSellPrice && shopCard.sellOrderLow > 0
-            ? shopCard.sellOrderLow
-            : shopCard.lastPrice
-          : 0;
+        const price = shopCard ? shopCard.lastPrice : 0;
         const title = shopCard
           ? cardTitleShort(shopCard.cardTitle, shopCard.cardValue, price)
           : `Card #${cardReward.cardId}`;
