@@ -292,6 +292,16 @@
 
       <PackPriceSettings />
 
+      <div class="sidebar-section">
+        <button
+          class="sidebar-btn-shopping"
+          :class="{ 'sidebar-btn-shopping--active': showShoppingList }"
+          @click="showShoppingList = !showShoppingList"
+        >
+          🛒 Shopping List
+        </button>
+      </div>
+
       <div class="sidebar-spacer" />
 
       <div class="sidebar-notes-row">
@@ -330,7 +340,7 @@
       <section
         class="list-panel"
         :style="
-          selectedMission && !isMobile
+          (selectedMission || showShoppingList) && !isMobile
             ? { width: listPanelWidth + 'px', flex: 'none' }
             : {}
         "
@@ -417,22 +427,25 @@
         </template>
       </section>
 
-      <!-- ─── RESIZE HANDLE ─── -->
-      <div
-        v-if="selectedMission"
-        class="resize-handle"
-        @mousedown="startResize"
-      />
+      <!-- ─── SHOPPING LIST PANEL ─── -->
+      <template v-if="showShoppingList">
+        <aside class="detail-panel">
+          <ShoppingList :missions="missions" />
+        </aside>
+      </template>
 
-      <!-- ─── DETAIL PANEL ─── -->
-      <aside v-if="selectedMission" class="detail-panel">
-        <MissionDetails
-          :selectedMission="selectedMission"
-          :missions="missions"
-          @selectMission="selectMission"
-          @close="selectedMission = null"
-        />
-      </aside>
+      <!-- ─── RESIZE HANDLE + DETAIL PANEL ─── -->
+      <template v-else-if="selectedMission">
+        <div class="resize-handle" @mousedown="startResize" />
+        <aside class="detail-panel">
+          <MissionDetails
+            :selectedMission="selectedMission"
+            :missions="missions"
+            @selectMission="selectMission"
+            @close="selectedMission = null"
+          />
+        </aside>
+      </template>
     </div>
 
     <!-- ─── MISSION NOTES MODAL ─── -->
@@ -511,6 +524,7 @@ import MissionList from "./MissionList.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
 import { useSettingsStore, PACK_TYPE_LABELS } from "../stores/useSettingsStore";
+import ShoppingList from "./ShoppingList.vue";
 import type { UserMission } from "../models/UserMission";
 import { collectRewardItems } from "@/helpers/RewardItemsHelper";
 import type { RewardItem } from "@/helpers/RewardItemsHelper";
@@ -666,6 +680,7 @@ function collectDescendantIds(
 }
 
 const selectedMission = ref<UserMission | null>(null);
+const showShoppingList = ref(false);
 const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
 const selectedMissionFilter = ref<number | "">();
@@ -856,7 +871,6 @@ const categoryPriority = (cat: string) => {
   const i = CATEGORY_ORDER.indexOf(cat);
   return i === -1 ? CATEGORY_ORDER.length : i;
 };
-
 const groupBy = ref<"none" | "chain" | "category">(
   loadPref("ootp-display-groupBy", "category"),
 );
@@ -1719,6 +1733,41 @@ watch(
   .resize-handle {
     display: none;
   }
+}
+
+/* ─── SHOPPING LIST BUTTON ─── */
+.sidebar-btn-shopping {
+  background: transparent;
+  color: var(--sidebar-muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.sidebar-btn-shopping:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--sidebar-text);
+}
+
+.sidebar-btn-shopping--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.sidebar-btn-shopping--active:hover {
+  background: var(--accent);
+  color: #fff;
+  opacity: 0.9;
 }
 
 /* ─── MISSION NOTES BUTTON ─── */
