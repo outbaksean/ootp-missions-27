@@ -1,7 +1,7 @@
 <template>
   <div class="pack-prices">
     <button class="pack-prices-toggle" @click="expanded = !expanded">
-      <span class="pack-prices-title">Pack Prices</span>
+      <span class="pack-prices-title">Pack Values</span>
       <span class="pack-prices-chevron">{{ expanded ? "▲" : "▼" }}</span>
     </button>
     <div v-if="expanded" class="pack-prices-body">

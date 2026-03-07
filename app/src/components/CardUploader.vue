@@ -225,8 +225,8 @@
                 <li>Remaining: cost to acquire cards marked Buy in details.</li>
                 <li>Unlock Cost: sell value of owned cards marked Use.</li>
                 <li>
-                  Reward: market value of the mission prize. Set pack prices in
-                  the sidebar to value pack rewards.
+                  Reward: market value of the mission prize. Set pack values in
+                  the sidebar to override the default pack rewards.
                 </li>
                 <li>
                   Net: Reward minus Remaining. When Include unlocked cards is
@@ -305,7 +305,7 @@
                   Sell - Buy difference: adjusts the opportunity cost of locking
                   owned cards based on tax and market spread.
                 </li>
-                <li>Pack Prices: set PP values for reward calculation.</li>
+                <li>Pack Values: set PP values for reward calculation.</li>
               </ul>
             </details>
           </div>

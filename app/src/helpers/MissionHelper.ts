@@ -177,7 +177,7 @@ export default class MissionHelper {
   /**
    * Returns the total PP value of a mission's structured rewards.
    * Returns undefined when no rewards array is present (unstructured data → show "—").
-   * Pack rewards with no price set contribute 0 (user hasn't configured pack prices yet).
+   * Pack rewards with no price set contribute 0 (user hasn't configured pack values yet).
    * Card rewards with cardId === 0 (not yet mapped) contribute 0.
    */
   static calculateRewardValue(
