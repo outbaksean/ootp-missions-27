@@ -80,13 +80,66 @@
               {{ mission.rawMission.name }}
             </div>
             <div
-              v-if="
-                filteredMissionDropdownOptions.length === 0 &&
-                missionDropdownQuery.trim()
-              "
+              v-if="filteredMissionDropdownOptions.length === 0"
               class="combobox-empty"
             >
-              No missions found
+              {{
+                missionDropdownQuery.trim()
+                  ? "No missions found"
+                  : "No missions available"
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <label class="sidebar-label" for="target-card-input">Target Card</label>
+        <div class="combobox-wrapper">
+          <input
+            id="target-card-input"
+            v-model="cardDropdownQuery"
+            type="text"
+            class="sidebar-input"
+            placeholder="All Cards"
+            @focus="cardDropdownOpen = true"
+            @blur="onCardDropdownBlur"
+            @keydown="onCardDropdownKeydown"
+          />
+          <div
+            v-if="cardDropdownOpen"
+            class="combobox-dropdown"
+            @mousedown.prevent
+          >
+            <div
+              class="combobox-option"
+              :class="{
+                'combobox-option--selected': selectedCardFilter === undefined,
+              }"
+              @click="selectCardOption(undefined)"
+            >
+              All Cards
+            </div>
+            <div
+              v-for="card in filteredCardDropdownOptions"
+              :key="card.cardId"
+              class="combobox-option"
+              :class="{
+                'combobox-option--selected': selectedCardFilter === card.cardId,
+              }"
+              @click="selectCardOption(card.cardId!)"
+            >
+              {{ card.label }}
+            </div>
+            <div
+              v-if="filteredCardDropdownOptions.length === 0"
+              class="combobox-empty"
+            >
+              {{
+                cardDropdownQuery.trim()
+                  ? "No cards found"
+                  : "No cards available"
+              }}
             </div>
           </div>
         </div>
@@ -341,7 +394,17 @@
               />
             </template>
           </div>
+          <div
+            v-if="
+              groupedMissions.length === 0 ||
+              groupedMissions.every((g) => g.missions.length === 0)
+            "
+            class="empty-missions-message"
+          >
+            <p>No missions match the current filters.</p>
+          </div>
           <MissionList
+            v-else
             ref="missionListRef"
             :groups="groupedMissions"
             :isMissionComplete="isMissionComplete"
@@ -447,8 +510,10 @@ import MissionDetails from "./MissionDetails.vue";
 import MissionList from "./MissionList.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
-import { useSettingsStore } from "../stores/useSettingsStore";
+import { useSettingsStore, PACK_TYPE_LABELS } from "../stores/useSettingsStore";
 import type { UserMission } from "../models/UserMission";
+import { collectRewardItems } from "@/helpers/RewardItemsHelper";
+import type { RewardItem } from "@/helpers/RewardItemsHelper";
 
 defineOptions({ name: "MissionsView" });
 
@@ -600,6 +665,15 @@ function collectDescendantIds(
   return result;
 }
 
+const selectedMission = ref<UserMission | null>(null);
+const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
+const searchQuery = ref("");
+const selectedMissionFilter = ref<number | "">();
+const hideCompleted = ref(loadPref("ootp-display-hideCompleted", false));
+const selectedCategoryFilter = ref<string | null>(
+  loadPref("ootp-display-categoryFilter", null),
+);
+
 const missions = computed(() => missionStore.userMissions);
 const missionsOfTypeMissions = computed(() =>
   missionStore.userMissions.filter((m) => m.rawMission.type === "missions"),
@@ -608,14 +682,65 @@ const missionDropdownQuery = ref("");
 const missionDropdownOpen = ref(false);
 const filteredMissionDropdownOptions = computed(() => {
   const query = missionDropdownQuery.value.trim().toLowerCase();
-  if (!query) return missionsOfTypeMissions.value;
-  return missionsOfTypeMissions.value.filter((mission) =>
+  let missions = missionsOfTypeMissions.value;
+  // Filter out completed missions if hideCompleted is enabled
+  if (hideCompleted.value) {
+    missions = missions.filter((mission) => !mission.completed);
+  }
+  if (!query) return missions;
+  return missions.filter((mission) =>
     mission.rawMission.name.toLowerCase().includes(query),
   );
 });
 
+// Collect all unique reward cards from all missions
+const allRewardCards = computed(() => {
+  // Filter missions based on hideCompleted setting
+  let missionsToUse = missions.value;
+  if (hideCompleted.value) {
+    missionsToUse = missions.value.filter((m) => !m.completed);
+  }
+  const items = collectRewardItems(missionsToUse, {
+    packPrices: settingsStore.packPrices,
+    packTypeLabels: PACK_TYPE_LABELS,
+    shopCardsById: cardStore.shopCardsById,
+  });
+  // Only cards with cardId
+  return items.filter(
+    (item) => item.type === "card" && item.cardId !== undefined,
+  ) as (RewardItem & { cardId: number })[];
+});
+
+const cardDropdownQuery = ref("");
+const cardDropdownOpen = ref(false);
+const selectedCardFilter = ref<number | undefined>(undefined);
+const filteredCardDropdownOptions = computed(() => {
+  const query = cardDropdownQuery.value.trim().toLowerCase();
+  if (!query) return allRewardCards.value;
+  return allRewardCards.value.filter((card) =>
+    card.label.toLowerCase().includes(query),
+  );
+});
+
+// Map cardId to the mission that rewards it (prefer non-completed missions)
+function findMissionForCard(cardId: number): number | "" {
+  const missionWithCard = missions.value.find((mission) => {
+    const rewards = mission.rawMission.rewards ?? [];
+    return rewards.some(
+      (reward) =>
+        (reward.type as string).toLowerCase() === "card" &&
+        (reward as { cardId: number }).cardId === cardId,
+    );
+  });
+  return missionWithCard ? missionWithCard.id : "";
+}
+
 function selectMissionOption(missionId: number | "") {
   selectedMissionFilter.value = missionId;
+  // Reset card filter when mission is selected
+  selectedCardFilter.value = undefined;
+  cardDropdownQuery.value = "";
+
   if (missionId === "") {
     missionDropdownQuery.value = "";
   } else {
@@ -627,6 +752,26 @@ function selectMissionOption(missionId: number | "") {
     }
   }
   missionDropdownOpen.value = false;
+}
+
+function selectCardOption(cardId: number | undefined) {
+  selectedCardFilter.value = cardId;
+  // Reset mission filter when card is selected
+  selectedMissionFilter.value = "";
+  missionDropdownQuery.value = "";
+
+  if (cardId === undefined) {
+    cardDropdownQuery.value = "";
+  } else {
+    const card = allRewardCards.value.find((c) => c.cardId === cardId);
+    if (card) {
+      cardDropdownQuery.value = card.label;
+    }
+    // Find and select the mission that rewards this card
+    const missionId = findMissionForCard(cardId);
+    selectedMissionFilter.value = missionId;
+  }
+  cardDropdownOpen.value = false;
 }
 
 function onMissionDropdownBlur() {
@@ -653,6 +798,29 @@ function onMissionDropdownBlur() {
 function onMissionDropdownKeydown(e: KeyboardEvent) {
   if (e.key === "Escape") {
     missionDropdownOpen.value = false;
+    (e.target as HTMLInputElement).blur();
+  }
+}
+
+function onCardDropdownBlur() {
+  setTimeout(() => {
+    cardDropdownOpen.value = false;
+    if (selectedCardFilter.value === undefined) {
+      cardDropdownQuery.value = "";
+    } else {
+      const card = allRewardCards.value.find(
+        (c) => c.cardId === selectedCardFilter.value,
+      );
+      if (card) {
+        cardDropdownQuery.value = card.label;
+      }
+    }
+  }, 150);
+}
+
+function onCardDropdownKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") {
+    cardDropdownOpen.value = false;
     (e.target as HTMLInputElement).blur();
   }
 }
@@ -689,14 +857,6 @@ const categoryPriority = (cat: string) => {
   return i === -1 ? CATEGORY_ORDER.length : i;
 };
 
-const selectedMission = ref<UserMission | null>(null);
-const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
-const searchQuery = ref("");
-const selectedMissionFilter = ref<number | "">();
-const hideCompleted = ref(loadPref("ootp-display-hideCompleted", false));
-const selectedCategoryFilter = ref<string | null>(
-  loadPref("ootp-display-categoryFilter", null),
-);
 const groupBy = ref<"none" | "chain" | "category">(
   loadPref("ootp-display-groupBy", "category"),
 );
@@ -1289,6 +1449,20 @@ watch(
   padding: 1rem;
   background: #f1f5f9;
   min-width: 0;
+}
+
+.empty-missions-message {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-missions-message p {
+  font-size: 0.95rem;
+  margin: 0;
 }
 
 .upload-prompt {
