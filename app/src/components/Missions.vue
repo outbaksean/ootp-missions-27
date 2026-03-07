@@ -93,6 +93,57 @@
       </div>
 
       <div class="sidebar-section">
+        <label class="sidebar-label" for="target-card-input">Target Card</label>
+        <div class="combobox-wrapper">
+          <input
+            id="target-card-input"
+            v-model="cardDropdownQuery"
+            type="text"
+            class="sidebar-input"
+            placeholder="All Cards"
+            @focus="cardDropdownOpen = true"
+            @blur="onCardDropdownBlur"
+            @keydown="onCardDropdownKeydown"
+          />
+          <div
+            v-if="cardDropdownOpen"
+            class="combobox-dropdown"
+            @mousedown.prevent
+          >
+            <div
+              class="combobox-option"
+              :class="{
+                'combobox-option--selected': selectedCardFilter === undefined,
+              }"
+              @click="selectCardOption(undefined)"
+            >
+              All Cards
+            </div>
+            <div
+              v-for="card in filteredCardDropdownOptions"
+              :key="card.cardId"
+              class="combobox-option"
+              :class="{
+                'combobox-option--selected': selectedCardFilter === card.cardId,
+              }"
+              @click="selectCardOption(card.cardId!)"
+            >
+              {{ card.label }}
+            </div>
+            <div
+              v-if="
+                filteredCardDropdownOptions.length === 0 &&
+                cardDropdownQuery.trim()
+              "
+              class="combobox-empty"
+            >
+              No cards found
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
         <label class="sidebar-label" for="sort-by-select">Sort by</label>
         <select id="sort-by-select" v-model="sortBy" class="sidebar-select">
           <option value="default">Default</option>
@@ -447,8 +498,10 @@ import MissionDetails from "./MissionDetails.vue";
 import MissionList from "./MissionList.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
-import { useSettingsStore } from "../stores/useSettingsStore";
+import { useSettingsStore, PACK_TYPE_LABELS } from "../stores/useSettingsStore";
 import type { UserMission } from "../models/UserMission";
+import { collectRewardItems } from "@/helpers/RewardItemsHelper";
+import type { RewardItem } from "@/helpers/RewardItemsHelper";
 
 defineOptions({ name: "MissionsView" });
 
@@ -614,8 +667,49 @@ const filteredMissionDropdownOptions = computed(() => {
   );
 });
 
+// Collect all unique reward cards from all missions
+const allRewardCards = computed(() => {
+  const items = collectRewardItems(missions.value, {
+    packPrices: settingsStore.packPrices,
+    packTypeLabels: PACK_TYPE_LABELS,
+    shopCardsById: cardStore.shopCardsById,
+  });
+  // Only cards with cardId
+  return items.filter(
+    (item) => item.type === "card" && item.cardId !== undefined,
+  ) as (RewardItem & { cardId: number })[];
+});
+
+const cardDropdownQuery = ref("");
+const cardDropdownOpen = ref(false);
+const selectedCardFilter = ref<number | undefined>(undefined);
+const filteredCardDropdownOptions = computed(() => {
+  const query = cardDropdownQuery.value.trim().toLowerCase();
+  if (!query) return allRewardCards.value;
+  return allRewardCards.value.filter((card) =>
+    card.label.toLowerCase().includes(query),
+  );
+});
+
+// Map cardId to the mission that rewards it (prefer non-completed missions)
+function findMissionForCard(cardId: number): number | "" {
+  const missionWithCard = missions.value.find((mission) => {
+    const rewards = mission.rawMission.rewards ?? [];
+    return rewards.some(
+      (reward) =>
+        (reward.type as string).toLowerCase() === "card" &&
+        (reward as { cardId: number }).cardId === cardId,
+    );
+  });
+  return missionWithCard ? missionWithCard.id : "";
+}
+
 function selectMissionOption(missionId: number | "") {
   selectedMissionFilter.value = missionId;
+  // Reset card filter when mission is selected
+  selectedCardFilter.value = undefined;
+  cardDropdownQuery.value = "";
+
   if (missionId === "") {
     missionDropdownQuery.value = "";
   } else {
@@ -627,6 +721,26 @@ function selectMissionOption(missionId: number | "") {
     }
   }
   missionDropdownOpen.value = false;
+}
+
+function selectCardOption(cardId: number | undefined) {
+  selectedCardFilter.value = cardId;
+  // Reset mission filter when card is selected
+  selectedMissionFilter.value = "";
+  missionDropdownQuery.value = "";
+
+  if (cardId === undefined) {
+    cardDropdownQuery.value = "";
+  } else {
+    const card = allRewardCards.value.find((c) => c.cardId === cardId);
+    if (card) {
+      cardDropdownQuery.value = card.label;
+    }
+    // Find and select the mission that rewards this card
+    const missionId = findMissionForCard(cardId);
+    selectedMissionFilter.value = missionId;
+  }
+  cardDropdownOpen.value = false;
 }
 
 function onMissionDropdownBlur() {
@@ -653,6 +767,29 @@ function onMissionDropdownBlur() {
 function onMissionDropdownKeydown(e: KeyboardEvent) {
   if (e.key === "Escape") {
     missionDropdownOpen.value = false;
+    (e.target as HTMLInputElement).blur();
+  }
+}
+
+function onCardDropdownBlur() {
+  setTimeout(() => {
+    cardDropdownOpen.value = false;
+    if (selectedCardFilter.value === undefined) {
+      cardDropdownQuery.value = "";
+    } else {
+      const card = allRewardCards.value.find(
+        (c) => c.cardId === selectedCardFilter.value,
+      );
+      if (card) {
+        cardDropdownQuery.value = card.label;
+      }
+    }
+  }, 150);
+}
+
+function onCardDropdownKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") {
+    cardDropdownOpen.value = false;
     (e.target as HTMLInputElement).blur();
   }
 }
