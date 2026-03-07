@@ -837,6 +837,10 @@ export const useMissionStore = defineStore("mission", () => {
     localStorage.setItem(USE_SELL_PRICE_KEY, String(value));
   }
 
+  function setLoading(value: boolean) {
+    loading.value = value;
+  }
+
   function recomputeCompletedForMission(missionId: number) {
     const mission = userMissions.value.find((m) => m.id === missionId);
     if (!mission) return;
@@ -922,6 +926,7 @@ export const useMissionStore = defineStore("mission", () => {
     initialize,
     buildUserMissions,
     setUseSellPrice,
+    setLoading,
     updateCardLockedState,
     updateCardOwnedState,
     handlePriceOverrideChanged,
