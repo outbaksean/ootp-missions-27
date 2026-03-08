@@ -36,7 +36,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { buildShoppingItems, buildSummaryText, buildExclusionText } from "../ShoppingListHelper";
+import { buildShoppingItems, buildSummaryText, buildExclusionText, selectMissionsForBudget } from "../ShoppingListHelper";
 import { PACK_TYPE_DEFAULTS } from "@/stores/useSettingsStore";
 import type { UserMission } from "@/models/UserMission";
 import type { MissionCard } from "@/models/MissionCard";
@@ -334,5 +334,132 @@ describe("buildExclusionText — zero-price / non-completable missions", () => {
     const completingIds = items[0].completingMissions.map((m) => m.id);
     expect(completingIds).toContain(101); // Good Sub
     expect(completingIds).toContain(200); // Chain Mission
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("selectMissionsForBudget — greedy mission selection", () => {
+  /**
+   * Helpers for building minimal leaf missions suitable for budget tests.
+   * The key fields for selectMissionsForBudget are:
+   *   mission.id, mission.remainingPrice, mission.rewardValue,
+   *   mission.missionCards (highlighted, owned, cardId, price)
+   */
+
+  // ── 2a. Exact budget fit ──────────────────────────────────────────────────
+  it("2a: mission whose cost equals the remaining budget is included", () => {
+    const m = makeLeafMission(1, "Exact Fit", [makeCard(1, 500)]);
+    const { selectedIds } = selectMissionsForBudget([m], "completion", 500);
+    expect(selectedIds.has(1)).toBe(true);
+  });
+
+  // ── 2b. Skip expensive, keep cheaper ─────────────────────────────────────
+  it("2b: expensive mission skipped but cheaper later mission still selected", () => {
+    // Completion strategy: sorted cheapest first, so cheap fits after budget check
+    const expensive = makeLeafMission(1, "Expensive", [makeCard(1, 800)]);
+    const cheap     = makeLeafMission(2, "Cheap",     [makeCard(2, 200)]);
+    // Budget 300 — expensive doesn't fit, cheap does
+    const { selectedIds } = selectMissionsForBudget(
+      [expensive, cheap],
+      "completion",
+      300,
+    );
+    expect(selectedIds.has(1)).toBe(false);
+    expect(selectedIds.has(2)).toBe(true);
+  });
+
+  // ── 2c. Card sharing reduces effective cost ───────────────────────────────
+  it("2c: shared card counted only once, allowing both missions to fit in budget", () => {
+    const shared  = makeCard(99, 300);
+    const cardA   = makeCard(1,  200);
+    const cardB   = makeCard(2,  100);
+
+    // Mission A: needs shared + cardA = 500 PP face value
+    // Mission B: needs shared + cardB = 400 PP face value
+    // Budget: 600 PP — neither fits alone at full face value, but
+    // completion order picks B first (cheapest remaining price):
+    //   B selected for 400 PP (shared + cardB)
+    //   A's new cost = only cardA = 200 PP → fits in remaining 200 PP
+    const missionA = makeLeafMission(1, "Mission A", [shared, cardA]);
+    const missionB = makeLeafMission(2, "Mission B", [shared, cardB]);
+
+    const { selectedIds, selectionOrder } = selectMissionsForBudget(
+      [missionA, missionB],
+      "completion",
+      600,
+    );
+
+    expect(selectedIds.has(1)).toBe(true);
+    expect(selectedIds.has(2)).toBe(true);
+    // B selected first (cheaper overall price)
+    expect(selectionOrder[0].id).toBe(2);
+    expect(selectionOrder[1].id).toBe(1);
+  });
+
+  // ── 2d. Free missions always included ────────────────────────────────────
+  it("2d: mission with remainingPrice = 0 is always included regardless of budget", () => {
+    const free = makeLeafMission(1, "Free Mission", [makeCard(1, 0, true)]); // card owned
+    free.remainingPrice = 0;
+    const { selectedIds } = selectMissionsForBudget([free], "completion", 0);
+    expect(selectedIds.has(1)).toBe(true);
+  });
+
+  // ── 1b. Value strategy selects highest-ratio missions first ──────────────
+  it("1b: value strategy with budget selects highest rewardValue/cost ratio first", () => {
+    // High ratio: 5000 reward / 100 cost = 50
+    const highRatio = makeLeafMission(1, "High Ratio", [makeCard(1, 100)], {
+      rewardValue: 5_000,
+    });
+    // Low ratio: 1000 reward / 500 cost = 2
+    const lowRatio = makeLeafMission(2, "Low Ratio", [makeCard(2, 500)], {
+      rewardValue: 1_000,
+    });
+
+    // Budget 200: only room for one non-shared mission
+    const { selectedIds, selectionOrder } = selectMissionsForBudget(
+      [highRatio, lowRatio],
+      "value",
+      200,
+    );
+
+    expect(selectedIds.has(1)).toBe(true);  // high ratio selected
+    expect(selectedIds.has(2)).toBe(false); // low ratio skipped
+    expect(selectionOrder[0].id).toBe(1);   // high ratio first in order
+  });
+
+  // ── 1c. Completion strategy selects cheapest missions first ──────────────
+  it("1c: completion strategy with budget selects cheapest missions first", () => {
+    const cheap     = makeLeafMission(1, "Cheap",     [makeCard(1, 100)], { rewardValue: 50 });
+    const expensive = makeLeafMission(2, "Expensive", [makeCard(2, 900)], { rewardValue: 9_000 });
+
+    // Budget 500: expensive has much better ratio but completion ignores that
+    const { selectedIds, selectionOrder } = selectMissionsForBudget(
+      [cheap, expensive],
+      "completion",
+      500,
+    );
+
+    expect(selectedIds.has(1)).toBe(true);  // cheap selected
+    expect(selectedIds.has(2)).toBe(false); // expensive skipped despite better ratio
+    expect(selectionOrder[0].id).toBe(1);   // cheap first
+  });
+
+  // ── Unlimited PP: all missions selected in sort order ────────────────────
+  it("unlimited PP: all missions selected; selectionOrder reflects strategy sort", () => {
+    const m1 = makeLeafMission(1, "M1", [makeCard(1, 900)], { rewardValue: 100 }); // ratio ~0.11
+    const m2 = makeLeafMission(2, "M2", [makeCard(2, 100)], { rewardValue: 900 }); // ratio 9
+
+    const { selectedIds, selectionOrder } = selectMissionsForBudget(
+      [m1, m2],
+      "value",
+      null,
+    );
+
+    expect(selectedIds.has(1)).toBe(true);
+    expect(selectedIds.has(2)).toBe(true);
+    // Value strategy: m2 (ratio 9) before m1 (ratio ~0.11)
+    expect(selectionOrder[0].id).toBe(2);
+    expect(selectionOrder[1].id).toBe(1);
   });
 });

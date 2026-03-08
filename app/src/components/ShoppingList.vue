@@ -138,7 +138,7 @@
 import { computed, ref } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { ShopCard } from "../models/ShopCard";
-import { buildShoppingItems, buildSummaryText, buildExclusionText } from "../helpers/ShoppingListHelper";
+import { buildShoppingItems, buildSummaryText, buildExclusionText, selectMissionsForBudget } from "../helpers/ShoppingListHelper";
 import type { ShoppingItem } from "../helpers/ShoppingListHelper";
 
 const props = defineProps<{
@@ -227,55 +227,19 @@ const excludedMissions = computed(() =>
 // ─── COMPUTED: Exclusion warning text ───
 const exclusionText = computed(() => buildExclusionText(excludedMissions.value));
 
-// ─── COMPUTED: Selected mission IDs (greedy budget selection) ───
-const selectedMissionIds = computed((): Set<number> => {
-  // Only leaf missions contribute cards to the shopping list
+// ─── COMPUTED: Greedy mission selection ───
+const missionSelection = computed(() => {
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
   );
-
-  if (availablePP.value === null) {
-    return new Set(leafMissions.map((m) => m.id));
-  }
-
-  let remainingBudget = availablePP.value;
-  const selectedIds = new Set<number>();
-  const includedCardIds = new Set<number>();
-
-  const sorted = [...leafMissions].sort((a, b) => {
-    if (strategy.value === "completion") {
-      return a.remainingPrice - b.remainingPrice;
-    } else {
-      const aRatio = (a.rewardValue ?? 0) / Math.max(1, a.remainingPrice);
-      const bRatio = (b.rewardValue ?? 0) / Math.max(1, b.remainingPrice);
-      return bRatio - aRatio;
-    }
-  });
-
-  for (const mission of sorted) {
-    if (mission.remainingPrice <= 0) {
-      selectedIds.add(mission.id);
-      continue;
-    }
-    const newCards = mission.missionCards.filter(
-      (c) => c.highlighted && !c.owned && !includedCardIds.has(c.cardId),
-    );
-    const newCost = newCards.reduce((sum, c) => sum + c.price, 0);
-    if (newCost <= remainingBudget) {
-      selectedIds.add(mission.id);
-      newCards.forEach((c) => includedCardIds.add(c.cardId));
-      remainingBudget -= newCost;
-    }
-  }
-
-  return selectedIds;
+  return selectMissionsForBudget(leafMissions, strategy.value, availablePP.value);
 });
 
 // ─── COMPUTED: Shopping items (final card list) ───
 const shoppingItems = computed((): ShoppingItem[] =>
   buildShoppingItems(
     eligibleMissions.value,
-    selectedMissionIds.value,
+    missionSelection.value.selectedIds,
     props.missions,
     props.shopCardsById,
   ),

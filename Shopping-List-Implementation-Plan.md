@@ -70,7 +70,7 @@ summary sentence, or as a separate line under the summary box.
 
 ---
 
-## Phase 2 — Extract `selectMissionsForBudget` helper (Scenario 2)
+## Phase 2 — Extract `selectMissionsForBudget` helper (Scenario 2) ✅
 
 Currently `selectedMissionIds` is a Vue computed inside `ShoppingList.vue`.
 Extracting it makes budget behaviour unit-testable and sets up Phase 4.

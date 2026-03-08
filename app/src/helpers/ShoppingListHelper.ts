@@ -245,6 +245,62 @@ function computePartialByList(
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
+ * Sorts leaf missions by strategy priority and greedily selects those that fit
+ * within `availablePP` (null = unlimited).
+ *
+ * Returns:
+ *  - `selectedIds`    fast-lookup Set of selected mission IDs
+ *  - `selectionOrder` missions in the order they were selected (index 0 = highest
+ *                     priority); used by Phase 4 for card ordering
+ *
+ * Card costs are deduplicated: if two missions share a card, the card's price is
+ * only counted once (against whichever mission picks it up first in greedy order).
+ */
+export function selectMissionsForBudget(
+  leafMissions: UserMission[],
+  strategy: "value" | "completion",
+  availablePP: number | null,
+): { selectedIds: Set<number>; selectionOrder: UserMission[] } {
+  const sorted = [...leafMissions].sort((a, b) => {
+    if (strategy === "completion") {
+      return a.remainingPrice - b.remainingPrice;
+    }
+    const aRatio = (a.rewardValue ?? 0) / Math.max(1, a.remainingPrice);
+    const bRatio = (b.rewardValue ?? 0) / Math.max(1, b.remainingPrice);
+    return bRatio - aRatio;
+  });
+
+  if (availablePP === null) {
+    return { selectedIds: new Set(sorted.map((m) => m.id)), selectionOrder: sorted };
+  }
+
+  let remainingBudget = availablePP;
+  const selectionOrder: UserMission[] = [];
+  const includedCardIds = new Set<number>();
+
+  for (const mission of sorted) {
+    if (mission.remainingPrice <= 0) {
+      selectionOrder.push(mission);
+      continue;
+    }
+    const newCards = mission.missionCards.filter(
+      (c) => c.highlighted && !c.owned && !includedCardIds.has(c.cardId),
+    );
+    const newCost = newCards.reduce((sum, c) => sum + c.price, 0);
+    if (newCost <= remainingBudget) {
+      selectionOrder.push(mission);
+      newCards.forEach((c) => includedCardIds.add(c.cardId));
+      remainingBudget -= newCost;
+    }
+  }
+
+  return {
+    selectedIds: new Set(selectionOrder.map((m) => m.id)),
+    selectionOrder,
+  };
+}
+
+/**
  * Returns a human-readable warning sentence listing missions excluded from the
  * shopping list because they contain cards with no market price (`isCompletable = false`).
  * Returns an empty string when there are no excluded missions.
