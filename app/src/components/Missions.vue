@@ -35,6 +35,7 @@
           <option value="none">None</option>
           <option value="chain">Chain</option>
           <option value="category">Category</option>
+          <option value="card-reward">Card Reward</option>
         </select>
       </div>
 
@@ -868,7 +869,7 @@ const categoryPriority = (cat: string) => {
   const i = CATEGORY_ORDER.indexOf(cat);
   return i === -1 ? CATEGORY_ORDER.length : i;
 };
-const groupBy = ref<"none" | "chain" | "category">(
+const groupBy = ref<"none" | "chain" | "category" | "card-reward">(
   loadPref("ootp-display-groupBy", "category"),
 );
 const sortBy = ref<"default" | "price" | "value" | "name">(
@@ -1142,6 +1143,48 @@ const groupedMissions = computed(
         result.push({ label: "Standalone", missions: standalone });
       }
       return result;
+    }
+
+    if (groupBy.value === "card-reward") {
+      const missionById = new Map(
+        missionStore.userMissions.map((m) => [m.id, m]),
+      );
+      const cardGroupMap = new Map<number, { label: string; missions: UserMission[] }>();
+      const assignedIds = new Set<number>();
+      // First pass: find missions with card rewards and collect their descendants
+      for (const m of filteredMissions.value) {
+        const rewards = m.rawMission.rewards ?? [];
+        const cardReward = rewards.find(
+          (r) => (r.type as string).toLowerCase() === "card" && (r as { cardId: number }).cardId !== 0,
+        ) as { cardId: number } | undefined;
+        if (cardReward) {
+          const { cardId } = cardReward;
+          if (!cardGroupMap.has(cardId)) {
+            const shopCard = cardStore.shopCardsById.get(cardId);
+            const label = shopCard ? shopCard.cardTitle : `Card #${cardId}`;
+            cardGroupMap.set(cardId, { label, missions: [] });
+          }
+          const group = cardGroupMap.get(cardId)!;
+          const descendantIds = collectDescendantIds(m.id, missionById);
+          const members = filteredMissions.value.filter(
+            (fm) => fm.id === m.id || descendantIds.has(fm.id),
+          );
+          members.forEach((fm) => {
+            if (!assignedIds.has(fm.id)) {
+              group.missions.push(fm);
+              assignedIds.add(fm.id);
+            }
+          });
+        }
+      }
+      const groups: Array<{ label: string; missions: UserMission[] }> = Array.from(
+        cardGroupMap.values(),
+      ).sort((a, b) => a.label.localeCompare(b.label));
+      const noCardGroup = filteredMissions.value.filter((m) => !assignedIds.has(m.id));
+      if (noCardGroup.length > 0) {
+        groups.push({ label: "No Card Reward", missions: noCardGroup });
+      }
+      return groups;
     }
 
     return [{ label: "", missions: filteredMissions.value }];
