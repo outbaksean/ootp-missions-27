@@ -245,6 +245,20 @@ function computePartialByList(
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
+ * Returns a human-readable warning sentence listing missions excluded from the
+ * shopping list because they contain cards with no market price (`isCompletable = false`).
+ * Returns an empty string when there are no excluded missions.
+ */
+export function buildExclusionText(excluded: UserMission[]): string {
+  if (excluded.length === 0) return "";
+  const names = excluded.map((m) => `'${m.rawMission.name}'`).join(", ");
+  if (excluded.length === 1) {
+    return `1 mission excluded because it requires a card with no market price: ${names}.`;
+  }
+  return `${excluded.length} missions excluded because they require cards with no market price: ${names}.`;
+}
+
+/**
  * Builds the ordered shopping item list for the given selected missions.
  *
  * @param eligibleMissions  Incomplete, calculated missions in scope (leaf and missions-type).

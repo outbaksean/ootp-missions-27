@@ -36,7 +36,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { buildShoppingItems, buildSummaryText } from "../ShoppingListHelper";
+import { buildShoppingItems, buildSummaryText, buildExclusionText } from "../ShoppingListHelper";
 import { PACK_TYPE_DEFAULTS } from "@/stores/useSettingsStore";
 import type { UserMission } from "@/models/UserMission";
 import type { MissionCard } from "@/models/MissionCard";
@@ -68,6 +68,7 @@ function makeLeafMission(
   opts: { rewards?: MissionReward[]; rewardValue?: number; completed?: boolean } = {},
 ): UserMission {
   const { rewards = [], rewardValue, completed = false } = opts;
+  const isCompletable = !cards.some((c) => !c.owned && c.price === 0);
   return {
     id,
     rawMission: {
@@ -82,7 +83,7 @@ function makeLeafMission(
     },
     progressText: "Calculated",
     completed,
-    isCompletable: false,
+    isCompletable,
     missionCards: cards,
     remainingPrice: cards
       .filter((c) => !c.owned)
@@ -205,5 +206,133 @@ describe("buildShoppingItems + buildSummaryText — chain mission scenario", () 
         "1 Historical Perfect Pack, 1 Rainbow Pack, 2 Gold Packs " +
         "for a combined value of 56,300 PP.",
     );
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("buildExclusionText — zero-price / non-completable missions", () => {
+  /**
+   * `buildExclusionText` is called in ShoppingList.vue with the set of
+   * missions that were in scope but had `isCompletable = false` (typically
+   * because a required card has no market price).
+   *
+   * These missions are filtered OUT of `eligibleMissions` before being passed
+   * to `buildShoppingItems`, so they never appear in the shopping list or
+   * completion counts. The exclusion text is shown as a separate warning.
+   */
+
+  it("returns empty string when no missions are excluded", () => {
+    expect(buildExclusionText([])).toBe("");
+  });
+
+  it("uses singular form for one excluded mission", () => {
+    const m = makeLeafMission(1, "Blocked Mission", [makeCard(1, 0)]);
+    expect(buildExclusionText([m])).toBe(
+      "1 mission excluded because it requires a card with no market price: 'Blocked Mission'.",
+    );
+  });
+
+  it("uses plural form and lists all names for multiple excluded missions", () => {
+    const m1 = makeLeafMission(1, "Mission Alpha", [makeCard(1, 0)]);
+    const m2 = makeLeafMission(2, "Mission Beta", [makeCard(2, 0)]);
+    expect(buildExclusionText([m1, m2])).toBe(
+      "2 missions excluded because they require cards with no market price: 'Mission Alpha', 'Mission Beta'.",
+    );
+  });
+
+  /**
+   * Regression: before the fix, a mission with isCompletable = false would
+   * still enter buildShoppingItems (via eligibleMissions) and its purchasable
+   * cards would be included. computeCompletedByList would then mark it as
+   * "completed" in the summary even though the 0-price card was never bought.
+   *
+   * The fix is in ShoppingList.vue's eligibleMissions filter (adds m.isCompletable).
+   * The test below demonstrates correct behaviour by manually applying the
+   * filter before calling buildShoppingItems — the non-completable mission's
+   * cards do not appear and it is not counted as completed.
+   */
+  it("non-completable mission excluded from shopping items and summary when filtered correctly", () => {
+    // Card A is purchasable; Card B has price 0 (unpurchasable).
+    // The mission needs both, so isCompletable = false (set by factory).
+    const cardA = makeCard(1, 500);
+    const cardBFree = makeCard(2, 0);
+    const blockedMission = makeLeafMission(10, "Blocked Mission", [cardA, cardBFree]);
+
+    // Confirm the factory correctly sets isCompletable = false
+    expect(blockedMission.isCompletable).toBe(false);
+
+    // A normal completable mission in the same scope
+    const cardC = makeCard(3, 100);
+    const goodMission = makeLeafMission(11, "Good Mission", [cardC], {
+      rewards: [{ type: "pack", packType: "Gold", count: 1 }],
+      rewardValue: 1_100,
+    });
+
+    const allMissions = [blockedMission, goodMission];
+
+    // Simulate what ShoppingList.vue's eligibleMissions does:
+    // only pass completable missions to buildShoppingItems
+    const eligibleMissions = allMissions.filter((m) => m.isCompletable);
+    const selectedIds = new Set(eligibleMissions.map((m) => m.id));
+
+    const items = buildShoppingItems(eligibleMissions, selectedIds, allMissions, new Map());
+
+    // Only Card C appears — Card A and the blocked mission are excluded
+    expect(items).toHaveLength(1);
+    expect(items[0].cardId).toBe(3);
+
+    // The summary counts only the completable mission
+    const packPrices = new Map(Object.entries(PACK_TYPE_DEFAULTS));
+    const text = buildSummaryText({
+      strategy: "value",
+      availablePP: null,
+      includedMissionIds: new Set(),
+      eligibleMissions,
+      allMissions,
+      shoppingItems: items,
+      packPrices,
+      shopCardsById: new Map(),
+    });
+
+    expect(text).toContain("complete 'Good Mission'");
+    expect(text).not.toContain("Blocked Mission");
+  });
+
+  /**
+   * Chain scenario: one sub-mission is blocked (isCompletable = false),
+   * but the chain requires only 1 of 2 subs (requiredCount = 1).
+   * The good sub's card should still seal the chain.
+   */
+  it("chain still seals when enough subs are completable despite one blocked sub", () => {
+    const cardA = makeCard(1, 100);
+    const goodSub = makeLeafMission(101, "Good Sub", [cardA], {
+      rewards: [{ type: "pack", packType: "Gold", count: 1 }],
+      rewardValue: 1_100,
+    });
+
+    const blockedSub = makeLeafMission(102, "Blocked Sub", [makeCard(2, 0)]);
+    expect(blockedSub.isCompletable).toBe(false);
+
+    const chain = makeChainMission(200, "Chain Mission", [101, 102], 1, {
+      rewards: [{ type: "pack", packType: "Silver", count: 1 }],
+      rewardValue: 250,
+    });
+
+    const allMissions = [goodSub, blockedSub, chain];
+
+    // Filter as the component would: exclude non-completable leaves
+    const eligibleMissions = allMissions.filter((m) => m.isCompletable);
+    const selectedIds = new Set(eligibleMissions.map((m) => m.id));
+
+    const items = buildShoppingItems(eligibleMissions, selectedIds, allMissions, new Map());
+
+    expect(items).toHaveLength(1);
+    expect(items[0].cardId).toBe(1);
+
+    // Card A seals the chain (requiredCount = 1, good sub completes it)
+    const completingIds = items[0].completingMissions.map((m) => m.id);
+    expect(completingIds).toContain(101); // Good Sub
+    expect(completingIds).toContain(200); // Chain Mission
   });
 });

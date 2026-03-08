@@ -105,6 +105,11 @@
       <p class="sl-summary-text">{{ summaryText }}</p>
     </div>
 
+    <!-- ─── EXCLUSION WARNING ─── -->
+    <div v-if="exclusionText" class="sl-exclusion">
+      <p class="sl-exclusion-text">{{ exclusionText }}</p>
+    </div>
+
     <!-- ─── EMPTY STATES ─── -->
     <p v-if="eligibleMissions.length === 0" class="sl-empty">
       No calculated missions found. Use the Calculate button on missions to get started.
@@ -133,7 +138,7 @@
 import { computed, ref } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { ShopCard } from "../models/ShopCard";
-import { buildShoppingItems, buildSummaryText } from "../helpers/ShoppingListHelper";
+import { buildShoppingItems, buildSummaryText, buildExclusionText } from "../helpers/ShoppingListHelper";
 import type { ShoppingItem } from "../helpers/ShoppingListHelper";
 
 const props = defineProps<{
@@ -185,8 +190,8 @@ const includedMissions = computed(() =>
   props.missions.filter((m) => props.includedMissionIds.has(m.id)),
 );
 
-// ─── COMPUTED: Eligible missions for shopping list ───
-const eligibleMissions = computed(() => {
+// ─── COMPUTED: In-scope incomplete missions (before completability filter) ───
+const inScopeIncomplete = computed(() => {
   const incomplete = props.missions.filter(
     (m) => !m.completed && m.progressText !== "Not Calculated",
   );
@@ -203,6 +208,24 @@ const eligibleMissions = computed(() => {
   }
   return incomplete.filter((m) => expandedIds.has(m.id));
 });
+
+// ─── COMPUTED: Eligible missions for shopping list ───
+// Only completable missions enter the shopping list. Non-completable missions
+// (those requiring cards with no market price) are tracked separately.
+const eligibleMissions = computed(() =>
+  inScopeIncomplete.value.filter((m) => m.isCompletable),
+);
+
+// ─── COMPUTED: Missions excluded due to unpurchasable cards ───
+// Leaf missions only — chain exclusions are implied by their sub-missions.
+const excludedMissions = computed(() =>
+  inScopeIncomplete.value.filter(
+    (m) => !m.isCompletable && m.rawMission.type !== "missions",
+  ),
+);
+
+// ─── COMPUTED: Exclusion warning text ───
+const exclusionText = computed(() => buildExclusionText(excludedMissions.value));
 
 // ─── COMPUTED: Selected mission IDs (greedy budget selection) ───
 const selectedMissionIds = computed((): Set<number> => {
@@ -622,5 +645,21 @@ function exportHtml() {
   font-size: 0.75rem;
   color: #64748b;
   line-height: 1.45;
+}
+
+/* ─── EXCLUSION WARNING ─── */
+.sl-exclusion {
+  background: #fefce8;
+  border-left: 3px solid #eab308;
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.sl-exclusion-text {
+  font-size: 0.82rem;
+  color: #713f12;
+  line-height: 1.55;
+  margin: 0;
 }
 </style>
