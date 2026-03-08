@@ -380,14 +380,19 @@ function formatMissionReward(mission: UserMission): string {
   const rewards = mission.rawMission.rewards ?? [];
   const parts: string[] = [];
   for (const reward of rewards) {
-    if (reward.type === "pack") {
-      const label = PACK_TYPE_LABELS[reward.packType] ?? reward.packType;
-      parts.push(`${reward.count}x ${label}`);
-    } else if (reward.type === "card" && reward.cardId > 0) {
-      const shopCard = props.shopCardsById.get(reward.cardId);
-      const count = reward.count ?? 1;
-      const name = shopCard ? shopCard.cardTitle : `Card #${reward.cardId}`;
-      parts.push(count > 1 ? `${count}x ${name}` : name);
+    const type = (reward.type as string).toLowerCase();
+    if (type === "pack") {
+      const r = reward as { packType: string; count: number };
+      const label = PACK_TYPE_LABELS[r.packType] ?? r.packType;
+      parts.push(`${r.count}x ${label}`);
+    } else if (type === "card") {
+      const r = reward as { cardId: number; count?: number };
+      if (r.cardId > 0) {
+        const shopCard = props.shopCardsById.get(r.cardId);
+        const count = r.count ?? 1;
+        const name = shopCard ? shopCard.cardTitle : `Card #${r.cardId}`;
+        parts.push(count > 1 ? `${count}x ${name}` : name);
+      }
     }
   }
   return parts.join(", ");
@@ -423,16 +428,18 @@ function buildRewardSummaryParts(missions: UserMission[]): string[] {
 
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
-      if (reward.type === "pack") {
-        packCounts.set(
-          reward.packType,
-          (packCounts.get(reward.packType) ?? 0) + reward.count,
-        );
-      } else if (reward.type === "card" && reward.cardId > 0) {
-        const shopCard = props.shopCardsById.get(reward.cardId);
-        const count = reward.count ?? 1;
-        const name = shopCard ? shopCard.cardTitle : `Card #${reward.cardId}`;
-        cardItems.push(count > 1 ? `${count}x ${name}` : name);
+      const type = (reward.type as string).toLowerCase();
+      if (type === "pack") {
+        const r = reward as { packType: string; count: number };
+        packCounts.set(r.packType, (packCounts.get(r.packType) ?? 0) + r.count);
+      } else if (type === "card") {
+        const r = reward as { cardId: number; count?: number };
+        if (r.cardId > 0) {
+          const shopCard = props.shopCardsById.get(r.cardId);
+          const count = r.count ?? 1;
+          const name = shopCard ? shopCard.cardTitle : `Card #${r.cardId}`;
+          cardItems.push(count > 1 ? `${count}x ${name}` : name);
+        }
       }
     }
   }
