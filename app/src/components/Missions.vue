@@ -966,7 +966,9 @@ const updatePriceType = async () => {
 function groupNetValue(missions: UserMission[]): number {
   const incomplete = missions.filter((m) => !m.completed);
   const rewardTotal = incomplete.reduce((s, m) => s + (m.rewardValue ?? 0), 0);
-  const leafMissions = incomplete.filter((m) => m.rawMission.type !== "missions");
+  const leafMissions = incomplete.filter(
+    (m) => m.rawMission.type !== "missions",
+  );
   const costTotal = leafMissions.reduce((s, m) => s + m.remainingPrice, 0);
   const unlockedTotal = settingsStore.subtractUnlockedCards
     ? leafMissions.reduce((s, m) => s + m.unlockedCardsPrice, 0)
@@ -1060,12 +1062,18 @@ const groupedMissions = computed(
       );
       if (sortBy.value === "price") {
         groups.sort((a, b) => {
-          const aTotal = a.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
-          const bTotal = b.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          const aTotal = a.missions
+            .filter((m) => m.rawMission.type !== "missions")
+            .reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions
+            .filter((m) => m.rawMission.type !== "missions")
+            .reduce((s, m) => s + m.remainingPrice, 0);
           return aTotal - bTotal;
         });
       } else if (sortBy.value === "value") {
-        groups.sort((a, b) => groupNetValue(b.missions) - groupNetValue(a.missions));
+        groups.sort(
+          (a, b) => groupNetValue(b.missions) - groupNetValue(a.missions),
+        );
       } else if (sortBy.value === "name") {
         groups.sort((a, b) => a.label.localeCompare(b.label));
       } else {
@@ -1112,12 +1120,18 @@ const groupedMissions = computed(
       }
       if (sortBy.value === "price") {
         chainGroups.sort((a, b) => {
-          const aTotal = a.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
-          const bTotal = b.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          const aTotal = a.missions
+            .filter((m) => m.rawMission.type !== "missions")
+            .reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions
+            .filter((m) => m.rawMission.type !== "missions")
+            .reduce((s, m) => s + m.remainingPrice, 0);
           return aTotal - bTotal;
         });
       } else if (sortBy.value === "value") {
-        chainGroups.sort((a, b) => groupNetValue(b.missions) - groupNetValue(a.missions));
+        chainGroups.sort(
+          (a, b) => groupNetValue(b.missions) - groupNetValue(a.missions),
+        );
       } else if (sortBy.value === "name") {
         chainGroups.sort((a, b) => a.label.localeCompare(b.label));
       } else {
@@ -1144,13 +1158,19 @@ const groupedMissions = computed(
       const missionById = new Map(
         missionStore.userMissions.map((m) => [m.id, m]),
       );
-      const cardGroupMap = new Map<number, { label: string; missions: UserMission[] }>();
-      const assignedIds = new Set<number>();
-      // First pass: find missions with card rewards and collect their descendants
+      const cardGroupMap = new Map<
+        number,
+        { label: string; missions: UserMission[] }
+      >();
+      // Track which missions appear in at least one card group (for No Card Reward bucket).
+      // A mission can appear in multiple groups if it is a child of multiple card-reward missions.
+      const inAnyCardGroup = new Set<number>();
       for (const m of filteredMissions.value) {
         const rewards = m.rawMission.rewards ?? [];
         const cardReward = rewards.find(
-          (r) => (r.type as string).toLowerCase() === "card" && (r as { cardId: number }).cardId !== 0,
+          (r) =>
+            (r.type as string).toLowerCase() === "card" &&
+            (r as { cardId: number }).cardId !== 0,
         ) as { cardId: number } | undefined;
         if (cardReward) {
           const { cardId } = cardReward;
@@ -1164,29 +1184,40 @@ const groupedMissions = computed(
           const members = filteredMissions.value.filter(
             (fm) => fm.id === m.id || descendantIds.has(fm.id),
           );
+          // Deduplicate within this group (a mission could be a descendant via
+          // multiple paths), but allow the same mission in different groups.
+          const alreadyInThisGroup = new Set(group.missions.map((fm) => fm.id));
           members.forEach((fm) => {
-            if (!assignedIds.has(fm.id)) {
+            if (!alreadyInThisGroup.has(fm.id)) {
               group.missions.push(fm);
-              assignedIds.add(fm.id);
+              alreadyInThisGroup.add(fm.id);
             }
+            inAnyCardGroup.add(fm.id);
           });
         }
       }
-      const groups: Array<{ label: string; missions: UserMission[] }> = Array.from(
-        cardGroupMap.values(),
-      );
+      const groups: Array<{ label: string; missions: UserMission[] }> =
+        Array.from(cardGroupMap.values());
       if (sortBy.value === "price") {
         groups.sort((a, b) => {
-          const aTotal = a.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
-          const bTotal = b.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          const aTotal = a.missions
+            .filter((m) => m.rawMission.type !== "missions")
+            .reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions
+            .filter((m) => m.rawMission.type !== "missions")
+            .reduce((s, m) => s + m.remainingPrice, 0);
           return aTotal - bTotal;
         });
       } else if (sortBy.value === "value") {
-        groups.sort((a, b) => groupNetValue(b.missions) - groupNetValue(a.missions));
+        groups.sort(
+          (a, b) => groupNetValue(b.missions) - groupNetValue(a.missions),
+        );
       } else {
         groups.sort((a, b) => a.label.localeCompare(b.label));
       }
-      const noCardGroup = filteredMissions.value.filter((m) => !assignedIds.has(m.id));
+      const noCardGroup = filteredMissions.value.filter(
+        (m) => !inAnyCardGroup.has(m.id),
+      );
       if (noCardGroup.length > 0) {
         groups.push({ label: "No Card Reward", missions: noCardGroup });
       }
