@@ -294,8 +294,16 @@
             :class="{ 'btn-shopping-mode--active': showShoppingList }"
             @click="showShoppingList = !showShoppingList"
           >
-            Shopping List Mode
+            {{ showShoppingList ? "Disable Shopping Mode" : "Enable Shopping Mode" }}
           </button>
+          <span
+            class="tooltip-hint"
+            data-tooltip="Shows only the cards you still need to buy for currently displayed missions based on completion or value strategy."
+            @mouseenter="onTooltipEnter('shopping-mode', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('shopping-mode', $event)"
+            >(?)</span
+          >
         </div>
       </div>
 
