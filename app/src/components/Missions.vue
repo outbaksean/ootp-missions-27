@@ -1194,10 +1194,20 @@ const groupedMissions = computed(
 );
 
 function markAllComplete() {
-  for (const mission of filteredMissions.value) {
-    if (!mission.completed && missionStore.missionCanMarkComplete(mission)) {
-      missionStore.toggleMissionComplete(mission.id);
+  let changed = true;
+  let safety = filteredMissions.value.length;
+
+  while (changed && safety > 0) {
+    changed = false;
+
+    for (const mission of filteredMissions.value) {
+      if (!mission.completed && missionStore.missionCanMarkComplete(mission)) {
+        missionStore.toggleMissionComplete(mission.id);
+        changed = true;
+      }
     }
+
+    safety -= 1;
   }
 }
 
