@@ -259,11 +259,11 @@ interface ShoppingItem {
 }
 
 const shoppingItems = computed((): ShoppingItem[] => {
+  // ── 1. Build card map ──
   const cardMap = new Map<
     number,
     { title: string; price: number; missions: UserMission[] }
   >();
-
   for (const mission of eligibleMissions.value) {
     if (!selectedMissionIds.value.has(mission.id)) continue;
     for (const card of mission.missionCards) {
@@ -280,43 +280,100 @@ const shoppingItems = computed((): ShoppingItem[] => {
       }
     }
   }
-
   const shoppingCardIds = new Set(cardMap.keys());
 
-  const items: ShoppingItem[] = Array.from(cardMap.entries()).map(
-    ([cardId, data]) => {
-      // "Completes" only when this card is the sole shopping-list card the mission
-      // needs — all other unowned needed cards are already owned (not in the list).
-      const completingMissions = data.missions.filter((m) => {
-        const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
-        if (needed.length === 0) return false;
-        const neededFromList = needed.filter((c) => shoppingCardIds.has(c.cardId));
-        return neededFromList.length === 1 && neededFromList[0].cardId === cardId;
-      });
-      const usedInMissions = data.missions.filter(
-        (m) => !completingMissions.includes(m),
-      );
-      return {
-        cardId,
-        title: data.title,
-        price: data.price,
-        missionCount: data.missions.length,
-        completingMissions,
-        usedInMissions,
-        explanation: buildExplanation(usedInMissions, completingMissions),
-      };
-    },
-  );
+  // ── 2. Compute leaf completions per card ──
+  // A card "singly completes" a leaf mission when it is the only shopping-list
+  // card needed — all other unowned cards for that mission are already owned.
+  const cardLeafCompletions = new Map<number, UserMission[]>();
+  for (const [cardId, data] of cardMap) {
+    const leaves = data.missions.filter((m) => {
+      const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
+      if (needed.length === 0) return false;
+      const fromList = needed.filter((c) => shoppingCardIds.has(c.cardId));
+      return fromList.length === 1 && fromList[0].cardId === cardId;
+    });
+    cardLeafCompletions.set(cardId, leaves);
+  }
 
-  // Sort: completing-only cards first, then by mission count desc, then price asc
-  items.sort((a, b) => {
-    if (b.completingMissions.length !== a.completingMissions.length)
-      return b.completingMissions.length - a.completingMissions.length;
-    if (b.missionCount !== a.missionCount) return b.missionCount - a.missionCount;
-    return a.price - b.price;
+  // ── 3. Sort cards ──
+  // Cards that complete more missions come first; ties broken by price (cheapest
+  // first so the more expensive card — last in sequence — "seals" the chain).
+  const sortedCardIds = Array.from(cardMap.keys()).sort((a, b) => {
+    const aL = cardLeafCompletions.get(a)!.length;
+    const bL = cardLeafCompletions.get(b)!.length;
+    if (bL !== aL) return bL - aL;
+    const aM = cardMap.get(a)!.missions.length;
+    const bM = cardMap.get(b)!.missions.length;
+    if (bM !== aM) return bM - aM;
+    return cardMap.get(a)!.price - cardMap.get(b)!.price;
   });
 
-  return items;
+  // ── 4. Two-pass parent attribution ──
+  // Build direct-parent index: subMissionId → missions-type missions that require it
+  const missionById = new Map(props.missions.map((m) => [m.id, m]));
+  const directParentOf = new Map<number, UserMission[]>();
+  for (const m of props.missions) {
+    if (m.rawMission.type !== "missions") continue;
+    for (const subId of m.rawMission.missionIds ?? []) {
+      if (!directParentOf.has(subId)) directParentOf.set(subId, []);
+      directParentOf.get(subId)!.push(m);
+    }
+  }
+
+  // Seed triggered-sub counts with already-completed direct sub-missions
+  const triggeredSubCount = new Map<number, number>();
+  for (const m of props.missions) {
+    if (m.rawMission.type !== "missions" || m.completed) continue;
+    const count = (m.rawMission.missionIds ?? []).filter(
+      (sid) => missionById.get(sid)?.completed,
+    ).length;
+    triggeredSubCount.set(m.id, count);
+  }
+
+  // Track which card triggered completion of each parent mission.
+  // Cards are processed in sorted order so the card that pushes the count to
+  // requiredCount is correctly identified as the one that "seals" the chain.
+  const triggeredByCard = new Map<number, number>(); // missionId → cardId
+
+  function triggerMission(missionId: number, cardId: number): void {
+    for (const parent of directParentOf.get(missionId) ?? []) {
+      if (parent.completed || triggeredByCard.has(parent.id)) continue;
+      const newCount = (triggeredSubCount.get(parent.id) ?? 0) + 1;
+      triggeredSubCount.set(parent.id, newCount);
+      if (newCount >= parent.rawMission.requiredCount) {
+        triggeredByCard.set(parent.id, cardId);
+        triggerMission(parent.id, cardId); // propagate further up
+      }
+    }
+  }
+
+  for (const cardId of sortedCardIds) {
+    for (const leaf of cardLeafCompletions.get(cardId)!) {
+      triggerMission(leaf.id, cardId);
+    }
+  }
+
+  // ── 5. Build final items in sorted order ──
+  return sortedCardIds.map((cardId) => {
+    const data = cardMap.get(cardId)!;
+    const completingLeaf = cardLeafCompletions.get(cardId)!;
+    const completingParents = props.missions.filter(
+      (m) => triggeredByCard.get(m.id) === cardId,
+    );
+    const allCompleting = [...completingLeaf, ...completingParents];
+    const usedInMissions = data.missions.filter((m) => !completingLeaf.includes(m));
+
+    return {
+      cardId,
+      title: data.title,
+      price: data.price,
+      missionCount: data.missions.length,
+      completingMissions: allCompleting,
+      usedInMissions,
+      explanation: buildExplanation(usedInMissions, allCompleting),
+    };
+  });
 });
 
 // ─── COMPUTED: Cards in shopping list (for completion checks) ───
