@@ -50,23 +50,24 @@
       <!-- Available PP -->
       <div class="sl-setting-row">
         <span class="sl-setting-label">Available PP</span>
-        <div class="sl-radio-group">
-          <label class="sl-radio-label">
-            <input type="radio" v-model="ppMode" value="unlimited" />
-            Unlimited
-          </label>
-          <label class="sl-radio-label">
-            <input type="radio" v-model="ppMode" value="custom" />
-            Custom
-          </label>
+        <div class="sl-pp-controls">
           <input
-            v-if="ppMode === 'custom'"
-            type="number"
+            type="text"
             class="sl-pp-input"
-            v-model.number="ppInput"
+            v-model="ppInput"
             placeholder="e.g. 200000"
-            min="0"
+            inputmode="numeric"
           />
+          <button
+            v-if="ppInput.trim()"
+            type="button"
+            class="sl-pp-clear-btn"
+            @click="clearBudget"
+            title="Clear budget (Unlimited)"
+          >
+            Clear
+          </button>
+          <span class="sl-pp-hint">Blank = Unlimited</span>
         </div>
       </div>
 
@@ -176,8 +177,7 @@ defineEmits<{
 
 // ─── STATE ───
 const strategy = ref<"value" | "completion">("value");
-const ppMode = ref<"unlimited" | "custom">("unlimited");
-const ppInput = ref<number | null>(null);
+const ppInput = ref("");
 const isInputCollapsed = ref(false);
 
 // ─── HELPERS ───
@@ -201,10 +201,17 @@ function collectDescendantIds(
 
 // ─── COMPUTED: Available PP ───
 const availablePP = computed((): number | null => {
-  if (ppMode.value === "unlimited") return null;
-  const val = ppInput.value;
-  return val !== null && !isNaN(val) && val > 0 ? val : null;
+  const raw = ppInput.value.trim();
+  if (!raw) return null;
+
+  const normalized = raw.replace(/,/g, "");
+  const val = Number(normalized);
+  return Number.isFinite(val) && val > 0 ? val : null;
 });
+
+function clearBudget() {
+  ppInput.value = "";
+}
 
 // ─── COMPUTED: Missions explicitly added ───
 const includedMissions = computed(() =>
@@ -488,6 +495,13 @@ function exportHtml() {
   align-items: center;
 }
 
+.sl-pp-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .sl-radio-label {
   display: flex;
   align-items: center;
@@ -510,6 +524,30 @@ function exportHtml() {
 .sl-pp-input:focus {
   outline: none;
   border-color: #6366f1;
+}
+
+.sl-pp-clear-btn {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--card-border);
+  background: var(--detail-bg);
+  color: #64748b;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.sl-pp-clear-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.sl-pp-hint {
+  font-size: 0.72rem;
+  color: #64748b;
 }
 
 .sl-missions-section {
