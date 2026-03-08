@@ -432,6 +432,19 @@ export function buildNegativeValueExclusionText(
 }
 
 /**
+ * Formats warning text for missions excluded due to insufficient budget.
+ * Returns an empty string when there are no excluded missions.
+ */
+export function buildOutOfBudgetText(excluded: UserMission[]): string {
+  if (excluded.length === 0) return "";
+  const names = excluded.map((m) => `'${m.rawMission.name}'`).join(", ");
+  if (excluded.length === 1) {
+    return `1 mission not included due to insufficient budget: ${names}.`;
+  }
+  return `${excluded.length} missions not included due to insufficient budget: ${names}.`;
+}
+
+/**
  * Builds mission priority map used to order shopping-list cards.
  *
  * Value strategy: rank selected leaf missions + chain missions by net value.

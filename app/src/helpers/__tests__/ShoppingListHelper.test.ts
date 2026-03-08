@@ -55,6 +55,7 @@ import {
   buildSummaryText,
   buildExclusionText,
   buildNegativeValueExclusionText,
+  buildOutOfBudgetText,
   buildMissionPriority,
   selectMissionsForBudget,
 } from "../ShoppingListHelper";
@@ -805,6 +806,38 @@ describe("Phase 3: buildNegativeValueExclusionText", () => {
     expect(text).toBe(
       "2 missions skipped because their cost exceeds their reward value: 'Mission A', 'Mission B'.",
     );
+  });
+});
+
+describe("buildOutOfBudgetText", () => {
+  /**
+   * Tests text generation for out-of-budget mission warnings.
+   */
+
+  const scenario = loadScenario(budgetSelectionScenario);
+  const { userMissions } = scenario;
+
+  it("returns empty string when no missions are out of budget", () => {
+    expect(buildOutOfBudgetText([])).toBe("");
+  });
+
+  it("uses singular form for one out-of-budget mission", () => {
+    const mission = userMissions.find((m) => m.id === 2)!;
+    const text = buildOutOfBudgetText([mission]);
+    expect(text).toBe(
+      "1 mission not included due to insufficient budget: 'Expensive'.",
+    );
+  });
+
+  it("uses plural form and lists all names for multiple out-of-budget missions", () => {
+    const missionA = userMissions.find((m) => m.id === 2)!;
+    const missionB = userMissions.find((m) => m.id === 3)!;
+    const text = buildOutOfBudgetText([missionA, missionB]);
+    expect(text).toMatch(
+      /^2 missions not included due to insufficient budget:/,
+    );
+    expect(text).toContain("'Expensive'");
+    expect(text).toContain("'Cheap'");
   });
 });
 

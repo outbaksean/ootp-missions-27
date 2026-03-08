@@ -115,6 +115,11 @@
       <p class="sl-exclusion-text">{{ negativeValueExclusionText }}</p>
     </div>
 
+    <!-- ─── OUT OF BUDGET WARNING ─── -->
+    <div v-if="outOfBudgetText" class="sl-exclusion">
+      <p class="sl-exclusion-text">{{ outOfBudgetText }}</p>
+    </div>
+
     <!-- ─── EMPTY STATES ─── -->
     <p v-if="eligibleMissions.length === 0" class="sl-empty">
       No calculated missions found. Use the Calculate button on missions to get
@@ -149,6 +154,7 @@ import {
   buildSummaryText,
   buildExclusionText,
   buildNegativeValueExclusionText,
+  buildOutOfBudgetText,
   buildMissionPriority,
   selectMissionsForBudget,
 } from "../helpers/ShoppingListHelper";
@@ -282,6 +288,28 @@ const negativeValueExclusionText = computed(() => {
 
   return buildNegativeValueExclusionText(excluded);
 });
+
+// ─── COMPUTED: Missions excluded due to insufficient budget ───
+const outOfBudgetMissions = computed(() => {
+  // Only applicable when budget is limited
+  if (props.availablePP === null) return [];
+
+  const leafMissions = eligibleMissions.value.filter(
+    (m) => m.rawMission.type !== "missions",
+  );
+  const excluded = missionSelection.value.negativeValueExcluded;
+  const selectedIds = missionSelection.value.selectedIds;
+
+  // Out-of-budget = leaf missions that are eligible, not selected, and not negatively excluded
+  return leafMissions.filter(
+    (m) => !selectedIds.has(m.id) && !excluded.includes(m),
+  );
+});
+
+// ─── COMPUTED: Out-of-budget exclusion warning text ───
+const outOfBudgetText = computed(() =>
+  buildOutOfBudgetText(outOfBudgetMissions.value),
+);
 
 // ─── COMPUTED: Shopping items (final card list) ───
 const shoppingItems = computed((): ShoppingItem[] =>
