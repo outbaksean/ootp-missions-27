@@ -292,7 +292,7 @@ const negativeValueExclusionText = computed(() => {
 // ─── COMPUTED: Missions excluded due to insufficient budget ───
 const outOfBudgetMissions = computed(() => {
   // Only applicable when budget is limited
-  if (props.availablePP === null) return [];
+  if (availablePP.value === null) return [];
 
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
@@ -378,6 +378,25 @@ function exportHtml() {
     )
     .join("");
 
+  // Build exclusion sections if any exist
+  const exclusionsSections: string[] = [];
+  if (exclusionText.value) {
+    exclusionsSections.push(
+      `<div class="exclusion">${escapeHtml(exclusionText.value)}</div>`,
+    );
+  }
+  if (negativeValueExclusionText.value) {
+    exclusionsSections.push(
+      `<div class="exclusion">${escapeHtml(negativeValueExclusionText.value)}</div>`,
+    );
+  }
+  if (outOfBudgetText.value) {
+    exclusionsSections.push(
+      `<div class="exclusion">${escapeHtml(outOfBudgetText.value)}</div>`,
+    );
+  }
+  const exclusionsHtml = exclusionsSections.join("");
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -387,6 +406,7 @@ function exportHtml() {
     body { font-family: system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 2rem; color: #1e293b; }
     h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
     .summary { background: #f1f5f9; border-left: 4px solid #6366f1; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.6; }
+    .exclusion { background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6; color: #92400e; }
     table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
     th { background: #1e293b; color: #f8fafc; padding: 10px 14px; text-align: left; font-weight: 600; }
     td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
@@ -398,6 +418,7 @@ function exportHtml() {
 <body>
   <h1>OOTP Shopping List</h1>
   <div class="summary">${escapeHtml(summaryText.value)}</div>
+  ${exclusionsHtml}
   <table>
     <thead><tr><th>Card</th><th>Cost (PP)</th><th>Explanation</th></tr></thead>
     <tbody>${rows}</tbody>
