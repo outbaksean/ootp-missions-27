@@ -468,57 +468,11 @@
         </aside>
       </template>
     </div>
-
-    <!-- ─── MISSION NOTES MODAL ─── -->
-    <div
-      class="modal fade"
-      id="missionNotesModal"
-      tabindex="-1"
-      aria-labelledby="missionNotesModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="missionNotesModalLabel">
-              Mission Notes
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p class="text-muted">Updated {{ missionStore.missionsVersion }}</p>
-            <p>
-              All missions from OOTP26 are included. On or near release these
-              will be replaced with missions for OOTP27. After OOTP27 releases,
-              I plan to update missions soon after they come out, when I do I'll
-              update this text with the latest missions. If I ever add only a
-              portion of missions I'll note that here. The date missions were
-              last added will always be included on the bottom left.
-            </p>
-            <p>
-              Adding missions is mostly a manual process, please be patient if I
-              fall behind. If you'd like to give help with mission updates
-              please reach out on Discord, my ID is 247169022242717699 (Roenel)
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
+
+  <Teleport to="body">
+    <MissionNotesModal :missionsVersion="missionStore.missionsVersion" />
+  </Teleport>
 
   <!-- ─── TOOLTIP PORTAL ─── -->
   <Teleport to="body">
@@ -542,6 +496,7 @@ import { useCardStore } from "../stores/useCardStore";
 import CardUploader from "./CardUploader.vue";
 import MissionDetails from "./MissionDetails.vue";
 import MissionList from "./MissionList.vue";
+import MissionNotesModal from "./MissionNotesModal.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
 import { useSettingsStore, PACK_TYPE_LABELS } from "../stores/useSettingsStore";
@@ -1842,75 +1797,6 @@ watch(
 .btn-mission-notes:hover {
   background: rgba(255, 255, 255, 0.07);
   color: var(--sidebar-text);
-}
-
-/* ─── MISSION NOTES MODAL (dark theme matching help modals) ─── */
-:deep(#missionNotesModal .modal-content) {
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-}
-
-:deep(#missionNotesModal .modal-header) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 1rem 1.25rem;
-}
-
-:deep(#missionNotesModal .modal-title) {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-:deep(#missionNotesModal .modal-body) {
-  padding: 1.25rem;
-  color: #cbd5e1;
-  line-height: 1.6;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-}
-
-:deep(#missionNotesModal .modal-body p) {
-  font-size: 0.9rem;
-  color: #cbd5e1;
-  margin-bottom: 0.75rem;
-  line-height: 1.6;
-}
-
-:deep(#missionNotesModal .modal-body .text-muted) {
-  color: #94a3b8 !important;
-}
-
-:deep(#missionNotesModal .modal-footer) {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 0.875rem 1.25rem;
-}
-
-:deep(#missionNotesModal .btn-close) {
-  filter: invert(1) grayscale(100%) brightness(200%);
-  opacity: 0.6;
-}
-
-:deep(#missionNotesModal .btn-close:hover) {
-  opacity: 1;
-}
-
-:deep(#missionNotesModal .btn-secondary) {
-  background: rgba(255, 255, 255, 0.07);
-  color: #e2e8f0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 6px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background 0.15s;
-}
-
-:deep(#missionNotesModal .btn-secondary:hover) {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #f1f5f9;
 }
 </style>
 
