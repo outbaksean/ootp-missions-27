@@ -1,5 +1,11 @@
 <template>
   <div class="mission-list">
+    <div v-if="hasLabeledGroups" class="group-controls">
+      <button class="group-controls-btn" @click="collapseAll">Collapse All</button>
+      <span class="group-controls-sep">·</span>
+      <button class="group-controls-btn" @click="expandAll">Expand All</button>
+    </div>
+
     <template v-for="group in groups" :key="group.label || '__none__'">
       <div
         v-if="group.label"
@@ -336,7 +342,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import type { PropType, ComponentPublicInstance } from "vue";
 import type { UserMission } from "../models/UserMission";
 import { useMissionStore } from "@/stores/useMissionStore";
@@ -391,6 +397,18 @@ const cardStore = useCardStore();
 const GROUP_REWARDS_COLLAPSE_THRESHOLD = 20;
 
 const collapsed = ref<Set<string>>(new Set());
+
+const hasLabeledGroups = computed(() => props.groups.some((g) => g.label));
+
+function collapseAll() {
+  collapsed.value = new Set(
+    props.groups.filter((g) => g.label).map((g) => g.label),
+  );
+}
+
+function expandAll() {
+  collapsed.value = new Set();
+}
 const missionRefs = ref<Map<number, HTMLElement>>(new Map());
 const rewardsExpanded = ref<Set<string>>(new Set());
 
@@ -640,6 +658,32 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.group-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.group-controls-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.group-controls-btn:hover {
+  color: #334155;
+  text-decoration: underline;
+}
+
+.group-controls-sep {
+  color: #94a3b8;
 }
 
 /* ─── GROUP HEADER ─── */
