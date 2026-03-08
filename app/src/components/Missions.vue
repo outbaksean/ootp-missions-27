@@ -288,6 +288,27 @@
             >(?)</span
           >
         </div>
+        <div class="mark-complete-row">
+          <button
+            class="btn-shopping-mode"
+            :class="{ 'btn-shopping-mode--active': showShoppingList }"
+            @click="showShoppingList = !showShoppingList"
+          >
+            {{
+              showShoppingList
+                ? "Disable Shopping Mode"
+                : "Enable Shopping Mode"
+            }}
+          </button>
+          <span
+            class="tooltip-hint"
+            data-tooltip="Shows only the cards you still need to buy for currently displayed missions based on completion or value strategy."
+            @mouseenter="onTooltipEnter('shopping-mode', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('shopping-mode', $event)"
+            >(?)</span
+          >
+        </div>
       </div>
 
       <PackPriceSettings />
@@ -330,7 +351,7 @@
       <section
         class="list-panel"
         :style="
-          selectedMission && !isMobile
+          (selectedMission || showShoppingList) && !isMobile
             ? { width: listPanelWidth + 'px', flex: 'none' }
             : {}
         "
@@ -411,28 +432,41 @@
             :remainingPriceText="remainingPriceText"
             :selectMission="selectMission"
             :selectedMission="selectedMission"
+            :isShoppingListMode="showShoppingList"
+            :shoppingListMissionIds="shoppingListMissionIds"
             @calculateMission="missionStore.calculateMissionDetails"
             @calculateGroup="missionStore.calculateAllNotCalculatedMissions"
+            @includeMission="toggleMissionInShoppingList"
           />
         </template>
       </section>
 
-      <!-- ─── RESIZE HANDLE ─── -->
-      <div
-        v-if="selectedMission"
-        class="resize-handle"
-        @mousedown="startResize"
-      />
+      <!-- ─── SHOPPING LIST PANEL ─── -->
+      <template v-if="showShoppingList">
+        <aside class="detail-panel">
+          <ShoppingList
+            :missions="missions"
+            :includedMissionIds="shoppingListMissionIds"
+            :packPrices="settingsStore.packPrices"
+            :shopCardsById="cardStore.shopCardsById"
+            @removeMission="removeMissionFromShoppingList"
+            @clearMissions="clearShoppingListMissions"
+          />
+        </aside>
+      </template>
 
-      <!-- ─── DETAIL PANEL ─── -->
-      <aside v-if="selectedMission" class="detail-panel">
-        <MissionDetails
-          :selectedMission="selectedMission"
-          :missions="missions"
-          @selectMission="selectMission"
-          @close="selectedMission = null"
-        />
-      </aside>
+      <!-- ─── RESIZE HANDLE + DETAIL PANEL ─── -->
+      <template v-else-if="selectedMission">
+        <div class="resize-handle" @mousedown="startResize" />
+        <aside class="detail-panel">
+          <MissionDetails
+            :selectedMission="selectedMission"
+            :missions="missions"
+            @selectMission="selectMission"
+            @close="selectedMission = null"
+          />
+        </aside>
+      </template>
     </div>
 
     <!-- ─── MISSION NOTES MODAL ─── -->
@@ -511,6 +545,7 @@ import MissionList from "./MissionList.vue";
 import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
 import { useSettingsStore, PACK_TYPE_LABELS } from "../stores/useSettingsStore";
+import ShoppingList from "./ShoppingList.vue";
 import type { UserMission } from "../models/UserMission";
 import { collectRewardItems } from "@/helpers/RewardItemsHelper";
 import type { RewardItem } from "@/helpers/RewardItemsHelper";
@@ -666,6 +701,28 @@ function collectDescendantIds(
 }
 
 const selectedMission = ref<UserMission | null>(null);
+const showShoppingList = ref(false);
+const shoppingListMissionIds = ref<Set<number>>(new Set());
+
+function toggleMissionInShoppingList(missionId: number) {
+  const next = new Set(shoppingListMissionIds.value);
+  if (next.has(missionId)) {
+    next.delete(missionId);
+  } else {
+    next.add(missionId);
+  }
+  shoppingListMissionIds.value = next;
+}
+
+function removeMissionFromShoppingList(missionId: number) {
+  const next = new Set(shoppingListMissionIds.value);
+  next.delete(missionId);
+  shoppingListMissionIds.value = next;
+}
+
+function clearShoppingListMissions() {
+  shoppingListMissionIds.value = new Set();
+}
 const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
 const selectedMissionFilter = ref<number | "">();
@@ -856,7 +913,6 @@ const categoryPriority = (cat: string) => {
   const i = CATEGORY_ORDER.indexOf(cat);
   return i === -1 ? CATEGORY_ORDER.length : i;
 };
-
 const groupBy = ref<"none" | "chain" | "category">(
   loadPref("ootp-display-groupBy", "category"),
 );
@@ -1422,6 +1478,37 @@ watch(
 .btn-unmark-all-complete:hover {
   background: #7f1d1d;
   color: #fee2e2;
+}
+
+.btn-shopping-mode {
+  background: transparent;
+  color: #93c5fd;
+  border: 1px solid #60a5fa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  width: 100%;
+}
+
+.btn-shopping-mode:hover {
+  background: rgba(96, 165, 250, 0.15);
+  color: #bfdbfe;
+}
+
+.btn-shopping-mode--active {
+  background: #1e40af;
+  color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.btn-shopping-mode--active:hover {
+  background: #1d4ed8;
+  color: #eff6ff;
 }
 
 .sidebar-spacer {

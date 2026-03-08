@@ -308,6 +308,41 @@
                 <li>Pack Values: set PP values for reward calculation.</li>
               </ul>
             </details>
+
+            <details open>
+              <summary>Shopping mode</summary>
+              <p>
+                The Shopping List panel turns your in-scope mission set into a
+                single card-by-card buy plan. It supports two planning
+                strategies and optional budget limits.
+              </p>
+              <ul>
+                <li>
+                  Mission Value: prioritizes missions with the best net value
+                  first and excludes negative-value missions.
+                </li>
+                <li>
+                  Mission Completion: prioritizes completing missions attempting
+                  to complete all missions by lowest cost first.
+                </li>
+                <li>
+                  Available PP: Unlimited includes all selected missions; Custom
+                  applies a budget cap and shows out-of-budget missions.
+                </li>
+                <li>
+                  Included Missions: follows your Include selections and
+                  automatically includes descendant missions for chains.
+                </li>
+                <li>
+                  Exclusion warnings explain missions skipped due to
+                  non-completable cards, negative value rules, or budget.
+                </li>
+                <li>
+                  Export buttons generate a CSV card list or a full HTML report
+                  with summary and exclusions.
+                </li>
+              </ul>
+            </details>
           </div>
           <div class="modal-footer">
             <button

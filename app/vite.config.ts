@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
@@ -11,4 +11,8 @@ export default defineConfig({
     },
   },
   base: '/ootp-missions-27/',
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts'],
+  },
 })
