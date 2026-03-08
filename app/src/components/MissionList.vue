@@ -1,7 +1,9 @@
 <template>
   <div class="mission-list">
     <div v-if="hasLabeledGroups" class="group-controls">
-      <button class="group-controls-btn" @click="collapseAll">Collapse All</button>
+      <button class="group-controls-btn" @click="collapseAll">
+        Collapse All
+      </button>
       <span class="group-controls-sep">·</span>
       <button class="group-controls-btn" @click="expandAll">Expand All</button>
     </div>
