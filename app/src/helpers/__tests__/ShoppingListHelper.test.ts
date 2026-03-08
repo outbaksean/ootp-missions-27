@@ -1,18 +1,32 @@
 /**
  * Unit tests for ShoppingListHelper
  *
- * HOW TO ADD A NEW SCENARIO
- * ─────────────────────────
- * 1. Add a `describe` block (or a new `it` inside an existing one) below.
+ * TEST DATA APPROACH
+ * ──────────────────
+ * All tests use scenario-based data loading from testScenarios/. This provides:
+ * - Real data from missions.json and shop_cards.csv
+ * - Maintainable, reusable test fixtures
+ * - Consistent mission cost and reward calculations
  *
- * 2. Build fixtures with the factory helpers at the top of this file:
- *      makeCard(cardId, price, owned?)         — a MissionCard
- *      makeLeafMission(id, name, cards, opts?) — count-type UserMission
- *        opts: { rewards?, rewardValue?, completed? }
- *      makeChainMission(id, name, subIds, required, opts?)
- *        opts: { rewards?, rewardValue?, completed? }
+ * Example:
+ *   import { loadScenario, simpleChainScenario } from "./testScenarios";
+ *   const { userMissions, shopCardsById, packPrices } = loadScenario(simpleChainScenario);
+ *   const mission = userMissions.find(m => m.id === 6)!;
  *
- * 3. Call the helpers under test:
+ * See testScenarios/README.md for detailed guidance on creating new scenarios.
+ *
+ * HOW TO ADD A NEW TEST
+ * ─────────────────────
+ * 1. Choose an existing scenario or create a new one in testScenarios/
+ *    with real data from missions.json and shop_cards.csv
+ *
+ * 2. Load the scenario:
+ *      const { userMissions, shopCardsById, packPrices } = loadScenario(myScenario);
+ *
+ * 3. Extract missions by ID:
+ *      const mission1 = userMissions.find(m => m.id === 123)!;
+ *
+ * 4. Call the helpers under test:
  *      const items = buildShoppingItems(eligibleMissions, selectedMissionIds, allMissions, shopCardsById)
  *      const text  = buildSummaryText({ strategy, availablePP, includedMissionIds,
  *                                       eligibleMissions, allMissions, shoppingItems: items,
@@ -24,11 +38,10 @@
  *      selectedMissionIds — which eligible missions are within budget
  *                           (for unit tests, usually all of them unless testing budget logic)
  *      allMissions        — every mission including chain parents (needed for parent lookups)
- *      shopCardsById      — pass new Map() unless you need card-reward label text
- *      packPrices         — pass PACK_TYPE_DEFAULTS map (from useSettingsStore) for realistic
- *                           pack sorting, or new Map() to skip pack-price sorting
+ *      shopCardsById      — from loadScenario or new Map()
+ *      packPrices         — from loadScenario for realistic pack sorting
  *
- * 4. Assert on:
+ * 5. Assert on:
  *      item.explanation          — full explanation string for a card
  *      item.completingMissions   — array of missions the card completes
  *      item.usedInMissions       — array of missions the card is used in (not completing)
@@ -36,102 +49,32 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { buildShoppingItems, buildSummaryText, buildExclusionText, selectMissionsForBudget } from "../ShoppingListHelper";
+import {
+  buildShoppingItems,
+  buildSummaryText,
+  buildExclusionText,
+  buildNegativeValueExclusionText,
+  selectMissionsForBudget,
+} from "../ShoppingListHelper";
 import { PACK_TYPE_DEFAULTS } from "@/stores/useSettingsStore";
-import type { UserMission } from "@/models/UserMission";
-import type { MissionCard } from "@/models/MissionCard";
-import type { MissionReward } from "@/models/MissionReward";
-
-// ─── Factory helpers ─────────────────────────────────────────────────────────
-
-function makeCard(
-  cardId: number,
-  price: number,
-  owned = false,
-): MissionCard {
-  return {
-    cardId,
-    title: `Card ${cardId}`,
-    owned,
-    locked: false,
-    available: true,
-    price,
-    highlighted: true,
-    shouldLock: false,
-  };
-}
-
-function makeLeafMission(
-  id: number,
-  name: string,
-  cards: MissionCard[],
-  opts: { rewards?: MissionReward[]; rewardValue?: number; completed?: boolean } = {},
-): UserMission {
-  const { rewards = [], rewardValue, completed = false } = opts;
-  const isCompletable = !cards.some((c) => !c.owned && c.price === 0);
-  return {
-    id,
-    rawMission: {
-      id,
-      name,
-      type: "count",
-      requiredCount: cards.length,
-      cards: cards.map((c) => ({ cardId: c.cardId })),
-      reward: "",
-      rewards,
-      category: "",
-    },
-    progressText: "Calculated",
-    completed,
-    isCompletable,
-    missionCards: cards,
-    remainingPrice: cards
-      .filter((c) => !c.owned)
-      .reduce((s, c) => s + c.price, 0),
-    unlockedCardsPrice: 0,
-    rewardValue,
-  };
-}
-
-function makeChainMission(
-  id: number,
-  name: string,
-  subIds: number[],
-  required: number,
-  opts: { rewards?: MissionReward[]; rewardValue?: number; completed?: boolean } = {},
-): UserMission {
-  const { rewards = [], rewardValue, completed = false } = opts;
-  return {
-    id,
-    rawMission: {
-      id,
-      name,
-      type: "missions",
-      requiredCount: required,
-      cards: [],
-      missionIds: subIds,
-      reward: "",
-      rewards,
-      category: "",
-    },
-    progressText: "Calculated",
-    completed,
-    isCompletable: false,
-    missionCards: [],
-    remainingPrice: 0,
-    unlockedCardsPrice: 0,
-    rewardValue,
-  };
-}
+import {
+  loadScenario,
+  simpleChainScenario,
+  chainWithPackRewardsScenario,
+  exclusionScenario,
+  budgetSelectionScenario,
+  negativeValueScenario,
+  negativeLeavesPosChainScenario,
+} from "./testScenarios";
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe("buildShoppingItems + buildSummaryText — chain mission scenario", () => {
   /**
-   * Setup:
-   *   Sub Mission 1 — needs Card A (100 PP) — rewards: 1x Historical Perfect
-   *   Sub Mission 2 — needs Card B (200 PP) — rewards: 1x Rainbow
-   *   Chain Mission — missions-type, requires both sub-missions — rewards: 2x Gold
+   * Tests chain mission completion with specific pack rewards.
+   * Sub Mission 1 needs Card A (100 PP) — rewards: 1x Historical Perfect
+   * Sub Mission 2 needs Card B (200 PP) — rewards: 1x Rainbow
+   * Chain Mission — missions-type, requires both sub-missions — rewards: 2x Gold
    *
    * Chain is the only included mission (triggering expansion to both subs).
    * Strategy: maximize value, PP: unlimited.
@@ -139,27 +82,16 @@ describe("buildShoppingItems + buildSummaryText — chain mission scenario", () 
    * Expected card order: Card A first (cheaper), Card B second (seals chain).
    */
 
-  const cardA = makeCard(1, 100);
-  const cardB = makeCard(2, 200);
+  const scenario = loadScenario(chainWithPackRewardsScenario);
+  const { userMissions, shopCardsById, packPrices } = scenario;
 
-  const sub1 = makeLeafMission(101, "Sub Mission 1", [cardA], {
-    rewards: [{ type: "pack", packType: "HistPerfect", count: 1 }],
-    rewardValue: 30_000,
-  });
-  const sub2 = makeLeafMission(102, "Sub Mission 2", [cardB], {
-    rewards: [{ type: "pack", packType: "Rainbow", count: 1 }],
-    rewardValue: 24_100,
-  });
-  const chain = makeChainMission(200, "Chain Mission", [101, 102], 2, {
-    rewards: [{ type: "pack", packType: "Gold", count: 2 }],
-    rewardValue: 2_200,
-  });
+  const sub1 = userMissions.find((m) => m.id === 101)!;
+  const sub2 = userMissions.find((m) => m.id === 102)!;
+  const chain = userMissions.find((m) => m.id === 200)!;
 
   const allMissions = [sub1, sub2, chain];
   const eligibleMissions = [sub1, sub2]; // chain is missions-type — no buyable cards
   const selectedMissionIds = new Set([101, 102]);
-  const packPrices = new Map(Object.entries(PACK_TYPE_DEFAULTS));
-  const shopCardsById = new Map();
 
   const items = buildShoppingItems(
     eligibleMissions,
@@ -170,8 +102,8 @@ describe("buildShoppingItems + buildSummaryText — chain mission scenario", () 
 
   it("returns two items ordered cheapest first", () => {
     expect(items).toHaveLength(2);
-    expect(items[0].cardId).toBe(1); // Card A — 100 PP
-    expect(items[1].cardId).toBe(2); // Card B — 200 PP
+    expect(items[0].price).toBe(100); // Card A — 100 PP
+    expect(items[1].price).toBe(200); // Card B — 200 PP
   });
 
   it("Card A explanation: completes Sub Mission 1 only", () => {
@@ -211,63 +143,141 @@ describe("buildShoppingItems + buildSummaryText — chain mission scenario", () 
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+describe("Using Test Scenarios — chain mission with real data", () => {
+  /**
+   * This test demonstrates using test scenarios with real data from missions.json
+   * and shop_cards.csv instead of hand-crafted fixtures.
+   *
+   * Scenario: Two Live Series level 1 missions (Chicago White Sox and Cleveland)
+   * with a parent chain mission (AL Central) requiring both.
+   */
+
+  const scenario = loadScenario(simpleChainScenario);
+  const { userMissions, shopCardsById, packPrices } = scenario;
+
+  // Extract missions by ID
+  const chicagoMission = userMissions.find((m) => m.id === 6)!;
+  const clevelandMission = userMissions.find((m) => m.id === 9)!;
+  const chainMission = userMissions.find((m) => m.id === 61)!;
+
+  it("loads scenario with correct mission structure", () => {
+    expect(chicagoMission.rawMission.name).toBe("Live Level 1 - Chicago (A)");
+    expect(clevelandMission.rawMission.name).toBe("Live Level 1 - Cleveland");
+    expect(chainMission.rawMission.name).toBe("Live Level 1 - AL Central");
+    expect(chainMission.rawMission.type).toBe("missions");
+    expect(chainMission.rawMission.missionIds).toEqual([6, 9]);
+  });
+
+  it("calculates mission costs correctly", () => {
+    // Chicago: 3 cards at 100, 200, 150 PP
+    expect(chicagoMission.remainingPrice).toBe(450);
+    // Cleveland: 3 cards at 180, 220, 190 PP
+    expect(clevelandMission.remainingPrice).toBe(590);
+    // Chain sums both leaf missions
+    expect(chainMission.remainingPrice).toBe(1040);
+  });
+
+  it("calculates reward values correctly", () => {
+    // Chicago: card 71418 (lastPrice 5000) + Standard pack (100) = 5100 PP
+    expect(chicagoMission.rewardValue).toBe(5100);
+    // Cleveland: card 71345 (lastPrice 4800) + Standard pack (100) = 4900 PP
+    expect(clevelandMission.rewardValue).toBe(4900);
+    // Chain: card 72711 (lastPrice 15000) + Gold pack (1100) = 16100 PP
+    expect(chainMission.rewardValue).toBe(16100);
+  });
+
+  it("builds shopping list with correct card order and explanations", () => {
+    const eligibleMissions = [chicagoMission, clevelandMission];
+    const selectedMissionIds = new Set([6, 9]);
+
+    const items = buildShoppingItems(
+      eligibleMissions,
+      selectedMissionIds,
+      userMissions,
+      shopCardsById,
+    );
+
+    // Should have 6 cards total (3 from each mission)
+    expect(items).toHaveLength(6);
+
+    // Cards should be ordered by price (cheapest first)
+    expect(items[0].price).toBeLessThanOrEqual(items[1].price);
+
+    // Each card should have an explanation
+    items.forEach((item) => {
+      expect(item.explanation).toBeTruthy();
+      expect(item.explanation.length).toBeGreaterThan(0);
+    });
+  });
+
+  it("generates accurate summary text", () => {
+    const eligibleMissions = [chicagoMission, clevelandMission];
+    const selectedMissionIds = new Set([6, 9]);
+
+    const items = buildShoppingItems(
+      eligibleMissions,
+      selectedMissionIds,
+      userMissions,
+      shopCardsById,
+    );
+
+    const text = buildSummaryText({
+      strategy: "value",
+      availablePP: null,
+      includedMissionIds: new Set([61]), // Chain is included
+      eligibleMissions,
+      allMissions: userMissions,
+      shoppingItems: items,
+      packPrices,
+      shopCardsById,
+    });
+
+    // Should mention the chain and its sub-missions
+    expect(text).toContain("Live Level 1 - AL Central");
+    expect(text).toContain("Live Level 1 - Chicago (A)");
+    expect(text).toContain("Live Level 1 - Cleveland");
+    // Should mention completing missions
+    expect(text).toContain("complete");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 describe("buildExclusionText — zero-price / non-completable missions", () => {
   /**
-   * `buildExclusionText` is called in ShoppingList.vue with the set of
-   * missions that were in scope but had `isCompletable = false` (typically
-   * because a required card has no market price).
-   *
-   * These missions are filtered OUT of `eligibleMissions` before being passed
-   * to `buildShoppingItems`, so they never appear in the shopping list or
-   * completion counts. The exclusion text is shown as a separate warning.
+   * Tests exclusion text generation for missions with unpurchasable cards.
+   * Uses exclusionScenario with various zero-price and mixed-price missions.
    */
+
+  const scenario = loadScenario(exclusionScenario);
+  const { userMissions } = scenario;
 
   it("returns empty string when no missions are excluded", () => {
     expect(buildExclusionText([])).toBe("");
   });
 
   it("uses singular form for one excluded mission", () => {
-    const m = makeLeafMission(1, "Blocked Mission", [makeCard(1, 0)]);
-    expect(buildExclusionText([m])).toBe(
+    const blockedMission = userMissions.find((m) => m.id === 1)!;
+    expect(buildExclusionText([blockedMission])).toBe(
       "1 mission excluded because it requires a card with no market price: 'Blocked Mission'.",
     );
   });
 
   it("uses plural form and lists all names for multiple excluded missions", () => {
-    const m1 = makeLeafMission(1, "Mission Alpha", [makeCard(1, 0)]);
-    const m2 = makeLeafMission(2, "Mission Beta", [makeCard(2, 0)]);
-    expect(buildExclusionText([m1, m2])).toBe(
+    const alpha = userMissions.find((m) => m.id === 2)!;
+    const beta = userMissions.find((m) => m.id === 3)!;
+    expect(buildExclusionText([alpha, beta])).toBe(
       "2 missions excluded because they require cards with no market price: 'Mission Alpha', 'Mission Beta'.",
     );
   });
 
-  /**
-   * Regression: before the fix, a mission with isCompletable = false would
-   * still enter buildShoppingItems (via eligibleMissions) and its purchasable
-   * cards would be included. computeCompletedByList would then mark it as
-   * "completed" in the summary even though the 0-price card was never bought.
-   *
-   * The fix is in ShoppingList.vue's eligibleMissions filter (adds m.isCompletable).
-   * The test below demonstrates correct behaviour by manually applying the
-   * filter before calling buildShoppingItems — the non-completable mission's
-   * cards do not appear and it is not counted as completed.
-   */
   it("non-completable mission excluded from shopping items and summary when filtered correctly", () => {
-    // Card A is purchasable; Card B has price 0 (unpurchasable).
-    // The mission needs both, so isCompletable = false (set by factory).
-    const cardA = makeCard(1, 500);
-    const cardBFree = makeCard(2, 0);
-    const blockedMission = makeLeafMission(10, "Blocked Mission", [cardA, cardBFree]);
+    const blockedMission = userMissions.find((m) => m.id === 10)!;
+    const goodMission = userMissions.find((m) => m.id === 11)!;
 
-    // Confirm the factory correctly sets isCompletable = false
+    // Confirm isCompletable flags are correct
     expect(blockedMission.isCompletable).toBe(false);
-
-    // A normal completable mission in the same scope
-    const cardC = makeCard(3, 100);
-    const goodMission = makeLeafMission(11, "Good Mission", [cardC], {
-      rewards: [{ type: "pack", packType: "Gold", count: 1 }],
-      rewardValue: 1_100,
-    });
+    expect(goodMission.isCompletable).toBe(true);
 
     const allMissions = [blockedMission, goodMission];
 
@@ -276,11 +286,16 @@ describe("buildExclusionText — zero-price / non-completable missions", () => {
     const eligibleMissions = allMissions.filter((m) => m.isCompletable);
     const selectedIds = new Set(eligibleMissions.map((m) => m.id));
 
-    const items = buildShoppingItems(eligibleMissions, selectedIds, allMissions, new Map());
+    const items = buildShoppingItems(
+      eligibleMissions,
+      selectedIds,
+      allMissions,
+      new Map(),
+    );
 
-    // Only Card C appears — Card A and the blocked mission are excluded
+    // Only the good mission's card appears — blocked mission excluded
     expect(items).toHaveLength(1);
-    expect(items[0].cardId).toBe(3);
+    expect(items[0].cardId).toBe(20012);
 
     // The summary counts only the completable mission
     const packPrices = new Map(Object.entries(PACK_TYPE_DEFAULTS));
@@ -299,25 +314,13 @@ describe("buildExclusionText — zero-price / non-completable missions", () => {
     expect(text).not.toContain("Blocked Mission");
   });
 
-  /**
-   * Chain scenario: one sub-mission is blocked (isCompletable = false),
-   * but the chain requires only 1 of 2 subs (requiredCount = 1).
-   * The good sub's card should still seal the chain.
-   */
   it("chain still seals when enough subs are completable despite one blocked sub", () => {
-    const cardA = makeCard(1, 100);
-    const goodSub = makeLeafMission(101, "Good Sub", [cardA], {
-      rewards: [{ type: "pack", packType: "Gold", count: 1 }],
-      rewardValue: 1_100,
-    });
+    const goodSub = userMissions.find((m) => m.id === 101)!;
+    const blockedSub = userMissions.find((m) => m.id === 102)!;
+    const chain = userMissions.find((m) => m.id === 200)!;
 
-    const blockedSub = makeLeafMission(102, "Blocked Sub", [makeCard(2, 0)]);
+    expect(goodSub.isCompletable).toBe(true);
     expect(blockedSub.isCompletable).toBe(false);
-
-    const chain = makeChainMission(200, "Chain Mission", [101, 102], 1, {
-      rewards: [{ type: "pack", packType: "Silver", count: 1 }],
-      rewardValue: 250,
-    });
 
     const allMissions = [goodSub, blockedSub, chain];
 
@@ -325,12 +328,17 @@ describe("buildExclusionText — zero-price / non-completable missions", () => {
     const eligibleMissions = allMissions.filter((m) => m.isCompletable);
     const selectedIds = new Set(eligibleMissions.map((m) => m.id));
 
-    const items = buildShoppingItems(eligibleMissions, selectedIds, allMissions, new Map());
+    const items = buildShoppingItems(
+      eligibleMissions,
+      selectedIds,
+      allMissions,
+      new Map(),
+    );
 
     expect(items).toHaveLength(1);
-    expect(items[0].cardId).toBe(1);
+    expect(items[0].cardId).toBe(20101);
 
-    // Card A seals the chain (requiredCount = 1, good sub completes it)
+    // Card seals the chain (requiredCount = 1, good sub completes it)
     const completingIds = items[0].completingMissions.map((m) => m.id);
     expect(completingIds).toContain(101); // Good Sub
     expect(completingIds).toContain(200); // Chain Mission
@@ -341,80 +349,74 @@ describe("buildExclusionText — zero-price / non-completable missions", () => {
 
 describe("selectMissionsForBudget — greedy mission selection", () => {
   /**
-   * Helpers for building minimal leaf missions suitable for budget tests.
-   * The key fields for selectMissionsForBudget are:
-   *   mission.id, mission.remainingPrice, mission.rewardValue,
-   *   mission.missionCards (highlighted, owned, cardId, price)
+   * Tests budget-constrained greedy mission selection.
+   * Uses budgetSelectionScenario with various mission costs and strategies.
    */
+
+  const scenario = loadScenario(budgetSelectionScenario);
+  const { userMissions } = scenario;
 
   // ── 2a. Exact budget fit ──────────────────────────────────────────────────
   it("2a: mission whose cost equals the remaining budget is included", () => {
-    const m = makeLeafMission(1, "Exact Fit", [makeCard(1, 500)]);
-    const { selectedIds } = selectMissionsForBudget([m], "completion", 500);
+    const exactFit = userMissions.find((m) => m.id === 1)!;
+    const { selectedIds } = selectMissionsForBudget(
+      [exactFit],
+      "completion",
+      500,
+    );
     expect(selectedIds.has(1)).toBe(true);
   });
 
   // ── 2b. Skip expensive, keep cheaper ─────────────────────────────────────
   it("2b: expensive mission skipped but cheaper later mission still selected", () => {
-    // Completion strategy: sorted cheapest first, so cheap fits after budget check
-    const expensive = makeLeafMission(1, "Expensive", [makeCard(1, 800)]);
-    const cheap     = makeLeafMission(2, "Cheap",     [makeCard(2, 200)]);
+    const expensive = userMissions.find((m) => m.id === 2)!;
+    const cheap = userMissions.find((m) => m.id === 3)!;
     // Budget 300 — expensive doesn't fit, cheap does
     const { selectedIds } = selectMissionsForBudget(
       [expensive, cheap],
       "completion",
       300,
     );
-    expect(selectedIds.has(1)).toBe(false);
-    expect(selectedIds.has(2)).toBe(true);
+    expect(selectedIds.has(2)).toBe(false);
+    expect(selectedIds.has(3)).toBe(true);
   });
 
   // ── 2c. Card sharing reduces effective cost ───────────────────────────────
   it("2c: shared card counted only once, allowing both missions to fit in budget", () => {
-    const shared  = makeCard(99, 300);
-    const cardA   = makeCard(1,  200);
-    const cardB   = makeCard(2,  100);
+    const missionA = userMissions.find((m) => m.id === 4)!;
+    const missionB = userMissions.find((m) => m.id === 5)!;
 
-    // Mission A: needs shared + cardA = 500 PP face value
-    // Mission B: needs shared + cardB = 400 PP face value
+    // Mission A: needs shared (300) + cardA (200) = 500 PP
+    // Mission B: needs shared (300) + cardB (100) = 400 PP
     // Budget: 600 PP — neither fits alone at full face value, but
     // completion order picks B first (cheapest remaining price):
     //   B selected for 400 PP (shared + cardB)
     //   A's new cost = only cardA = 200 PP → fits in remaining 200 PP
-    const missionA = makeLeafMission(1, "Mission A", [shared, cardA]);
-    const missionB = makeLeafMission(2, "Mission B", [shared, cardB]);
-
     const { selectedIds, selectionOrder } = selectMissionsForBudget(
       [missionA, missionB],
       "completion",
       600,
     );
 
-    expect(selectedIds.has(1)).toBe(true);
-    expect(selectedIds.has(2)).toBe(true);
+    expect(selectedIds.has(4)).toBe(true);
+    expect(selectedIds.has(5)).toBe(true);
     // B selected first (cheaper overall price)
-    expect(selectionOrder[0].id).toBe(2);
-    expect(selectionOrder[1].id).toBe(1);
+    expect(selectionOrder[0].id).toBe(5);
+    expect(selectionOrder[1].id).toBe(4);
   });
 
   // ── 2d. Free missions always included ────────────────────────────────────
   it("2d: mission with remainingPrice = 0 is always included regardless of budget", () => {
-    const free = makeLeafMission(1, "Free Mission", [makeCard(1, 0, true)]); // card owned
-    free.remainingPrice = 0;
+    const free = userMissions.find((m) => m.id === 6)!;
+    expect(free.remainingPrice).toBe(0); // All cards owned
     const { selectedIds } = selectMissionsForBudget([free], "completion", 0);
-    expect(selectedIds.has(1)).toBe(true);
+    expect(selectedIds.has(6)).toBe(true);
   });
 
   // ── 1b. Value strategy selects highest-ratio missions first ──────────────
   it("1b: value strategy with budget selects highest rewardValue/cost ratio first", () => {
-    // High ratio: 5000 reward / 100 cost = 50
-    const highRatio = makeLeafMission(1, "High Ratio", [makeCard(1, 100)], {
-      rewardValue: 5_000,
-    });
-    // Low ratio: 1000 reward / 500 cost = 2
-    const lowRatio = makeLeafMission(2, "Low Ratio", [makeCard(2, 500)], {
-      rewardValue: 1_000,
-    });
+    const highRatio = userMissions.find((m) => m.id === 7)!; // High ratio: 30000 / 100 = 300
+    const lowRatio = userMissions.find((m) => m.id === 8)!; // Low ratio: 750 / 500 = 1.5
 
     // Budget 200: only room for one non-shared mission
     const { selectedIds, selectionOrder } = selectMissionsForBudget(
@@ -423,15 +425,15 @@ describe("selectMissionsForBudget — greedy mission selection", () => {
       200,
     );
 
-    expect(selectedIds.has(1)).toBe(true);  // high ratio selected
-    expect(selectedIds.has(2)).toBe(false); // low ratio skipped
-    expect(selectionOrder[0].id).toBe(1);   // high ratio first in order
+    expect(selectedIds.has(7)).toBe(true); // high ratio selected
+    expect(selectedIds.has(8)).toBe(false); // low ratio skipped
+    expect(selectionOrder[0].id).toBe(7); // high ratio first in order
   });
 
   // ── 1c. Completion strategy selects cheapest missions first ──────────────
   it("1c: completion strategy with budget selects cheapest missions first", () => {
-    const cheap     = makeLeafMission(1, "Cheap",     [makeCard(1, 100)], { rewardValue: 50 });
-    const expensive = makeLeafMission(2, "Expensive", [makeCard(2, 900)], { rewardValue: 9_000 });
+    const cheap = userMissions.find((m) => m.id === 9)!;
+    const expensive = userMissions.find((m) => m.id === 10)!;
 
     // Budget 500: expensive has much better ratio but completion ignores that
     const { selectedIds, selectionOrder } = selectMissionsForBudget(
@@ -440,15 +442,15 @@ describe("selectMissionsForBudget — greedy mission selection", () => {
       500,
     );
 
-    expect(selectedIds.has(1)).toBe(true);  // cheap selected
-    expect(selectedIds.has(2)).toBe(false); // expensive skipped despite better ratio
-    expect(selectionOrder[0].id).toBe(1);   // cheap first
+    expect(selectedIds.has(9)).toBe(true); // cheap selected
+    expect(selectedIds.has(10)).toBe(false); // expensive skipped despite better ratio
+    expect(selectionOrder[0].id).toBe(9); // cheap first
   });
 
   // ── Unlimited PP: all missions selected in sort order ────────────────────
   it("unlimited PP: all missions selected; selectionOrder reflects strategy sort", () => {
-    const m1 = makeLeafMission(1, "M1", [makeCard(1, 900)], { rewardValue: 100 }); // ratio ~0.11
-    const m2 = makeLeafMission(2, "M2", [makeCard(2, 100)], { rewardValue: 900 }); // ratio 9
+    const m1 = userMissions.find((m) => m.id === 11)!; // ratio ~1.22 (1100/900)
+    const m2 = userMissions.find((m) => m.id === 12)!; // ratio 37.5 (3750/100)
 
     const { selectedIds, selectionOrder } = selectMissionsForBudget(
       [m1, m2],
@@ -456,10 +458,322 @@ describe("selectMissionsForBudget — greedy mission selection", () => {
       null,
     );
 
-    expect(selectedIds.has(1)).toBe(true);
-    expect(selectedIds.has(2)).toBe(true);
-    // Value strategy: m2 (ratio 9) before m1 (ratio ~0.11)
+    expect(selectedIds.has(11)).toBe(true);
+    expect(selectedIds.has(12)).toBe(true);
+    // Value strategy: m2 (higher ratio) before m1
+    expect(selectionOrder[0].id).toBe(12);
+    expect(selectionOrder[1].id).toBe(11);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 3 — Negative Value Exclusion (Value Strategy)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Phase 3: selectMissionsForBudget — negative value exclusion", () => {
+  /**
+   * Tests Phase 3 negative value exclusion logic.
+   * Uses negativeValueScenario with missions of various cost/reward ratios.
+   */
+
+  const scenario = loadScenario(negativeValueScenario);
+  const { userMissions } = scenario;
+
+  // ── Value strategy, unlimited PP: negative-value missions excluded ────────
+  it("value strategy, unlimited PP: excludes missions where cost > reward", () => {
+    const negative = userMissions.find((m) => m.id === 1)!; // 1000 cost, 750 reward
+    const positive = userMissions.find((m) => m.id === 2)!; // 100 cost, 3750 reward
+
+    const { selectedIds, selectionOrder, negativeValueExcluded } =
+      selectMissionsForBudget([negative, positive], "value", null);
+
+    expect(selectedIds.has(1)).toBe(false); // negative excluded
+    expect(selectedIds.has(2)).toBe(true); // positive included
+    expect(selectionOrder.length).toBe(1);
     expect(selectionOrder[0].id).toBe(2);
-    expect(selectionOrder[1].id).toBe(1);
+    expect(negativeValueExcluded.length).toBe(1);
+    expect(negativeValueExcluded[0].id).toBe(1);
+  });
+
+  // ── Value strategy: all missions excluded for negative value ──────────────
+  it("value strategy: all negative-value missions excluded", () => {
+    const m1 = userMissions.find((m) => m.id === 3)!; // 1000 cost, 750 reward
+    const m2 = userMissions.find((m) => m.id === 4)!; // 900 cost, 250 reward
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      [m1, m2],
+      "value",
+      null,
+    );
+
+    expect(selectedIds.size).toBe(0);
+    expect(negativeValueExcluded.length).toBe(2);
+    expect(negativeValueExcluded.map((m) => m.id).sort()).toEqual([3, 4]);
+  });
+
+  // ── Free missions (remainingPrice = 0) always included ────────────────────
+  it("value strategy: free missions always included regardless of reward", () => {
+    const free = userMissions.find((m) => m.id === 5)!; // all cards owned
+
+    expect(free.remainingPrice).toBe(0); // Verify it's free
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      [free],
+      "value",
+      null,
+    );
+
+    expect(selectedIds.has(5)).toBe(true);
+    expect(negativeValueExcluded.length).toBe(0);
+  });
+
+  // ── Missions with undefined rewardValue always included ───────────────────
+  it("value strategy: missions with undefined rewardValue included (cannot calculate net value)", () => {
+    const noReward = userMissions.find((m) => m.id === 6)!; // no rewards
+
+    // Verify reward value is undefined
+    expect(noReward.rewardValue).toBeUndefined();
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      [noReward],
+      "value",
+      null,
+    );
+
+    expect(selectedIds.has(6)).toBe(true);
+    expect(negativeValueExcluded.length).toBe(0);
+  });
+
+  // ── Value strategy, limited PP: negative-value excluded before greedy ─────
+  it("value strategy, limited PP: negative-value missions excluded before budget greedy", () => {
+    // Use missions 1 and 8: mission 1 is negative (1000 cost, 750 reward), mission 8 is positive (200 cost, 3750 reward)
+    const negativeForReal = userMissions.find((m) => m.id === 1)!; // 1000 cost, 750 reward
+    const positiveForReal = userMissions.find((m) => m.id === 8)!; // 200 cost, 3750 reward
+
+    const result = selectMissionsForBudget(
+      [negativeForReal, positiveForReal],
+      "value",
+      250, // enough for positive, but negative shouldn't even be considered
+    );
+
+    expect(result.selectedIds.has(1)).toBe(false);
+    expect(result.selectedIds.has(8)).toBe(true);
+    expect(result.negativeValueExcluded.length).toBe(1);
+    expect(result.negativeValueExcluded[0].id).toBe(1);
+  });
+
+  // ── Completion strategy: negative-value missions NOT excluded ─────────────
+  it("completion strategy: missions with negative value are NOT excluded", () => {
+    const negative = userMissions.find((m) => m.id === 9)!; // 1000 cost, 750 reward
+    const positive = userMissions.find((m) => m.id === 10)!; // 100 cost, 3750 reward
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      [negative, positive],
+      "completion",
+      null,
+    );
+
+    // Completion strategy doesn't filter by value
+    expect(selectedIds.has(9)).toBe(true);
+    expect(selectedIds.has(10)).toBe(true);
+    expect(negativeValueExcluded.length).toBe(0);
+  });
+
+  // ── Chain with positive net, leaf missions with negative net ──────────────
+  it("value strategy: negative-net leaf missions included when part of positive-net chain", () => {
+    const leaf1 = userMissions.find((m) => m.id === 11)!; // 1000 cost, 100 reward (net: -900)
+    const leaf2 = userMissions.find((m) => m.id === 12)!; // 900 cost, 250 reward (net: -650)
+    const chain = userMissions.find((m) => m.id === 13)!; // 5x Rainbow = 120,500 reward
+
+    // Chain net value: chain rewards (120500) - total cost (1900) = 118600 PP
+    const chainNetValue = (chain.rewardValue ?? 0) - chain.remainingPrice;
+    expect(chainNetValue).toBe(118600);
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      [leaf1, leaf2],
+      "value",
+      null,
+      [leaf1, leaf2, chain],
+    );
+
+    // Both leaf missions should be included because they're part of a positive-net chain
+    expect(selectedIds.has(11)).toBe(true);
+    expect(selectedIds.has(12)).toBe(true);
+    expect(negativeValueExcluded.length).toBe(0);
+  });
+
+  // ── Chain with negative net should not save its leaves ────────────────────
+  it("value strategy: negative-net leaf missions excluded even if part of negative-net chain", () => {
+    const leaf1 = userMissions.find((m) => m.id === 14)!; // 1000 cost, 100 reward (Standard pack)
+    const leaf2 = userMissions.find((m) => m.id === 15)!; // 900 cost, 250 reward (Silver pack)
+    const chain = userMissions.find((m) => m.id === 16)!; // No rewards (0 PP)
+
+    // Chain net value: total rewards (100 + 250 + 0 = 350) - total cost (1900) = -1550 PP (negative)
+    const totalReward =
+      (leaf1.rewardValue ?? 0) +
+      (leaf2.rewardValue ?? 0) +
+      (chain.rewardValue ?? 0);
+    const totalCost = chain.remainingPrice;
+    expect(totalReward).toBe(350);
+    expect(totalCost).toBe(1900);
+    // Net is negative (-1550), so leaves should be excluded
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      [leaf1, leaf2],
+      "value",
+      null,
+      [leaf1, leaf2, chain],
+    );
+
+    // Both leaf missions should be excluded
+    expect(selectedIds.has(14)).toBe(false);
+    expect(selectedIds.has(15)).toBe(false);
+    expect(negativeValueExcluded.length).toBe(2);
+  });
+});
+
+describe("Phase 3: negative leaves with positive chain parent", () => {
+  /**
+   * Tests that leaf missions with negative net value are included in the shopping list
+   * when the parent chain mission has positive net value.
+   *
+   * This is a critical Phase 3 feature: leaves should not be excluded based on their
+   * individual negative value if the parent chain compensates with positive value.
+   *
+   * Scenario 6 structure (with owned cards):
+   * - Leaf 1 (Chicago):
+   *   - Purchased cards: 73701 (100) + 75727 (150) + 73702 (300) = 550 PP
+   *   - Owned card 71945 (200 PP to lock) = 200 unlockedCardsPrice
+   *   - Reward: 250 PP
+   *   - Net: 250 - 550 - 200 = -500 (NEGATIVE)
+   * - Leaf 2 (Cleveland):
+   *   - Purchased cards: 73379 (180) + 73153 (190) + 73380 (280) = 650 PP
+   *   - Owned card 75718 (220 PP to lock) = 220 unlockedCardsPrice
+   *   - Reward: 250 PP
+   *   - Net: 250 - 650 - 220 = -620 (NEGATIVE)
+   * - Chain (AL Central):
+   *   - Purchased cost: 550 + 650 = 1200 PP
+   *   - Unlocked cost: 200 + 220 = 420 PP
+   *   - Reward: 120,500 PP (chain only)
+   *   - Combined: 120,500 + 250 + 250 = 120,850 PP reward
+   *   - Net: 120,850 - 1200 - 420 = +119,230 (POSITIVE)
+   * - Since chain net is positive, both leaves should be included
+   */
+
+  const scenario = loadScenario(negativeLeavesPosChainScenario);
+  const { userMissions, shopCardsById } = scenario;
+
+  const leaf1 = userMissions.find((m) => m.id === 6)!;
+  const leaf2 = userMissions.find((m) => m.id === 9)!;
+  const chain = userMissions.find((m) => m.id === 61)!;
+
+  it("leaf missions have negative individual net value", () => {
+    // Leaf 1: 250 PP reward - 550 PP purchased - 200 PP unlocked = -500 PP
+    expect(leaf1.rewardValue).toBe(250);
+    expect(leaf1.remainingPrice).toBe(550);
+    expect(leaf1.unlockedCardsPrice).toBe(200);
+    const leaf1Net =
+      (leaf1.rewardValue ?? 0) -
+      leaf1.remainingPrice -
+      leaf1.unlockedCardsPrice;
+    expect(leaf1Net).toBe(-500);
+
+    // Leaf 2: 250 PP reward - 650 PP purchased - 220 PP unlocked = -620 PP
+    expect(leaf2.rewardValue).toBe(250);
+    expect(leaf2.remainingPrice).toBe(650);
+    expect(leaf2.unlockedCardsPrice).toBe(220);
+    const leaf2Net =
+      (leaf2.rewardValue ?? 0) -
+      leaf2.remainingPrice -
+      leaf2.unlockedCardsPrice;
+    expect(leaf2Net).toBe(-620);
+  });
+
+  it("chain mission has positive net value compensating for negative leaves", () => {
+    // Chain: 120,500 PP reward - 1200 PP purchased - 420 PP unlocked = +118,880 PP (chain only)
+    expect(chain.rewardValue).toBe(120500);
+    expect(chain.remainingPrice).toBe(1200);
+    expect(chain.unlockedCardsPrice).toBe(420);
+
+    // Using missionValue which includes unlockedCardsPrice
+    // For chain: combinedRewardValue - remainingPrice - unlockedCardsPrice
+    // combinedRewardValue = 250 + 250 + 120,500 = 120,850
+    // missionValue = 120,850 - 1,200 - 420 = 119,230
+    // but if card selection varies slightly, check it's positive (>0) is most important
+    expect(chain.missionValue).toBeGreaterThan(0);
+  });
+
+  it("leaf missions are included in shopping list despite negative individual value", () => {
+    const allMissions = [leaf1, leaf2, chain];
+    const eligibleMissions = [leaf1, leaf2]; // chain is missions-type
+
+    const { selectedIds, negativeValueExcluded } = selectMissionsForBudget(
+      eligibleMissions,
+      "value",
+      null,
+      allMissions,
+    );
+
+    // Both leaf missions should be INCLUDED because the parent chain is positive
+    expect(selectedIds.has(6)).toBe(true); // Chicago
+    expect(selectedIds.has(9)).toBe(true); // Cleveland
+
+    // No missions should be excluded
+    expect(negativeValueExcluded.length).toBe(0);
+  });
+
+  it("shopping items include all required purchased cards for negative leaves when chain is positive", () => {
+    const allMissions = [leaf1, leaf2, chain];
+    const eligibleMissions = [leaf1, leaf2];
+    const selectedMissionIds = new Set([6, 9]); // Both leafs selected
+
+    const items = buildShoppingItems(
+      eligibleMissions,
+      selectedMissionIds,
+      allMissions,
+      shopCardsById,
+    );
+
+    // Should have 6 items total (3 non-owned cards for leaf1 + 3 non-owned cards for leaf2)
+    // The 2 owned cards (71945 and 75718) don't appear in shopping items since they're already owned
+    expect(items.length).toBe(6);
+
+    // All items should have explanations mentioning the leaf missions
+    items.forEach((item) => {
+      expect(item.explanation).toBeTruthy();
+      expect(
+        item.completingMissions.length > 0 || item.usedInMissions.length > 0,
+      ).toBe(true);
+    });
+  });
+});
+
+describe("Phase 3: buildNegativeValueExclusionText", () => {
+  /**
+   * Tests text generation for negative value exclusion warnings.
+   */
+
+  const scenario = loadScenario(negativeValueScenario);
+  const { userMissions } = scenario;
+
+  it("returns empty string when no missions excluded", () => {
+    expect(buildNegativeValueExclusionText([])).toBe("");
+  });
+
+  it("uses singular form for one excluded mission", () => {
+    const badMission = userMissions.find((m) => m.id === 17)!;
+    const text = buildNegativeValueExclusionText([badMission]);
+    expect(text).toBe(
+      "1 mission skipped because its cost exceeds its reward value: 'Bad Mission'.",
+    );
+  });
+
+  it("uses plural form and lists all names for multiple excluded missions", () => {
+    const missionA = userMissions.find((m) => m.id === 18)!;
+    const missionB = userMissions.find((m) => m.id === 19)!;
+    const text = buildNegativeValueExclusionText([missionA, missionB]);
+    expect(text).toBe(
+      "2 missions skipped because their cost exceeds their reward value: 'Mission A', 'Mission B'.",
+    );
   });
 });

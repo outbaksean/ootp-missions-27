@@ -162,8 +162,15 @@ function buildProgressText(
       completed.length === 1
         ? `'${completed[0].rawMission.name}'`
         : `${completed.length} missions`;
-    const rewardParts = buildRewardSummaryParts(completed, packPrices, shopCardsById);
-    const totalValue = completed.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0);
+    const rewardParts = buildRewardSummaryParts(
+      completed,
+      packPrices,
+      shopCardsById,
+    );
+    const totalValue = completed.reduce(
+      (sum, m) => sum + (m.rewardValue ?? 0),
+      0,
+    );
 
     text = `complete ${countText}`;
     if (rewardParts.length > 0 && totalValue > 0) {
@@ -203,7 +210,10 @@ function computeCompletedByList(
   for (const m of eligibleMissions) {
     if (m.rawMission.type === "missions") continue;
     const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
-    if (needed.length > 0 && needed.every((c) => shoppingCardIds.has(c.cardId))) {
+    if (
+      needed.length > 0 &&
+      needed.every((c) => shoppingCardIds.has(c.cardId))
+    ) {
       willBeCompleted.add(m.id);
     }
   }
@@ -212,7 +222,8 @@ function computeCompletedByList(
   while (changed) {
     changed = false;
     for (const m of allMissions) {
-      if (willBeCompleted.has(m.id) || m.rawMission.type !== "missions") continue;
+      if (willBeCompleted.has(m.id) || m.rawMission.type !== "missions")
+        continue;
       const subIds = m.rawMission.missionIds ?? [];
       const doneCount = subIds.filter((sid) => willBeCompleted.has(sid)).length;
       if (doneCount >= m.rawMission.requiredCount) {
@@ -245,13 +256,41 @@ function computePartialByList(
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
+ * Helper: Recursively collects all leaf mission IDs that are descendants of a given mission.
+ */
+function collectLeafDescendants(
+  mission: UserMission,
+  missionById: Map<number, UserMission>,
+): Set<number> {
+  const result = new Set<number>();
+
+  if (mission.rawMission.type !== "missions") {
+    // This is a leaf mission
+    result.add(mission.id);
+    return result;
+  }
+
+  // Recursively collect from sub-missions
+  for (const subId of mission.rawMission.missionIds ?? []) {
+    const subMission = missionById.get(subId);
+    if (subMission) {
+      const descendants = collectLeafDescendants(subMission, missionById);
+      descendants.forEach((id) => result.add(id));
+    }
+  }
+
+  return result;
+}
+
+/**
  * Sorts leaf missions by strategy priority and greedily selects those that fit
  * within `availablePP` (null = unlimited).
  *
  * Returns:
- *  - `selectedIds`    fast-lookup Set of selected mission IDs
- *  - `selectionOrder` missions in the order they were selected (index 0 = highest
- *                     priority); used by Phase 4 for card ordering
+ *  - `selectedIds`              fast-lookup Set of selected mission IDs
+ *  - `selectionOrder`           missions in the order they were selected (index 0 = highest
+ *                               priority); used by Phase 4 for card ordering
+ *  - `negativeValueExcluded`    missions excluded due to negative net value (value strategy only)
  *
  * Card costs are deduplicated: if two missions share a card, the card's price is
  * only counted once (against whichever mission picks it up first in greedy order).
@@ -260,8 +299,55 @@ export function selectMissionsForBudget(
   leafMissions: UserMission[],
   strategy: "value" | "completion",
   availablePP: number | null,
-): { selectedIds: Set<number>; selectionOrder: UserMission[] } {
-  const sorted = [...leafMissions].sort((a, b) => {
+  allMissions?: UserMission[],
+): {
+  selectedIds: Set<number>;
+  selectionOrder: UserMission[];
+  negativeValueExcluded: UserMission[];
+} {
+  // Filter out negative-value missions when using value strategy
+  let negativeValueExcluded: UserMission[] = [];
+  let filteredMissions = leafMissions;
+
+  if (strategy === "value") {
+    // Build set of leaf missions that are descendants of positive-net chain missions
+    const positiveChainDescendants = new Set<number>();
+
+    if (allMissions) {
+      const missionById = new Map(allMissions.map((m) => [m.id, m]));
+
+      for (const mission of allMissions) {
+        // Only consider chain missions
+        if (mission.rawMission.type !== "missions") continue;
+
+        // Check if chain has positive net value (including unlockedCardsPrice)
+        // For chains, missionValue = combinedRewardValue - remainingPrice - unlockedCardsPrice
+        if (mission.missionValue !== undefined && mission.missionValue > 0) {
+          // Collect all leaf descendants of this positive-net chain
+          const descendants = collectLeafDescendants(mission, missionById);
+          descendants.forEach((id) => positiveChainDescendants.add(id));
+        }
+      }
+    }
+
+    filteredMissions = leafMissions.filter((m) => {
+      // Free missions always pass
+      if (m.remainingPrice === 0) return true;
+      // Missions with no rewardValue defined also pass (can't calculate net value)
+      if (m.rewardValue === undefined) return true;
+      // Mission has positive net value on its own
+      if (m.rewardValue > m.remainingPrice) return true;
+      // Mission is part of a positive-net chain
+      if (positiveChainDescendants.has(m.id)) return true;
+      // Otherwise exclude
+      return false;
+    });
+    negativeValueExcluded = leafMissions.filter(
+      (m) => !filteredMissions.includes(m),
+    );
+  }
+
+  const sorted = [...filteredMissions].sort((a, b) => {
     if (strategy === "completion") {
       return a.remainingPrice - b.remainingPrice;
     }
@@ -271,7 +357,11 @@ export function selectMissionsForBudget(
   });
 
   if (availablePP === null) {
-    return { selectedIds: new Set(sorted.map((m) => m.id)), selectionOrder: sorted };
+    return {
+      selectedIds: new Set(sorted.map((m) => m.id)),
+      selectionOrder: sorted,
+      negativeValueExcluded,
+    };
   }
 
   let remainingBudget = availablePP;
@@ -297,6 +387,7 @@ export function selectMissionsForBudget(
   return {
     selectedIds: new Set(selectionOrder.map((m) => m.id)),
     selectionOrder,
+    negativeValueExcluded,
   };
 }
 
@@ -312,6 +403,22 @@ export function buildExclusionText(excluded: UserMission[]): string {
     return `1 mission excluded because it requires a card with no market price: ${names}.`;
   }
   return `${excluded.length} missions excluded because they require cards with no market price: ${names}.`;
+}
+
+/**
+ * Returns a human-readable warning sentence listing missions excluded from the
+ * value-strategy shopping list because their cost exceeds their reward value.
+ * Returns an empty string when there are no excluded missions.
+ */
+export function buildNegativeValueExclusionText(
+  excluded: UserMission[],
+): string {
+  if (excluded.length === 0) return "";
+  const names = excluded.map((m) => `'${m.rawMission.name}'`).join(", ");
+  if (excluded.length === 1) {
+    return `1 mission skipped because its cost exceeds its reward value: ${names}.`;
+  }
+  return `${excluded.length} missions skipped because their cost exceeds their reward value: ${names}.`;
 }
 
 /**
@@ -441,7 +548,11 @@ export function buildShoppingItems(
       missionCount: data.missions.length,
       completingMissions: allCompleting,
       usedInMissions,
-      explanation: buildExplanation(usedInMissions, allCompleting, shopCardsById),
+      explanation: buildExplanation(
+        usedInMissions,
+        allCompleting,
+        shopCardsById,
+      ),
     };
   });
 }
@@ -474,15 +585,23 @@ export function buildSummaryText(params: {
   } = params;
 
   const shoppingCardIds = new Set(shoppingItems.map((i) => i.cardId));
-  const completed = computeCompletedByList(eligibleMissions, allMissions, shoppingCardIds);
+  const completed = computeCompletedByList(
+    eligibleMissions,
+    allMissions,
+    shoppingCardIds,
+  );
   const partial = computePartialByList(eligibleMissions, shoppingCardIds);
 
-  const strategyStr = strategy === "value" ? "maximize value" : "complete missions";
+  const strategyStr =
+    strategy === "value" ? "maximize value" : "complete missions";
   const ppStr =
     availablePP === null
       ? "unlimited PP"
       : `${availablePP.toLocaleString()} PP`;
-  const missionsStr = buildIncludedMissionsText(includedMissionIds, allMissions);
+  const missionsStr = buildIncludedMissionsText(
+    includedMissionIds,
+    allMissions,
+  );
   const progressStr = buildProgressText(
     shoppingItems.length,
     completed,

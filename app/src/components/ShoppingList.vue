@@ -110,9 +110,15 @@
       <p class="sl-exclusion-text">{{ exclusionText }}</p>
     </div>
 
+    <!-- ─── NEGATIVE VALUE EXCLUSION WARNING ─── -->
+    <div v-if="negativeValueExclusionText" class="sl-exclusion">
+      <p class="sl-exclusion-text">{{ negativeValueExclusionText }}</p>
+    </div>
+
     <!-- ─── EMPTY STATES ─── -->
     <p v-if="eligibleMissions.length === 0" class="sl-empty">
-      No calculated missions found. Use the Calculate button on missions to get started.
+      No calculated missions found. Use the Calculate button on missions to get
+      started.
     </p>
     <p v-else-if="shoppingItems.length === 0" class="sl-empty">
       No cards to buy — all missions are already completable with owned cards.
@@ -138,7 +144,13 @@
 import { computed, ref } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { ShopCard } from "../models/ShopCard";
-import { buildShoppingItems, buildSummaryText, buildExclusionText, selectMissionsForBudget } from "../helpers/ShoppingListHelper";
+import {
+  buildShoppingItems,
+  buildSummaryText,
+  buildExclusionText,
+  buildNegativeValueExclusionText,
+  selectMissionsForBudget,
+} from "../helpers/ShoppingListHelper";
 import type { ShoppingItem } from "../helpers/ShoppingListHelper";
 
 const props = defineProps<{
@@ -225,14 +237,39 @@ const excludedMissions = computed(() =>
 );
 
 // ─── COMPUTED: Exclusion warning text ───
-const exclusionText = computed(() => buildExclusionText(excludedMissions.value));
+const exclusionText = computed(() =>
+  buildExclusionText(excludedMissions.value),
+);
 
 // ─── COMPUTED: Greedy mission selection ───
 const missionSelection = computed(() => {
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
   );
-  return selectMissionsForBudget(leafMissions, strategy.value, availablePP.value);
+  return selectMissionsForBudget(
+    leafMissions,
+    strategy.value,
+    availablePP.value,
+    props.missions,
+  );
+});
+
+// ─── COMPUTED: Negative value exclusion warning text ───
+const negativeValueExclusionText = computed(() => {
+  // Only show for value strategy
+  if (strategy.value !== "value") return "";
+
+  const excluded = missionSelection.value.negativeValueExcluded;
+
+  // Special case: all eligible missions excluded for negative value
+  const leafMissions = eligibleMissions.value.filter(
+    (m) => m.rawMission.type !== "missions",
+  );
+  if (excluded.length > 0 && excluded.length === leafMissions.length) {
+    return "No missions with positive net value found.";
+  }
+
+  return buildNegativeValueExclusionText(excluded);
 });
 
 // ─── COMPUTED: Shopping items (final card list) ───
