@@ -58,6 +58,9 @@ import {
   buildOutOfBudgetText,
   buildMissionPriority,
   selectMissionsForBudget,
+  buildCsvContent,
+  buildHtmlContent,
+  escapeHtml,
 } from "../ShoppingListHelper";
 import { PACK_TYPE_DEFAULTS } from "@/stores/useSettingsStore";
 import {
@@ -1002,5 +1005,232 @@ describe("ordering regression: standalone vs positive chain", () => {
     );
 
     expect(items.map((i) => i.cardId)).toEqual([51001, 51003, 51004, 51002]);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 6 — Export Tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Phase 6: escapeHtml", () => {
+  it("escapes ampersand", () => {
+    expect(escapeHtml("A & B")).toBe("A &amp; B");
+  });
+
+  it("escapes less-than", () => {
+    expect(escapeHtml("A < B")).toBe("A &lt; B");
+  });
+
+  it("escapes greater-than", () => {
+    expect(escapeHtml("A > B")).toBe("A &gt; B");
+  });
+
+  it("escapes double-quote", () => {
+    expect(escapeHtml('A "B" C')).toBe("A &quot;B&quot; C");
+  });
+
+  it("escapes multiple special characters", () => {
+    expect(escapeHtml('<script>alert("xss")</script>')).toBe(
+      "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;",
+    );
+  });
+});
+
+describe("Phase 6: buildCsvContent", () => {
+  it("includes header row", () => {
+    const csv = buildCsvContent([]);
+    expect(csv).toContain('"Card Title","Cost (PP)","Explanation"');
+  });
+
+  it("quotes all cells", () => {
+    const item = {
+      cardId: 100,
+      title: "Test Card",
+      price: 1000,
+      missionCount: 1,
+      completingMissions: [],
+      usedInMissions: [],
+      explanation: "Test explanation",
+    };
+    const csv = buildCsvContent([item]);
+    expect(csv).toContain('"Test Card","1000","Test explanation"');
+  });
+
+  it("escapes double-quotes as double-double-quotes", () => {
+    const item = {
+      cardId: 100,
+      title: 'Card "Special"',
+      price: 500,
+      missionCount: 1,
+      completingMissions: [],
+      usedInMissions: [],
+      explanation: 'Explanation with "quotes"',
+    };
+    const csv = buildCsvContent([item]);
+    expect(csv).toContain('"Card ""Special"""');
+    expect(csv).toContain('"Explanation with ""quotes"""');
+  });
+
+  it("includes multiple rows", () => {
+    const items = [
+      {
+        cardId: 100,
+        title: "Card A",
+        price: 1000,
+        missionCount: 1,
+        completingMissions: [],
+        usedInMissions: [],
+        explanation: "A",
+      },
+      {
+        cardId: 101,
+        title: "Card B",
+        price: 2000,
+        missionCount: 1,
+        completingMissions: [],
+        usedInMissions: [],
+        explanation: "B",
+      },
+    ];
+    const csv = buildCsvContent(items);
+    expect(csv).toContain('"Card A","1000","A"');
+    expect(csv).toContain('"Card B","2000","B"');
+  });
+});
+
+describe("Phase 6: buildHtmlContent", () => {
+  it("includes DOCTYPE and html structure", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Test summary",
+    });
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain("</html>");
+  });
+
+  it("includes summary text in summary div", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "My test summary",
+    });
+    expect(html).toContain('<div class="summary">My test summary</div>');
+  });
+
+  it("escapes summary text for HTML safety", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: '<script>alert("xss")</script>',
+    });
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).not.toContain("<script>");
+  });
+
+  it("includes table header", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+    });
+    expect(html).toContain("<th>Card</th>");
+    expect(html).toContain("<th>Cost (PP)</th>");
+    expect(html).toContain("<th>Explanation</th>");
+  });
+
+  it("includes card rows with formatted price", () => {
+    const items = [
+      {
+        cardId: 100,
+        title: "Test Card",
+        price: 1000,
+        missionCount: 1,
+        completingMissions: [],
+        usedInMissions: [],
+        explanation: "Test explanation",
+      },
+    ];
+    const html = buildHtmlContent({
+      items,
+      summaryText: "Summary",
+    });
+    expect(html).toContain("<td>Test Card</td>");
+    expect(html).toContain('<td class="price">1,000</td>');
+    expect(html).toContain("<td>Test explanation</td>");
+  });
+
+  it("escapes card title and explanation in HTML", () => {
+    const items = [
+      {
+        cardId: 100,
+        title: '<img src="x">',
+        price: 500,
+        missionCount: 1,
+        completingMissions: [],
+        usedInMissions: [],
+        explanation: 'User said "hello"',
+      },
+    ];
+    const html = buildHtmlContent({
+      items,
+      summaryText: "Summary",
+    });
+    expect(html).toContain("&lt;img src=");
+    expect(html).toContain("&quot;hello&quot;");
+  });
+
+  it("includes exclusion text when provided", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+      exclusionText: "1 mission excluded",
+    });
+    expect(html).toContain('<div class="exclusion">1 mission excluded</div>');
+  });
+
+  it("escapes exclusion text for HTML safety", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+      exclusionText: 'Excluded: <"test">',
+    });
+    expect(html).toContain("&lt;&quot;test&quot;&gt;");
+  });
+
+  it("includes all three exclusion types when all provided", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+      exclusionText: "Non-completable excluded",
+      negativeValueExclusionText: "Negative value excluded",
+      outOfBudgetText: "Out of budget excluded",
+    });
+    expect(html).toContain("Non-completable excluded");
+    expect(html).toContain("Negative value excluded");
+    expect(html).toContain("Out of budget excluded");
+  });
+
+  it("omits exclusion sections when not provided", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+    });
+    expect(html).not.toContain('<div class="exclusion">');
+  });
+
+  it("includes title in head", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+    });
+    expect(html).toContain("<title>OOTP Shopping List</title>");
+  });
+
+  it("includes CSS styling", () => {
+    const html = buildHtmlContent({
+      items: [],
+      summaryText: "Summary",
+    });
+    expect(html).toContain("<style>");
+    expect(html).toContain("body {");
+    expect(html).toContain("table {");
   });
 });

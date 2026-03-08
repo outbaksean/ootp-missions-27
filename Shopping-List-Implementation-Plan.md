@@ -343,7 +343,7 @@ Using `buildSummaryText`:
 
 ---
 
-## Phase 6 — Export tests (Scenarios 8a, 8b)
+## Phase 6 — Export tests (Scenarios 8a, 8b) ✅
 
 Export functions use `Blob` and `URL.createObjectURL` which aren't available
 in the Node test environment. Options:

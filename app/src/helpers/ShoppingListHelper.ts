@@ -730,3 +730,110 @@ export function buildSummaryText(params: {
 
   return `Shopping List to ${strategyStr} with ${ppStr} for ${missionsStr}. Buy the following cards in order to ${progressStr}.`;
 }
+
+/**
+ * Escapes HTML special characters for safe inclusion in HTML text.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Generates CSV content for the shopping list.
+ *
+ * Format: quoted cells with double-quotes escaped as "".
+ * Header row: "Card Title", "Cost (PP)", "Explanation"
+ */
+export function buildCsvContent(items: ShoppingItem[]): string {
+  const rows = [["Card Title", "Cost (PP)", "Explanation"]];
+  for (const item of items) {
+    rows.push([item.title, item.price.toString(), item.explanation]);
+  }
+  return rows
+    .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+}
+
+/**
+ * Generates HTML content for the shopping list report.
+ *
+ * Includes summary text, optional exclusion warnings, and a table of cards.
+ */
+export function buildHtmlContent(params: {
+  items: ShoppingItem[];
+  summaryText: string;
+  exclusionText?: string;
+  negativeValueExclusionText?: string;
+  outOfBudgetText?: string;
+}): string {
+  const {
+    items,
+    summaryText,
+    exclusionText,
+    negativeValueExclusionText,
+    outOfBudgetText,
+  } = params;
+
+  const rows = items
+    .map(
+      (item) => `
+      <tr>
+        <td>${escapeHtml(item.title)}</td>
+        <td class="price">${item.price.toLocaleString()}</td>
+        <td>${escapeHtml(item.explanation)}</td>
+      </tr>`,
+    )
+    .join("");
+
+  // Build exclusion sections if any exist
+  const exclusionsSections: string[] = [];
+  if (exclusionText) {
+    exclusionsSections.push(
+      `<div class="exclusion">${escapeHtml(exclusionText)}</div>`,
+    );
+  }
+  if (negativeValueExclusionText) {
+    exclusionsSections.push(
+      `<div class="exclusion">${escapeHtml(negativeValueExclusionText)}</div>`,
+    );
+  }
+  if (outOfBudgetText) {
+    exclusionsSections.push(
+      `<div class="exclusion">${escapeHtml(outOfBudgetText)}</div>`,
+    );
+  }
+  const exclusionsHtml = exclusionsSections.join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>OOTP Shopping List</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 2rem; color: #1e293b; }
+    h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .summary { background: #f1f5f9; border-left: 4px solid #6366f1; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.6; }
+    .exclusion { background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6; color: #92400e; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { background: #1e293b; color: #f8fafc; padding: 10px 14px; text-align: left; font-weight: 600; }
+    td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    tr:hover td { background: #f8fafc; }
+    .price { font-weight: 600; color: #16a34a; white-space: nowrap; }
+    .explanation { color: #475569; }
+  </style>
+</head>
+<body>
+  <h1>OOTP Shopping List</h1>
+  <div class="summary">${escapeHtml(summaryText)}</div>
+  ${exclusionsHtml}
+  <table>
+    <thead><tr><th>Card</th><th>Cost (PP)</th><th>Explanation</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+</body>
+</html>`;
+}
