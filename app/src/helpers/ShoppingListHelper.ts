@@ -351,9 +351,19 @@ export function selectMissionsForBudget(
     if (strategy === "completion") {
       return a.remainingPrice - b.remainingPrice;
     }
-    const aRatio = (a.rewardValue ?? 0) / Math.max(1, a.remainingPrice);
-    const bRatio = (b.rewardValue ?? 0) / Math.max(1, b.remainingPrice);
-    return bRatio - aRatio;
+    const aNet =
+      a.missionValue ??
+      (a.rewardValue !== undefined
+        ? a.rewardValue - a.remainingPrice
+        : Number.NEGATIVE_INFINITY);
+    const bNet =
+      b.missionValue ??
+      (b.rewardValue !== undefined
+        ? b.rewardValue - b.remainingPrice
+        : Number.NEGATIVE_INFINITY);
+
+    if (bNet !== aNet) return bNet - aNet;
+    return a.remainingPrice - b.remainingPrice;
   });
 
   if (availablePP === null) {
@@ -434,6 +444,7 @@ export function buildShoppingItems(
   selectedMissionIds: Set<number>,
   allMissions: UserMission[],
   shopCardsById: Map<number, ShopCard>,
+  missionPriority?: Map<number, number>,
 ): ShoppingItem[] {
   // ── 1. Build card map ──
   const cardMap = new Map<
@@ -456,35 +467,80 @@ export function buildShoppingItems(
       }
     }
   }
-  const shoppingCardIds = new Set(cardMap.keys());
-
   // ── 2. Compute leaf completions per card ──
-  // A card "singly completes" a leaf mission when it is the only shopping-list
-  // card needed — all other unowned highlighted cards for that mission are
-  // already owned.
+  // Determine which card actually completes each leaf mission by simulating the
+  // purchase sequence in sorted order. This ensures mission completion appears in
+  // explanations even for multi-card missions.
   const cardLeafCompletions = new Map<number, UserMission[]>();
-  for (const [cardId, data] of cardMap) {
-    const leaves = data.missions.filter((m) => {
-      const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
-      if (needed.length === 0) return false;
-      const fromList = needed.filter((c) => shoppingCardIds.has(c.cardId));
-      return fromList.length === 1 && fromList[0].cardId === cardId;
-    });
-    cardLeafCompletions.set(cardId, leaves);
+  for (const cardId of cardMap.keys()) {
+    cardLeafCompletions.set(cardId, []);
   }
 
   // ── 3. Sort cards ──
-  // Cards that complete more missions come first; ties broken by price (cheapest
-  // first so the more expensive card — last in sequence — "seals" the chain).
+  // Phase 4: Sort by mission priority first, then by price within each priority group.
+  // If missionPriority is not provided, all cards default to Infinity priority and
+  // this naturally falls back to price ordering.
+
+  const effectivePriority = new Map<number, number>(missionPriority ?? []);
+  if (missionPriority && missionPriority.size > 0) {
+    const missionById = new Map(allMissions.map((m) => [m.id, m]));
+
+    // Propagate chain mission priority to all leaf descendants.
+    for (const mission of allMissions) {
+      if (mission.rawMission.type !== "missions") continue;
+      const parentPriority = missionPriority.get(mission.id);
+      if (parentPriority === undefined) continue;
+
+      const leafDescendants = collectLeafDescendants(mission, missionById);
+      for (const leafId of leafDescendants) {
+        const current = effectivePriority.get(leafId) ?? Infinity;
+        if (parentPriority < current) {
+          effectivePriority.set(leafId, parentPriority);
+        }
+      }
+    }
+  }
+
+  function getCardPriority(cardId: number): number {
+    const missions = cardMap.get(cardId)?.missions ?? [];
+    if (missions.length === 0) return Infinity;
+    return Math.min(
+      ...missions.map((m) => effectivePriority.get(m.id) ?? Infinity),
+    );
+  }
+
   const sortedCardIds = Array.from(cardMap.keys()).sort((a, b) => {
-    const aL = cardLeafCompletions.get(a)!.length;
-    const bL = cardLeafCompletions.get(b)!.length;
-    if (bL !== aL) return bL - aL;
-    const aM = cardMap.get(a)!.missions.length;
-    const bM = cardMap.get(b)!.missions.length;
-    if (bM !== aM) return bM - aM;
+    const aPriority = getCardPriority(a);
+    const bPriority = getCardPriority(b);
+    if (aPriority !== bPriority) return aPriority - bPriority;
     return cardMap.get(a)!.price - cardMap.get(b)!.price;
   });
+
+  const purchasedCardIds = new Set<number>();
+  const completedLeafMissionIds = new Set<number>();
+
+  for (const cardId of sortedCardIds) {
+    purchasedCardIds.add(cardId);
+    const missionsUsingCard = cardMap.get(cardId)?.missions ?? [];
+
+    for (const mission of missionsUsingCard) {
+      if (completedLeafMissionIds.has(mission.id)) continue;
+
+      const needed = mission.missionCards.filter(
+        (c) => c.highlighted && !c.owned,
+      );
+      if (needed.length === 0) continue;
+
+      const allNeededPurchased = needed.every((c) =>
+        purchasedCardIds.has(c.cardId),
+      );
+
+      if (allNeededPurchased) {
+        cardLeafCompletions.get(cardId)!.push(mission);
+        completedLeafMissionIds.add(mission.id);
+      }
+    }
+  }
 
   // ── 4. Two-pass parent attribution ──
   // Build direct-parent index: subMissionId → missions-type missions that require it

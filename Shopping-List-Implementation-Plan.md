@@ -122,7 +122,7 @@ Using `selectMissionsForBudget` directly:
 
 ---
 
-## Phase 3 — Value strategy negative-value exclusion (Scenario 1a)
+## Phase 3 — Value strategy negative-value exclusion (Scenario 1a) ✅
 
 ### 3.1 Filter missions in `selectMissionsForBudget`
 
@@ -184,7 +184,7 @@ When every eligible mission is excluded for negative value:
 
 ---
 
-## Phase 4 — Card ordering by mission priority (Scenarios 3d, 3e)
+## Phase 4 — Card ordering by mission priority (Scenarios 3d, 3e) ✅
 
 The most complex phase. Cards should appear in mission-priority order so the
 user buys one mission's cards as a block before moving to the next.

@@ -49,6 +49,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import type { UserMission } from "@/models/UserMission";
 import {
   buildShoppingItems,
   buildSummaryText,
@@ -464,6 +465,33 @@ describe("selectMissionsForBudget — greedy mission selection", () => {
     expect(selectionOrder[0].id).toBe(12);
     expect(selectionOrder[1].id).toBe(11);
   });
+
+  it("value strategy: sorts by highest net value (not ratio)", () => {
+    const lowNetHighRatio = {
+      id: 9001,
+      remainingPrice: 10,
+      rewardValue: 20,
+      missionValue: 10,
+      missionCards: [],
+    } as unknown as UserMission;
+
+    const highNetLowRatio = {
+      id: 9002,
+      remainingPrice: 100,
+      rewardValue: 150,
+      missionValue: 50,
+      missionCards: [],
+    } as unknown as UserMission;
+
+    const { selectionOrder } = selectMissionsForBudget(
+      [lowNetHighRatio, highNetLowRatio],
+      "value",
+      null,
+    );
+
+    expect(selectionOrder[0].id).toBe(9002);
+    expect(selectionOrder[1].id).toBe(9001);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -775,5 +803,129 @@ describe("Phase 3: buildNegativeValueExclusionText", () => {
     expect(text).toBe(
       "2 missions skipped because their cost exceeds their reward value: 'Mission A', 'Mission B'.",
     );
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 4 — Card Ordering by Mission Priority
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Phase 4: buildShoppingItems — mission priority ordering", () => {
+  it("3d completion: mission priority order wins over cheaper card price", () => {
+    const scenario = loadScenario(chainWithPackRewardsScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    const sub1 = userMissions.find((m) => m.id === 101)!; // Card A, 100 PP
+    const sub2 = userMissions.find((m) => m.id === 102)!; // Card B, 200 PP
+    const chain = userMissions.find((m) => m.id === 200)!;
+
+    const items = buildShoppingItems(
+      [sub1, sub2],
+      new Set([101, 102]),
+      [sub1, sub2, chain],
+      shopCardsById,
+      // Completion priority: sub2 first, sub1 second.
+      // Even though sub1's card is cheaper, sub2's card should appear first.
+      new Map([
+        [102, 0],
+        [101, 1],
+      ]),
+    );
+
+    expect(items).toHaveLength(2);
+    expect(items[0].cardId).toBe(10002); // Card B first by mission priority
+    expect(items[1].cardId).toBe(10001); // Card A second despite being cheaper
+  });
+
+  it("3d value: high-priority mission cards come first even when more expensive", () => {
+    const scenario = loadScenario(budgetSelectionScenario);
+    const { userMissions } = scenario;
+
+    const cheapLowValue = userMissions.find((m) => m.id === 9)!; // 100 PP card, low ratio
+    const expensiveHighValue = userMissions.find((m) => m.id === 10)!; // 900 PP card, high ratio
+
+    const { selectionOrder } = selectMissionsForBudget(
+      [cheapLowValue, expensiveHighValue],
+      "value",
+      null,
+    );
+    const missionPriority = new Map<number, number>();
+    selectionOrder.forEach((m, index) => missionPriority.set(m.id, index));
+
+    const items = buildShoppingItems(
+      [cheapLowValue, expensiveHighValue],
+      new Set([9, 10]),
+      [cheapLowValue, expensiveHighValue],
+      new Map(),
+      missionPriority,
+    );
+
+    expect(items).toHaveLength(2);
+    expect(items[0].cardId).toBe(30010); // expensive, but highest value priority
+    expect(items[1].cardId).toBe(30009); // cheap, lower value priority
+  });
+
+  it("3e chain priority: parent chain priority propagates to low-priority leaf descendants", () => {
+    const scenario = loadScenario(simpleChainScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    const leaf1 = userMissions.find((m) => m.id === 6)!;
+    const leaf2 = userMissions.find((m) => m.id === 9)!;
+    const chain = userMissions.find((m) => m.id === 61)!;
+
+    const items = buildShoppingItems(
+      [leaf1, leaf2],
+      new Set([6, 9]),
+      [leaf1, leaf2, chain],
+      shopCardsById,
+      // Without propagation, leaf2 (priority 1) would beat leaf1 (priority 5).
+      // Chain priority 0 should propagate to both leaves, then price order applies.
+      new Map([
+        [9, 1],
+        [6, 5],
+        [61, 0],
+      ]),
+    );
+
+    expect(items.length).toBeGreaterThan(0);
+    expect(items[0].cardId).toBe(73701); // leaf1 cheapest card should surface first after propagation
+  });
+});
+
+describe("buildShoppingItems — completion attribution", () => {
+  it("marks completion on the final purchased card for multi-card missions", () => {
+    const mission = {
+      id: 9501,
+      rawMission: { id: 9501, name: "Two Card Mission", type: "count" },
+      missionCards: [
+        {
+          cardId: 50001,
+          title: "Card 1",
+          price: 100,
+          highlighted: true,
+          owned: false,
+        },
+        {
+          cardId: 50002,
+          title: "Card 2",
+          price: 200,
+          highlighted: true,
+          owned: false,
+        },
+      ],
+    } as unknown as UserMission;
+
+    const items = buildShoppingItems(
+      [mission],
+      new Set([9501]),
+      [mission],
+      new Map(),
+    );
+
+    expect(items).toHaveLength(2);
+    expect(items[0].cardId).toBe(50001);
+    expect(items[0].explanation).toContain("Used in 'Two Card Mission'");
+    expect(items[1].cardId).toBe(50002);
+    expect(items[1].explanation).toContain("Completes 'Two Card Mission'");
   });
 });

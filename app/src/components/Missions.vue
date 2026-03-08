@@ -294,7 +294,11 @@
             :class="{ 'btn-shopping-mode--active': showShoppingList }"
             @click="showShoppingList = !showShoppingList"
           >
-            {{ showShoppingList ? "Disable Shopping Mode" : "Enable Shopping Mode" }}
+            {{
+              showShoppingList
+                ? "Disable Shopping Mode"
+                : "Enable Shopping Mode"
+            }}
           </button>
           <span
             class="tooltip-hint"

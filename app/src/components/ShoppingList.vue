@@ -254,6 +254,15 @@ const missionSelection = computed(() => {
   );
 });
 
+// ─── COMPUTED: Mission priority map for Phase 4 card ordering ───
+const missionPriority = computed(() => {
+  const map = new Map<number, number>();
+  missionSelection.value.selectionOrder.forEach((mission, index) => {
+    map.set(mission.id, index);
+  });
+  return map;
+});
+
 // ─── COMPUTED: Negative value exclusion warning text ───
 const negativeValueExclusionText = computed(() => {
   // Only show for value strategy
@@ -279,6 +288,7 @@ const shoppingItems = computed((): ShoppingItem[] =>
     missionSelection.value.selectedIds,
     props.missions,
     props.shopCardsById,
+    missionPriority.value,
   ),
 );
 

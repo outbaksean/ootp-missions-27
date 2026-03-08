@@ -288,10 +288,18 @@
                 <button
                   v-if="props.isShoppingListMode"
                   class="btn-action btn-include"
-                  :class="{ 'btn-include--active': props.shoppingListMissionIds.has(mission.id) }"
+                  :class="{
+                    'btn-include--active': props.shoppingListMissionIds.has(
+                      mission.id,
+                    ),
+                  }"
                   @click="$emit('includeMission', mission.id)"
                 >
-                  {{ props.shoppingListMissionIds.has(mission.id) ? "Included ✓" : "Include" }}
+                  {{
+                    props.shoppingListMissionIds.has(mission.id)
+                      ? "Included ✓"
+                      : "Include"
+                  }}
                 </button>
                 <button
                   v-else
