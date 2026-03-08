@@ -157,13 +157,6 @@
           </div>
           <div class="sub-mission-badges">
             <span
-              v-if="
-                shouldCompleteMission(subMission.id) && !subMission.completed
-              "
-              class="pill pill-use"
-              >Use</span
-            >
-            <span
               v-if="remainingPriceText(subMission)"
               class="item-price-inline"
             >
