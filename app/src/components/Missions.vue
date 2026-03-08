@@ -963,6 +963,17 @@ const updatePriceType = async () => {
   missionStore.setLoading(false);
 };
 
+function groupNetValue(missions: UserMission[]): number {
+  const incomplete = missions.filter((m) => !m.completed);
+  const rewardTotal = incomplete.reduce((s, m) => s + (m.rewardValue ?? 0), 0);
+  const leafMissions = incomplete.filter((m) => m.rawMission.type !== "missions");
+  const costTotal = leafMissions.reduce((s, m) => s + m.remainingPrice, 0);
+  const unlockedTotal = settingsStore.subtractUnlockedCards
+    ? leafMissions.reduce((s, m) => s + m.unlockedCardsPrice, 0)
+    : 0;
+  return rewardTotal - costTotal - unlockedTotal;
+}
+
 const filteredMissions = computed(() => {
   let result = missions.value;
 
@@ -1049,20 +1060,12 @@ const groupedMissions = computed(
       );
       if (sortBy.value === "price") {
         groups.sort((a, b) => {
-          const aTotal = a.missions.reduce((s, m) => s + m.remainingPrice, 0);
-          const bTotal = b.missions.reduce((s, m) => s + m.remainingPrice, 0);
+          const aTotal = a.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
           return aTotal - bTotal;
         });
       } else if (sortBy.value === "value") {
-        groups.sort((a, b) => {
-          const aMax = Math.max(
-            ...a.missions.map((m) => m.missionValue ?? -Infinity),
-          );
-          const bMax = Math.max(
-            ...b.missions.map((m) => m.missionValue ?? -Infinity),
-          );
-          return bMax - aMax;
-        });
+        groups.sort((a, b) => groupNetValue(b.missions) - groupNetValue(a.missions));
       } else if (sortBy.value === "name") {
         groups.sort((a, b) => a.label.localeCompare(b.label));
       } else {
@@ -1109,20 +1112,12 @@ const groupedMissions = computed(
       }
       if (sortBy.value === "price") {
         chainGroups.sort((a, b) => {
-          const aTotal = a.missions.reduce((s, m) => s + m.remainingPrice, 0);
-          const bTotal = b.missions.reduce((s, m) => s + m.remainingPrice, 0);
+          const aTotal = a.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
           return aTotal - bTotal;
         });
       } else if (sortBy.value === "value") {
-        chainGroups.sort((a, b) => {
-          const aMax = Math.max(
-            ...a.missions.map((m) => m.missionValue ?? -Infinity),
-          );
-          const bMax = Math.max(
-            ...b.missions.map((m) => m.missionValue ?? -Infinity),
-          );
-          return bMax - aMax;
-        });
+        chainGroups.sort((a, b) => groupNetValue(b.missions) - groupNetValue(a.missions));
       } else if (sortBy.value === "name") {
         chainGroups.sort((a, b) => a.label.localeCompare(b.label));
       } else {
@@ -1179,7 +1174,18 @@ const groupedMissions = computed(
       }
       const groups: Array<{ label: string; missions: UserMission[] }> = Array.from(
         cardGroupMap.values(),
-      ).sort((a, b) => a.label.localeCompare(b.label));
+      );
+      if (sortBy.value === "price") {
+        groups.sort((a, b) => {
+          const aTotal = a.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          const bTotal = b.missions.filter((m) => m.rawMission.type !== "missions").reduce((s, m) => s + m.remainingPrice, 0);
+          return aTotal - bTotal;
+        });
+      } else if (sortBy.value === "value") {
+        groups.sort((a, b) => groupNetValue(b.missions) - groupNetValue(a.missions));
+      } else {
+        groups.sort((a, b) => a.label.localeCompare(b.label));
+      }
       const noCardGroup = filteredMissions.value.filter((m) => !assignedIds.has(m.id));
       if (noCardGroup.length > 0) {
         groups.push({ label: "No Card Reward", missions: noCardGroup });
