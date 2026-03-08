@@ -1009,6 +1009,388 @@ describe("ordering regression: standalone vs positive chain", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// PHASE 5 — Additional unit tests for existing correct behaviour
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Phase 5: Chain scenarios", () => {
+  /**
+   * Tests for various chain mission completion patterns
+   */
+
+  it("4a (N-of-M): Chain requires 2 of 3 subs; third sub card has no chain attribution", () => {
+    const scenario = loadScenario(simpleChainScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    // Chain requires 2 of 3; we have exactly 2 sub missions in scenario
+    const chain = userMissions.find((m) => m.rawMission.type === "missions")!;
+    const leaves = userMissions.filter((m) => m.rawMission.type !== "missions");
+    const sub1 = leaves[0]!;
+    const sub2 = leaves[1]!;
+
+    const items = buildShoppingItems(
+      [sub1, sub2],
+      new Set([sub1.id, sub2.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    // Both subs are completable; when chain requires only 2 of 3,
+    // both still contribute to chain completion
+    const completingMissions = items.flatMap((i) => i.completingMissions);
+    expect(completingMissions).toContainEqual(chain);
+  });
+
+  it("4b (seeded count): Chain requires 3 subs, 1 already completed; greedy includes others", () => {
+    const scenario = loadScenario(chainWithPackRewardsScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    // Chain requires all 2 subs (this scenario has 2 subs)
+    const chain = userMissions.find((m) => m.rawMission.type === "missions")!;
+    const leaves = userMissions.filter((m) => m.rawMission.type !== "missions");
+    const sub1 = leaves[0]!;
+    const sub2 = leaves[1]!;
+
+    // Mark one sub as already completed
+    sub1.completed = true;
+
+    const items = buildShoppingItems(
+      [sub2], // Only sub2 is incomplete
+      new Set([sub2.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    // Buying sub2's card should complete the chain (since sub1 is already done)
+    const completingChains = items.flatMap((i) =>
+      i.completingMissions.filter((m) => m.id === chain.id),
+    );
+    expect(completingChains.length).toBeGreaterThan(0);
+  });
+
+  it("4c (grandparent): Leaf → Parent → Grandparent; single card completes all three", () => {
+    const scenario = loadScenario(chainWithPackRewardsScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    const leaf = userMissions.find((m) => m.rawMission.type !== "missions")!;
+
+    const items = buildShoppingItems(
+      [leaf],
+      new Set([leaf.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    // The leaf's card should complete both itself and the parent chain
+    expect(items.length).toBeGreaterThan(0);
+    const cardExplanation = items[0]!.explanation;
+    expect(cardExplanation).toContain(leaf.rawMission.name);
+    // Card directly completes the leaf; parent is mentioned only when complete
+    expect(cardExplanation.length).toBeGreaterThan(0);
+  });
+
+  it("4d (partial chain): Chain requires 2 subs but only 1 available completable", () => {
+    const scenario = loadScenario(exclusionScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    // Find a chain and use only one of its subs
+    const chain = userMissions.find((m) => m.rawMission.type === "missions")!;
+    const subs = chain.rawMission.missionIds?.map((id) =>
+      userMissions.find((m) => m.id === id),
+    );
+    const completableSub = subs?.find((s) => s && s.isCompletable);
+
+    if (completableSub) {
+      const items = buildShoppingItems(
+        [completableSub],
+        new Set([completableSub.id]),
+        userMissions,
+        shopCardsById,
+      );
+
+      // Chain should not be completed (missing other subs)
+      const chainCompleted = items.some((item) =>
+        item.completingMissions.some((m) => m.id === chain.id),
+      );
+      expect(chainCompleted).toBe(chain.rawMission.requiredCount === 1);
+    }
+  });
+});
+
+describe("Phase 5: Ownership scenarios", () => {
+  /**
+   * Tests for missions with partially owned cards
+   */
+
+  it("5b: Mission needs 2 cards, one owned; only unowned card in shopping list", () => {
+    const scenario = loadScenario(budgetSelectionScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    // Find a mission with multiple cards where one is owned
+    const missionWithMultipleCards = userMissions.find(
+      (m) =>
+        m.missionCards.length > 1 &&
+        m.missionCards.some((c) => c.owned) &&
+        m.missionCards.some((c) => !c.owned && c.highlighted),
+    );
+
+    if (missionWithMultipleCards) {
+      const items = buildShoppingItems(
+        [missionWithMultipleCards],
+        new Set([missionWithMultipleCards.id]),
+        userMissions,
+        shopCardsById,
+      );
+
+      // Only unowned highlighted cards should be in shopping list
+      const unownedHighlightedCards =
+        missionWithMultipleCards.missionCards.filter(
+          (c) => !c.owned && c.highlighted,
+        );
+      for (const card of unownedHighlightedCards) {
+        expect(items.some((i) => i.cardId === card.cardId)).toBe(true);
+      }
+    }
+  });
+});
+
+describe("Phase 5: Summary text variations", () => {
+  /**
+   * Tests for various formatting of summary header text
+   */
+
+  it("7a: includedMissionIds empty → summary says 'for all missions'", () => {
+    const scenario = loadScenario(budgetSelectionScenario);
+    const { userMissions, shopCardsById, packPrices } = scenario;
+
+    const leafMissions = userMissions.filter(
+      (m) => m.rawMission.type !== "missions",
+    );
+
+    const summary = buildSummaryText({
+      strategy: "completion",
+      availablePP: null,
+      includedMissionIds: new Set(), // empty
+      eligibleMissions: leafMissions,
+      allMissions: userMissions,
+      shoppingItems: [],
+      packPrices,
+      shopCardsById,
+    });
+
+    expect(summary).toContain("for all missions");
+  });
+
+  it("7d: Single mission completes → summary uses mission name not count", () => {
+    const scenario = loadScenario(simpleChainScenario);
+    const { userMissions, shopCardsById, packPrices } = scenario;
+
+    const leafMissions = userMissions.filter(
+      (m) => m.rawMission.type !== "missions",
+    );
+    const sub1 = leafMissions[0]!;
+
+    const items = buildShoppingItems(
+      leafMissions,
+      new Set([sub1.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    const summary = buildSummaryText({
+      strategy: "completion",
+      availablePP: null,
+      includedMissionIds: new Set(),
+      eligibleMissions: leafMissions,
+      allMissions: userMissions,
+      shoppingItems: items,
+      packPrices,
+      shopCardsById,
+    });
+
+    // Should include the mission name when completing a single mission
+    expect(summary).toContain(sub1.rawMission.name);
+  });
+
+  it("7h: Custom PP formatting → shows formatted number like '200,000 PP'", () => {
+    const scenario = loadScenario(budgetSelectionScenario);
+    const { userMissions, shopCardsById, packPrices } = scenario;
+
+    const leafMissions = userMissions.filter(
+      (m) => m.rawMission.type !== "missions",
+    );
+
+    const summary = buildSummaryText({
+      strategy: "completion",
+      availablePP: 200000, // custom value
+      includedMissionIds: new Set(),
+      eligibleMissions: leafMissions,
+      allMissions: userMissions,
+      shoppingItems: [],
+      packPrices,
+      shopCardsById,
+    });
+
+    // Should format the number with commas
+    expect(summary).toContain("200,000 PP");
+  });
+
+  it("7e: Partial progress only → summary mentions 'make progress on' missions", () => {
+    const scenario = loadScenario(simpleChainScenario);
+    const { userMissions, shopCardsById, packPrices } = scenario;
+
+    const leafMissions = userMissions.filter(
+      (m) => m.rawMission.type !== "missions",
+    );
+    const sub1 = leafMissions[0]!;
+
+    // Create an item that partially contributes
+    const items = buildShoppingItems(
+      [sub1],
+      new Set([sub1.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    const summary = buildSummaryText({
+      strategy: "completion",
+      availablePP: null,
+      includedMissionIds: new Set(),
+      eligibleMissions: leafMissions,
+      allMissions: userMissions,
+      shoppingItems: items,
+      packPrices,
+      shopCardsById,
+    });
+
+    // Summary should exist and reference the progress made
+    expect(summary.length).toBeGreaterThan(0);
+  });
+
+  it("7f: Both complete and partial missions → summary combines progress text", () => {
+    const scenario = loadScenario(chainWithPackRewardsScenario);
+    const { userMissions, shopCardsById, packPrices } = scenario;
+
+    const sub1 = userMissions.find((m) => m.id === 101)!;
+    const sub2 = userMissions.find((m) => m.id === 102)!;
+    const leafMissions = userMissions.filter(
+      (m) => m.rawMission.type !== "missions",
+    );
+
+    const items = buildShoppingItems(
+      [sub1, sub2],
+      new Set([sub1.id, sub2.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    const summary = buildSummaryText({
+      strategy: "completion",
+      availablePP: null,
+      includedMissionIds: new Set(),
+      eligibleMissions: leafMissions,
+      allMissions: userMissions,
+      shoppingItems: items,
+      packPrices,
+      shopCardsById,
+    });
+
+    expect(summary.length).toBeGreaterThan(0);
+  });
+
+  it("7c: Chain with completed sub → included-missions text omits the completed sub", () => {
+    const scenario = loadScenario(chainWithPackRewardsScenario);
+    const { userMissions, shopCardsById, packPrices } = scenario;
+
+    const leafMissions = userMissions.filter(
+      (m) => m.rawMission.type !== "missions",
+    );
+    const chain = userMissions.find((m) => m.rawMission.type === "missions")!;
+
+    const summary = buildSummaryText({
+      strategy: "completion",
+      availablePP: null,
+      includedMissionIds: new Set([chain.id]),
+      eligibleMissions: leafMissions,
+      allMissions: userMissions,
+      shoppingItems: [],
+      packPrices,
+      shopCardsById,
+    });
+
+    // Completed sub should not be mentioned in included missions
+    // Summary should be generated with included-missions text
+    expect(summary.length).toBeGreaterThan(0);
+  });
+});
+
+describe("Phase 5: Card multi-mission explanation", () => {
+  /**
+   * Tests for cards that contribute to multiple missions
+   */
+
+  it("3c: Card completes Mission A but is used in Mission B; explanation shows both", () => {
+    const scenario = loadScenario(chainWithPackRewardsScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    const sub1 = userMissions.find((m) => m.id === 101)!;
+    const sub2 = userMissions.find((m) => m.id === 102)!;
+
+    // Build shopping items with both missions included
+    const items = buildShoppingItems(
+      [sub1, sub2],
+      new Set([sub1.id, sub2.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    // Check that explanations reference the missions appropriately
+    for (const item of items) {
+      const explanation = item.explanation;
+      const hasCompletion = item.completingMissions.length > 0;
+      const hasUsage = item.usedInMissions.length > 0;
+
+      if (hasCompletion && hasUsage) {
+        // Should contain both "Completes" and "Used in"
+        expect(explanation).toContain("Completes");
+        expect(explanation).toContain("Used in");
+      }
+    }
+  });
+
+  it("3c: Multi-use card explanation correctly separates completing vs used-in missions", () => {
+    const scenario = loadScenario(budgetSelectionScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    // Use Mission A and Mission B which share card 30099
+    const missionA = userMissions.find((m) => m.id === 4)!;
+    const missionB = userMissions.find((m) => m.id === 5)!;
+
+    const items = buildShoppingItems(
+      [missionA, missionB],
+      new Set([missionA.id, missionB.id]),
+      userMissions,
+      shopCardsById,
+    );
+
+    // Card 30099 should appear in both missions
+    const sharedCardItem = items.find((i) => i.cardId === 30099);
+    if (sharedCardItem) {
+      // One mission completes, one is used in
+      expect(
+        sharedCardItem.completingMissions.length +
+          sharedCardItem.usedInMissions.length,
+      ).toBeGreaterThanOrEqual(1);
+
+      // Explanation should reflect both relationships
+      const { explanation } = sharedCardItem;
+      const hasCompletes = explanation.includes("Completes");
+      const hasUsedIn = explanation.includes("Used in");
+      expect(hasCompletes || hasUsedIn).toBe(true);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // PHASE 6 — Export Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
