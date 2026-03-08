@@ -288,19 +288,18 @@
             >(?)</span
           >
         </div>
+        <div class="mark-complete-row">
+          <button
+            class="btn-shopping-mode"
+            :class="{ 'btn-shopping-mode--active': showShoppingList }"
+            @click="showShoppingList = !showShoppingList"
+          >
+            🛒 Shopping List Mode
+          </button>
+        </div>
       </div>
 
       <PackPriceSettings />
-
-      <div class="sidebar-section">
-        <button
-          class="sidebar-btn-shopping"
-          :class="{ 'sidebar-btn-shopping--active': showShoppingList }"
-          @click="showShoppingList = !showShoppingList"
-        >
-          🛒 Shopping List
-        </button>
-      </div>
 
       <div class="sidebar-spacer" />
 
@@ -421,8 +420,11 @@
             :remainingPriceText="remainingPriceText"
             :selectMission="selectMission"
             :selectedMission="selectedMission"
+            :isShoppingListMode="showShoppingList"
+            :shoppingListMissionIds="shoppingListMissionIds"
             @calculateMission="missionStore.calculateMissionDetails"
             @calculateGroup="missionStore.calculateAllNotCalculatedMissions"
+            @includeMission="toggleMissionInShoppingList"
           />
         </template>
       </section>
@@ -430,7 +432,14 @@
       <!-- ─── SHOPPING LIST PANEL ─── -->
       <template v-if="showShoppingList">
         <aside class="detail-panel">
-          <ShoppingList :missions="missions" />
+          <ShoppingList
+            :missions="missions"
+            :includedMissionIds="shoppingListMissionIds"
+            :packPrices="settingsStore.packPrices"
+            :shopCardsById="cardStore.shopCardsById"
+            @removeMission="removeMissionFromShoppingList"
+            @clearMissions="clearShoppingListMissions"
+          />
         </aside>
       </template>
 
@@ -681,6 +690,27 @@ function collectDescendantIds(
 
 const selectedMission = ref<UserMission | null>(null);
 const showShoppingList = ref(false);
+const shoppingListMissionIds = ref<Set<number>>(new Set());
+
+function toggleMissionInShoppingList(missionId: number) {
+  const next = new Set(shoppingListMissionIds.value);
+  if (next.has(missionId)) {
+    next.delete(missionId);
+  } else {
+    next.add(missionId);
+  }
+  shoppingListMissionIds.value = next;
+}
+
+function removeMissionFromShoppingList(missionId: number) {
+  const next = new Set(shoppingListMissionIds.value);
+  next.delete(missionId);
+  shoppingListMissionIds.value = next;
+}
+
+function clearShoppingListMissions() {
+  shoppingListMissionIds.value = new Set();
+}
 const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
 const selectedMissionFilter = ref<number | "">();
@@ -1438,6 +1468,37 @@ watch(
   color: #fee2e2;
 }
 
+.btn-shopping-mode {
+  background: transparent;
+  color: #93c5fd;
+  border: 1px solid #60a5fa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  width: 100%;
+}
+
+.btn-shopping-mode:hover {
+  background: rgba(96, 165, 250, 0.15);
+  color: #bfdbfe;
+}
+
+.btn-shopping-mode--active {
+  background: #1e40af;
+  color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.btn-shopping-mode--active:hover {
+  background: #1d4ed8;
+  color: #eff6ff;
+}
+
 .sidebar-spacer {
   flex: 1;
 }
@@ -1733,41 +1794,6 @@ watch(
   .resize-handle {
     display: none;
   }
-}
-
-/* ─── SHOPPING LIST BUTTON ─── */
-.sidebar-btn-shopping {
-  background: transparent;
-  color: var(--sidebar-muted);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 0.83rem;
-  font-weight: 500;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
-}
-
-.sidebar-btn-shopping:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--sidebar-text);
-}
-
-.sidebar-btn-shopping--active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-.sidebar-btn-shopping--active:hover {
-  background: var(--accent);
-  color: #fff;
-  opacity: 0.9;
 }
 
 /* ─── MISSION NOTES BUTTON ─── */

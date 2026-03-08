@@ -1,54 +1,130 @@
 <template>
   <div class="shopping-list-panel">
-    <!-- Header -->
+    <!-- ─── HEADER ─── -->
     <div class="sl-header">
       <h3 class="sl-title">Shopping List</h3>
-      <select v-model="sortBy" class="sl-sort-select">
-        <option value="missions">Most Missions</option>
-        <option value="price">Cheapest</option>
-        <option value="efficiency">Best Value</option>
-      </select>
+      <div class="sl-header-actions">
+        <button
+          v-if="shoppingItems.length > 0"
+          class="sl-export-btn"
+          @click="exportCsv"
+          title="Export as CSV"
+        >
+          CSV
+        </button>
+        <button
+          v-if="shoppingItems.length > 0"
+          class="sl-export-btn"
+          @click="exportHtml"
+          title="Export full report as HTML"
+        >
+          HTML
+        </button>
+        <button
+          class="sl-collapse-btn"
+          @click="isInputCollapsed = !isInputCollapsed"
+          :aria-expanded="!isInputCollapsed"
+        >
+          Settings {{ isInputCollapsed ? "▼" : "▲" }}
+        </button>
+      </div>
     </div>
 
-    <!-- Chain filter chips -->
-    <div class="sl-chain-filter">
-      <button
-        class="sl-chip"
-        :class="{ 'sl-chip--active': selectedChainLabels.size === 0 }"
-        @click="selectedChainLabels = new Set()"
-      >
-        All
-      </button>
-      <button
-        v-for="chain in availableChains"
-        :key="chain.label"
-        class="sl-chip"
-        :class="{ 'sl-chip--active': selectedChainLabels.has(chain.label) }"
-        @click="toggleChain(chain.label)"
-      >
-        {{ chain.label }}
-      </button>
+    <!-- ─── SETTINGS (collapsible) ─── -->
+    <div v-if="!isInputCollapsed" class="sl-settings">
+      <!-- Strategy -->
+      <div class="sl-setting-row">
+        <span class="sl-setting-label">Strategy</span>
+        <div class="sl-radio-group">
+          <label class="sl-radio-label">
+            <input type="radio" v-model="strategy" value="value" />
+            Mission Value
+          </label>
+          <label class="sl-radio-label">
+            <input type="radio" v-model="strategy" value="completion" />
+            Mission Completion
+          </label>
+        </div>
+      </div>
+
+      <!-- Available PP -->
+      <div class="sl-setting-row">
+        <span class="sl-setting-label">Available PP</span>
+        <div class="sl-radio-group">
+          <label class="sl-radio-label">
+            <input type="radio" v-model="ppMode" value="unlimited" />
+            Unlimited
+          </label>
+          <label class="sl-radio-label">
+            <input type="radio" v-model="ppMode" value="custom" />
+            Custom
+          </label>
+          <input
+            v-if="ppMode === 'custom'"
+            type="number"
+            class="sl-pp-input"
+            v-model.number="ppInput"
+            placeholder="e.g. 200000"
+            min="0"
+          />
+        </div>
+      </div>
+
+      <!-- Included Missions -->
+      <div class="sl-setting-row sl-setting-row--missions">
+        <span class="sl-setting-label">Included Missions</span>
+        <div class="sl-missions-section">
+          <span v-if="includedMissions.length === 0" class="sl-missions-all">
+            All (use "Include" on missions to narrow scope)
+          </span>
+          <div v-else class="sl-missions-tags">
+            <span
+              v-for="mission in includedMissions"
+              :key="mission.id"
+              class="sl-mission-tag"
+            >
+              {{ mission.rawMission.name }}
+              <button
+                class="sl-tag-remove"
+                @click="$emit('removeMission', mission.id)"
+                title="Remove"
+              >
+                ×
+              </button>
+            </span>
+            <button class="sl-clear-btn" @click="$emit('clearMissions')">
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Empty state -->
-    <p v-if="shoppingItems.length === 0" class="sl-empty">
-      No cards to buy. Calculate missions first to see shopping suggestions.
+    <!-- ─── SUMMARY HEADER ─── -->
+    <div v-if="eligibleMissions.length > 0" class="sl-summary">
+      <p class="sl-summary-text">{{ summaryText }}</p>
+    </div>
+
+    <!-- ─── EMPTY STATES ─── -->
+    <p v-if="eligibleMissions.length === 0" class="sl-empty">
+      No calculated missions found. Use the Calculate button on missions to get started.
+    </p>
+    <p v-else-if="shoppingItems.length === 0" class="sl-empty">
+      No cards to buy — all missions are already completable with owned cards.
     </p>
 
-    <!-- Card rows -->
+    <!-- ─── CARD LIST ─── -->
     <div
       v-for="item in shoppingItems"
       :key="item.cardId"
       class="sl-item"
+      :class="{ 'sl-item--completing': item.completingMissions.length > 0 }"
     >
       <div class="sl-item-main">
         <span class="sl-card-title">{{ item.title }}</span>
-        <span class="sl-mission-badge">{{ item.missionCount }}x</span>
-      </div>
-      <div class="sl-item-sub">
         <span class="sl-price">{{ item.price.toLocaleString() }} PP</span>
-        <span class="sl-missions">{{ item.missions.map((m) => m.rawMission.name).join(", ") }}</span>
       </div>
+      <div class="sl-item-explanation">{{ item.explanation }}</div>
     </div>
   </div>
 </template>
@@ -56,20 +132,28 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { UserMission } from "../models/UserMission";
+import type { ShopCard } from "../models/ShopCard";
+import { PACK_TYPE_LABELS } from "../stores/useSettingsStore";
 
-const props = defineProps<{ missions: UserMission[] }>();
-
-interface ShoppingItem {
-  cardId: number;
-  title: string;
-  price: number;
-  missionCount: number;
+const props = defineProps<{
   missions: UserMission[];
-}
+  includedMissionIds: Set<number>;
+  packPrices: Map<string, number>;
+  shopCardsById: Map<number, ShopCard>;
+}>();
 
-const selectedChainLabels = ref<Set<string>>(new Set());
-const sortBy = ref<"missions" | "price" | "efficiency">("missions");
+defineEmits<{
+  (e: "removeMission", id: number): void;
+  (e: "clearMissions"): void;
+}>();
 
+// ─── STATE ───
+const strategy = ref<"value" | "completion">("value");
+const ppMode = ref<"unlimited" | "custom">("unlimited");
+const ppInput = ref<number | null>(null);
+const isInputCollapsed = ref(false);
+
+// ─── HELPERS ───
 function collectDescendantIds(
   rootId: number,
   missionById: Map<number, UserMission>,
@@ -88,66 +172,100 @@ function collectDescendantIds(
   return result;
 }
 
-const availableChains = computed(() => {
-  const allSubIds = new Set<number>();
-  for (const m of props.missions) {
-    if (m.rawMission.type === "missions" && m.rawMission.missionIds) {
-      m.rawMission.missionIds.forEach((id) => allSubIds.add(id));
-    }
-  }
-  const missionById = new Map(props.missions.map((m) => [m.id, m]));
-  const incompleteCalculatedIds = new Set(
-    props.missions
-      .filter((m) => !m.completed && m.progressText !== "Not Calculated")
-      .map((m) => m.id),
-  );
-  const chainRoots = props.missions.filter(
-    (m) => m.rawMission.type === "missions" && !allSubIds.has(m.id),
-  );
-  return chainRoots
-    .map((root) => {
-      const descendantIds = collectDescendantIds(root.id, missionById);
-      const memberIds = new Set([root.id, ...descendantIds]);
-      return { label: root.rawMission.name, memberIds };
-    })
-    .filter((chain) =>
-      [...chain.memberIds].some((id) => incompleteCalculatedIds.has(id)),
-    );
+// ─── COMPUTED: Available PP ───
+const availablePP = computed((): number | null => {
+  if (ppMode.value === "unlimited") return null;
+  const val = ppInput.value;
+  return val !== null && !isNaN(val) && val > 0 ? val : null;
 });
 
-function toggleChain(label: string) {
-  const next = new Set(selectedChainLabels.value);
-  if (next.has(label)) {
-    next.delete(label);
-  } else {
-    next.add(label);
-  }
-  selectedChainLabels.value = next;
-}
+// ─── COMPUTED: Missions explicitly added ───
+const includedMissions = computed(() =>
+  props.missions.filter((m) => props.includedMissionIds.has(m.id)),
+);
 
-const shoppingItems = computed((): ShoppingItem[] => {
-  // Filter to incomplete missions that have been calculated
-  let eligibleMissions = props.missions.filter(
+// ─── COMPUTED: Eligible missions for shopping list ───
+const eligibleMissions = computed(() => {
+  const incomplete = props.missions.filter(
     (m) => !m.completed && m.progressText !== "Not Calculated",
   );
 
-  // Apply chain filter
-  if (selectedChainLabels.value.size > 0) {
-    const allowedIds = new Set<number>();
-    for (const chain of availableChains.value) {
-      if (selectedChainLabels.value.has(chain.label)) {
-        chain.memberIds.forEach((id) => allowedIds.add(id));
-      }
-    }
-    eligibleMissions = eligibleMissions.filter((m) => allowedIds.has(m.id));
+  if (props.includedMissionIds.size === 0) return incomplete;
+
+  const missionById = new Map(props.missions.map((m) => [m.id, m]));
+  const expandedIds = new Set<number>();
+  for (const id of props.includedMissionIds) {
+    expandedIds.add(id);
+    collectDescendantIds(id, missionById).forEach((did) =>
+      expandedIds.add(did),
+    );
+  }
+  return incomplete.filter((m) => expandedIds.has(m.id));
+});
+
+// ─── COMPUTED: Selected mission IDs (greedy budget selection) ───
+const selectedMissionIds = computed((): Set<number> => {
+  // Only leaf missions contribute cards to the shopping list
+  const leafMissions = eligibleMissions.value.filter(
+    (m) => m.rawMission.type !== "missions",
+  );
+
+  if (availablePP.value === null) {
+    return new Set(leafMissions.map((m) => m.id));
   }
 
-  // Aggregate highlighted unowned cards across missions
+  let remainingBudget = availablePP.value;
+  const selectedIds = new Set<number>();
+  const includedCardIds = new Set<number>();
+
+  const sorted = [...leafMissions].sort((a, b) => {
+    if (strategy.value === "completion") {
+      return a.remainingPrice - b.remainingPrice;
+    } else {
+      const aRatio = (a.rewardValue ?? 0) / Math.max(1, a.remainingPrice);
+      const bRatio = (b.rewardValue ?? 0) / Math.max(1, b.remainingPrice);
+      return bRatio - aRatio;
+    }
+  });
+
+  for (const mission of sorted) {
+    if (mission.remainingPrice <= 0) {
+      selectedIds.add(mission.id);
+      continue;
+    }
+    const newCards = mission.missionCards.filter(
+      (c) => c.highlighted && !c.owned && !includedCardIds.has(c.cardId),
+    );
+    const newCost = newCards.reduce((sum, c) => sum + c.price, 0);
+    if (newCost <= remainingBudget) {
+      selectedIds.add(mission.id);
+      newCards.forEach((c) => includedCardIds.add(c.cardId));
+      remainingBudget -= newCost;
+    }
+  }
+
+  return selectedIds;
+});
+
+// ─── COMPUTED: Shopping items (final card list) ───
+interface ShoppingItem {
+  cardId: number;
+  title: string;
+  price: number;
+  missionCount: number;
+  completingMissions: UserMission[];
+  usedInMissions: UserMission[];
+  explanation: string;
+}
+
+const shoppingItems = computed((): ShoppingItem[] => {
   const cardMap = new Map<
     number,
     { title: string; price: number; missions: UserMission[] }
   >();
-  for (const mission of eligibleMissions) {
+
+  for (const mission of eligibleMissions.value) {
+    if (!selectedMissionIds.value.has(mission.id)) continue;
     for (const card of mission.missionCards) {
       if (!card.highlighted || card.owned) continue;
       const existing = cardMap.get(card.cardId);
@@ -163,29 +281,336 @@ const shoppingItems = computed((): ShoppingItem[] => {
     }
   }
 
+  const shoppingCardIds = new Set(cardMap.keys());
+
   const items: ShoppingItem[] = Array.from(cardMap.entries()).map(
-    ([cardId, data]) => ({
-      cardId,
-      title: data.title,
-      price: data.price,
-      missionCount: data.missions.length,
-      missions: data.missions,
-    }),
+    ([cardId, data]) => {
+      // "Completes" only when this card is the sole shopping-list card the mission
+      // needs — all other unowned needed cards are already owned (not in the list).
+      const completingMissions = data.missions.filter((m) => {
+        const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
+        if (needed.length === 0) return false;
+        const neededFromList = needed.filter((c) => shoppingCardIds.has(c.cardId));
+        return neededFromList.length === 1 && neededFromList[0].cardId === cardId;
+      });
+      const usedInMissions = data.missions.filter(
+        (m) => !completingMissions.includes(m),
+      );
+      return {
+        cardId,
+        title: data.title,
+        price: data.price,
+        missionCount: data.missions.length,
+        completingMissions,
+        usedInMissions,
+        explanation: buildExplanation(usedInMissions, completingMissions),
+      };
+    },
   );
 
-  if (sortBy.value === "missions") {
-    items.sort((a, b) => b.missionCount - a.missionCount || a.price - b.price);
-  } else if (sortBy.value === "price") {
-    items.sort((a, b) => a.price - b.price);
-  } else {
-    // efficiency: cheapest per mission helped
-    items.sort(
-      (a, b) => a.price / a.missionCount - b.price / b.missionCount,
-    );
-  }
+  // Sort: completing-only cards first, then by mission count desc, then price asc
+  items.sort((a, b) => {
+    if (b.completingMissions.length !== a.completingMissions.length)
+      return b.completingMissions.length - a.completingMissions.length;
+    if (b.missionCount !== a.missionCount) return b.missionCount - a.missionCount;
+    return a.price - b.price;
+  });
 
   return items;
 });
+
+// ─── COMPUTED: Cards in shopping list (for completion checks) ───
+const shoppingCardIds = computed(
+  () => new Set(shoppingItems.value.map((i) => i.cardId)),
+);
+
+// ─── COMPUTED: Missions completed by the shopping list ───
+// Propagates through missions-type parents: a parent is completed when enough
+// of its sub-missions are completed (already or via the shopping list).
+const completedByList = computed(() => {
+  const missionById = new Map(props.missions.map((m) => [m.id, m]));
+
+  // Seed with already-completed missions
+  const willBeCompleted = new Set<number>(
+    props.missions.filter((m) => m.completed).map((m) => m.id),
+  );
+
+  // Leaf missions completed by buying all their needed cards
+  for (const m of eligibleMissions.value) {
+    if (m.rawMission.type === "missions") continue;
+    const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
+    if (needed.length > 0 && needed.every((c) => shoppingCardIds.value.has(c.cardId))) {
+      willBeCompleted.add(m.id);
+    }
+  }
+
+  // Propagate up through missions-type parents
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const m of props.missions) {
+      if (willBeCompleted.has(m.id) || m.rawMission.type !== "missions") continue;
+      const subIds = m.rawMission.missionIds ?? [];
+      const doneCount = subIds.filter((sid) => willBeCompleted.has(sid)).length;
+      if (doneCount >= m.rawMission.requiredCount) {
+        willBeCompleted.add(m.id);
+        changed = true;
+      }
+    }
+  }
+
+  // Return only missions newly completed by the list (not already done)
+  return props.missions.filter((m) => willBeCompleted.has(m.id) && !m.completed);
+});
+
+// ─── COMPUTED: Missions partially progressed ───
+const partialByList = computed(() =>
+  eligibleMissions.value.filter((m) => {
+    if (m.rawMission.type === "missions") return false;
+    const needed = m.missionCards.filter((c) => c.highlighted && !c.owned);
+    if (needed.length === 0) return false;
+    const hasAny = needed.some((c) => shoppingCardIds.value.has(c.cardId));
+    const hasAll = needed.every((c) => shoppingCardIds.value.has(c.cardId));
+    return hasAny && !hasAll;
+  }),
+);
+
+// ─── TEXT HELPERS ───
+function formatMissionReward(mission: UserMission): string {
+  const rewards = mission.rawMission.rewards ?? [];
+  const parts: string[] = [];
+  for (const reward of rewards) {
+    if (reward.type === "pack") {
+      const label = PACK_TYPE_LABELS[reward.packType] ?? reward.packType;
+      parts.push(`${reward.count}x ${label}`);
+    } else if (reward.type === "card" && reward.cardId > 0) {
+      const shopCard = props.shopCardsById.get(reward.cardId);
+      const count = reward.count ?? 1;
+      const name = shopCard ? shopCard.cardTitle : `Card #${reward.cardId}`;
+      parts.push(count > 1 ? `${count}x ${name}` : name);
+    }
+  }
+  return parts.join(", ");
+}
+
+function buildExplanation(
+  usedIn: UserMission[],
+  completing: UserMission[],
+): string {
+  const parts: string[] = [];
+  if (usedIn.length > 0) {
+    const names = usedIn.map((m) => `'${m.rawMission.name}'`).join(" and ");
+    parts.push(`Used in ${names}`);
+  }
+  for (const m of completing) {
+    const rewardStr = formatMissionReward(m);
+    if (rewardStr && m.rewardValue) {
+      parts.push(
+        `Completes '${m.rawMission.name}' for ${rewardStr} valued at ${m.rewardValue.toLocaleString()} PP`,
+      );
+    } else if (rewardStr) {
+      parts.push(`Completes '${m.rawMission.name}' for ${rewardStr}`);
+    } else {
+      parts.push(`Completes '${m.rawMission.name}'`);
+    }
+  }
+  return parts.join("; ");
+}
+
+function buildRewardSummaryParts(missions: UserMission[]): string[] {
+  const packCounts = new Map<string, number>();
+  const cardItems: string[] = [];
+
+  for (const mission of missions) {
+    for (const reward of mission.rawMission.rewards ?? []) {
+      if (reward.type === "pack") {
+        packCounts.set(
+          reward.packType,
+          (packCounts.get(reward.packType) ?? 0) + reward.count,
+        );
+      } else if (reward.type === "card" && reward.cardId > 0) {
+        const shopCard = props.shopCardsById.get(reward.cardId);
+        const count = reward.count ?? 1;
+        const name = shopCard ? shopCard.cardTitle : `Card #${reward.cardId}`;
+        cardItems.push(count > 1 ? `${count}x ${name}` : name);
+      }
+    }
+  }
+
+  const sortedPacks = Array.from(packCounts.entries()).sort(
+    (a, b) => (props.packPrices.get(b[0]) ?? 0) - (props.packPrices.get(a[0]) ?? 0),
+  );
+  const parts: string[] = sortedPacks.map(([packType, count]) => {
+    const label = PACK_TYPE_LABELS[packType] ?? packType;
+    return `${count} ${label}`;
+  });
+  parts.push(...cardItems);
+  return parts;
+}
+
+// ─── COMPUTED: Text fields ───
+const includedMissionsText = computed(() => {
+  if (props.includedMissionIds.size === 0) return "all missions";
+
+  const missionById = new Map(props.missions.map((m) => [m.id, m]));
+  const items: string[] = [];
+
+  for (const id of props.includedMissionIds) {
+    const mission = missionById.get(id);
+    if (!mission) continue;
+    if (
+      mission.rawMission.type === "missions" &&
+      mission.rawMission.missionIds?.length
+    ) {
+      const subNames = mission.rawMission.missionIds
+        .map((sid) => missionById.get(sid))
+        .filter((sub) => sub && !sub.completed)
+        .map((sub) => `'${sub!.rawMission.name}'`);
+      if (subNames.length > 0) {
+        const subsStr =
+          subNames.length === 1
+            ? subNames[0]
+            : subNames.slice(0, -1).join(", ") +
+              " and " +
+              subNames[subNames.length - 1];
+        items.push(
+          `'${mission.rawMission.name}' which includes sub missions ${subsStr}`,
+        );
+      } else {
+        items.push(`'${mission.rawMission.name}'`);
+      }
+    } else {
+      items.push(`'${mission.rawMission.name}'`);
+    }
+  }
+
+  if (items.length === 0) return "all missions";
+  if (items.length === 1) return items[0];
+  return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+});
+
+const progressText = computed(() => {
+  if (shoppingItems.value.length === 0) {
+    return "make no progress";
+  }
+
+  const completed = completedByList.value;
+  const partial = partialByList.value;
+  let text = "";
+
+  if (completed.length > 0) {
+    const countText =
+      completed.length === 1
+        ? `'${completed[0].rawMission.name}'`
+        : `${completed.length} missions`;
+    const rewardParts = buildRewardSummaryParts(completed);
+    const totalValue = completed.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0);
+
+    text = `complete ${countText}`;
+    if (rewardParts.length > 0 && totalValue > 0) {
+      text += ` giving ${rewardParts.join(", ")} for a combined value of ${totalValue.toLocaleString()} PP`;
+    } else if (rewardParts.length > 0) {
+      text += ` giving ${rewardParts.join(", ")}`;
+    }
+  }
+
+  if (partial.length > 0) {
+    const connector = text ? " and make progress on" : "make progress on";
+    const countText =
+      partial.length === 1
+        ? `'${partial[0].rawMission.name}'`
+        : `${partial.length} missions`;
+    text += ` ${connector} ${countText}`;
+  }
+
+  if (!text) {
+    text = "not complete any included missions (partial progress may occur)";
+  }
+
+  return text;
+});
+
+const summaryText = computed(() => {
+  const strategyStr =
+    strategy.value === "value" ? "maximize value" : "complete missions";
+  const ppStr =
+    availablePP.value === null
+      ? "unlimited PP"
+      : `${availablePP.value.toLocaleString()} PP`;
+  return `Shopping List to ${strategyStr} with ${ppStr} for ${includedMissionsText.value}. Buy the following cards in order to ${progressText.value}.`;
+});
+
+// ─── EXPORT ───
+function downloadFile(filename: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCsv() {
+  const rows = [["Card Title", "Cost (PP)", "Explanation"]];
+  for (const item of shoppingItems.value) {
+    rows.push([item.title, item.price.toString(), item.explanation]);
+  }
+  const csv = rows
+    .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  downloadFile("ootp-shopping-list.csv", csv, "text/csv;charset=utf-8;");
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function exportHtml() {
+  const rows = shoppingItems.value
+    .map(
+      (item) => `
+      <tr>
+        <td>${escapeHtml(item.title)}</td>
+        <td class="price">${item.price.toLocaleString()}</td>
+        <td>${escapeHtml(item.explanation)}</td>
+      </tr>`,
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>OOTP Shopping List</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 2rem; color: #1e293b; }
+    h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .summary { background: #f1f5f9; border-left: 4px solid #6366f1; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { background: #1e293b; color: #f8fafc; padding: 10px 14px; text-align: left; font-weight: 600; }
+    td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    tr:hover td { background: #f8fafc; }
+    .price { font-weight: 600; color: #16a34a; white-space: nowrap; }
+    .explanation { color: #475569; }
+  </style>
+</head>
+<body>
+  <h1>OOTP Shopping List</h1>
+  <div class="summary">${escapeHtml(summaryText.value)}</div>
+  <table>
+    <thead><tr><th>Card</th><th>Cost (PP)</th><th>Explanation</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+</body>
+</html>`;
+
+  downloadFile("ootp-shopping-list.html", html, "text/html;charset=utf-8;");
+}
 </script>
 
 <style scoped>
@@ -199,6 +624,7 @@ const shoppingItems = computed((): ShoppingItem[] => {
   gap: 0.75rem;
 }
 
+/* ─── HEADER ─── */
 .sl-header {
   display: flex;
   align-items: center;
@@ -206,6 +632,7 @@ const shoppingItems = computed((): ShoppingItem[] => {
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--card-border);
   flex-shrink: 0;
+  gap: 0.5rem;
 }
 
 .sl-title {
@@ -215,56 +642,199 @@ const shoppingItems = computed((): ShoppingItem[] => {
   color: var(--text-primary, #1e293b);
 }
 
-.sl-sort-select {
-  font-size: 0.78rem;
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--card-border);
-  background: var(--detail-bg);
-  color: var(--text-primary, #1e293b);
-  cursor: pointer;
-}
-
-.sl-chain-filter {
+.sl-header-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.4rem;
   flex-shrink: 0;
 }
 
-.sl-chip {
-  padding: 3px 10px;
-  border-radius: 9999px;
+.sl-export-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 5px;
   border: 1px solid var(--card-border);
-  background: transparent;
+  background: var(--detail-bg);
   color: #64748b;
-  font-size: 0.75rem;
-  font-weight: 500;
   cursor: pointer;
   transition:
     background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
+    color 0.15s;
+}
+
+.sl-export-btn:hover {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+.sl-collapse-btn {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--card-border);
+  background: var(--detail-bg);
+  color: #64748b;
+  cursor: pointer;
   white-space: nowrap;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
-.sl-chip:hover {
-  background: rgba(99, 102, 241, 0.08);
-  border-color: var(--accent);
-  color: var(--accent);
+.sl-collapse-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
-.sl-chip--active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+/* ─── SETTINGS ─── */
+.sl-settings {
+  background: #f8fafc;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex-shrink: 0;
 }
 
-.sl-chip--active:hover {
-  background: var(--accent);
-  color: #fff;
+.sl-setting-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
 }
 
+.sl-setting-row--missions {
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sl-setting-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  white-space: nowrap;
+  min-width: 90px;
+  padding-top: 2px;
+}
+
+.sl-setting-row--missions .sl-setting-label {
+  min-width: unset;
+  padding-top: 0;
+}
+
+.sl-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+}
+
+.sl-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.sl-pp-input {
+  width: 110px;
+  padding: 3px 7px;
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+  font-size: 0.82rem;
+  background: #fff;
+  color: #1e293b;
+}
+
+.sl-pp-input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.sl-missions-section {
+  width: 100%;
+}
+
+.sl-missions-all {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.sl-missions-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.sl-mission-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 9999px;
+  padding: 2px 8px 2px 10px;
+}
+
+.sl-tag-remove {
+  background: none;
+  border: none;
+  color: #3730a3;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.sl-tag-remove:hover {
+  opacity: 1;
+}
+
+.sl-clear-btn {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid #fca5a5;
+  background: transparent;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sl-clear-btn:hover {
+  background: #fee2e2;
+}
+
+/* ─── SUMMARY ─── */
+.sl-summary {
+  background: #eff6ff;
+  border-left: 3px solid #6366f1;
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.sl-summary-text {
+  font-size: 0.82rem;
+  color: #1e293b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ─── EMPTY STATE ─── */
 .sl-empty {
   color: #94a3b8;
   font-size: 0.85rem;
@@ -273,6 +843,7 @@ const shoppingItems = computed((): ShoppingItem[] => {
   margin: 0;
 }
 
+/* ─── CARD ITEMS ─── */
 .sl-item {
   border: 1px solid var(--card-border);
   border-radius: 8px;
@@ -280,13 +851,17 @@ const shoppingItems = computed((): ShoppingItem[] => {
   background: #fff;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
   transition: box-shadow 0.15s;
   flex-shrink: 0;
 }
 
 .sl-item:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sl-item--completing {
+  border-left: 3px solid #16a34a;
 }
 
 .sl-item-main {
@@ -304,23 +879,6 @@ const shoppingItems = computed((): ShoppingItem[] => {
   min-width: 0;
 }
 
-.sl-mission-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 9999px;
-  padding: 2px 8px;
-  flex-shrink: 0;
-}
-
-.sl-item-sub {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  min-width: 0;
-}
-
 .sl-price {
   font-size: 0.8rem;
   font-weight: 600;
@@ -328,12 +886,9 @@ const shoppingItems = computed((): ShoppingItem[] => {
   flex-shrink: 0;
 }
 
-.sl-missions {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
+.sl-item-explanation {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.45;
 }
 </style>

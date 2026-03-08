@@ -284,13 +284,23 @@
               >
                 Calculate
               </button>
-              <button
-                v-else
-                class="btn-action btn-select"
-                @click="selectMission(mission)"
-              >
-                Select
-              </button>
+              <template v-else>
+                <button
+                  v-if="props.isShoppingListMode"
+                  class="btn-action btn-include"
+                  :class="{ 'btn-include--active': props.shoppingListMissionIds.has(mission.id) }"
+                  @click="$emit('includeMission', mission.id)"
+                >
+                  {{ props.shoppingListMissionIds.has(mission.id) ? "Included ✓" : "Include" }}
+                </button>
+                <button
+                  v-else
+                  class="btn-action btn-select"
+                  @click="selectMission(mission)"
+                >
+                  Select
+                </button>
+              </template>
               <button
                 v-if="
                   missionStore.manualCompleteOverrides.has(mission.id) ||
@@ -351,11 +361,20 @@ const props = defineProps({
     type: Object as PropType<UserMission | null>,
     default: null,
   },
+  isShoppingListMode: {
+    type: Boolean,
+    default: false,
+  },
+  shoppingListMissionIds: {
+    type: Object as PropType<Set<number>>,
+    default: () => new Set<number>(),
+  },
 });
 
 defineEmits<{
   (e: "calculateMission", id: number): void;
   (e: "calculateGroup", ids: number[]): void;
+  (e: "includeMission", id: number): void;
 }>();
 
 const missionStore = useMissionStore();
@@ -1081,5 +1100,25 @@ defineExpose({
 
 .btn-select:hover {
   background: var(--accent-hover);
+}
+
+.btn-include {
+  background: transparent;
+  color: #60a5fa;
+  border: 1px solid #60a5fa;
+}
+
+.btn-include:hover {
+  background: rgba(96, 165, 250, 0.12);
+}
+
+.btn-include--active {
+  background: #1e40af;
+  color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.btn-include--active:hover {
+  background: #1d4ed8;
 }
 </style>
