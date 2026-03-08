@@ -294,7 +294,7 @@
             :class="{ 'btn-shopping-mode--active': showShoppingList }"
             @click="showShoppingList = !showShoppingList"
           >
-            🛒 Shopping List Mode
+            Shopping List Mode
           </button>
         </div>
       </div>
