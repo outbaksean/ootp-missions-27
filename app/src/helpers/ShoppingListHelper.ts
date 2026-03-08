@@ -432,6 +432,55 @@ export function buildNegativeValueExclusionText(
 }
 
 /**
+ * Builds mission priority map used to order shopping-list cards.
+ *
+ * Value strategy: rank selected leaf missions + chain missions by net value.
+ * Completion strategy: use greedy leaf selection order directly.
+ */
+export function buildMissionPriority(
+  eligibleMissions: UserMission[],
+  selectionOrder: UserMission[],
+  strategy: "value" | "completion",
+  selectedIds: Set<number>,
+): Map<number, number> {
+  const map = new Map<number, number>();
+
+  if (strategy === "completion") {
+    selectionOrder.forEach((mission, index) => {
+      map.set(mission.id, index);
+    });
+    return map;
+  }
+
+  const candidates = eligibleMissions.filter(
+    (mission) =>
+      mission.rawMission.type === "missions" || selectedIds.has(mission.id),
+  );
+
+  const sorted = [...candidates].sort((a, b) => {
+    const aNet =
+      a.missionValue ??
+      (a.rewardValue !== undefined
+        ? a.rewardValue - a.remainingPrice
+        : Number.NEGATIVE_INFINITY);
+    const bNet =
+      b.missionValue ??
+      (b.rewardValue !== undefined
+        ? b.rewardValue - b.remainingPrice
+        : Number.NEGATIVE_INFINITY);
+
+    if (bNet !== aNet) return bNet - aNet;
+    return a.remainingPrice - b.remainingPrice;
+  });
+
+  sorted.forEach((mission, index) => {
+    map.set(mission.id, index);
+  });
+
+  return map;
+}
+
+/**
  * Builds the ordered shopping item list for the given selected missions.
  *
  * @param eligibleMissions  Incomplete, calculated missions in scope (leaf and missions-type).

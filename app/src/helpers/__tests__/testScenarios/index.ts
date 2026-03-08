@@ -12,3 +12,4 @@ export * from "./exclusionScenario";
 export * from "./budgetSelectionScenario";
 export * from "./negativeValueScenario";
 export * from "./negativeLeavesPosChainScenario";
+export * from "./standaloneVsChainOrderingScenario";

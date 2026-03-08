@@ -149,6 +149,7 @@ import {
   buildSummaryText,
   buildExclusionText,
   buildNegativeValueExclusionText,
+  buildMissionPriority,
   selectMissionsForBudget,
 } from "../helpers/ShoppingListHelper";
 import type { ShoppingItem } from "../helpers/ShoppingListHelper";
@@ -255,13 +256,14 @@ const missionSelection = computed(() => {
 });
 
 // ─── COMPUTED: Mission priority map for Phase 4 card ordering ───
-const missionPriority = computed(() => {
-  const map = new Map<number, number>();
-  missionSelection.value.selectionOrder.forEach((mission, index) => {
-    map.set(mission.id, index);
-  });
-  return map;
-});
+const missionPriority = computed(() =>
+  buildMissionPriority(
+    eligibleMissions.value,
+    missionSelection.value.selectionOrder,
+    strategy.value,
+    missionSelection.value.selectedIds,
+  ),
+);
 
 // ─── COMPUTED: Negative value exclusion warning text ───
 const negativeValueExclusionText = computed(() => {

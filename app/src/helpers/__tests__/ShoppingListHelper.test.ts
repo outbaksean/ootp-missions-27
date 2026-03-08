@@ -55,6 +55,7 @@ import {
   buildSummaryText,
   buildExclusionText,
   buildNegativeValueExclusionText,
+  buildMissionPriority,
   selectMissionsForBudget,
 } from "../ShoppingListHelper";
 import { PACK_TYPE_DEFAULTS } from "@/stores/useSettingsStore";
@@ -66,6 +67,7 @@ import {
   budgetSelectionScenario,
   negativeValueScenario,
   negativeLeavesPosChainScenario,
+  standaloneVsChainOrderingScenario,
 } from "./testScenarios";
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -927,5 +929,45 @@ describe("buildShoppingItems — completion attribution", () => {
     expect(items[0].explanation).toContain("Used in 'Two Card Mission'");
     expect(items[1].cardId).toBe(50002);
     expect(items[1].explanation).toContain("Completes 'Two Card Mission'");
+  });
+});
+
+describe("ordering regression: standalone vs positive chain", () => {
+  it("orders high standalone net, then chain leaves, then lower standalone net", () => {
+    const scenario = loadScenario(standaloneVsChainOrderingScenario);
+    const { userMissions, shopCardsById } = scenario;
+
+    const highStandalone = userMissions.find((m) => m.id === 1001)!;
+    const lowStandalone = userMissions.find((m) => m.id === 1002)!;
+    const leafA = userMissions.find((m) => m.id === 1003)!;
+    const leafB = userMissions.find((m) => m.id === 1004)!;
+    const chain = userMissions.find((m) => m.id === 1005)!;
+
+    const leafMissions = [highStandalone, lowStandalone, leafA, leafB];
+    const allMissions = [highStandalone, lowStandalone, leafA, leafB, chain];
+
+    const selection = selectMissionsForBudget(
+      leafMissions,
+      "value",
+      null,
+      allMissions,
+    );
+
+    const missionPriority = buildMissionPriority(
+      allMissions,
+      selection.selectionOrder,
+      "value",
+      selection.selectedIds,
+    );
+
+    const items = buildShoppingItems(
+      allMissions,
+      selection.selectedIds,
+      allMissions,
+      shopCardsById,
+      missionPriority,
+    );
+
+    expect(items.map((i) => i.cardId)).toEqual([51001, 51003, 51004, 51002]);
   });
 });
