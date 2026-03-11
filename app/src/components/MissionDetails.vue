@@ -71,38 +71,6 @@
               remainingPriceText(selectedMission)
             }}</span>
           </div>
-          <div v-if="hasCostDeduplication" class="shared-dedup-note">
-            <span class="shared-dedup-heading">
-              Shared between sub-missions, bought once ({{
-                (selectedMission.cardSharedSavings ?? 0).toLocaleString(
-                  undefined,
-                  {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  },
-                )
-              }}
-              PP saved):
-            </span>
-            <ul class="shared-dedup-list">
-              <li
-                v-for="card in selectedMission.sharedMissionCards"
-                :key="card.cardId"
-                class="shared-dedup-item"
-              >
-                <span class="shared-dedup-card-name">{{ card.title }}</span>
-                <span class="shared-dedup-card-price">
-                  {{
-                    card.price.toLocaleString(undefined, {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })
-                  }}
-                  PP
-                </span>
-              </li>
-            </ul>
-          </div>
           <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
             <span class="stat-label">Unlocked</span>
             <span class="stat-value"
@@ -194,6 +162,58 @@
             >
               {{ remainingPriceText(subMission) }}
             </span>
+          </div>
+          <div
+            v-if="sharedCardsForSubMission(subMission).length"
+            class="sub-mission-shared-cards"
+          >
+            <span class="shared-cards-label"
+              >Shared between sub-missions, counted once:</span
+            >
+            <ul class="shared-cards-list">
+              <li
+                v-for="card in sharedCardsForSubMission(subMission)"
+                :key="card.cardId"
+                class="shared-cards-item"
+              >
+                <span class="shared-cards-name">{{ card.title }}</span>
+                <span class="shared-cards-price">
+                  {{
+                    card.price.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div
+            v-if="subMission.sharedLeafSubMissions?.length"
+            class="sub-mission-shared-cards"
+          >
+            <span class="shared-cards-label"
+              >Shared sub-missions, counted once in parent total:</span
+            >
+            <ul class="shared-cards-list">
+              <li
+                v-for="leaf in subMission.sharedLeafSubMissions"
+                :key="leaf.id"
+                class="shared-cards-item"
+              >
+                <span class="shared-cards-name">{{ leaf.name }}</span>
+                <span class="shared-cards-price">
+                  {{
+                    leaf.remainingPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP
+                </span>
+              </li>
+            </ul>
           </div>
         </li>
       </ul>
@@ -632,9 +652,31 @@ const shouldCompleteMission = (missionId: number): boolean => {
   return subMissionsToComplete.value.has(missionId);
 };
 
-const hasCostDeduplication = computed(() => {
-  return (props.selectedMission?.sharedMissionCards?.length ?? 0) > 0;
+const parentSharedCardIdSet = computed(() => {
+  if (!props.selectedMission?.sharedMissionCards) return new Set<number>();
+  return new Set(props.selectedMission.sharedMissionCards.map((c) => c.cardId));
 });
+
+function sharedCardsForSubMission(
+  subMission: UserMission,
+): Array<{ cardId: number; title: string; price: number }> {
+  if (subMission.rawMission.type === "missions") {
+    return subMission.sharedMissionCards ?? [];
+  }
+  if (parentSharedCardIdSet.value.size === 0) return [];
+  return subMission.missionCards
+    .filter(
+      (card) =>
+        card.highlighted &&
+        !card.owned &&
+        parentSharedCardIdSet.value.has(card.cardId),
+    )
+    .map((card) => ({
+      cardId: card.cardId,
+      title: card.title,
+      price: card.price,
+    }));
+}
 
 const parentMissions = computed(() => {
   if (!props.selectedMission || !props.missions) return [];
@@ -933,11 +975,12 @@ const selectedMissionRewardItems = computed(() => {
   color: var(--text-primary);
 }
 
-.shared-dedup-note {
-  margin-top: 0.25rem;
+.sub-mission-shared-cards {
+  width: 100%;
+  margin-top: 0.3rem;
 }
 
-.shared-dedup-heading {
+.shared-cards-label {
   font-size: 0.75rem;
   color: #a1a1aa;
   font-style: italic;
@@ -945,7 +988,7 @@ const selectedMissionRewardItems = computed(() => {
   margin-bottom: 0.2rem;
 }
 
-.shared-dedup-list {
+.shared-cards-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -954,19 +997,19 @@ const selectedMissionRewardItems = computed(() => {
   gap: 0.1rem;
 }
 
-.shared-dedup-item {
+.shared-cards-item {
   display: flex;
   justify-content: space-between;
   font-size: 0.75rem;
   color: #a1a1aa;
 }
 
-.shared-dedup-card-name {
+.shared-cards-name {
   flex: 1;
   margin-right: 0.5rem;
 }
 
-.shared-dedup-card-price {
+.shared-cards-price {
   font-variant-numeric: tabular-nums;
 }
 

@@ -15,4 +15,9 @@ export interface UserMission {
   missionValue?: number;
   sharedMissionCards?: Array<{ cardId: number; title: string; price: number }>;
   cardSharedSavings?: number;
+  sharedLeafSubMissions?: Array<{
+    id: number;
+    name: string;
+    remainingPrice: number;
+  }>;
 }

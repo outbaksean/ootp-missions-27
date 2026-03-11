@@ -140,6 +140,8 @@ export const useMissionStore = defineStore("mission", () => {
     rewardByMissionId: Map<number, number>;
     hasAnyRewardData: boolean;
     isCompletable: boolean;
+    // Maps each selected direct-child sub-mission raw ID to the set of leaf raw IDs it contributes.
+    selectedSubMissionLeafIds: Map<number, Set<number>>;
   };
 
   function sumLeafTotals(
@@ -170,6 +172,7 @@ export const useMissionStore = defineStore("mission", () => {
         rewardByMissionId: new Map(),
         hasAnyRewardData: false,
         isCompletable: false,
+        selectedSubMissionLeafIds: new Map(),
       };
     }
 
@@ -196,6 +199,7 @@ export const useMissionStore = defineStore("mission", () => {
         hasAnyRewardData:
           !userMission.completed && userMission.rewardValue !== undefined,
         isCompletable: userMission.completed || userMission.isCompletable,
+        selectedSubMissionLeafIds: new Map(),
       };
     }
 
@@ -258,6 +262,14 @@ export const useMissionStore = defineStore("mission", () => {
       hasAnyRewardData = true;
     }
 
+    const selectedSubMissionLeafIds = new Map<number, Set<number>>();
+    for (const candidate of candidates) {
+      selectedSubMissionLeafIds.set(
+        candidate.mission.rawMission.id,
+        new Set(candidate.contribution.leafTotals.keys()),
+      );
+    }
+
     visiting.delete(raw.id);
 
     return {
@@ -265,6 +277,7 @@ export const useMissionStore = defineStore("mission", () => {
       rewardByMissionId,
       hasAnyRewardData,
       isCompletable: completableCount >= raw.requiredCount,
+      selectedSubMissionLeafIds,
     };
   }
 
@@ -463,6 +476,51 @@ export const useMissionStore = defineStore("mission", () => {
       : undefined;
     userMission.cardSharedSavings =
       cardSharedSavings > 0 ? cardSharedSavings : undefined;
+
+    // Leaf-mission deduplication: detect leaf missions shared across selected sub-missions.
+    // Clear stale data first, then repopulate for sub-missions that have shared leaves.
+    for (const subMission of subMissions) {
+      subMission.sharedLeafSubMissions = undefined;
+    }
+    const leafIdToSubMissionRawIds = new Map<number, number[]>();
+    for (const [
+      subMissionRawId,
+      leafIds,
+    ] of chainContribution.selectedSubMissionLeafIds) {
+      for (const leafId of leafIds) {
+        const list = leafIdToSubMissionRawIds.get(leafId) ?? [];
+        list.push(subMissionRawId);
+        leafIdToSubMissionRawIds.set(leafId, list);
+      }
+    }
+    for (const [
+      subMissionRawId,
+      leafIds,
+    ] of chainContribution.selectedSubMissionLeafIds) {
+      const subMission = missionsByRawId.get(subMissionRawId);
+      if (!subMission) continue;
+      const sharedLeaves: Array<{
+        id: number;
+        name: string;
+        remainingPrice: number;
+      }> = [];
+      for (const leafId of leafIds) {
+        const sharingIds = leafIdToSubMissionRawIds.get(leafId);
+        if (sharingIds && sharingIds.length >= 2) {
+          const leaf = missionsByRawId.get(leafId);
+          if (leaf) {
+            sharedLeaves.push({
+              id: leafId,
+              name: leaf.rawMission.name,
+              remainingPrice: leaf.remainingPrice,
+            });
+          }
+        }
+      }
+      subMission.sharedLeafSubMissions = sharedLeaves.length
+        ? sharedLeaves
+        : undefined;
+    }
 
     userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
     userMission.remainingPrice = totals.remainingPrice - cardSharedSavings;
