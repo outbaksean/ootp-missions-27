@@ -380,6 +380,7 @@ export const useMissionStore = defineStore("mission", () => {
       mission.rewards,
       settingsStore.packPrices,
       shopCardsById,
+      settingsStore.includeCardRewardsInValue,
     );
 
     const unlockedDeduction = settingsStore.subtractUnlockedCards
@@ -421,6 +422,7 @@ export const useMissionStore = defineStore("mission", () => {
       mission.rewards,
       settingsStore.packPrices,
       shopCardsById,
+      settingsStore.includeCardRewardsInValue,
     );
     userMission.rewardValue = rewardValueMissions;
 
@@ -653,6 +655,7 @@ export const useMissionStore = defineStore("mission", () => {
         mission.rewards,
         settingsStore.packPrices,
         shopCardsById,
+        settingsStore.includeCardRewardsInValue,
       );
       userMission.rewardValue = rewardValuePoints;
       const unlockedDeductionPoints = settingsStore.subtractUnlockedCards
@@ -743,6 +746,7 @@ export const useMissionStore = defineStore("mission", () => {
         um.rawMission.rewards,
         settingsStore.packPrices,
         cardStore.shopCardsById,
+        settingsStore.includeCardRewardsInValue,
       );
       um.rewardValue = rewardValue;
       const unlockedDeduction = settingsStore.subtractUnlockedCards

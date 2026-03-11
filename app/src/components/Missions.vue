@@ -30,6 +30,39 @@
       </div>
 
       <div class="sidebar-section">
+        <label class="sidebar-label">Mission Type</label>
+        <div class="type-filter-group">
+          <button
+            class="type-filter-btn"
+            :class="{
+              'type-filter-btn--active': missionTypeFilter.has('count'),
+            }"
+            @click="toggleMissionTypeFilter('count')"
+          >
+            Cards
+          </button>
+          <button
+            class="type-filter-btn"
+            :class="{
+              'type-filter-btn--active': missionTypeFilter.has('points'),
+            }"
+            @click="toggleMissionTypeFilter('points')"
+          >
+            Points
+          </button>
+          <button
+            class="type-filter-btn"
+            :class="{
+              'type-filter-btn--active': missionTypeFilter.has('missions'),
+            }"
+            @click="toggleMissionTypeFilter('missions')"
+          >
+            Missions
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
         <label class="sidebar-label" for="group-by-select">Group by</label>
         <select id="group-by-select" v-model="groupBy" class="sidebar-select">
           <option value="none">None</option>
@@ -227,6 +260,23 @@
             @mouseenter="onTooltipEnter('optimize', $event)"
             @mouseleave="onTooltipLeave"
             @click.stop="onTooltipClick('optimize', $event)"
+            >(?)</span
+          >
+        </label>
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            class="toggle-input"
+            :checked="settingsStore.includeCardRewardsInValue"
+            @change="handleIncludeCardRewardsChange($event)"
+          />
+          Include card rewards in value
+          <span
+            class="tooltip-hint"
+            data-tooltip="When enabled, the market price of reward cards is included in the Reward and Net value calculations. Disable if you don't intend to sell reward cards."
+            @mouseenter="onTooltipEnter('card-rewards', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('card-rewards', $event)"
             >(?)</span
           >
         </label>
@@ -869,6 +919,28 @@ const categoryPriority = (cat: string) => {
   const i = CATEGORY_ORDER.indexOf(cat);
   return i === -1 ? CATEGORY_ORDER.length : i;
 };
+const missionTypeFilter = ref<Set<string>>(
+  new Set(
+    loadPref<string[]>("ootp-display-typeFilter", [
+      "count",
+      "points",
+      "missions",
+    ]),
+  ),
+);
+
+function toggleMissionTypeFilter(type: string) {
+  const next = new Set(missionTypeFilter.value);
+  if (next.has(type)) {
+    // Don't allow deselecting all
+    if (next.size > 1) next.delete(type);
+  } else {
+    next.add(type);
+  }
+  missionTypeFilter.value = next;
+  localStorage.setItem("ootp-display-typeFilter", JSON.stringify([...next]));
+}
+
 const groupBy = ref<"none" | "chain" | "category" | "card-reward">(
   loadPref("ootp-display-groupBy", "category"),
 );
@@ -907,6 +979,13 @@ const handleOptimizeChange = (event: Event) => {
     (event.target as HTMLInputElement).checked,
   );
   missionStore.buildUserMissions();
+};
+
+const handleIncludeCardRewardsChange = (event: Event) => {
+  settingsStore.setIncludeCardRewardsInValue(
+    (event.target as HTMLInputElement).checked,
+  );
+  missionStore.recomputeMissionValues();
 };
 
 const handleDiscountChange = (event: Event) => {
@@ -995,6 +1074,12 @@ const filteredMissions = computed(() => {
     } else {
       result = [];
     }
+  }
+
+  if (missionTypeFilter.value.size < 3) {
+    result = result.filter((m) =>
+      missionTypeFilter.value.has(m.rawMission.type),
+    );
   }
 
   if (hideCompleted.value) {
@@ -1446,6 +1531,37 @@ watch(
 .sidebar-select option {
   background: #1e293b;
   color: #e2e8f0;
+}
+
+.type-filter-group {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.type-filter-btn {
+  flex: 1;
+  padding: 4px 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--sidebar-muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.type-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--sidebar-text);
+}
+
+.type-filter-btn--active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border-color: #4ade80;
 }
 
 .sidebar-toggles {

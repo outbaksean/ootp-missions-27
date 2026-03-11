@@ -185,6 +185,7 @@ export default class MissionHelper {
     rewards: MissionReward[] | undefined,
     packPrices: Map<string, number>,
     shopCardsById: Map<number, ShopCard>,
+    includeCardRewards = true,
   ): number | undefined {
     if (!rewards || rewards.length === 0) return undefined;
 
@@ -195,6 +196,7 @@ export default class MissionHelper {
         const r = reward as { packType: string; count: number };
         total += (packPrices.get(r.packType) ?? 0) * r.count;
       } else if (type === "card") {
+        if (!includeCardRewards) continue;
         const r = reward as { cardId: number; count?: number };
         if (r.cardId === 0) continue; // Needs manual cardId — treat as 0
         const card = shopCardsById.get(r.cardId);

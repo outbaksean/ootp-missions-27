@@ -164,6 +164,19 @@
             </span>
           </div>
           <div
+            v-if="subMissionRewardMap.has(subMission.id)"
+            class="sub-mission-rewards"
+          >
+            <span
+              v-for="item in subMissionRewardMap.get(subMission.id)"
+              :key="item.label"
+              class="group-reward-chip sub-reward-chip"
+              :class="chipClass(item)"
+              >{{ item.count > 1 ? item.count + "x " : ""
+              }}{{ item.label }}</span
+            >
+          </div>
+          <div
             v-if="sharedCardsForSubMission(subMission).length"
             class="sub-mission-shared-cards"
           >
@@ -678,6 +691,21 @@ function sharedCardsForSubMission(
     }));
 }
 
+const subMissionRewardMap = computed(
+  (): Map<number, ReturnType<typeof collectRewardItems>> => {
+    const map = new Map<number, ReturnType<typeof collectRewardItems>>();
+    for (const sub of selectedMissionSubMissions.value) {
+      const items = collectRewardItems([sub], {
+        packPrices: settingsStore.packPrices,
+        packTypeLabels: PACK_TYPE_LABELS,
+        shopCardsById: cardStore.shopCardsById,
+      });
+      if (items.length) map.set(sub.id, items);
+    }
+    return map;
+  },
+);
+
 const parentMissions = computed(() => {
   if (!props.selectedMission || !props.missions) return [];
   const id = props.selectedMission.id;
@@ -973,6 +1001,19 @@ const selectedMissionRewardItems = computed(() => {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.sub-mission-rewards {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin-top: 0.2rem;
+}
+
+.sub-reward-chip {
+  font-size: 0.6rem;
+  padding: 1px 6px;
 }
 
 .sub-mission-shared-cards {

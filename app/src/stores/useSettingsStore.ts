@@ -77,6 +77,7 @@ function saveToStorage(prices: Map<string, number>): void {
 const SUBTRACT_UNLOCKED_KEY = "ootp-subtract-unlocked";
 const OPTIMIZE_SELECTION_KEY = "ootp-optimize-selection";
 const UNLOCK_DISCOUNT_KEY = "ootp-unlocked-card-discount";
+const INCLUDE_CARD_REWARDS_KEY = "ootp-include-card-rewards";
 
 export const useSettingsStore = defineStore("settings", () => {
   const packPrices = ref<Map<string, number>>(loadFromStorage());
@@ -94,6 +95,9 @@ export const useSettingsStore = defineStore("settings", () => {
       // Cap at 0.99 to prevent zero-price edge cases
       return isNaN(val) ? 0.1 : Math.min(0.99, Math.max(0, val));
     })(),
+  );
+  const includeCardRewardsInValue = ref<boolean>(
+    localStorage.getItem(INCLUDE_CARD_REWARDS_KEY) !== "false",
   );
 
   function setPackPrice(packType: string, value: number) {
@@ -130,6 +134,11 @@ export const useSettingsStore = defineStore("settings", () => {
     localStorage.setItem(UNLOCK_DISCOUNT_KEY, String(capped));
   }
 
+  function setIncludeCardRewardsInValue(value: boolean) {
+    includeCardRewardsInValue.value = value;
+    localStorage.setItem(INCLUDE_CARD_REWARDS_KEY, String(value));
+  }
+
   return {
     packPrices,
     setPackPrice,
@@ -141,5 +150,7 @@ export const useSettingsStore = defineStore("settings", () => {
     setOptimizeCardSelection,
     unlockedCardDiscount,
     setUnlockedCardDiscount,
+    includeCardRewardsInValue,
+    setIncludeCardRewardsInValue,
   };
 });
