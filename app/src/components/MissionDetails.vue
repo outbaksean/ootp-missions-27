@@ -71,6 +71,38 @@
               remainingPriceText(selectedMission)
             }}</span>
           </div>
+          <div v-if="hasCostDeduplication" class="shared-dedup-note">
+            <span class="shared-dedup-heading">
+              Shared between sub-missions, bought once ({{
+                (selectedMission.cardSharedSavings ?? 0).toLocaleString(
+                  undefined,
+                  {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  },
+                )
+              }}
+              PP saved):
+            </span>
+            <ul class="shared-dedup-list">
+              <li
+                v-for="card in selectedMission.sharedMissionCards"
+                :key="card.cardId"
+                class="shared-dedup-item"
+              >
+                <span class="shared-dedup-card-name">{{ card.title }}</span>
+                <span class="shared-dedup-card-price">
+                  {{
+                    card.price.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP
+                </span>
+              </li>
+            </ul>
+          </div>
           <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
             <span class="stat-label">Unlocked</span>
             <span class="stat-value"
@@ -600,6 +632,10 @@ const shouldCompleteMission = (missionId: number): boolean => {
   return subMissionsToComplete.value.has(missionId);
 };
 
+const hasCostDeduplication = computed(() => {
+  return (props.selectedMission?.sharedMissionCards?.length ?? 0) > 0;
+});
+
 const parentMissions = computed(() => {
   if (!props.selectedMission || !props.missions) return [];
   const id = props.selectedMission.id;
@@ -895,6 +931,43 @@ const selectedMissionRewardItems = computed(() => {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.shared-dedup-note {
+  margin-top: 0.25rem;
+}
+
+.shared-dedup-heading {
+  font-size: 0.75rem;
+  color: #a1a1aa;
+  font-style: italic;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.shared-dedup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.shared-dedup-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}
+
+.shared-dedup-card-name {
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.shared-dedup-card-price {
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-positive {

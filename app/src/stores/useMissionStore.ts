@@ -416,8 +416,56 @@ export const useMissionStore = defineStore("mission", () => {
       missionsByRawId,
     );
     const totals = sumLeafTotals(chainContribution.leafTotals);
+
+    // Card-level deduplication across selected leaf missions
+    const cardSeenInLeaves = new Map<
+      number,
+      { price: number; title: string; count: number }
+    >();
+    for (const leafRawId of chainContribution.leafTotals.keys()) {
+      const leaf = missionsByRawId.get(leafRawId);
+      if (!leaf) continue;
+      for (const card of leaf.missionCards) {
+        if (card.highlighted && !card.owned) {
+          const existing = cardSeenInLeaves.get(card.cardId);
+          if (existing) {
+            existing.count++;
+          } else {
+            cardSeenInLeaves.set(card.cardId, {
+              price: card.price,
+              title: card.title,
+              count: 1,
+            });
+          }
+        }
+      }
+    }
+
+    const sharedMissionCards: Array<{
+      cardId: number;
+      title: string;
+      price: number;
+    }> = [];
+    let cardSharedSavings = 0;
+    for (const [cardId, info] of cardSeenInLeaves) {
+      if (info.count >= 2) {
+        cardSharedSavings += info.price * (info.count - 1);
+        sharedMissionCards.push({
+          cardId,
+          title: info.title,
+          price: info.price,
+        });
+      }
+    }
+
+    userMission.sharedMissionCards = sharedMissionCards.length
+      ? sharedMissionCards
+      : undefined;
+    userMission.cardSharedSavings =
+      cardSharedSavings > 0 ? cardSharedSavings : undefined;
+
     userMission.progressText = `${completedCount} / ${mission.requiredCount} missions (${mission.missionIds?.length} total)`;
-    userMission.remainingPrice = totals.remainingPrice;
+    userMission.remainingPrice = totals.remainingPrice - cardSharedSavings;
     userMission.isCompletable = chainContribution.isCompletable;
     userMission.unlockedCardsPrice = totals.unlockedCardsPrice;
     userMission.completed =
@@ -439,7 +487,7 @@ export const useMissionStore = defineStore("mission", () => {
     userMission.missionValue =
       combinedRewardValue !== undefined
         ? combinedRewardValue -
-          totals.remainingPrice -
+          userMission.remainingPrice -
           unlockedDeductionMissions
         : undefined;
   }

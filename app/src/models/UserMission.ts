@@ -13,4 +13,6 @@ export interface UserMission {
   rewardValue?: number;
   combinedRewardValue?: number;
   missionValue?: number;
+  sharedMissionCards?: Array<{ cardId: number; title: string; price: number }>;
+  cardSharedSavings?: number;
 }
