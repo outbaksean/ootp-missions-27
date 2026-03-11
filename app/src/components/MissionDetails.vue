@@ -163,6 +163,58 @@
               {{ remainingPriceText(subMission) }}
             </span>
           </div>
+          <div
+            v-if="sharedCardsForSubMission(subMission).length"
+            class="sub-mission-shared-cards"
+          >
+            <span class="shared-cards-label"
+              >Shared between sub-missions, counted once:</span
+            >
+            <ul class="shared-cards-list">
+              <li
+                v-for="card in sharedCardsForSubMission(subMission)"
+                :key="card.cardId"
+                class="shared-cards-item"
+              >
+                <span class="shared-cards-name">{{ card.title }}</span>
+                <span class="shared-cards-price">
+                  {{
+                    card.price.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div
+            v-if="subMission.sharedLeafSubMissions?.length"
+            class="sub-mission-shared-cards"
+          >
+            <span class="shared-cards-label"
+              >Shared sub-missions, counted once in parent total:</span
+            >
+            <ul class="shared-cards-list">
+              <li
+                v-for="leaf in subMission.sharedLeafSubMissions"
+                :key="leaf.id"
+                class="shared-cards-item"
+              >
+                <span class="shared-cards-name">{{ leaf.name }}</span>
+                <span class="shared-cards-price">
+                  {{
+                    leaf.remainingPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })
+                  }}
+                  PP
+                </span>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     </template>
@@ -600,6 +652,32 @@ const shouldCompleteMission = (missionId: number): boolean => {
   return subMissionsToComplete.value.has(missionId);
 };
 
+const parentSharedCardIdSet = computed(() => {
+  if (!props.selectedMission?.sharedMissionCards) return new Set<number>();
+  return new Set(props.selectedMission.sharedMissionCards.map((c) => c.cardId));
+});
+
+function sharedCardsForSubMission(
+  subMission: UserMission,
+): Array<{ cardId: number; title: string; price: number }> {
+  if (subMission.rawMission.type === "missions") {
+    return subMission.sharedMissionCards ?? [];
+  }
+  if (parentSharedCardIdSet.value.size === 0) return [];
+  return subMission.missionCards
+    .filter(
+      (card) =>
+        card.highlighted &&
+        !card.owned &&
+        parentSharedCardIdSet.value.has(card.cardId),
+    )
+    .map((card) => ({
+      cardId: card.cardId,
+      title: card.title,
+      price: card.price,
+    }));
+}
+
 const parentMissions = computed(() => {
   if (!props.selectedMission || !props.missions) return [];
   const id = props.selectedMission.id;
@@ -895,6 +973,44 @@ const selectedMissionRewardItems = computed(() => {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.sub-mission-shared-cards {
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+.shared-cards-label {
+  font-size: 0.75rem;
+  color: #a1a1aa;
+  font-style: italic;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.shared-cards-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.shared-cards-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}
+
+.shared-cards-name {
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.shared-cards-price {
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-positive {
