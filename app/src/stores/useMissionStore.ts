@@ -853,6 +853,7 @@ export const useMissionStore = defineStore("mission", () => {
       mission.completed =
         manualCompleteOverrides.value.has(missionId) ||
         count >= mission.rawMission.requiredCount;
+      mission.progressText = `${count} / ${mission.rawMission.requiredCount} missions (${mission.rawMission.missionIds?.length} total)`;
     } else {
       mission.completed = computeCompleted(
         missionId,
@@ -872,6 +873,7 @@ export const useMissionStore = defineStore("mission", () => {
       parent.completed =
         manualCompleteOverrides.value.has(parent.id) ||
         count >= parent.rawMission.requiredCount;
+      parent.progressText = `${count} / ${parent.rawMission.requiredCount} missions (${parent.rawMission.missionIds?.length} total)`;
     }
   }
 
