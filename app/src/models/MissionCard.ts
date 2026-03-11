@@ -1,3 +1,5 @@
+import type { CardType } from "./ShopCard";
+
 export interface MissionCard {
   cardId: number;
   title: string;
@@ -8,4 +10,5 @@ export interface MissionCard {
   points?: number;
   highlighted: boolean;
   shouldLock: boolean;
+  cardType?: CardType;
 }
