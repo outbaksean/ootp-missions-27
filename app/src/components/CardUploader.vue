@@ -144,6 +144,7 @@ const handleUserCardsUpload = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (file) {
     await cardStore.uploadUserFile(file);
+    await missionStore.initialize();
   }
 };
 </script>
