@@ -74,18 +74,14 @@ function saveToStorage(prices: Map<string, number>): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(prices)));
 }
 
-const SUBTRACT_UNLOCKED_KEY = "ootp-subtract-unlocked";
-const OPTIMIZE_SELECTION_KEY = "ootp-optimize-selection";
+const OPTIMIZED_MODE_KEY = "ootp-optimized-mode";
 const UNLOCK_DISCOUNT_KEY = "ootp-unlocked-card-discount";
 const INCLUDE_CARD_REWARDS_KEY = "ootp-include-card-rewards";
 
 export const useSettingsStore = defineStore("settings", () => {
   const packPrices = ref<Map<string, number>>(loadFromStorage());
-  const subtractUnlockedCards = ref<boolean>(
-    localStorage.getItem(SUBTRACT_UNLOCKED_KEY) !== "false",
-  );
-  const optimizeCardSelection = ref<boolean>(
-    localStorage.getItem(OPTIMIZE_SELECTION_KEY) === "true",
+  const optimizedMode = ref<boolean>(
+    localStorage.getItem(OPTIMIZED_MODE_KEY) === "true",
   );
   const unlockedCardDiscount = ref<number>(
     (() => {
@@ -111,20 +107,15 @@ export const useSettingsStore = defineStore("settings", () => {
     return packPrices.value.get(packType) ?? 0;
   }
 
-  function setSubtractUnlockedCards(value: boolean) {
-    subtractUnlockedCards.value = value;
-    localStorage.setItem(SUBTRACT_UNLOCKED_KEY, String(value));
+  function setOptimizedMode(value: boolean) {
+    optimizedMode.value = value;
+    localStorage.setItem(OPTIMIZED_MODE_KEY, String(value));
   }
 
   function resetPackPrices() {
     const defaults = new Map(Object.entries(PACK_TYPE_DEFAULTS));
     packPrices.value = defaults;
     saveToStorage(defaults);
-  }
-
-  function setOptimizeCardSelection(value: boolean) {
-    optimizeCardSelection.value = value;
-    localStorage.setItem(OPTIMIZE_SELECTION_KEY, String(value));
   }
 
   function setUnlockedCardDiscount(value: number) {
@@ -144,10 +135,8 @@ export const useSettingsStore = defineStore("settings", () => {
     setPackPrice,
     getPackPrice,
     resetPackPrices,
-    subtractUnlockedCards,
-    setSubtractUnlockedCards,
-    optimizeCardSelection,
-    setOptimizeCardSelection,
+    optimizedMode,
+    setOptimizedMode,
     unlockedCardDiscount,
     setUnlockedCardDiscount,
     includeCardRewardsInValue,

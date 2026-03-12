@@ -23,8 +23,16 @@
     - The lock upload should be a dropzone too
 - [F6] Allow for CS and PP mission rewards
     - Include a CS to PP ratio option with a default to define CS reward value
-- [F7] Rethink lock to complete, make using unlocked the default
-    - New mode that optimizes around locked cards. The unlocked price should only be visible when this mode is on
+- [F7] Remove default lock to complete functionality
+    - Everything related to locked cards should be removed by default and only used when an Optimized toggle is set
+    - The Optimized toggle will have the same ux as the shopping mode toggle
+    - The tooltip should note that Optimized mode takes into account locked cards and finals optimal mission values taking into account the value of selling unlocked cards. This should note that it is only intended if the user has uploaded their locked card data.
+    - Use unlocked cards in Net option will be removed, when the Optimized toggle is on calculations will be done the same as if that were set and vice versa
+    - Optimized Card Assignments will be removed, when the Optimized toggle is on calculations will be done the same as if that were set and vice versa
+    - The unlocked value in missions and groups will only be shown when the Optimized toggle is on
+    - All references to setting a mission complete are removed, with the toggle is off a mission is complete if you have enough owned cards, when it is on a mission is complete if you have enough locked cards.
+    - A section to the help modal is added for Optimized mode. References to removed settings are removed.
+    - The upload help is modified to refer to Optimized mode in the lock upload section.
 - [F8] Update shopping list mode
     - New wizard to input options
     - Overrides both mission list and mission details instead of just mission details when shopping list mode is on
@@ -34,6 +42,7 @@
     - Available pp defaults to unlimited and can be set 
     - Shopping list should account for cards in multiple selected missions when ordering cards
     - Shopping list should include rewards from missions to be completed in the list as available for later missions
+- [F9] Set Limited Edition Card Type as nonpack
 
 ## Mission Extractor
 

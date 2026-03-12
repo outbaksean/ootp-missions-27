@@ -233,40 +233,6 @@
           <input
             type="checkbox"
             class="toggle-input"
-            :checked="settingsStore.subtractUnlockedCards"
-            @change="handleIncludeUnlockedChange($event)"
-          />
-          Use unlocked price in Net
-          <span
-            class="tooltip-hint"
-            data-tooltip="This will include the price of any owned but unlocked cards as part of the mission cost when calculating the Net Value."
-            @mouseenter="onTooltipEnter('unlocked-net', $event)"
-            @mouseleave="onTooltipLeave"
-            @click.stop="onTooltipClick('unlocked-net', $event)"
-            >(?)</span
-          >
-        </label>
-        <label class="toggle-label">
-          <input
-            type="checkbox"
-            class="toggle-input"
-            :checked="settingsStore.optimizeCardSelection"
-            @change="handleOptimizeChange($event)"
-          />
-          Optimize card assignment
-          <span
-            class="tooltip-hint"
-            data-tooltip="Instead of always buying unowned cards, finds the cheapest combination of buying new cards and locking ones you already own. 'Use unlocked price in Net' should be enabled for this."
-            @mouseenter="onTooltipEnter('optimize', $event)"
-            @mouseleave="onTooltipLeave"
-            @click.stop="onTooltipClick('optimize', $event)"
-            >(?)</span
-          >
-        </label>
-        <label class="toggle-label">
-          <input
-            type="checkbox"
-            class="toggle-input"
             :checked="settingsStore.includeCardRewardsInValue"
             @change="handleIncludeCardRewardsChange($event)"
           />
@@ -280,62 +246,29 @@
             >(?)</span
           >
         </label>
-        <div class="discount-row">
-          <span class="discount-label"
-            >Sell - Buy difference
-            <span
-              class="tooltip-hint"
-              data-tooltip="How much less you receive selling a card vs its current price. Applied when calculating the opportunity cost of locking cards you own."
-              @mouseenter="onTooltipEnter('sell-discount', $event)"
-              @mouseleave="onTooltipLeave"
-              @click.stop="onTooltipClick('sell-discount', $event)"
-              >(?)</span
-            ></span
-          >
-          <div class="discount-input-wrap">
-            <input
-              id="sell-discount-input"
-              type="number"
-              class="discount-input"
-              min="0"
-              max="99"
-              :value="Math.round(settingsStore.unlockedCardDiscount * 100)"
-              @change="handleDiscountChange($event)"
-            />
-            <span class="discount-pct">%</span>
-          </div>
-        </div>
       </div>
 
       <div class="sidebar-divider" />
 
       <div class="sidebar-section">
         <div class="mark-complete-row">
-          <button class="btn-mark-all-complete" @click="markAllComplete">
-            Set All Complete
-          </button>
-          <span
-            class="tooltip-hint"
-            data-tooltip="Sets all visible missions as completed where you already own enough cards to complete them. This should only be needed if you are not uploading or setting lock status as having enough locked cards to complete a mission sets it complete."
-            @mouseenter="onTooltipEnter('mark-complete', $event)"
-            @mouseleave="onTooltipLeave"
-            @click.stop="onTooltipClick('mark-complete', $event)"
-            >(?)</span
-          >
-        </div>
-        <div class="mark-complete-row">
           <button
-            class="btn-unmark-all-complete"
-            @click="missionStore.clearAllManualCompletions()"
+            class="btn-shopping-mode"
+            :class="{ 'btn-shopping-mode--active': settingsStore.optimizedMode }"
+            @click="toggleOptimizedMode"
           >
-            Unset All Complete
+            {{
+              settingsStore.optimizedMode
+                ? "Disable Optimized Mode"
+                : "Enable Optimized Mode"
+            }}
           </button>
           <span
             class="tooltip-hint"
-            data-tooltip="Reverts 'Set All Complete'."
-            @mouseenter="onTooltipEnter('unmark-complete', $event)"
+            data-tooltip="Optimized mode takes into account locked cards and finds optimal mission values by considering the opportunity cost of selling unlocked cards. Only intended for users who have uploaded their locked card data."
+            @mouseenter="onTooltipEnter('optimized-mode', $event)"
             @mouseleave="onTooltipLeave"
-            @click.stop="onTooltipClick('unmark-complete', $event)"
+            @click.stop="onTooltipClick('optimized-mode', $event)"
             >(?)</span
           >
         </div>
@@ -359,6 +292,31 @@
             @click.stop="onTooltipClick('shopping-mode', $event)"
             >(?)</span
           >
+        </div>
+        <div v-if="settingsStore.optimizedMode" class="discount-row">
+          <span class="discount-label"
+            >Sell - Buy difference
+            <span
+              class="tooltip-hint"
+              data-tooltip="How much less you receive selling a card vs its current price. Applied when calculating the opportunity cost of locking cards you own."
+              @mouseenter="onTooltipEnter('sell-discount', $event)"
+              @mouseleave="onTooltipLeave"
+              @click.stop="onTooltipClick('sell-discount', $event)"
+              >(?)</span
+            ></span
+          >
+          <div class="discount-input-wrap">
+            <input
+              id="sell-discount-input"
+              type="number"
+              class="discount-input"
+              min="0"
+              max="99"
+              :value="Math.round(settingsStore.unlockedCardDiscount * 100)"
+              @change="handleDiscountChange($event)"
+            />
+            <span class="discount-pct">%</span>
+          </div>
         </div>
       </div>
 
@@ -1013,19 +971,35 @@ watch(showPositiveOnly, (v) =>
 
 const isLoading = computed(() => missionStore.loading);
 
-const handleIncludeUnlockedChange = (event: Event) => {
-  settingsStore.setSubtractUnlockedCards(
-    (event.target as HTMLInputElement).checked,
+async function toggleOptimizedMode() {
+  const calculatedMissions = missionStore.userMissions.filter(
+    (m) => m.progressText !== "Not Calculated",
   );
-  missionStore.recomputeMissionValues();
-};
 
-const handleOptimizeChange = (event: Event) => {
-  settingsStore.setOptimizeCardSelection(
-    (event.target as HTMLInputElement).checked,
-  );
+  settingsStore.setOptimizedMode(!settingsStore.optimizedMode);
   missionStore.buildUserMissions();
-};
+
+  if (calculatedMissions.length === 0) return;
+
+  missionStore.setLoading(true);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  const leaves = calculatedMissions.filter(
+    (m) => m.rawMission.type !== "missions",
+  );
+  const parents = calculatedMissions
+    .filter((m) => m.rawMission.type === "missions")
+    .sort((a, b) => a.id - b.id);
+
+  await Promise.all(
+    leaves.map((m) => missionStore.calculateMissionDetails(m.id, true, true)),
+  );
+  for (const parent of parents) {
+    await missionStore.calculateMissionDetails(parent.id, true, true);
+  }
+
+  missionStore.setLoading(false);
+}
 
 const handleIncludeCardRewardsChange = (event: Event) => {
   settingsStore.setIncludeCardRewardsInValue(
@@ -1095,7 +1069,7 @@ function groupNetValue(missions: UserMission[]): number {
     (m) => m.rawMission.type !== "missions",
   );
   const costTotal = leafMissions.reduce((s, m) => s + m.remainingPrice, 0);
-  const unlockedTotal = settingsStore.subtractUnlockedCards
+  const unlockedTotal = settingsStore.optimizedMode
     ? leafMissions.reduce((s, m) => s + m.unlockedCardsPrice, 0)
     : 0;
   return rewardTotal - costTotal - unlockedTotal;
@@ -1358,24 +1332,6 @@ const groupedMissions = computed(
     return [{ label: "", missions: filteredMissions.value }];
   },
 );
-
-function markAllComplete() {
-  let changed = true;
-  let safety = filteredMissions.value.length;
-
-  while (changed && safety > 0) {
-    changed = false;
-
-    for (const mission of filteredMissions.value) {
-      if (!mission.completed && missionStore.missionCanMarkComplete(mission)) {
-        missionStore.toggleMissionComplete(mission.id);
-        changed = true;
-      }
-    }
-
-    safety -= 1;
-  }
-}
 
 const remainingPriceText = (mission: UserMission) => {
   if (mission.completed) return "";

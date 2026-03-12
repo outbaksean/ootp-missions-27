@@ -29,7 +29,7 @@
               groupRemainingTotal(group.missions)
             }}</span>
           </div>
-          <div v-if="groupUnlockedTotal(group.missions)" class="group-stat-row">
+          <div v-if="settingsStore.optimizedMode && groupUnlockedTotal(group.missions)" class="group-stat-row">
             <span class="group-stat-label">Unlocked</span>
             <span class="group-stat-value">{{
               groupUnlockedTotal(group.missions)
@@ -211,7 +211,7 @@
                   }}</span>
                 </div>
                 <div
-                  v-if="mission.unlockedCardsPrice > 0"
+                  v-if="settingsStore.optimizedMode && mission.unlockedCardsPrice > 0"
                   class="card-stat-cell"
                 >
                   <span class="card-stat-label">Unlocked</span>
@@ -317,24 +317,6 @@
                   Select
                 </button>
               </template>
-              <button
-                v-if="
-                  missionStore.manualCompleteOverrides.has(mission.id) ||
-                  missionStore.missionCanMarkComplete(mission)
-                "
-                class="btn-mark-done"
-                :class="{
-                  'btn-mark-done--active':
-                    missionStore.manualCompleteOverrides.has(mission.id),
-                }"
-                @click="missionStore.toggleMissionComplete(mission.id)"
-              >
-                {{
-                  missionStore.manualCompleteOverrides.has(mission.id)
-                    ? "Set Not Completed"
-                    : "Set Completed"
-                }}
-              </button>
             </div>
           </div>
         </div>
@@ -564,7 +546,7 @@ function groupValueText(missions: UserMission[]): string {
   const rewardTotal = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
   const leafMissions = groupLeafMissions(missions);
   const costTotal = leafMissions.reduce((sum, m) => sum + m.remainingPrice, 0);
-  const unlockedTotal = settingsStore.subtractUnlockedCards
+  const unlockedTotal = settingsStore.optimizedMode
     ? leafMissions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
     : 0;
   const total = rewardTotal - costTotal - unlockedTotal;
@@ -586,7 +568,7 @@ function groupValueIsPositive(missions: UserMission[]): boolean {
   const rewardTotal = withReward.reduce((sum, m) => sum + m.rewardValue!, 0);
   const leafMissions = groupLeafMissions(missions);
   const costTotal = leafMissions.reduce((sum, m) => sum + m.remainingPrice, 0);
-  const unlockedTotal = settingsStore.subtractUnlockedCards
+  const unlockedTotal = settingsStore.optimizedMode
     ? leafMissions.reduce((sum, m) => sum + m.unlockedCardsPrice, 0)
     : 0;
   return rewardTotal - costTotal - unlockedTotal >= 0;

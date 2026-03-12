@@ -71,7 +71,10 @@
               remainingPriceText(selectedMission)
             }}</span>
           </div>
-          <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
+          <div
+            v-if="settingsStore.optimizedMode && selectedMission.unlockedCardsPrice > 0"
+            class="stat-row"
+          >
             <span class="stat-label">Unlocked</span>
             <span class="stat-value"
               >{{
@@ -124,14 +127,6 @@
             >
           </div>
         </div>
-        <button
-          v-if="isManuallyComplete || canMarkComplete"
-          class="btn-manual-complete"
-          :class="{ 'btn-manual-complete--active': isManuallyComplete }"
-          @click="onToggleMissionComplete"
-        >
-          {{ isManuallyComplete ? "Set Not Completed" : "Set Completed" }}
-        </button>
       </div>
       <ul class="detail-list">
         <li
@@ -301,7 +296,10 @@
               remainingPriceText(selectedMission)
             }}</span>
           </div>
-          <div v-if="selectedMission.unlockedCardsPrice > 0" class="stat-row">
+          <div
+            v-if="settingsStore.optimizedMode && selectedMission.unlockedCardsPrice > 0"
+            class="stat-row"
+          >
             <span class="stat-label">Unlocked</span>
             <span class="stat-value"
               >{{
@@ -354,14 +352,6 @@
             >
           </div>
         </div>
-        <button
-          v-if="isManuallyComplete || canMarkComplete"
-          class="btn-manual-complete"
-          :class="{ 'btn-manual-complete--active': isManuallyComplete }"
-          @click="onToggleMissionComplete"
-        >
-          {{ isManuallyComplete ? "Set Not Completed" : "Set Completed" }}
-        </button>
       </div>
       <ul class="detail-list">
         <li
@@ -371,7 +361,7 @@
           :class="{
             'item-highlighted': card.highlighted,
             'item-owned': card.owned,
-            'item-locked': card.locked,
+            'item-locked': settingsStore.optimizedMode && card.locked,
             'item-unavailable': !card.available,
           }"
         >
@@ -423,7 +413,7 @@
               >Buy</span
             >
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
-            <span v-if="card.shouldLock && !card.locked" class="pill pill-use"
+            <span v-if="settingsStore.optimizedMode && card.shouldLock && !card.locked" class="pill pill-use"
               >Use</span
             >
             <span v-if="card.cardType === 'clubhouse'" class="pill pill-cs"
@@ -433,7 +423,7 @@
               >Special</span
             >
             <button
-              v-if="card.owned"
+              v-if="settingsStore.optimizedMode && card.owned"
               class="btn-lock"
               :class="{ 'btn-lock--active': card.locked }"
               @click="toggleLock(card.cardId)"
@@ -511,42 +501,6 @@ defineEmits<{
 
 const pendingRecalcCardIds = ref<Set<number>>(new Set());
 const expandedSharedCardId = ref<number | null>(null);
-
-const isManuallyComplete = computed(() =>
-  props.selectedMission
-    ? missionStore.manualCompleteOverrides.has(props.selectedMission.id)
-    : false,
-);
-
-const canMarkComplete = computed(() => {
-  if (!props.selectedMission) return false;
-  const mission = props.selectedMission;
-  if (mission.progressText === "Not Calculated") return false;
-  const rawMission = mission.rawMission;
-  if (rawMission.type === "count") {
-    const ownedCount = mission.missionCards.filter((c) => c.owned).length;
-    return ownedCount >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "points") {
-    const ownedPoints = mission.missionCards
-      .filter((c) => c.owned)
-      .reduce((sum, c) => sum + (c.points ?? 0), 0);
-    return ownedPoints >= rawMission.requiredCount;
-  }
-  if (rawMission.type === "missions") {
-    const completedCount = selectedMissionSubMissions.value.filter(
-      (m) => m.completed,
-    ).length;
-    return completedCount >= rawMission.requiredCount;
-  }
-  return false;
-});
-
-function onToggleMissionComplete() {
-  if (props.selectedMission) {
-    missionStore.toggleMissionComplete(props.selectedMission.id);
-  }
-}
 
 const cardMissionMap = computed((): Map<number, UserMission[]> => {
   const map = new Map<number, UserMission[]>();
