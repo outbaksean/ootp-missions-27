@@ -200,6 +200,74 @@
   background-color: rgba(0, 0, 0, 0.65);
 }
 
+#cardUploaderModal .modal-content {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+#cardUploaderModal .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1rem 1.25rem;
+}
+
+#cardUploaderModal .modal-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+#cardUploaderModal .modal-body {
+  padding: 1.25rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+#cardUploaderModal .modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.875rem 1.25rem;
+}
+
+#cardUploaderModal .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: 0.6;
+}
+
+#cardUploaderModal .btn-close:hover {
+  opacity: 1;
+}
+
+#cardUploaderModal .btn-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+#cardUploaderModal .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f1f5f9;
+}
+
+#cardUploaderModal .btn-danger {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+}
+
+#cardUploaderModal .btn-danger:hover {
+  background: rgba(220, 38, 38, 0.35);
+  color: #fee2e2;
+}
+
 #missionNotesModal .modal-content {
   background: #1e293b;
   color: #e2e8f0;

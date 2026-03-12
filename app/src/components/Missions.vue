@@ -411,44 +411,62 @@
           <div class="spinner"></div>
         </div>
         <template v-else>
-          <div v-if="!hasUserCards && !promptDismissed" class="upload-prompt">
-            <div class="upload-prompt-header">
-              <div class="upload-prompt-title-row">
-                <p class="upload-prompt-title">User data not imported</p>
-                <button
-                  class="upload-prompt-dismiss"
-                  @click="promptDismissed = true"
-                  aria-label="Dismiss"
-                  type="button"
-                >
-                  ✕
-                </button>
-              </div>
+          <template v-if="!hasUserCards && !dropZoneDismissed">
+            <input
+              type="file"
+              ref="listFileInput"
+              class="list-file-input"
+              @change="handleListFileChange"
+            />
+            <div
+              class="list-drop-zone"
+              :class="{ 'list-drop-zone--active': listDragging }"
+              @dragenter.prevent="onListDragEnter"
+              @dragover.prevent
+              @dragleave="onListDragLeave"
+              @drop.prevent="onListDrop"
+              @click="listFileInput?.click()"
+            >
+              <p class="list-drop-zone-heading">
+                Drop your card export CSV here
+              </p>
+              <p class="list-drop-zone-sub">or click to browse</p>
+            </div>
+            <div class="list-drop-zone-footer">
               <button
-                class="upload-prompt-toggle"
-                @click="helpExpanded = !helpExpanded"
+                class="btn-drop-zone-link"
+                type="button"
+                @click="listHelpExpanded = !listHelpExpanded"
               >
-                {{ helpExpanded ? "Hide instructions" : "Show instructions" }}
+                {{
+                  listHelpExpanded ? "Hide instructions" : "Show instructions"
+                }}
+              </button>
+              <button
+                class="btn-drop-zone-link"
+                type="button"
+                @click="dropZoneDismissed = true"
+              >
+                Skip for now
               </button>
             </div>
-            <template v-if="helpExpanded">
-              <p class="upload-prompt-body">
+            <div v-if="listHelpExpanded" class="list-upload-help">
+              <p class="upload-help-body">
                 To get the latest price and ownership data, from the card shop,
-                with no filters on, click Export Card List to CSV and upload it
-                using the sidebar.
+                with no filters on, click Export Card List to CSV.
               </p>
               <img
                 src="/OotpExportShopCards.jpg"
                 alt="Shop Cards Export Help"
-                class="upload-prompt-img"
+                class="upload-help-img"
               />
-              <p class="upload-prompt-body">
+              <p class="upload-help-body">
                 To export your locked card data, add "PT Card ID" and "PT Lock"
                 to a view and with no filters click Report, Write report to csv.
-                This is only for displaying locked cards — owned cards come from
+                This is only for displaying locked cards, owned cards come from
                 the shop csv.
               </p>
-              <p class="upload-prompt-note">
+              <p class="upload-help-note">
                 Note: If you have more than 8190 cards, exports will be
                 paginated making it impossible to export your full card
                 inventory. Quicksell duplicates to get under the limit if you
@@ -457,15 +475,15 @@
               <img
                 src="/OotpUserCardView.jpg"
                 alt="User Card View Help"
-                class="upload-prompt-img"
+                class="upload-help-img"
               />
               <img
                 src="/OotpExportUserCards.jpg"
                 alt="User Cards Export Help"
-                class="upload-prompt-img"
+                class="upload-help-img"
               />
-            </template>
-          </div>
+            </div>
+          </template>
           <div
             v-if="
               groupedMissions.length === 0 ||
@@ -686,8 +704,36 @@ const settingsStore = useSettingsStore();
 const hasUserCards = computed(
   () => cardStore.hasShopCards && !cardStore.isDefaultData,
 );
-const helpExpanded = ref(false);
-const promptDismissed = ref(false);
+const dropZoneDismissed = ref(false);
+const listDragging = ref(false);
+const listHelpExpanded = ref(false);
+const listFileInput = ref<HTMLInputElement | null>(null);
+let listDragCounter = 0;
+
+function onListDragEnter() {
+  listDragCounter++;
+  listDragging.value = true;
+}
+
+function onListDragLeave() {
+  if (--listDragCounter === 0) listDragging.value = false;
+}
+
+async function onListDrop(e: DragEvent) {
+  listDragCounter = 0;
+  listDragging.value = false;
+  const file = e.dataTransfer?.files[0];
+  if (!file) return;
+  await cardStore.uploadShopFile(file);
+  await missionStore.initialize();
+}
+
+async function handleListFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  await cardStore.uploadShopFile(file);
+  await missionStore.initialize();
+}
 function collectDescendantIds(
   rootId: number,
   missionById: Map<number, UserMission>,
@@ -1713,96 +1759,97 @@ watch(
   margin: 0;
 }
 
-.upload-prompt {
+.list-file-input {
+  display: none;
+}
+
+.list-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 2rem;
+  background: #fff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.list-drop-zone:hover,
+.list-drop-zone--active {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+.list-drop-zone-heading {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.list-drop-zone-sub {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.list-drop-zone-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.5rem 0 0;
+}
+
+.btn-drop-zone-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.btn-drop-zone-link:hover {
+  color: #475569;
+}
+
+.list-upload-help {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.25rem;
+  margin-top: 0.5rem;
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.upload-prompt-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.upload-prompt-title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.upload-prompt-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
-  flex: 1;
-  margin: 0;
-}
-
-.upload-prompt-dismiss {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition:
-    background 0.15s,
-    color 0.15s;
-  flex-shrink: 0;
-}
-
-.upload-prompt-dismiss:hover {
-  background: #f1f5f9;
+.upload-help-body {
+  font-size: 0.875rem;
   color: #475569;
+  margin: 0;
+  line-height: 1.6;
 }
 
-.upload-prompt-toggle {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: #1e293b;
-  cursor: pointer;
-  padding: 4px 12px;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.upload-prompt-toggle:hover {
-  background: #e2e8f0;
-}
-
-.upload-prompt-body {
-  font-size: 0.85rem;
-  color: #64748b;
-  line-height: 1.5;
-}
-
-.upload-prompt-note {
+.upload-help-note {
   font-size: 0.82rem;
   color: #94a3b8;
-  line-height: 1.5;
+  margin: 0;
+  line-height: 1.6;
 }
 
-.upload-prompt-img {
+.upload-help-img {
   max-width: 100%;
   width: auto;
-  align-self: flex-start;
   border-radius: 4px;
   border: 1px solid #e2e8f0;
 }
