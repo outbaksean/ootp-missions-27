@@ -101,8 +101,10 @@
               <p class="upload-help-body">
                 To export your locked card data, add "PT Card ID" and "PT Lock"
                 to a view and with no filters click Report, Write report to csv.
-                This is only for displaying locked cards, owned cards come from
-                the shop csv.
+                This enables <strong>Optimized mode</strong> — upload to allow
+                the app to account for locked card values and find optimal
+                mission completion strategies. Owned cards still come from the
+                shop CSV.
               </p>
               <p class="upload-help-note">
                 Note: If you have more than 8190 cards, exports will be

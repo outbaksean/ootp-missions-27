@@ -90,23 +90,16 @@
             <summary>Mission details</summary>
             <p>
               The detail panel shows every card in the mission, sorted unowned
-              (cheapest first), then owned unlocked, then locked.
+              (cheapest first), then owned.
             </p>
             <ul>
               <li>Buy: card is included in the calculated purchase list.</li>
-              <li>
-                Use: card is owned and the optimizer recommends locking it.
-              </li>
-              <li>Owned / Locked: current status badges with quick actions.</li>
+              <li>Owned: current status badge.</li>
               <li>
                 Price field: override a card price to include it in calculations
                 or adjust value.
               </li>
               <li>N other missions: shows where else the card appears.</li>
-              <li>
-                Set Completed: manual completion for missions you can finish.
-                This does not change the lock status of any cards.
-              </li>
             </ul>
           </details>
 
@@ -137,18 +130,40 @@
                 Positive Value Only: shows only missions with positive net.
               </li>
               <li>
-                Include unlocked cards in net value: subtracts unlock cost from
-                net to reflect the full cost of locking owned cards.
-              </li>
-              <li>
-                Optimize card assignment: finds the cheapest mix of buying and
-                locking instead of always buying unowned cards.
-              </li>
-              <li>
-                Sell - Buy difference: adjusts the opportunity cost of locking
-                owned cards based on tax and market spread.
+                Sell - Buy difference: only visible in Optimized mode. Adjusts
+                the opportunity cost of locking owned cards based on tax and
+                market spread.
               </li>
               <li>Pack Values: set PP values for reward calculation.</li>
+            </ul>
+          </details>
+
+          <details open>
+            <summary>Optimized mode</summary>
+            <p>
+              Enable Optimized mode if you have uploaded your locked card data.
+              When active:
+            </p>
+            <ul>
+              <li>
+                Mission completion is based on locked card count/points instead
+                of owned count/points.
+              </li>
+              <li>
+                The optimizer finds the cheapest combination of buying new cards
+                and locking owned cards.
+              </li>
+              <li>
+                The Unlocked opportunity cost is subtracted from Net value.
+              </li>
+              <li>
+                The Sell - Buy difference setting controls the discount applied
+                when calculating the cost of locking owned cards.
+              </li>
+              <li>
+                Lock buttons appear on cards in mission details, letting you
+                manually set lock status.
+              </li>
             </ul>
           </details>
 
