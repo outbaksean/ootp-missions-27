@@ -411,41 +411,79 @@
           <div class="spinner"></div>
         </div>
         <template v-else>
-          <div
-            v-if="!hasUserCards && !dropZoneDismissed"
-            class="list-drop-zone"
-            :class="{ 'list-drop-zone--active': listDragging }"
-            @dragenter.prevent="onListDragEnter"
-            @dragover.prevent
-            @dragleave="onListDragLeave"
-            @drop.prevent="onListDrop"
-          >
-            <p class="list-drop-zone-heading">Drop your card export CSV here</p>
-            <p class="list-drop-zone-sub">or</p>
-            <button
-              class="btn-open-upload"
-              type="button"
-              data-bs-toggle="modal"
-              data-bs-target="#cardUploaderModal"
+          <template v-if="!hasUserCards && !dropZoneDismissed">
+            <input
+              type="file"
+              ref="listFileInput"
+              class="list-file-input"
+              @change="handleListFileChange"
+            />
+            <div
+              class="list-drop-zone"
+              :class="{ 'list-drop-zone--active': listDragging }"
+              @dragenter.prevent="onListDragEnter"
+              @dragover.prevent
+              @dragleave="onListDragLeave"
+              @drop.prevent="onListDrop"
+              @click="listFileInput?.click()"
             >
-              Open upload dialog
-            </button>
-            <button
-              class="btn-upload-help"
-              type="button"
-              data-bs-toggle="modal"
-              data-bs-target="#uploadHelpModal"
-            >
-              Show instructions
-            </button>
-            <button
-              class="btn-drop-zone-dismiss"
-              type="button"
-              @click="dropZoneDismissed = true"
-            >
-              Skip for now
-            </button>
-          </div>
+              <p class="list-drop-zone-heading">
+                Drop your card export CSV here
+              </p>
+              <p class="list-drop-zone-sub">or click to browse</p>
+            </div>
+            <div class="list-drop-zone-footer">
+              <button
+                class="btn-drop-zone-link"
+                type="button"
+                @click="listHelpExpanded = !listHelpExpanded"
+              >
+                {{
+                  listHelpExpanded ? "Hide instructions" : "Show instructions"
+                }}
+              </button>
+              <button
+                class="btn-drop-zone-link"
+                type="button"
+                @click="dropZoneDismissed = true"
+              >
+                Skip for now
+              </button>
+            </div>
+            <div v-if="listHelpExpanded" class="list-upload-help">
+              <p class="upload-help-body">
+                To get the latest price and ownership data, from the card shop,
+                with no filters on, click Export Card List to CSV.
+              </p>
+              <img
+                src="/OotpExportShopCards.jpg"
+                alt="Shop Cards Export Help"
+                class="upload-help-img"
+              />
+              <p class="upload-help-body">
+                To export your locked card data, add "PT Card ID" and "PT Lock"
+                to a view and with no filters click Report, Write report to csv.
+                This is only for displaying locked cards, owned cards come from
+                the shop csv.
+              </p>
+              <p class="upload-help-note">
+                Note: If you have more than 8190 cards, exports will be
+                paginated making it impossible to export your full card
+                inventory. Quicksell duplicates to get under the limit if you
+                want locked status displayed.
+              </p>
+              <img
+                src="/OotpUserCardView.jpg"
+                alt="User Card View Help"
+                class="upload-help-img"
+              />
+              <img
+                src="/OotpExportUserCards.jpg"
+                alt="User Cards Export Help"
+                class="upload-help-img"
+              />
+            </div>
+          </template>
           <div
             v-if="
               groupedMissions.length === 0 ||
@@ -668,6 +706,8 @@ const hasUserCards = computed(
 );
 const dropZoneDismissed = ref(false);
 const listDragging = ref(false);
+const listHelpExpanded = ref(false);
+const listFileInput = ref<HTMLInputElement | null>(null);
 let listDragCounter = 0;
 
 function onListDragEnter() {
@@ -683,6 +723,13 @@ async function onListDrop(e: DragEvent) {
   listDragCounter = 0;
   listDragging.value = false;
   const file = e.dataTransfer?.files[0];
+  if (!file) return;
+  await cardStore.uploadShopFile(file);
+  await missionStore.initialize();
+}
+
+async function handleListFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
   await cardStore.uploadShopFile(file);
   await missionStore.initialize();
@@ -1712,23 +1759,28 @@ watch(
   margin: 0;
 }
 
+.list-file-input {
+  display: none;
+}
+
 .list-drop-zone {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   padding: 3rem 2rem;
-  margin-bottom: 1rem;
   background: #fff;
   border: 2px dashed #cbd5e1;
   border-radius: 8px;
   text-align: center;
+  cursor: pointer;
   transition:
     border-color 0.15s,
     background 0.15s;
 }
 
+.list-drop-zone:hover,
 .list-drop-zone--active {
   border-color: #22c55e;
   background: #f0fdf4;
@@ -1747,24 +1799,14 @@ watch(
   margin: 0;
 }
 
-.btn-open-upload {
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
+.list-drop-zone-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.5rem 0 0;
 }
 
-.btn-open-upload:hover {
-  background: #334155;
-}
-
-.btn-upload-help,
-.btn-drop-zone-dismiss {
+.btn-drop-zone-link {
   background: none;
   border: none;
   padding: 0;
@@ -1775,9 +1817,41 @@ watch(
   text-underline-offset: 2px;
 }
 
-.btn-upload-help:hover,
-.btn-drop-zone-dismiss:hover {
+.btn-drop-zone-link:hover {
   color: #475569;
+}
+
+.list-upload-help {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.upload-help-body {
+  font-size: 0.875rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.upload-help-note {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.upload-help-img {
+  max-width: 100%;
+  width: auto;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
 }
 
 /* ─── RESIZE HANDLE ─── */
