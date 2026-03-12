@@ -89,6 +89,7 @@
   - [S1] In shopping mode, if missions are excluded due to price, show cost to complete those missions
   - [S2] In shopping mode, if optimize locked cards is on, after the cards to buy to complete a mission, put a list of cards to lock for the mission and the combined cost of those cards using the buy sell difference. Include total cost of cards to lock in header
   - [S3] The html report should include the updated header format
+  - [S4] Combine rewards should be in badge format
 
 ## Mission Extractor
 
