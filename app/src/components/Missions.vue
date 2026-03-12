@@ -360,9 +360,10 @@
     <!-- ─── MAIN AREA ─── -->
     <div class="main-area">
       <section
+        v-if="!showShoppingList"
         class="list-panel"
         :style="
-          (selectedMission || showShoppingList) && !isMobile
+          selectedMission && !isMobile
             ? { width: listPanelWidth + 'px', flex: 'none' }
             : {}
         "
