@@ -426,6 +426,12 @@
             <span v-if="card.shouldLock && !card.locked" class="pill pill-use"
               >Use</span
             >
+            <span v-if="card.cardType === 'clubhouse'" class="pill pill-cs"
+              >CS</span
+            >
+            <span v-if="card.cardType === 'nonpack'" class="pill pill-nonpack"
+              >Special</span
+            >
             <button
               v-if="card.owned"
               class="btn-lock"
@@ -1312,6 +1318,16 @@ const selectedMissionRewardItems = computed(() => {
 .pill-use {
   background: #dbeafe;
   color: #1e40af;
+}
+
+.pill-cs {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.pill-nonpack {
+  background: #f3e8ff;
+  color: #6b21a8;
 }
 
 .btn-lock {

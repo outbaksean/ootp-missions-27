@@ -356,6 +356,7 @@ export const useMissionStore = defineStore("mission", () => {
           highlighted,
           points: card.points || 0,
           shouldLock: false,
+          cardType: shopCard.cardType,
         };
       })
       .filter((card) => card !== null)
@@ -621,6 +622,7 @@ export const useMissionStore = defineStore("mission", () => {
             highlighted,
             points: card.points || 0,
             shouldLock: false,
+            cardType: shopCard.cardType,
           };
         })
         .filter((card) => card !== null)
