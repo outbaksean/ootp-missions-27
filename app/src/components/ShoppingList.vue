@@ -579,7 +579,12 @@ import {
   chipClass,
   type RewardItem,
 } from "../helpers/RewardItemsHelper";
-import { PACK_TYPE_LABELS } from "../stores/useSettingsStore";
+import { PACK_TYPE_LABELS, useSettingsStore } from "../stores/useSettingsStore";
+import {
+  useMissionStore,
+  computeMissionCostInfo,
+} from "../stores/useMissionStore";
+import { useCardStore } from "../stores/useCardStore";
 
 const props = defineProps<{
   missions: UserMission[];
@@ -710,8 +715,10 @@ const strategySummary = computed(() =>
 
 const optionsSummary = computed(() => {
   const pp = ppInput.value.trim() ? `${ppInput.value.trim()} PP` : "Unlimited";
-  const extra = completableOnly.value ? ", completable only" : "";
-  return pp + extra;
+  const parts: string[] = [];
+  if (completableOnly.value) parts.push("completable only");
+  if (optimizeForLockedCards.value) parts.push("optimized");
+  return parts.length > 0 ? `${pp}, ${parts.join(", ")}` : pp;
 });
 
 // ─── SCOPE MUTATORS ───
@@ -811,6 +818,132 @@ async function handleGenerate() {
   generating.value = false;
 }
 
+// ─── STORES (for independent optimize recompute) ───
+const settingsStore = useSettingsStore();
+const missionStore = useMissionStore();
+const cardStore = useCardStore();
+
+/**
+ * Returns missions with costs recomputed using the wizard's optimizeForLockedCards
+ * setting, independent of the global optimizedMode. Only leaf missions (count/points)
+ * are patched — missions-type aggregates are left unchanged.
+ */
+const effectiveMissionsForResults = computed((): UserMission[] => {
+  const wizardOptimize = props.wizardConfig?.optimizeForLockedCards ?? false;
+  const globalOptimize = settingsStore.optimizedMode;
+
+  if (wizardOptimize === globalOptimize) {
+    console.log(
+      `[shopping] effectiveMissions: FAST PATH (both optimize=${wizardOptimize}), missions=${props.missions.length}`,
+    );
+    return props.missions;
+  }
+
+  console.log(
+    `[shopping] effectiveMissions: RECOMPUTE (wizard=${wizardOptimize}, global=${globalOptimize}), missions=${props.missions.length}`,
+  );
+
+  const shopCardsById = cardStore.shopCardsById;
+  const sellPrice = missionStore.selectedPriceType.sellPrice;
+  const overrides = cardStore.cardPriceOverrides;
+  const discount = settingsStore.unlockedCardDiscount;
+
+  // Missions are in ascending ID order with children always before parents,
+  // so a single forward pass correctly propagates completed status up the chain.
+  const effectiveById = new Map<number, UserMission>();
+  const result: UserMission[] = [];
+
+  for (const m of props.missions) {
+    // Not-yet-calculated: pass through unchanged.
+    if (m.progressText === "Not Calculated") {
+      effectiveById.set(m.id, m);
+      result.push(m);
+      continue;
+    }
+
+    // Chain missions: recompute completed from effective sub-mission values.
+    if (m.rawMission.type === "missions") {
+      const subIds = m.rawMission.missionIds ?? [];
+      const completedCount = subIds.filter(
+        (id) => effectiveById.get(id)?.completed,
+      ).length;
+      const completed = completedCount >= m.rawMission.requiredCount;
+      const patched = completed !== m.completed ? { ...m, completed } : m;
+      effectiveById.set(m.id, patched);
+      result.push(patched);
+      continue;
+    }
+
+    // Leaf missions (count/points): recompute costs and completed.
+    const costInfo = computeMissionCostInfo(
+      m.rawMission,
+      shopCardsById,
+      sellPrice,
+      overrides,
+      wizardOptimize,
+      discount,
+    );
+    const patchedMissionCards = m.missionCards.map((mc) => ({
+      ...mc,
+      highlighted:
+        costInfo.remainingPrice > 0 && costInfo.highlightedIds.has(mc.cardId),
+    }));
+
+    let completed: boolean;
+    if (m.rawMission.type === "count") {
+      completed = wizardOptimize
+        ? patchedMissionCards.filter((c) => c.owned && c.locked).length >=
+          m.rawMission.requiredCount
+        : patchedMissionCards.filter((c) => c.owned).length >=
+          m.rawMission.requiredCount;
+    } else {
+      const pts = (
+        wizardOptimize
+          ? patchedMissionCards.filter((c) => c.owned && c.locked)
+          : patchedMissionCards.filter((c) => c.owned)
+      ).reduce((sum, c) => sum + (c.points ?? 0), 0);
+      completed = pts >= m.rawMission.requiredCount;
+    }
+
+    const unlockedDeduction = wizardOptimize ? costInfo.unlockedCardsPrice : 0;
+    const newMissionValue =
+      m.rewardValue !== undefined
+        ? m.rewardValue - costInfo.remainingPrice - unlockedDeduction
+        : undefined;
+
+    const patched: UserMission = {
+      ...m,
+      completed,
+      isCompletable: costInfo.isCompletable,
+      remainingPrice: costInfo.remainingPrice,
+      unlockedCardsPrice: costInfo.unlockedCardsPrice,
+      missionCards: patchedMissionCards,
+      missionValue: newMissionValue,
+    };
+    effectiveById.set(m.id, patched);
+    result.push(patched);
+  }
+
+  const sample = result.find(
+    (m) =>
+      m.rawMission.type !== "missions" && m.progressText !== "Not Calculated",
+  );
+  if (sample) {
+    const h = sample.missionCards.filter((c) => c.highlighted).length;
+    console.log(
+      `[shopping] effectiveMissions sample: "${sample.rawMission.name}" remainingPrice=${sample.remainingPrice} highlighted=${h} completed=${sample.completed}`,
+    );
+  }
+  const completedChains = result.filter(
+    (m) => m.rawMission.type === "missions" && m.completed,
+  ).length;
+  console.log(
+    `[shopping] effectiveMissions: completedChains=${completedChains}`,
+  );
+
+  return result;
+});
+
 // ─── RESULTS COMPUTED (driven by committed wizardConfig prop) ───
 const resultStrategy = computed(
   () => props.wizardConfig?.strategy ?? "completion",
@@ -821,9 +954,10 @@ const resultAvailablePP = computed(
 
 const inScopeIncomplete = computed(() => {
   if (!props.wizardConfig) return [];
-  const incomplete = props.missions.filter(
+  const incomplete = effectiveMissionsForResults.value.filter(
     (m) => !m.completed && m.progressText !== "Not Calculated",
   );
+  console.log(`[shopping] inScopeIncomplete: ${incomplete.length} missions`);
   const wScope = props.wizardConfig.scope;
   if (emptyScopeIsAll(wScope)) return incomplete;
   const scopedIds = new Set(
@@ -854,7 +988,7 @@ const missionSelection = computed(() => {
     leafMissions,
     resultStrategy.value,
     resultAvailablePP.value,
-    props.missions,
+    effectiveMissionsForResults.value,
   );
 });
 
@@ -909,17 +1043,20 @@ function visibleMissions<T>(items: T[], key: string): T[] {
   return items.slice(0, COLLAPSE_SHOW);
 }
 
-const shoppingItems = computed((): ShoppingItem[] =>
-  props.wizardConfig
-    ? buildShoppingItems(
-        eligibleMissions.value,
-        missionSelection.value.selectedIds,
-        props.missions,
-        props.shopCardsById,
-        missionPriority.value,
-      )
-    : [],
-);
+const shoppingItems = computed((): ShoppingItem[] => {
+  if (!props.wizardConfig) return [];
+  const items = buildShoppingItems(
+    eligibleMissions.value,
+    missionSelection.value.selectedIds,
+    effectiveMissionsForResults.value,
+    props.shopCardsById,
+    missionPriority.value,
+  );
+  console.log(
+    `[shopping] shoppingItems: ${items.length} cards, buyCount=${items.filter((i) => !i.isRewardItem).length}, totalCost=${items.filter((i) => !i.isRewardItem).reduce((s, i) => s + i.price, 0)}`,
+  );
+  return items;
+});
 
 const buyItemCount = computed(
   () => shoppingItems.value.filter((i) => !i.isRewardItem).length,
@@ -945,9 +1082,19 @@ const scopeLabels = computed((): string[] => {
   return labels;
 });
 
-const selectedLeafMissions = computed(
-  () => missionSelection.value.selectionOrder,
-);
+const selectedLeafMissions = computed(() => {
+  const order = missionSelection.value.selectionOrder;
+  if (order.length > 0) {
+    const sample = order[0];
+    const highlightedCount = sample.missionCards.filter(
+      (c) => c.highlighted,
+    ).length;
+    console.log(
+      `[shopping] selectedLeafMissions[0]: "${sample.rawMission.name}" remainingPrice=${sample.remainingPrice} highlighted=${highlightedCount} (wizard=${props.wizardConfig?.optimizeForLockedCards}, global=${settingsStore.optimizedMode})`,
+    );
+  }
+  return order;
+});
 
 const totalCost = computed(() =>
   shoppingItems.value
@@ -959,7 +1106,7 @@ const completingMissions = computed(() => {
   const shoppingCardIds = new Set(shoppingItems.value.map((i) => i.cardId));
   return computeCompletedByList(
     eligibleMissions.value,
-    props.missions,
+    effectiveMissionsForResults.value,
     shoppingCardIds,
   );
 });

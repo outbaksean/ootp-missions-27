@@ -721,7 +721,6 @@ function collectDescendantIds(
 const selectedMission = ref<UserMission | null>(null);
 const showShoppingList = ref(false);
 const wizardConfig = ref<ShoppingWizardConfig | null>(null);
-const optimizedModeBeforeShopping = ref<boolean | null>(null);
 
 function toggleShoppingMode() {
   if (showShoppingList.value) {
@@ -731,27 +730,12 @@ function toggleShoppingMode() {
   }
 }
 
-async function onWizardConfirm(config: ShoppingWizardConfig) {
+function onWizardConfirm(config: ShoppingWizardConfig) {
   wizardConfig.value = config;
-
-  if (config.optimizeForLockedCards !== settingsStore.optimizedMode) {
-    optimizedModeBeforeShopping.value = settingsStore.optimizedMode;
-    await recalculateWithOptimizedMode(config.optimizeForLockedCards);
-  } else {
-    optimizedModeBeforeShopping.value = null;
-  }
 }
 
-async function disableShoppingMode() {
+function disableShoppingMode() {
   showShoppingList.value = false;
-
-  if (
-    optimizedModeBeforeShopping.value !== null &&
-    optimizedModeBeforeShopping.value !== settingsStore.optimizedMode
-  ) {
-    await recalculateWithOptimizedMode(optimizedModeBeforeShopping.value);
-  }
-  optimizedModeBeforeShopping.value = null;
   wizardConfig.value = null;
 }
 
@@ -994,6 +978,9 @@ watch(showPositiveOnly, (v) =>
 const isLoading = computed(() => missionStore.loading);
 
 async function recalculateWithOptimizedMode(newValue: boolean) {
+  console.log(
+    `[missions] recalculateWithOptimizedMode: ${!newValue} -> ${newValue}, showShoppingList=${showShoppingList.value}, wizardOptimize=${wizardConfig.value?.optimizeForLockedCards}`,
+  );
   const calculatedMissions = missionStore.userMissions.filter(
     (m) => m.progressText !== "Not Calculated",
   );
