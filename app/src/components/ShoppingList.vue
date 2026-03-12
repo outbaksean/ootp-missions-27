@@ -276,8 +276,13 @@
       Generate Shopping Plan
     </button>
 
+    <!-- ─── GENERATING SPINNER ─── -->
+    <div v-if="generating" class="sl-spinner-container">
+      <div class="sl-spinner"></div>
+    </div>
+
     <!-- ─── NO RESULTS YET ─── -->
-    <p v-if="!props.wizardConfig" class="sp-no-results">
+    <p v-else-if="!props.wizardConfig" class="sp-no-results">
       Configure settings above and click Generate to build your shopping plan.
     </p>
 
@@ -550,7 +555,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { ShopCard } from "../models/ShopCard";
 import {
@@ -595,6 +600,7 @@ const openSection = ref<"scope" | "strategy" | "options" | null>(
   props.wizardConfig ? null : "scope",
 );
 const headerCollapsed = ref(false);
+const generating = ref(false);
 
 function toggleSection(section: "scope" | "strategy" | "options") {
   openSection.value = openSection.value === section ? null : section;
@@ -784,7 +790,7 @@ function clearScope() {
 }
 
 // ─── GENERATE ───
-function handleGenerate() {
+async function handleGenerate() {
   const raw = ppInput.value.trim().replace(/,/g, "");
   const parsedPP = raw ? Number(raw) : null;
   const availablePP =
@@ -792,6 +798,8 @@ function handleGenerate() {
       ? parsedPP
       : null;
   openSection.value = null;
+  generating.value = true;
+  await nextTick(); // let the spinner render before computation starts
   emit("confirm", {
     scope: scope.value,
     strategy: strategy.value,
@@ -799,6 +807,8 @@ function handleGenerate() {
     completableOnly: completableOnly.value,
     optimizeForLockedCards: optimizeForLockedCards.value,
   });
+  await nextTick(); // let the results render before hiding the spinner
+  generating.value = false;
 }
 
 // ─── RESULTS COMPUTED (driven by committed wizardConfig prop) ───
@@ -1513,6 +1523,29 @@ function exportHtml() {
 
 .sp-generate-btn:hover {
   background: #4f46e5;
+}
+
+/* ─── SPINNER ─── */
+.sl-spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 1rem;
+}
+
+.sl-spinner {
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid var(--accent, #6366f1);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: sl-spin 0.8s linear infinite;
+}
+
+@keyframes sl-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── NO RESULTS ─── */
