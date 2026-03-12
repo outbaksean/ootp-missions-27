@@ -327,7 +327,10 @@ export const useMissionStore = defineStore("mission", () => {
       (card) => shopCardsById.get(card.cardId)?.owned,
     ).length;
     const lockedCount = missionCards.filter((c) => c.owned && c.locked).length;
-    const lockedSuffix = settingsStore.optimizedMode && lockedCount > 0 ? `, ${lockedCount} locked` : "";
+    const lockedSuffix =
+      settingsStore.optimizedMode && lockedCount > 0
+        ? `, ${lockedCount} locked`
+        : "";
 
     for (const mc of missionCards) {
       mc.shouldLock = costInfo.lockIds.has(mc.cardId);
@@ -595,7 +598,9 @@ export const useMissionStore = defineStore("mission", () => {
         .filter((c) => c.owned && c.locked)
         .reduce((sum, c) => sum + (c.points ?? 0), 0);
       const lockedPointsSuffix =
-        settingsStore.optimizedMode && lockedPoints > 0 ? `, ${lockedPoints.toLocaleString()} locked` : "";
+        settingsStore.optimizedMode && lockedPoints > 0
+          ? `, ${lockedPoints.toLocaleString()} locked`
+          : "";
 
       const remainingPoints = mission.requiredCount - ownedPoints;
       userMission.progressText = `${ownedPoints.toLocaleString()} / ${mission.requiredCount.toLocaleString()} pts (${remainingPoints.toLocaleString()} remaining, ${mission.totalPoints?.toLocaleString()} total${lockedPointsSuffix})`;
@@ -766,7 +771,7 @@ export const useMissionStore = defineStore("mission", () => {
           if (fresh.version !== missionsVersion.value) {
             missions.value = fresh.missions;
             missionsVersion.value = fresh.version;
-                  buildUserMissions();
+            buildUserMissions();
             calculateAllNotCalculatedMissions(
               missions.value.map((mission) => mission.id),
             );

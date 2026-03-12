@@ -254,7 +254,9 @@
         <div class="mark-complete-row">
           <button
             class="btn-shopping-mode"
-            :class="{ 'btn-shopping-mode--active': settingsStore.optimizedMode }"
+            :class="{
+              'btn-shopping-mode--active': settingsStore.optimizedMode,
+            }"
             @click="toggleOptimizedMode"
           >
             {{

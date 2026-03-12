@@ -29,7 +29,12 @@
               groupRemainingTotal(group.missions)
             }}</span>
           </div>
-          <div v-if="settingsStore.optimizedMode && groupUnlockedTotal(group.missions)" class="group-stat-row">
+          <div
+            v-if="
+              settingsStore.optimizedMode && groupUnlockedTotal(group.missions)
+            "
+            class="group-stat-row"
+          >
             <span class="group-stat-label">Unlocked</span>
             <span class="group-stat-value">{{
               groupUnlockedTotal(group.missions)
@@ -211,7 +216,10 @@
                   }}</span>
                 </div>
                 <div
-                  v-if="settingsStore.optimizedMode && mission.unlockedCardsPrice > 0"
+                  v-if="
+                    settingsStore.optimizedMode &&
+                    mission.unlockedCardsPrice > 0
+                  "
                   class="card-stat-cell"
                 >
                   <span class="card-stat-label">Unlocked</span>
@@ -329,7 +337,6 @@
 import { ref, computed } from "vue";
 import type { PropType, ComponentPublicInstance } from "vue";
 import type { UserMission } from "../models/UserMission";
-import { useMissionStore } from "@/stores/useMissionStore";
 import { useSettingsStore, PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
 import { useCardStore } from "@/stores/useCardStore";
 import {
@@ -375,7 +382,6 @@ defineEmits<{
   (e: "includeMission", id: number): void;
 }>();
 
-const missionStore = useMissionStore();
 const settingsStore = useSettingsStore();
 const cardStore = useCardStore();
 const GROUP_REWARDS_COLLAPSE_THRESHOLD = 20;

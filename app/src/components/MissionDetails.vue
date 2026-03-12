@@ -72,7 +72,10 @@
             }}</span>
           </div>
           <div
-            v-if="settingsStore.optimizedMode && selectedMission.unlockedCardsPrice > 0"
+            v-if="
+              settingsStore.optimizedMode &&
+              selectedMission.unlockedCardsPrice > 0
+            "
             class="stat-row"
           >
             <span class="stat-label">Unlocked</span>
@@ -297,7 +300,10 @@
             }}</span>
           </div>
           <div
-            v-if="settingsStore.optimizedMode && selectedMission.unlockedCardsPrice > 0"
+            v-if="
+              settingsStore.optimizedMode &&
+              selectedMission.unlockedCardsPrice > 0
+            "
             class="stat-row"
           >
             <span class="stat-label">Unlocked</span>
@@ -413,7 +419,11 @@
               >Buy</span
             >
             <span v-if="card.owned" class="pill pill-owned">Owned</span>
-            <span v-if="settingsStore.optimizedMode && card.shouldLock && !card.locked" class="pill pill-use"
+            <span
+              v-if="
+                settingsStore.optimizedMode && card.shouldLock && !card.locked
+              "
+              class="pill pill-use"
               >Use</span
             >
             <span v-if="card.cardType === 'clubhouse'" class="pill pill-cs"
