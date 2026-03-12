@@ -71,7 +71,7 @@ function buildExplanation(
   return parts.join("; ");
 }
 
-function buildRewardSummaryParts(
+export function buildRewardSummaryParts(
   missions: UserMission[],
   packPrices: Map<string, number>,
   shopCardsById: Map<number, ShopCard>,
@@ -159,7 +159,7 @@ function buildProgressText(
   return text;
 }
 
-function computeCompletedByList(
+export function computeCompletedByList(
   eligibleMissions: UserMission[],
   allMissions: UserMission[],
   shoppingCardIds: Set<number>,

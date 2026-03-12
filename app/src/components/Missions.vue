@@ -367,128 +367,121 @@
             : {}
         "
       >
-        <!-- Shopping plan list replaces normal list when shopping mode is active -->
-        <ShoppingPlanList
-          v-if="showShoppingList && wizardConfig"
-          :inPlanMissions="shoppingPlanData.inPlan"
-          :outOfBudgetMissions="shoppingPlanData.outOfBudget"
-          :excludedMissions="shoppingPlanData.excluded"
-          @configure="openWizard"
-        />
+        <div v-if="isLoading" class="spinner-container">
+          <div class="spinner"></div>
+        </div>
         <template v-else>
-          <div v-if="isLoading" class="spinner-container">
-            <div class="spinner"></div>
-          </div>
-          <template v-else>
-            <template v-if="!hasUserCards && !dropZoneDismissed">
-              <input
-                type="file"
-                ref="listFileInput"
-                class="list-file-input"
-                @change="handleListFileChange"
-              />
-              <div
-                class="list-drop-zone"
-                :class="{ 'list-drop-zone--active': listDragging }"
-                @dragenter.prevent="onListDragEnter"
-                @dragover.prevent
-                @dragleave="onListDragLeave"
-                @drop.prevent="onListDrop"
-                @click="listFileInput?.click()"
-              >
-                <p class="list-drop-zone-heading">
-                  Drop your card export CSV here
-                </p>
-                <p class="list-drop-zone-sub">or click to browse</p>
-              </div>
-              <div class="list-drop-zone-footer">
-                <button
-                  class="btn-drop-zone-link"
-                  type="button"
-                  @click="listHelpExpanded = !listHelpExpanded"
-                >
-                  {{
-                    listHelpExpanded ? "Hide instructions" : "Show instructions"
-                  }}
-                </button>
-                <button
-                  class="btn-drop-zone-link"
-                  type="button"
-                  @click="dropZoneDismissed = true"
-                >
-                  Skip for now
-                </button>
-              </div>
-              <div v-if="listHelpExpanded" class="list-upload-help">
-                <p class="upload-help-body">
-                  To get the latest price and ownership data, from the card
-                  shop, with no filters on, click Export Card List to CSV.
-                </p>
-                <img
-                  src="/OotpExportShopCards.jpg"
-                  alt="Shop Cards Export Help"
-                  class="upload-help-img"
-                />
-                <p class="upload-help-body">
-                  To export your locked card data, add "PT Card ID" and "PT
-                  Lock" to a view and with no filters click Report, Write report
-                  to csv. This is only for displaying locked cards, owned cards
-                  come from the shop csv.
-                </p>
-                <p class="upload-help-note">
-                  Note: If you have more than 8190 cards, exports will be
-                  paginated making it impossible to export your full card
-                  inventory. Quicksell duplicates to get under the limit if you
-                  want locked status displayed.
-                </p>
-                <img
-                  src="/OotpUserCardView.jpg"
-                  alt="User Card View Help"
-                  class="upload-help-img"
-                />
-                <img
-                  src="/OotpExportUserCards.jpg"
-                  alt="User Cards Export Help"
-                  class="upload-help-img"
-                />
-              </div>
-            </template>
-            <div
-              v-if="
-                groupedMissions.length === 0 ||
-                groupedMissions.every((g) => g.missions.length === 0)
-              "
-              class="empty-missions-message"
-            >
-              <p>No missions match the current filters.</p>
-            </div>
-            <MissionList
-              v-else
-              ref="missionListRef"
-              :groups="groupedMissions"
-              :isMissionComplete="isMissionComplete"
-              :remainingPriceText="remainingPriceText"
-              :selectMission="selectMission"
-              :selectedMission="selectedMission"
-              :isShoppingListMode="false"
-              :shoppingListMissionIds="emptyMissionIdSet"
-              @calculateMission="missionStore.calculateMissionDetails"
-              @calculateGroup="missionStore.calculateAllNotCalculatedMissions"
-              @includeMission="() => {}"
+          <template v-if="!hasUserCards && !dropZoneDismissed">
+            <input
+              type="file"
+              ref="listFileInput"
+              class="list-file-input"
+              @change="handleListFileChange"
             />
+            <div
+              class="list-drop-zone"
+              :class="{ 'list-drop-zone--active': listDragging }"
+              @dragenter.prevent="onListDragEnter"
+              @dragover.prevent
+              @dragleave="onListDragLeave"
+              @drop.prevent="onListDrop"
+              @click="listFileInput?.click()"
+            >
+              <p class="list-drop-zone-heading">
+                Drop your card export CSV here
+              </p>
+              <p class="list-drop-zone-sub">or click to browse</p>
+            </div>
+            <div class="list-drop-zone-footer">
+              <button
+                class="btn-drop-zone-link"
+                type="button"
+                @click="listHelpExpanded = !listHelpExpanded"
+              >
+                {{
+                  listHelpExpanded ? "Hide instructions" : "Show instructions"
+                }}
+              </button>
+              <button
+                class="btn-drop-zone-link"
+                type="button"
+                @click="dropZoneDismissed = true"
+              >
+                Skip for now
+              </button>
+            </div>
+            <div v-if="listHelpExpanded" class="list-upload-help">
+              <p class="upload-help-body">
+                To get the latest price and ownership data, from the card shop,
+                with no filters on, click Export Card List to CSV.
+              </p>
+              <img
+                src="/OotpExportShopCards.jpg"
+                alt="Shop Cards Export Help"
+                class="upload-help-img"
+              />
+              <p class="upload-help-body">
+                To export your locked card data, add "PT Card ID" and "PT Lock"
+                to a view and with no filters click Report, Write report to csv.
+                This is only for displaying locked cards, owned cards come from
+                the shop csv.
+              </p>
+              <p class="upload-help-note">
+                Note: If you have more than 8190 cards, exports will be
+                paginated making it impossible to export your full card
+                inventory. Quicksell duplicates to get under the limit if you
+                want locked status displayed.
+              </p>
+              <img
+                src="/OotpUserCardView.jpg"
+                alt="User Card View Help"
+                class="upload-help-img"
+              />
+              <img
+                src="/OotpExportUserCards.jpg"
+                alt="User Cards Export Help"
+                class="upload-help-img"
+              />
+            </div>
           </template>
+          <div
+            v-if="
+              groupedMissions.length === 0 ||
+              groupedMissions.every((g) => g.missions.length === 0)
+            "
+            class="empty-missions-message"
+          >
+            <p>No missions match the current filters.</p>
+          </div>
+          <MissionList
+            v-else
+            ref="missionListRef"
+            :groups="groupedMissions"
+            :isMissionComplete="isMissionComplete"
+            :remainingPriceText="remainingPriceText"
+            :selectMission="selectMission"
+            :selectedMission="selectedMission"
+            :isShoppingListMode="false"
+            :shoppingListMissionIds="emptyMissionIdSet"
+            @calculateMission="missionStore.calculateMissionDetails"
+            @calculateGroup="missionStore.calculateAllNotCalculatedMissions"
+            @includeMission="() => {}"
+          />
         </template>
       </section>
 
       <!-- ─── SHOPPING LIST PANEL ─── -->
-      <template v-if="showShoppingList && wizardConfig">
+      <template v-if="showShoppingList">
         <aside class="detail-panel">
           <ShoppingList
             :missions="missions"
             :wizardConfig="wizardConfig"
             :packPrices="settingsStore.packPrices"
             :shopCardsById="cardStore.shopCardsById"
-            @configure="openWizard"
+            :categories="missionCategories"
+            :chainMissions="chainRootMissions"
+            :rewardCards="allRewardCards"
+            @confirm="onWizardConfirm"
           />
         </aside>
       </template>
@@ -511,18 +504,6 @@
   <Teleport to="body">
     <MissionNotesModal :missionsVersion="missionStore.missionsVersion" />
   </Teleport>
-
-  <ShoppingWizard
-    v-if="showWizard"
-    :categories="missionCategories"
-    :chainMissions="chainRootMissions"
-    :rewardCards="allRewardCards"
-    :allMissions="missions"
-    :shopCardsById="cardStore.shopCardsById"
-    :initialConfig="wizardConfig ?? undefined"
-    @confirm="onWizardConfirm"
-    @cancel="onWizardCancel"
-  />
 
   <!-- ─── TOOLTIP PORTAL ─── -->
   <Teleport to="body">
@@ -551,20 +532,10 @@ import MissionSearch from "./MissionSearch.vue";
 import PackPriceSettings from "./PackPriceSettings.vue";
 import { useSettingsStore, PACK_TYPE_LABELS } from "../stores/useSettingsStore";
 import ShoppingList from "./ShoppingList.vue";
-import ShoppingWizard from "./ShoppingWizard.vue";
-import ShoppingPlanList from "./ShoppingPlanList.vue";
 import type { UserMission } from "../models/UserMission";
 import { collectRewardItems } from "@/helpers/RewardItemsHelper";
 import type { RewardItem } from "@/helpers/RewardItemsHelper";
-import {
-  type ShoppingWizardConfig,
-  emptyScopeIsAll,
-} from "../models/ShoppingWizardConfig";
-import {
-  resolveScopedMissions,
-  selectMissionsForBudget,
-  buildMissionPriority,
-} from "../helpers/ShoppingListHelper";
+import { type ShoppingWizardConfig } from "../models/ShoppingWizardConfig";
 
 defineOptions({ name: "MissionsView" });
 
@@ -748,7 +719,6 @@ function collectDescendantIds(
 
 const selectedMission = ref<UserMission | null>(null);
 const showShoppingList = ref(false);
-const showWizard = ref(false);
 const wizardConfig = ref<ShoppingWizardConfig | null>(null);
 const optimizedModeBeforeShopping = ref<boolean | null>(null);
 
@@ -757,16 +727,10 @@ function toggleShoppingMode() {
     disableShoppingMode();
   } else {
     showShoppingList.value = true;
-    openWizard();
   }
 }
 
-function openWizard() {
-  showWizard.value = true;
-}
-
 async function onWizardConfirm(config: ShoppingWizardConfig) {
-  showWizard.value = false;
   wizardConfig.value = config;
 
   if (config.optimizeForLockedCards !== settingsStore.optimizedMode) {
@@ -777,17 +741,8 @@ async function onWizardConfirm(config: ShoppingWizardConfig) {
   }
 }
 
-function onWizardCancel() {
-  showWizard.value = false;
-  if (!wizardConfig.value) {
-    // Wizard was opened without an existing config (first time enable): revert
-    showShoppingList.value = false;
-  }
-}
-
 async function disableShoppingMode() {
   showShoppingList.value = false;
-  showWizard.value = false;
 
   if (
     optimizedModeBeforeShopping.value !== null &&
@@ -799,78 +754,6 @@ async function disableShoppingMode() {
   wizardConfig.value = null;
 }
 
-// ─── Shopping plan data for left panel ───
-const shoppingPlanData = computed(
-  (): {
-    inPlan: UserMission[];
-    outOfBudget: UserMission[];
-    excluded: { mission: UserMission; reason: string }[];
-  } => {
-    const config = wizardConfig.value;
-    if (!config) return { inPlan: [], outOfBudget: [], excluded: [] };
-
-    const allMissions = missions.value;
-    const scope = config.scope;
-
-    const inScopeIncomplete = (() => {
-      const incomplete = allMissions.filter(
-        (m) => !m.completed && m.progressText !== "Not Calculated",
-      );
-      if (emptyScopeIsAll(scope)) return incomplete;
-      const scopedIds = new Set(
-        resolveScopedMissions(allMissions, scope).map((m) => m.id),
-      );
-      return incomplete.filter((m) => scopedIds.has(m.id));
-    })();
-
-    const eligible = config.completableOnly
-      ? inScopeIncomplete.filter((m) => m.isCompletable)
-      : inScopeIncomplete;
-
-    const leafMissions = eligible.filter(
-      (m) => m.rawMission.type !== "missions",
-    );
-    const selection = selectMissionsForBudget(
-      leafMissions,
-      config.strategy,
-      config.availablePP,
-      allMissions,
-    );
-
-    const priority = buildMissionPriority(
-      eligible,
-      selection.selectionOrder,
-      config.strategy,
-      selection.selectedIds,
-    );
-
-    const inPlan = selection.selectionOrder.slice().sort((a, b) => {
-      const pa = priority.get(a.id) ?? Infinity;
-      const pb = priority.get(b.id) ?? Infinity;
-      return pa - pb;
-    });
-
-    const selectedIds = selection.selectedIds;
-    const negativeExcluded = new Set(
-      selection.negativeValueExcluded.map((m) => m.id),
-    );
-    const outOfBudget = leafMissions.filter(
-      (m) => !selectedIds.has(m.id) && !negativeExcluded.has(m.id),
-    );
-
-    const excluded: { mission: UserMission; reason: string }[] = [];
-    for (const m of inScopeIncomplete) {
-      if (!m.isCompletable && m.rawMission.type !== "missions") {
-        excluded.push({ mission: m, reason: "No Market Price" });
-      }
-    }
-    for (const m of selection.negativeValueExcluded) {
-      excluded.push({ mission: m, reason: "Negative Value" });
-    }
-
-    return { inPlan, outOfBudget, excluded };
-  },
-);
 const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
 const selectedMissionFilter = ref<number | "">();

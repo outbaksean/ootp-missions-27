@@ -7,6 +7,8 @@
     - Child 2 should have it's displayed cost in the mission details displayed minus the Child 1 mission cost
     - Child 2 should have a note that Child 1 is included in that mission
 - [B2] Mission progress isn't updated on upload or set all complete, at least for mission type missions
+- [B3] Target card groups do not have child missions in the group, at least not after enabling optimized mode
+- [B4] Target card and target mission selections are clunky, deselecting and reselecting takes too many clicks
 
 ## Mission Tracker Features
 
@@ -83,6 +85,10 @@
   - Existing settings store flags (`useSellPrice`, `includeCardValueInRewards`) continue to be respected — no changes to those settings
   - Card deduplication across selected missions already handled in `buildShoppingItems`; ensure reward-pool updates don't re-add cards that were already purchased
 - [F9] Set Limited Edition Card Type as nonpack
+- Shopping Mode Upgrades
+  - [S1] In shopping mode, if missions are excluded due to price, show cost to complete those missions
+  - [S2] In shopping mode, if optimize locked cards is on, after the cards to buy to complete a mission, put a list of cards to lock for the mission and the combined cost of those cards using the buy sell difference. Include total cost of cards to lock in header
+  - [S3] The html report should include the updated header format
 
 ## Mission Extractor
 
