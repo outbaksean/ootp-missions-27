@@ -36,9 +36,10 @@
         <button
           class="action-btn"
           type="button"
-          @click="isExpanded = !isExpanded"
+          data-bs-toggle="modal"
+          data-bs-target="#cardUploaderModal"
         >
-          {{ isExpanded ? "Hide" : "Upload" }}
+          Upload
         </button>
       </div>
       <div v-if="hasUserCards && lastUploadedText" class="upload-time">
@@ -46,44 +47,8 @@
       </div>
     </div>
 
-    <!-- File inputs -->
-    <div v-show="isExpanded" class="upload-form">
-      <button
-        class="action-btn upload-help-link"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#uploadHelpModal"
-      >
-        Upload Help
-      </button>
-      <div class="upload-field">
-        <label for="shopCardsFile">User Cards</label>
-        <input
-          type="file"
-          id="shopCardsFile"
-          class="upload-file-input"
-          @change="handleShopCardsUpload"
-        />
-        <button v-if="hasShopCards" class="btn-clear" @click="clearShopCards">
-          Clear
-        </button>
-      </div>
-      <div class="upload-field">
-        <label for="userCardsFile">Card Locks</label>
-        <input
-          type="file"
-          id="userCardsFile"
-          class="upload-file-input"
-          :disabled="isDefaultData"
-          @change="handleUserCardsUpload"
-        />
-        <span v-if="isDefaultData" class="field-hint">
-          Upload your card data first
-        </span>
-      </div>
-    </div>
-
     <teleport to="body">
+      <CardUploaderModal />
       <UploadHelpModal />
       <AppHelpModal />
       <PreReleaseStatusModal />
@@ -93,19 +58,17 @@
 
 <script setup lang="ts">
 import AppHelpModal from "./AppHelpModal.vue";
+import CardUploaderModal from "./CardUploaderModal.vue";
 import PreReleaseStatusModal from "./PreReleaseStatusModal.vue";
 import UploadHelpModal from "./UploadHelpModal.vue";
 import { useCardStore } from "@/stores/useCardStore";
-import { useMissionStore } from "@/stores/useMissionStore";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 const cardStore = useCardStore();
-const missionStore = useMissionStore();
 
-const hasShopCards = computed(() => cardStore.hasShopCards);
-const isDefaultData = computed(() => cardStore.isDefaultData);
-const hasUserCards = computed(() => hasShopCards.value && !isDefaultData.value);
-const isExpanded = ref(!hasUserCards.value);
+const hasUserCards = computed(
+  () => cardStore.hasShopCards && !cardStore.isDefaultData,
+);
 
 const statusClass = computed(() =>
   hasUserCards.value ? "status-loaded" : "status-missing",
@@ -125,28 +88,6 @@ const lastUploadedText = computed(() => {
     minute: "2-digit",
   });
 });
-
-const handleShopCardsUpload = async (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) {
-    await cardStore.uploadShopFile(file);
-    await missionStore.initialize();
-    isExpanded.value = false;
-  }
-};
-
-const clearShopCards = async () => {
-  await cardStore.clearShopCards();
-  await missionStore.initialize();
-};
-
-const handleUserCardsUpload = async (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) {
-    await cardStore.uploadUserFile(file);
-    await missionStore.initialize();
-  }
-};
 </script>
 
 <style scoped>
@@ -265,70 +206,5 @@ const handleUserCardsUpload = async (event: Event) => {
 
 .action-btn:hover {
   background: rgba(255, 255, 255, 0.13);
-}
-
-/* ── Upload form ── */
-.upload-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 0.375rem;
-  border-top: 1px solid var(--sidebar-border);
-}
-
-.upload-help-link {
-  width: 100%;
-  text-align: center;
-}
-
-.upload-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.upload-field label {
-  font-size: 0.63rem;
-  color: var(--sidebar-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-
-.upload-file-input {
-  font-size: 0.7rem;
-  color: var(--sidebar-text);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  padding: 3px 4px;
-  cursor: pointer;
-  width: 100%;
-}
-
-.upload-file-input:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.field-hint {
-  font-size: 0.63rem;
-  color: var(--sidebar-muted);
-  font-style: italic;
-}
-
-.btn-clear {
-  background: rgba(220, 38, 38, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(220, 38, 38, 0.25);
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  width: fit-content;
-  transition: background 0.15s;
-}
-
-.btn-clear:hover {
-  background: rgba(220, 38, 38, 0.27);
 }
 </style>
