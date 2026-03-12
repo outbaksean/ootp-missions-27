@@ -28,7 +28,7 @@
  *
  * 4. Call the helpers under test:
  *      const items = buildShoppingItems(eligibleMissions, selectedMissionIds, allMissions, shopCardsById)
- *      const text  = buildSummaryText({ strategy, availablePP, includedMissionIds,
+ *      const text  = buildSummaryText({ strategy, availablePP, scopeText,
  *                                       eligibleMissions, allMissions, shoppingItems: items,
  *                                       packPrices, shopCardsById })
  *
@@ -130,7 +130,8 @@ describe("buildShoppingItems + buildSummaryText — chain mission scenario", () 
     const text = buildSummaryText({
       strategy: "value",
       availablePP: null,
-      includedMissionIds: new Set([200]), // only the chain is explicitly included
+      scopeText:
+        "'Chain Mission' which includes sub missions 'Sub Mission 1' and 'Sub Mission 2'",
       eligibleMissions,
       allMissions,
       shoppingItems: items,
@@ -231,7 +232,8 @@ describe("Using Test Scenarios — chain mission with real data", () => {
     const text = buildSummaryText({
       strategy: "value",
       availablePP: null,
-      includedMissionIds: new Set([61]), // Chain is included
+      scopeText:
+        "'Live Level 1 - AL Central' which includes sub missions 'Live Level 1 - Chicago (A)' and 'Live Level 1 - Cleveland'",
       eligibleMissions,
       allMissions: userMissions,
       shoppingItems: items,
@@ -309,7 +311,7 @@ describe("buildExclusionText — zero-price / non-completable missions", () => {
     const text = buildSummaryText({
       strategy: "value",
       availablePP: null,
-      includedMissionIds: new Set(),
+      scopeText: "all missions",
       eligibleMissions,
       allMissions,
       shoppingItems: items,
@@ -1169,7 +1171,7 @@ describe("Phase 5: Summary text variations", () => {
     const summary = buildSummaryText({
       strategy: "completion",
       availablePP: null,
-      includedMissionIds: new Set(), // empty
+      scopeText: "all missions", // empty scope
       eligibleMissions: leafMissions,
       allMissions: userMissions,
       shoppingItems: [],
@@ -1199,7 +1201,7 @@ describe("Phase 5: Summary text variations", () => {
     const summary = buildSummaryText({
       strategy: "completion",
       availablePP: null,
-      includedMissionIds: new Set(),
+      scopeText: "all missions",
       eligibleMissions: leafMissions,
       allMissions: userMissions,
       shoppingItems: items,
@@ -1222,7 +1224,7 @@ describe("Phase 5: Summary text variations", () => {
     const summary = buildSummaryText({
       strategy: "completion",
       availablePP: 200000, // custom value
-      includedMissionIds: new Set(),
+      scopeText: "all missions",
       eligibleMissions: leafMissions,
       allMissions: userMissions,
       shoppingItems: [],
@@ -1254,7 +1256,7 @@ describe("Phase 5: Summary text variations", () => {
     const summary = buildSummaryText({
       strategy: "completion",
       availablePP: null,
-      includedMissionIds: new Set(),
+      scopeText: "all missions",
       eligibleMissions: leafMissions,
       allMissions: userMissions,
       shoppingItems: items,
@@ -1286,7 +1288,7 @@ describe("Phase 5: Summary text variations", () => {
     const summary = buildSummaryText({
       strategy: "completion",
       availablePP: null,
-      includedMissionIds: new Set(),
+      scopeText: "all missions",
       eligibleMissions: leafMissions,
       allMissions: userMissions,
       shoppingItems: items,
@@ -1304,12 +1306,10 @@ describe("Phase 5: Summary text variations", () => {
     const leafMissions = userMissions.filter(
       (m) => m.rawMission.type !== "missions",
     );
-    const chain = userMissions.find((m) => m.rawMission.type === "missions")!;
-
     const summary = buildSummaryText({
       strategy: "completion",
       availablePP: null,
-      includedMissionIds: new Set([chain.id]),
+      scopeText: "all missions",
       eligibleMissions: leafMissions,
       allMissions: userMissions,
       shoppingItems: [],

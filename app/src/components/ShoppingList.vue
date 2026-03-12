@@ -20,84 +20,9 @@
         >
           HTML
         </button>
-        <button
-          class="sl-collapse-btn"
-          @click="isInputCollapsed = !isInputCollapsed"
-          :aria-expanded="!isInputCollapsed"
-        >
-          Settings {{ isInputCollapsed ? "▼" : "▲" }}
+        <button class="sl-configure-btn" @click="$emit('configure')">
+          Configure
         </button>
-      </div>
-    </div>
-
-    <!-- ─── SETTINGS (collapsible) ─── -->
-    <div v-if="!isInputCollapsed" class="sl-settings">
-      <!-- Strategy -->
-      <div class="sl-setting-row">
-        <span class="sl-setting-label">Strategy</span>
-        <div class="sl-radio-group">
-          <label class="sl-radio-label">
-            <input type="radio" v-model="strategy" value="value" />
-            Mission Value
-          </label>
-          <label class="sl-radio-label">
-            <input type="radio" v-model="strategy" value="completion" />
-            Mission Completion
-          </label>
-        </div>
-      </div>
-
-      <!-- Available PP -->
-      <div class="sl-setting-row">
-        <span class="sl-setting-label">Available PP</span>
-        <div class="sl-pp-controls">
-          <input
-            type="text"
-            class="sl-pp-input"
-            v-model="ppInput"
-            placeholder="e.g. 200000"
-            inputmode="numeric"
-          />
-          <button
-            v-if="ppInput.trim()"
-            type="button"
-            class="sl-pp-clear-btn"
-            @click="clearBudget"
-            title="Clear budget (Unlimited)"
-          >
-            Clear
-          </button>
-          <span class="sl-pp-hint">Blank = Unlimited</span>
-        </div>
-      </div>
-
-      <!-- Included Missions -->
-      <div class="sl-setting-row sl-setting-row--missions">
-        <span class="sl-setting-label">Included Missions</span>
-        <div class="sl-missions-section">
-          <span v-if="includedMissions.length === 0" class="sl-missions-all">
-            All (use "Include" on missions to narrow scope)
-          </span>
-          <div v-else class="sl-missions-tags">
-            <span
-              v-for="mission in includedMissions"
-              :key="mission.id"
-              class="sl-mission-tag"
-            >
-              {{ mission.rawMission.name }}
-              <button
-                class="sl-tag-remove"
-                @click="$emit('removeMission', mission.id)"
-                title="Remove"
-              >
-                ×
-              </button>
-            </span>
-            <button class="sl-clear-btn" @click="$emit('clearMissions')">
-              Clear All
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -106,17 +31,13 @@
       <p class="sl-summary-text">{{ summaryText }}</p>
     </div>
 
-    <!-- ─── EXCLUSION WARNING ─── -->
+    <!-- ─── EXCLUSION WARNINGS ─── -->
     <div v-if="exclusionText" class="sl-exclusion">
       <p class="sl-exclusion-text">{{ exclusionText }}</p>
     </div>
-
-    <!-- ─── NEGATIVE VALUE EXCLUSION WARNING ─── -->
     <div v-if="negativeValueExclusionText" class="sl-exclusion">
       <p class="sl-exclusion-text">{{ negativeValueExclusionText }}</p>
     </div>
-
-    <!-- ─── OUT OF BUDGET WARNING ─── -->
     <div v-if="outOfBudgetText" class="sl-exclusion">
       <p class="sl-exclusion-text">{{ outOfBudgetText }}</p>
     </div>
@@ -126,7 +47,10 @@
       No calculated missions found. Use the Calculate button on missions to get
       started.
     </p>
-    <p v-else-if="shoppingItems.length === 0" class="sl-empty">
+    <p
+      v-else-if="buyItemCount === 0 && shoppingItems.length === 0"
+      class="sl-empty"
+    >
       No cards to buy — all missions are already completable with owned cards.
     </p>
 
@@ -135,29 +59,43 @@
       v-for="item in shoppingItems"
       :key="item.cardId"
       class="sl-item"
-      :class="{ 'sl-item--completing': item.completingMissions.length > 0 }"
+      :class="{
+        'sl-item--completing': item.completingMissions.length > 0,
+        'sl-item--reward': item.isRewardItem,
+      }"
     >
       <div class="sl-item-main">
         <span class="sl-card-title">{{ item.title }}</span>
-        <span class="sl-price">{{ item.price.toLocaleString() }} PP</span>
+        <span v-if="item.isRewardItem" class="sl-reward-label">
+          Reward from '{{ item.rewardFromMission!.rawMission.name }}'
+        </span>
+        <span v-else class="sl-price"
+          >{{ item.price.toLocaleString() }} PP</span
+        >
       </div>
-      <div class="sl-item-explanation">{{ item.explanation }}</div>
+      <div v-if="item.explanation" class="sl-item-explanation">
+        {{ item.explanation }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { ShopCard } from "../models/ShopCard";
+import type { ShoppingWizardConfig } from "../models/ShoppingWizardConfig";
+import { emptyScopeIsAll } from "../models/ShoppingWizardConfig";
 import {
   buildShoppingItems,
   buildSummaryText,
+  buildScopeText,
   buildExclusionText,
   buildNegativeValueExclusionText,
   buildOutOfBudgetText,
   buildMissionPriority,
   selectMissionsForBudget,
+  resolveScopedMissions,
   buildCsvContent,
   buildHtmlContent,
 } from "../helpers/ShoppingListHelper";
@@ -165,96 +103,54 @@ import type { ShoppingItem } from "../helpers/ShoppingListHelper";
 
 const props = defineProps<{
   missions: UserMission[];
-  includedMissionIds: Set<number>;
+  wizardConfig: ShoppingWizardConfig;
   packPrices: Map<string, number>;
   shopCardsById: Map<number, ShopCard>;
 }>();
 
 defineEmits<{
-  (e: "removeMission", id: number): void;
-  (e: "clearMissions"): void;
+  (e: "configure"): void;
 }>();
 
-// ─── STATE ───
-const strategy = ref<"value" | "completion">("value");
-const ppInput = ref("");
-const isInputCollapsed = ref(false);
+// ─── COMPUTED: Strategy and PP from wizard config ───
+const strategy = computed(() => props.wizardConfig.strategy);
 
-// ─── HELPERS ───
-function collectDescendantIds(
-  rootId: number,
-  missionById: Map<number, UserMission>,
-): Set<number> {
-  const result = new Set<number>();
-  const queue = [rootId];
-  while (queue.length > 0) {
-    const id = queue.shift()!;
-    for (const subId of missionById.get(id)?.rawMission.missionIds ?? []) {
-      if (!result.has(subId)) {
-        result.add(subId);
-        queue.push(subId);
-      }
-    }
-  }
-  return result;
-}
+const availablePP = computed(() => props.wizardConfig.availablePP);
 
-// ─── COMPUTED: Available PP ───
-const availablePP = computed((): number | null => {
-  const raw = ppInput.value.trim();
-  if (!raw) return null;
-
-  const normalized = raw.replace(/,/g, "");
-  const val = Number(normalized);
-  return Number.isFinite(val) && val > 0 ? val : null;
-});
-
-function clearBudget() {
-  ppInput.value = "";
-}
-
-// ─── COMPUTED: Missions explicitly added ───
-const includedMissions = computed(() =>
-  props.missions.filter((m) => props.includedMissionIds.has(m.id)),
-);
-
-// ─── COMPUTED: In-scope incomplete missions (before completability filter) ───
+// ─── COMPUTED: In-scope incomplete missions ───
 const inScopeIncomplete = computed(() => {
   const incomplete = props.missions.filter(
     (m) => !m.completed && m.progressText !== "Not Calculated",
   );
+  const scope = props.wizardConfig.scope;
+  if (emptyScopeIsAll(scope)) return incomplete;
 
-  if (props.includedMissionIds.size === 0) return incomplete;
-
-  const missionById = new Map(props.missions.map((m) => [m.id, m]));
-  const expandedIds = new Set<number>();
-  for (const id of props.includedMissionIds) {
-    expandedIds.add(id);
-    collectDescendantIds(id, missionById).forEach((did) =>
-      expandedIds.add(did),
-    );
-  }
-  return incomplete.filter((m) => expandedIds.has(m.id));
+  const scopedIds = new Set(
+    resolveScopedMissions(props.missions, scope).map((m) => m.id),
+  );
+  return incomplete.filter((m) => scopedIds.has(m.id));
 });
 
-// ─── COMPUTED: Eligible missions for shopping list ───
-// Only completable missions enter the shopping list. Non-completable missions
-// (those requiring cards with no market price) are tracked separately.
-const eligibleMissions = computed(() =>
-  inScopeIncomplete.value.filter((m) => m.isCompletable),
-);
+// ─── COMPUTED: Eligible missions (completability filter) ───
+const eligibleMissions = computed(() => {
+  if (props.wizardConfig.completableOnly) {
+    return inScopeIncomplete.value.filter((m) => m.isCompletable);
+  }
+  return inScopeIncomplete.value;
+});
 
 // ─── COMPUTED: Missions excluded due to unpurchasable cards ───
-// Leaf missions only — chain exclusions are implied by their sub-missions.
 const excludedMissions = computed(() =>
   inScopeIncomplete.value.filter(
     (m) => !m.isCompletable && m.rawMission.type !== "missions",
   ),
 );
 
-// ─── COMPUTED: Exclusion warning text ───
+// ─── COMPUTED: Exclusion text ───
 const exclusionText = computed(() =>
-  buildExclusionText(excludedMissions.value),
+  props.wizardConfig.completableOnly
+    ? buildExclusionText(excludedMissions.value)
+    : "",
 );
 
 // ─── COMPUTED: Greedy mission selection ───
@@ -270,7 +166,7 @@ const missionSelection = computed(() => {
   );
 });
 
-// ─── COMPUTED: Mission priority map for Phase 4 card ordering ───
+// ─── COMPUTED: Mission priority map ───
 const missionPriority = computed(() =>
   buildMissionPriority(
     eligibleMissions.value,
@@ -280,47 +176,37 @@ const missionPriority = computed(() =>
   ),
 );
 
-// ─── COMPUTED: Negative value exclusion warning text ───
+// ─── COMPUTED: Negative value exclusion text ───
 const negativeValueExclusionText = computed(() => {
-  // Only show for value strategy
   if (strategy.value !== "value") return "";
-
   const excluded = missionSelection.value.negativeValueExcluded;
-
-  // Special case: all eligible missions excluded for negative value
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
   );
   if (excluded.length > 0 && excluded.length === leafMissions.length) {
     return "No missions with positive net value found.";
   }
-
   return buildNegativeValueExclusionText(excluded);
 });
 
-// ─── COMPUTED: Missions excluded due to insufficient budget ───
+// ─── COMPUTED: Out-of-budget missions ───
 const outOfBudgetMissions = computed(() => {
-  // Only applicable when budget is limited
   if (availablePP.value === null) return [];
-
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
   );
   const excluded = missionSelection.value.negativeValueExcluded;
   const selectedIds = missionSelection.value.selectedIds;
-
-  // Out-of-budget = leaf missions that are eligible, not selected, and not negatively excluded
   return leafMissions.filter(
     (m) => !selectedIds.has(m.id) && !excluded.includes(m),
   );
 });
 
-// ─── COMPUTED: Out-of-budget exclusion warning text ───
 const outOfBudgetText = computed(() =>
   buildOutOfBudgetText(outOfBudgetMissions.value),
 );
 
-// ─── COMPUTED: Shopping items (final card list) ───
+// ─── COMPUTED: Shopping items ───
 const shoppingItems = computed((): ShoppingItem[] =>
   buildShoppingItems(
     eligibleMissions.value,
@@ -331,12 +217,21 @@ const shoppingItems = computed((): ShoppingItem[] =>
   ),
 );
 
-// ─── COMPUTED: Summary header text ───
+// ─── COMPUTED: Non-reward item count (for empty state) ───
+const buyItemCount = computed(
+  () => shoppingItems.value.filter((i) => !i.isRewardItem).length,
+);
+
+// ─── COMPUTED: Summary text ───
 const summaryText = computed(() =>
   buildSummaryText({
     strategy: strategy.value,
     availablePP: availablePP.value,
-    includedMissionIds: props.includedMissionIds,
+    scopeText: buildScopeText(
+      props.wizardConfig.scope,
+      props.missions,
+      props.shopCardsById,
+    ),
     eligibleMissions: eligibleMissions.value,
     allMissions: props.missions,
     shoppingItems: shoppingItems.value,
@@ -429,184 +324,23 @@ function exportHtml() {
   color: #fff;
 }
 
-.sl-collapse-btn {
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 3px 9px;
-  border-radius: 5px;
-  border: 1px solid var(--card-border);
-  background: var(--detail-bg);
-  color: #64748b;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.sl-collapse-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-/* ─── SETTINGS ─── */
-.sl-settings {
-  background: #f8fafc;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  flex-shrink: 0;
-}
-
-.sl-setting-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.sl-setting-row--missions {
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.sl-setting-label {
+.sl-configure-btn {
   font-size: 0.72rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  white-space: nowrap;
-  min-width: 90px;
-  padding-top: 2px;
-}
-
-.sl-setting-row--missions .sl-setting-label {
-  min-width: unset;
-  padding-top: 0;
-}
-
-.sl-radio-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
-}
-
-.sl-pp-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.sl-radio-label {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.82rem;
-  color: #1e293b;
-  cursor: pointer;
-}
-
-.sl-pp-input {
-  width: 110px;
-  padding: 3px 7px;
-  border: 1px solid var(--card-border);
-  border-radius: 5px;
-  font-size: 0.82rem;
-  background: #fff;
-  color: #1e293b;
-}
-
-.sl-pp-input:focus {
-  outline: none;
-  border-color: #6366f1;
-}
-
-.sl-pp-clear-btn {
-  font-size: 0.72rem;
-  font-weight: 500;
   padding: 3px 9px;
   border-radius: 5px;
-  border: 1px solid var(--card-border);
-  background: var(--detail-bg);
-  color: #64748b;
+  border: 1px solid #6366f1;
+  background: transparent;
+  color: #6366f1;
   cursor: pointer;
   transition:
     background 0.15s,
     color 0.15s;
 }
 
-.sl-pp-clear-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-.sl-pp-hint {
-  font-size: 0.72rem;
-  color: #64748b;
-}
-
-.sl-missions-section {
-  width: 100%;
-}
-
-.sl-missions-all {
-  font-size: 0.82rem;
-  color: #64748b;
-  font-style: italic;
-}
-
-.sl-missions-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  align-items: center;
-}
-
-.sl-mission-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: #e0e7ff;
-  color: #3730a3;
-  border-radius: 9999px;
-  padding: 2px 8px 2px 10px;
-}
-
-.sl-tag-remove {
-  background: none;
-  border: none;
-  color: #3730a3;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  opacity: 0.6;
-}
-
-.sl-tag-remove:hover {
-  opacity: 1;
-}
-
-.sl-clear-btn {
-  font-size: 0.72rem;
-  padding: 2px 8px;
-  border-radius: 5px;
-  border: 1px solid #fca5a5;
-  background: transparent;
-  color: #dc2626;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.sl-clear-btn:hover {
-  background: #fee2e2;
+.sl-configure-btn:hover {
+  background: #6366f1;
+  color: #fff;
 }
 
 /* ─── SUMMARY ─── */
@@ -655,6 +389,11 @@ function exportHtml() {
   border-left: 3px solid #16a34a;
 }
 
+.sl-item--reward {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+}
+
 .sl-item-main {
   display: flex;
   align-items: center;
@@ -675,6 +414,14 @@ function exportHtml() {
   font-weight: 600;
   color: #16a34a;
   flex-shrink: 0;
+}
+
+.sl-reward-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6366f1;
+  flex-shrink: 0;
+  font-style: italic;
 }
 
 .sl-item-explanation {

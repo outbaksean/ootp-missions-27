@@ -1,6 +1,10 @@
 import type { UserMission } from "@/models/UserMission";
 import type { ShopCard } from "@/models/ShopCard";
 import { PACK_TYPE_LABELS } from "@/stores/useSettingsStore";
+import {
+  type ShoppingScope,
+  emptyScopeIsAll,
+} from "@/models/ShoppingWizardConfig";
 
 export interface ShoppingItem {
   cardId: number;
@@ -10,6 +14,8 @@ export interface ShoppingItem {
   completingMissions: UserMission[];
   usedInMissions: UserMission[];
   explanation: string;
+  isRewardItem?: boolean;
+  rewardFromMission?: UserMission;
 }
 
 // ─── Private helpers ─────────────────────────────────────────────────────────
@@ -101,49 +107,6 @@ function buildRewardSummaryParts(
   });
   parts.push(...cardItems);
   return parts;
-}
-
-function buildIncludedMissionsText(
-  includedMissionIds: Set<number>,
-  allMissions: UserMission[],
-): string {
-  if (includedMissionIds.size === 0) return "all missions";
-
-  const missionById = new Map(allMissions.map((m) => [m.id, m]));
-  const items: string[] = [];
-
-  for (const id of includedMissionIds) {
-    const mission = missionById.get(id);
-    if (!mission) continue;
-    if (
-      mission.rawMission.type === "missions" &&
-      mission.rawMission.missionIds?.length
-    ) {
-      const subNames = mission.rawMission.missionIds
-        .map((sid) => missionById.get(sid))
-        .filter((sub) => sub && !sub.completed)
-        .map((sub) => `'${sub!.rawMission.name}'`);
-      if (subNames.length > 0) {
-        const subsStr =
-          subNames.length === 1
-            ? subNames[0]
-            : subNames.slice(0, -1).join(", ") +
-              " and " +
-              subNames[subNames.length - 1];
-        items.push(
-          `'${mission.rawMission.name}' which includes sub missions ${subsStr}`,
-        );
-      } else {
-        items.push(`'${mission.rawMission.name}'`);
-      }
-    } else {
-      items.push(`'${mission.rawMission.name}'`);
-    }
-  }
-
-  if (items.length === 0) return "all missions";
-  if (items.length === 1) return items[0];
-  return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
 }
 
 function buildProgressText(
@@ -254,6 +217,109 @@ function computePartialByList(
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
+
+/**
+ * Resolves the effective set of missions for a given shopping scope.
+ * When all scope arrays are empty, returns all missions (no filter).
+ * Chain and mission selections recursively include all descendants.
+ */
+export function resolveScopedMissions(
+  allMissions: UserMission[],
+  scope: ShoppingScope,
+): UserMission[] {
+  if (emptyScopeIsAll(scope)) return allMissions;
+
+  const missionById = new Map(allMissions.map((m) => [m.id, m]));
+
+  function collectDescendants(rootId: number): Set<number> {
+    const result = new Set<number>();
+    const queue = [rootId];
+    while (queue.length > 0) {
+      const id = queue.shift()!;
+      for (const subId of missionById.get(id)?.rawMission.missionIds ?? []) {
+        if (!result.has(subId)) {
+          result.add(subId);
+          queue.push(subId);
+        }
+      }
+    }
+    return result;
+  }
+
+  const resultIds = new Set<number>();
+
+  for (const cat of scope.categories) {
+    for (const m of allMissions) {
+      if (m.rawMission.category === cat) resultIds.add(m.id);
+    }
+  }
+
+  for (const chainId of scope.chainIds) {
+    resultIds.add(chainId);
+    collectDescendants(chainId).forEach((id) => resultIds.add(id));
+  }
+
+  for (const cardId of scope.rewardCardIds) {
+    for (const m of allMissions) {
+      const hasCard = (m.rawMission.rewards ?? []).some(
+        (r) =>
+          (r.type as string).toLowerCase() === "card" &&
+          (r as { cardId: number }).cardId === cardId,
+      );
+      if (hasCard) {
+        resultIds.add(m.id);
+        collectDescendants(m.id).forEach((id) => resultIds.add(id));
+      }
+    }
+  }
+
+  for (const missionId of scope.missionIds) {
+    resultIds.add(missionId);
+    collectDescendants(missionId).forEach((id) => resultIds.add(id));
+  }
+
+  return allMissions.filter((m) => resultIds.has(m.id));
+}
+
+/**
+ * Builds a human-readable description of a shopping scope for use in summary text.
+ */
+export function buildScopeText(
+  scope: ShoppingScope,
+  allMissions: UserMission[],
+  shopCardsById: Map<number, ShopCard>,
+): string {
+  if (emptyScopeIsAll(scope)) return "all missions";
+
+  const parts: string[] = [];
+  const missionById = new Map(allMissions.map((m) => [m.id, m]));
+
+  if (scope.categories.length > 0) {
+    parts.push(scope.categories.map((c) => `'${c}'`).join(", "));
+  }
+  if (scope.chainIds.length > 0) {
+    const names = scope.chainIds
+      .map((id) => missionById.get(id)?.rawMission.name ?? `#${id}`)
+      .map((n) => `'${n}'`);
+    parts.push(names.join(", "));
+  }
+  if (scope.rewardCardIds.length > 0) {
+    const names = scope.rewardCardIds.map((id) => {
+      const card = shopCardsById.get(id);
+      return `'${card ? card.cardTitle : `Card #${id}`}'`;
+    });
+    parts.push(names.join(", "));
+  }
+  if (scope.missionIds.length > 0) {
+    const names = scope.missionIds
+      .map((id) => missionById.get(id)?.rawMission.name ?? `#${id}`)
+      .map((n) => `'${n}'`);
+    parts.push(names.join(", "));
+  }
+
+  if (parts.length === 0) return "all missions";
+  return parts.join(", ");
+}
 
 /**
  * Helper: Recursively collects all leaf mission IDs that are descendants of a given mission.
@@ -578,33 +644,63 @@ export function buildShoppingItems(
     return cardMap.get(a)!.price - cardMap.get(b)!.price;
   });
 
+  // ── 4. Simulation with reward propagation ──
+  type BuyEvent = { type: "buy"; cardId: number };
+  type RewardEvent = {
+    type: "reward";
+    cardId: number;
+    fromMission: UserMission;
+  };
+  type SimEvent = BuyEvent | RewardEvent;
+  const simEvents: SimEvent[] = [];
   const purchasedCardIds = new Set<number>();
   const completedLeafMissionIds = new Set<number>();
 
-  for (const cardId of sortedCardIds) {
-    purchasedCardIds.add(cardId);
-    const missionsUsingCard = cardMap.get(cardId)?.missions ?? [];
-
-    for (const mission of missionsUsingCard) {
+  function checkLeafCompletions(cardId: number): UserMission[] {
+    const justCompleted: UserMission[] = [];
+    for (const mission of cardMap.get(cardId)?.missions ?? []) {
       if (completedLeafMissionIds.has(mission.id)) continue;
-
       const needed = mission.missionCards.filter(
         (c) => c.highlighted && !c.owned,
       );
       if (needed.length === 0) continue;
-
-      const allNeededPurchased = needed.every((c) =>
-        purchasedCardIds.has(c.cardId),
-      );
-
-      if (allNeededPurchased) {
-        cardLeafCompletions.get(cardId)!.push(mission);
+      if (needed.every((c) => purchasedCardIds.has(c.cardId))) {
         completedLeafMissionIds.add(mission.id);
+        cardLeafCompletions.get(cardId)!.push(mission);
+        justCompleted.push(mission);
+      }
+    }
+    return justCompleted;
+  }
+
+  function processRewards(justCompleted: UserMission[]): void {
+    const queue = [...justCompleted];
+    while (queue.length > 0) {
+      const mission = queue.shift()!;
+      for (const reward of mission.rawMission.rewards ?? []) {
+        if ((reward.type as string).toLowerCase() !== "card") continue;
+        const r = reward as { cardId: number };
+        if (r.cardId <= 0 || purchasedCardIds.has(r.cardId)) continue;
+        if (!cardMap.has(r.cardId)) continue;
+        purchasedCardIds.add(r.cardId);
+        simEvents.push({
+          type: "reward",
+          cardId: r.cardId,
+          fromMission: mission,
+        });
+        queue.push(...checkLeafCompletions(r.cardId));
       }
     }
   }
 
-  // ── 4. Two-pass parent attribution ──
+  for (const cardId of sortedCardIds) {
+    if (purchasedCardIds.has(cardId)) continue;
+    purchasedCardIds.add(cardId);
+    simEvents.push({ type: "buy", cardId });
+    processRewards(checkLeafCompletions(cardId));
+  }
+
+  // ── 5. Two-pass parent attribution ──
   // Build direct-parent index: subMissionId → missions-type missions that require it
   const missionById = new Map(allMissions.map((m) => [m.id, m]));
   const directParentOf = new Map<number, UserMission[]>();
@@ -641,26 +737,44 @@ export function buildShoppingItems(
     }
   }
 
-  for (const cardId of sortedCardIds) {
-    for (const leaf of cardLeafCompletions.get(cardId)!) {
-      triggerMission(leaf.id, cardId);
+  for (const event of simEvents) {
+    for (const leaf of cardLeafCompletions.get(event.cardId) ?? []) {
+      triggerMission(leaf.id, event.cardId);
     }
   }
 
-  // ── 5. Build final items in sorted order ──
-  return sortedCardIds.map((cardId) => {
-    const data = cardMap.get(cardId)!;
-    const completingLeaf = cardLeafCompletions.get(cardId)!;
+  // ── 6. Build final items from simulation events ──
+  return simEvents.map((event) => {
+    const data = cardMap.get(event.cardId)!;
+    const completingLeaf = cardLeafCompletions.get(event.cardId) ?? [];
     const completingParents = allMissions.filter(
-      (m) => triggeredByCard.get(m.id) === cardId,
+      (m) => triggeredByCard.get(m.id) === event.cardId,
     );
     const allCompleting = [...completingLeaf, ...completingParents];
     const usedInMissions = data.missions.filter(
       (m) => !completingLeaf.includes(m),
     );
 
+    if (event.type === "reward") {
+      return {
+        cardId: event.cardId,
+        title: data.title,
+        price: 0,
+        missionCount: data.missions.length,
+        completingMissions: allCompleting,
+        usedInMissions,
+        explanation: buildExplanation(
+          usedInMissions,
+          allCompleting,
+          shopCardsById,
+        ),
+        isRewardItem: true as const,
+        rewardFromMission: event.fromMission,
+      };
+    }
+
     return {
-      cardId,
+      cardId: event.cardId,
       title: data.title,
       price: data.price,
       missionCount: data.missions.length,
@@ -684,7 +798,7 @@ export function buildShoppingItems(
 export function buildSummaryText(params: {
   strategy: "value" | "completion";
   availablePP: number | null;
-  includedMissionIds: Set<number>;
+  scopeText: string;
   eligibleMissions: UserMission[];
   allMissions: UserMission[];
   shoppingItems: ShoppingItem[];
@@ -694,7 +808,7 @@ export function buildSummaryText(params: {
   const {
     strategy,
     availablePP,
-    includedMissionIds,
+    scopeText,
     eligibleMissions,
     allMissions,
     shoppingItems,
@@ -716,10 +830,6 @@ export function buildSummaryText(params: {
     availablePP === null
       ? "unlimited PP"
       : `${availablePP.toLocaleString()} PP`;
-  const missionsStr = buildIncludedMissionsText(
-    includedMissionIds,
-    allMissions,
-  );
   const progressStr = buildProgressText(
     shoppingItems.length,
     completed,
@@ -728,7 +838,7 @@ export function buildSummaryText(params: {
     shopCardsById,
   );
 
-  return `Shopping List to ${strategyStr} with ${ppStr} for ${missionsStr}. Buy the following cards in order to ${progressStr}.`;
+  return `Shopping List to ${strategyStr} with ${ppStr} for ${scopeText}. Buy the following cards in order to ${progressStr}.`;
 }
 
 /**
@@ -751,7 +861,8 @@ export function escapeHtml(str: string): string {
 export function buildCsvContent(items: ShoppingItem[]): string {
   const rows = [["Card Title", "Cost (PP)", "Explanation"]];
   for (const item of items) {
-    rows.push([item.title, item.price.toString(), item.explanation]);
+    const cost = item.isRewardItem ? "Reward" : item.price.toString();
+    rows.push([item.title, cost, item.explanation]);
   }
   return rows
     .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
@@ -781,9 +892,9 @@ export function buildHtmlContent(params: {
   const rows = items
     .map(
       (item) => `
-      <tr>
+      <tr${item.isRewardItem ? ' class="reward-row"' : ""}>
         <td>${escapeHtml(item.title)}</td>
-        <td class="price">${item.price.toLocaleString()}</td>
+        <td class="${item.isRewardItem ? "reward" : "price"}">${item.isRewardItem ? "Reward" : item.price.toLocaleString()}</td>
         <td>${escapeHtml(item.explanation)}</td>
       </tr>`,
     )
@@ -823,6 +934,8 @@ export function buildHtmlContent(params: {
     td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
     tr:hover td { background: #f8fafc; }
     .price { font-weight: 600; color: #16a34a; white-space: nowrap; }
+    .reward { font-weight: 600; color: #6366f1; white-space: nowrap; }
+    .reward-row td { background: #f5f3ff; }
     .explanation { color: #475569; }
   </style>
 </head>
