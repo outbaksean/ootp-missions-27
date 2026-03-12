@@ -286,14 +286,26 @@
       <!-- Results bar -->
       <div class="sp-results-bar">
         <span class="sp-results-title">Shopping List</span>
-        <div v-if="shoppingItems.length > 0" class="sp-results-actions">
-          <button class="sp-export-btn" @click="exportCsv">CSV</button>
-          <button class="sp-export-btn" @click="exportHtml">HTML</button>
+        <div class="sp-results-actions">
+          <button
+            v-if="eligibleMissions.length > 0"
+            class="sp-export-btn"
+            @click="headerCollapsed = !headerCollapsed"
+          >
+            {{ headerCollapsed ? "Show summary" : "Hide summary" }}
+          </button>
+          <template v-if="shoppingItems.length > 0">
+            <button class="sp-export-btn" @click="exportCsv">CSV</button>
+            <button class="sp-export-btn" @click="exportHtml">HTML</button>
+          </template>
         </div>
       </div>
 
       <!-- Structured summary header -->
-      <div v-if="eligibleMissions.length > 0" class="sl-structured-summary">
+      <div
+        v-if="eligibleMissions.length > 0 && !headerCollapsed"
+        class="sl-structured-summary"
+      >
         <!-- Scope -->
         <div class="sl-struct-row">
           <div class="sl-struct-label">Scope</div>
@@ -548,17 +560,13 @@ import {
 } from "../models/ShoppingWizardConfig";
 import {
   buildShoppingItems,
-  buildSummaryText,
-  buildScopeText,
-  buildExclusionText,
-  buildNegativeValueExclusionText,
-  buildOutOfBudgetText,
   buildMissionPriority,
   selectMissionsForBudget,
   resolveScopedMissions,
   buildCsvContent,
   buildHtmlContent,
   computeCompletedByList,
+  escapeHtml,
 } from "../helpers/ShoppingListHelper";
 import type { ShoppingItem } from "../helpers/ShoppingListHelper";
 import {
@@ -586,6 +594,7 @@ const emit = defineEmits<{
 const openSection = ref<"scope" | "strategy" | "options" | null>(
   props.wizardConfig ? null : "scope",
 );
+const headerCollapsed = ref(false);
 
 function toggleSection(section: "scope" | "strategy" | "options") {
   openSection.value = openSection.value === section ? null : section;
@@ -827,12 +836,6 @@ const excludedMissions = computed(() =>
   ),
 );
 
-const exclusionText = computed(() =>
-  props.wizardConfig?.completableOnly
-    ? buildExclusionText(excludedMissions.value)
-    : "",
-);
-
 const missionSelection = computed(() => {
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
@@ -854,18 +857,6 @@ const missionPriority = computed(() =>
   ),
 );
 
-const negativeValueExclusionText = computed(() => {
-  if (resultStrategy.value !== "value") return "";
-  const excluded = missionSelection.value.negativeValueExcluded;
-  const leafMissions = eligibleMissions.value.filter(
-    (m) => m.rawMission.type !== "missions",
-  );
-  if (excluded.length > 0 && excluded.length === leafMissions.length) {
-    return "No missions with positive net value found.";
-  }
-  return buildNegativeValueExclusionText(excluded);
-});
-
 const outOfBudgetMissions = computed(() => {
   if (resultAvailablePP.value === null) return [];
   const leafMissions = eligibleMissions.value.filter(
@@ -877,10 +868,6 @@ const outOfBudgetMissions = computed(() => {
     (m) => !selectedIds.has(m.id) && !excluded.includes(m),
   );
 });
-
-const outOfBudgetText = computed(() =>
-  buildOutOfBudgetText(outOfBudgetMissions.value),
-);
 
 const negativeValueExcludedMissions = computed(() => {
   if (resultStrategy.value !== "value") return [];
@@ -979,23 +966,128 @@ const totalRewardValue = computed(() =>
   completingMissions.value.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0),
 );
 
-// ─── SUMMARY TEXT (used for HTML export only) ───
-const summaryText = computed(() => {
-  if (!props.wizardConfig) return "";
-  return buildSummaryText({
-    strategy: resultStrategy.value,
-    availablePP: resultAvailablePP.value,
-    scopeText: buildScopeText(
-      props.wizardConfig.scope,
-      props.missions,
-      props.shopCardsById,
-    ),
-    eligibleMissions: eligibleMissions.value,
-    allMissions: props.missions,
-    shoppingItems: shoppingItems.value,
-    packPrices: props.packPrices,
-    shopCardsById: props.shopCardsById,
-  });
+// ─── HTML EXPORT HEADER ───
+function chipInlineStyle(item: RewardItem): string {
+  const lower = item.label.toLowerCase();
+  if (item.type === "park")
+    return "background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;";
+  if (item.type === "card")
+    return "background:#ede9fe;color:#4c1d95;border:1px solid #c4b5fd;";
+  if (lower.includes("rainbow"))
+    return "background:linear-gradient(90deg,#f87171,#fb923c,#fbbf24,#4ade80,#60a5fa,#a78bfa,#f472b6);color:#fff;border:1px solid transparent;";
+  if (lower.includes("perfect"))
+    return "background:#0f172a;color:#f8fafc;border:1px solid #334155;";
+  if (lower.includes("diamond"))
+    return "background:#bae6fd;color:#0c4a6e;border:1px solid #7dd3fc;";
+  if (lower.includes("gold"))
+    return "background:#fbbf24;color:#78350f;border:1px solid #f59e0b;";
+  if (lower.includes("silver"))
+    return "background:#cbd5e1;color:#1e293b;border:1px solid #94a3b8;";
+  if (lower.includes("standard"))
+    return "background:#3b82f6;color:#fff;border:1px solid #2563eb;";
+  return "background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;";
+}
+
+const structuredHeaderHtml = computed((): string => {
+  if (!props.wizardConfig || eligibleMissions.value.length === 0) return "";
+  const e = escapeHtml;
+  const rows: string[] = [];
+
+  // Scope
+  const scopeContent =
+    scopeLabels.value.length === 0
+      ? '<span class="hdr-scope-tag hdr-scope-tag--all">All missions</span>'
+      : scopeLabels.value
+          .map((l) => `<span class="hdr-scope-tag">${e(l)}</span>`)
+          .join("");
+  rows.push(
+    `<div class="hdr-row"><div class="hdr-label">Scope</div><div class="hdr-scope-tags">${scopeContent}</div></div>`,
+  );
+
+  // Missions
+  const missionRowsHtml =
+    selectedLeafMissions.value.length === 0
+      ? '<div class="hdr-none">None</div>'
+      : selectedLeafMissions.value
+          .map((m) => {
+            const cost =
+              m.remainingPrice > 0
+                ? `<span class="hdr-cost">${m.remainingPrice.toLocaleString()} PP</span>`
+                : '<span class="hdr-free">Free</span>';
+            return `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span>${cost}</div>`;
+          })
+          .join("");
+  rows.push(
+    `<div class="hdr-row"><div class="hdr-label">Missions <span class="hdr-badge">${selectedLeafMissions.value.length}</span></div><div class="hdr-mission-rows">${missionRowsHtml}</div></div>`,
+  );
+
+  // Total cost
+  rows.push(
+    `<div class="hdr-row hdr-total-row"><span class="hdr-total-label">Total cost</span><span class="hdr-total-value">${totalCost.value.toLocaleString()} PP</span></div>`,
+  );
+
+  // Excluded
+  if (props.wizardConfig.completableOnly && excludedMissions.value.length > 0) {
+    const mRows = excludedMissions.value
+      .map(
+        (m) =>
+          `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span><span class="hdr-excl-label">No price data</span></div>`,
+      )
+      .join("");
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label hdr-label--excl">Excluded <span class="hdr-badge hdr-badge--excl">${excludedMissions.value.length}</span></div><div class="hdr-mission-rows">${mRows}</div></div>`,
+    );
+  }
+
+  // Over budget
+  if (outOfBudgetMissions.value.length > 0) {
+    const mRows = outOfBudgetMissions.value
+      .map(
+        (m) =>
+          `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span><span class="hdr-excl-label">${m.remainingPrice.toLocaleString()} PP</span></div>`,
+      )
+      .join("");
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label hdr-label--excl">Over budget <span class="hdr-badge hdr-badge--excl">${outOfBudgetMissions.value.length}</span></div><div class="hdr-mission-rows">${mRows}</div></div>`,
+    );
+    rows.push(
+      `<div class="hdr-row hdr-total-row"><span class="hdr-total-label">Remaining cost</span><span class="hdr-total-value">${overBudgetTotalCost.value.toLocaleString()} PP</span></div>`,
+    );
+  }
+
+  // Negative value
+  if (negativeValueExcludedMissions.value.length > 0) {
+    const mRows = negativeValueExcludedMissions.value
+      .map(
+        (m) =>
+          `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span></div>`,
+      )
+      .join("");
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label hdr-label--excl">Negative value <span class="hdr-badge hdr-badge--excl">${negativeValueExcludedMissions.value.length}</span></div><div class="hdr-mission-rows">${mRows}</div></div>`,
+    );
+  }
+
+  // Combined rewards
+  if (rewardChips.value.length > 0) {
+    const chipsHtml = rewardChips.value
+      .map((item) => {
+        const style = chipInlineStyle(item);
+        const label =
+          item.count > 1 ? `${item.count}x ${item.label}` : item.label;
+        return `<span class="hdr-chip" style="${style}">${e(label)}</span>`;
+      })
+      .join("");
+    const valueLabel =
+      totalRewardValue.value > 0
+        ? ` <span class="hdr-reward-value">${totalRewardValue.value.toLocaleString()} PP</span>`
+        : "";
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label">Combined rewards${valueLabel}</div><div class="hdr-chips">${chipsHtml}</div></div>`,
+    );
+  }
+
+  return rows.join("");
 });
 
 // ─── EXPORT ───
@@ -1017,10 +1109,7 @@ function exportCsv() {
 function exportHtml() {
   const html = buildHtmlContent({
     items: shoppingItems.value,
-    summaryText: summaryText.value,
-    exclusionText: exclusionText.value,
-    negativeValueExclusionText: negativeValueExclusionText.value,
-    outOfBudgetText: outOfBudgetText.value,
+    headerHtml: structuredHeaderHtml.value,
   });
   downloadFile("ootp-shopping-list.html", html, "text/html;charset=utf-8;");
 }
@@ -1647,13 +1736,9 @@ function exportHtml() {
 }
 
 .sl-rewards-value-inline {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #4338ca;
-  background: #ede9fe;
-  border: 1px solid #c4b5fd;
-  border-radius: 999px;
-  padding: 1px 6px;
 }
 
 /* ─── CHIP COLOR VARIANTS ─── */

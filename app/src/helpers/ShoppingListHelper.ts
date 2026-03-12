@@ -872,22 +872,13 @@ export function buildCsvContent(items: ShoppingItem[]): string {
 /**
  * Generates HTML content for the shopping list report.
  *
- * Includes summary text, optional exclusion warnings, and a table of cards.
+ * Includes a structured summary header and a table of cards.
  */
 export function buildHtmlContent(params: {
   items: ShoppingItem[];
-  summaryText: string;
-  exclusionText?: string;
-  negativeValueExclusionText?: string;
-  outOfBudgetText?: string;
+  headerHtml: string;
 }): string {
-  const {
-    items,
-    summaryText,
-    exclusionText,
-    negativeValueExclusionText,
-    outOfBudgetText,
-  } = params;
+  const { items, headerHtml } = params;
 
   const rows = items
     .map(
@@ -900,25 +891,6 @@ export function buildHtmlContent(params: {
     )
     .join("");
 
-  // Build exclusion sections if any exist
-  const exclusionsSections: string[] = [];
-  if (exclusionText) {
-    exclusionsSections.push(
-      `<div class="exclusion">${escapeHtml(exclusionText)}</div>`,
-    );
-  }
-  if (negativeValueExclusionText) {
-    exclusionsSections.push(
-      `<div class="exclusion">${escapeHtml(negativeValueExclusionText)}</div>`,
-    );
-  }
-  if (outOfBudgetText) {
-    exclusionsSections.push(
-      `<div class="exclusion">${escapeHtml(outOfBudgetText)}</div>`,
-    );
-  }
-  const exclusionsHtml = exclusionsSections.join("");
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -926,9 +898,30 @@ export function buildHtmlContent(params: {
   <title>OOTP Shopping List</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 2rem; color: #1e293b; }
-    h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
-    .summary { background: #f1f5f9; border-left: 4px solid #6366f1; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.6; }
-    .exclusion { background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6; color: #92400e; }
+    h1 { font-size: 1.4rem; margin-bottom: 1rem; }
+    .header { background: #eff6ff; border: 1px solid #c7d2fe; border-left: 3px solid #6366f1; border-radius: 6px; margin-bottom: 1.5rem; overflow: hidden; }
+    .hdr-row { padding: 0.5rem 0.75rem; display: flex; flex-direction: column; gap: 0.35rem; border-bottom: 1px solid #dde4fb; }
+    .hdr-row:last-child { border-bottom: none; }
+    .hdr-total-row { flex-direction: row; align-items: center; justify-content: space-between; }
+    .hdr-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #4338ca; display: flex; align-items: center; gap: 0.4rem; }
+    .hdr-label--excl { color: #92400e; }
+    .hdr-badge { background: #4338ca; color: #fff; border-radius: 9999px; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; line-height: 1.4; }
+    .hdr-badge--excl { background: #92400e; }
+    .hdr-scope-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .hdr-scope-tag { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; padding: 2px 10px; }
+    .hdr-scope-tag--all { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+    .hdr-mission-rows { display: flex; flex-direction: column; gap: 0.2rem; }
+    .hdr-mission-row { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+    .hdr-mission-name { font-size: 0.8rem; color: #1e293b; flex: 1; }
+    .hdr-cost { font-size: 0.78rem; font-weight: 600; color: #16a34a; white-space: nowrap; }
+    .hdr-free { font-size: 0.78rem; color: #94a3b8; }
+    .hdr-excl-label { font-size: 0.75rem; color: #92400e; font-style: italic; white-space: nowrap; }
+    .hdr-total-label { font-size: 0.8rem; font-weight: 700; color: #1e293b; }
+    .hdr-total-value { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+    .hdr-reward-value { font-size: 0.75rem; font-weight: 500; color: #4338ca; text-transform: none; letter-spacing: normal; font-style: normal; }
+    .hdr-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .hdr-chip { font-size: 0.65rem; padding: 1px 8px; border-radius: 999px; font-weight: 500; white-space: nowrap; }
+    .hdr-none { font-size: 0.8rem; color: #94a3b8; }
     table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
     th { background: #1e293b; color: #f8fafc; padding: 10px 14px; text-align: left; font-weight: 600; }
     td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
@@ -936,13 +929,11 @@ export function buildHtmlContent(params: {
     .price { font-weight: 600; color: #16a34a; white-space: nowrap; }
     .reward { font-weight: 600; color: #6366f1; white-space: nowrap; }
     .reward-row td { background: #f5f3ff; }
-    .explanation { color: #475569; }
   </style>
 </head>
 <body>
   <h1>OOTP Shopping List</h1>
-  <div class="summary">${escapeHtml(summaryText)}</div>
-  ${exclusionsHtml}
+  <div class="header">${headerHtml}</div>
   <table>
     <thead><tr><th>Card</th><th>Cost (PP)</th><th>Explanation</th></tr></thead>
     <tbody>${rows}</tbody>

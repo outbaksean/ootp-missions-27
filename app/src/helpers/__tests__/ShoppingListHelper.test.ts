@@ -1482,37 +1482,23 @@ describe("Phase 6: buildCsvContent", () => {
 
 describe("Phase 6: buildHtmlContent", () => {
   it("includes DOCTYPE and html structure", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Test summary",
-    });
+    const html = buildHtmlContent({ items: [], headerHtml: "" });
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain('<html lang="en">');
     expect(html).toContain("</html>");
   });
 
-  it("includes summary text in summary div", () => {
+  it("renders headerHtml inside the header div", () => {
     const html = buildHtmlContent({
       items: [],
-      summaryText: "My test summary",
+      headerHtml: '<div class="hdr-row">Scope: All missions</div>',
     });
-    expect(html).toContain('<div class="summary">My test summary</div>');
-  });
-
-  it("escapes summary text for HTML safety", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: '<script>alert("xss")</script>',
-    });
-    expect(html).toContain("&lt;script&gt;");
-    expect(html).not.toContain("<script>");
+    expect(html).toContain('<div class="header">');
+    expect(html).toContain("Scope: All missions");
   });
 
   it("includes table header", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-    });
+    const html = buildHtmlContent({ items: [], headerHtml: "" });
     expect(html).toContain("<th>Card</th>");
     expect(html).toContain("<th>Cost (PP)</th>");
     expect(html).toContain("<th>Explanation</th>");
@@ -1530,10 +1516,7 @@ describe("Phase 6: buildHtmlContent", () => {
         explanation: "Test explanation",
       },
     ];
-    const html = buildHtmlContent({
-      items,
-      summaryText: "Summary",
-    });
+    const html = buildHtmlContent({ items, headerHtml: "" });
     expect(html).toContain("<td>Test Card</td>");
     expect(html).toContain('<td class="price">1,000</td>');
     expect(html).toContain("<td>Test explanation</td>");
@@ -1551,66 +1534,18 @@ describe("Phase 6: buildHtmlContent", () => {
         explanation: 'User said "hello"',
       },
     ];
-    const html = buildHtmlContent({
-      items,
-      summaryText: "Summary",
-    });
+    const html = buildHtmlContent({ items, headerHtml: "" });
     expect(html).toContain("&lt;img src=");
     expect(html).toContain("&quot;hello&quot;");
   });
 
-  it("includes exclusion text when provided", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-      exclusionText: "1 mission excluded",
-    });
-    expect(html).toContain('<div class="exclusion">1 mission excluded</div>');
-  });
-
-  it("escapes exclusion text for HTML safety", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-      exclusionText: 'Excluded: <"test">',
-    });
-    expect(html).toContain("&lt;&quot;test&quot;&gt;");
-  });
-
-  it("includes all three exclusion types when all provided", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-      exclusionText: "Non-completable excluded",
-      negativeValueExclusionText: "Negative value excluded",
-      outOfBudgetText: "Out of budget excluded",
-    });
-    expect(html).toContain("Non-completable excluded");
-    expect(html).toContain("Negative value excluded");
-    expect(html).toContain("Out of budget excluded");
-  });
-
-  it("omits exclusion sections when not provided", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-    });
-    expect(html).not.toContain('<div class="exclusion">');
-  });
-
   it("includes title in head", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-    });
+    const html = buildHtmlContent({ items: [], headerHtml: "" });
     expect(html).toContain("<title>OOTP Shopping List</title>");
   });
 
   it("includes CSS styling", () => {
-    const html = buildHtmlContent({
-      items: [],
-      summaryText: "Summary",
-    });
+    const html = buildHtmlContent({ items: [], headerHtml: "" });
     expect(html).toContain("<style>");
     expect(html).toContain("body {");
     expect(html).toContain("table {");
