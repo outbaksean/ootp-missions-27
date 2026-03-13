@@ -11,7 +11,7 @@ import db from "@/data/indexedDB";
 import { useCardStore } from "./useCardStore";
 import { useSettingsStore } from "./useSettingsStore";
 
-function computeMissionCostInfo(
+export function computeMissionCostInfo(
   mission: Mission,
   shopCardsById: Map<number, ShopCard>,
   sellPrice: boolean,

@@ -254,6 +254,25 @@
         <div class="mark-complete-row">
           <button
             class="btn-shopping-mode"
+            :class="{ 'btn-shopping-mode--active': showShoppingList }"
+            @click="toggleShoppingMode"
+          >
+            {{
+              showShoppingList ? "Exit Shopping Mode" : "Enter Shopping Mode"
+            }}
+          </button>
+          <span
+            class="tooltip-hint"
+            data-tooltip="Opens a wizard to configure a shopping list — choose scope, strategy, and budget to get an ordered card purchase plan."
+            @mouseenter="onTooltipEnter('shopping-mode', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('shopping-mode', $event)"
+            >(?)</span
+          >
+        </div>
+        <div v-if="!showShoppingList" class="mark-complete-row">
+          <button
+            class="btn-shopping-mode"
             :class="{
               'btn-shopping-mode--active': settingsStore.optimizedMode,
             }"
@@ -274,28 +293,10 @@
             >(?)</span
           >
         </div>
-        <div class="mark-complete-row">
-          <button
-            class="btn-shopping-mode"
-            :class="{ 'btn-shopping-mode--active': showShoppingList }"
-            @click="showShoppingList = !showShoppingList"
-          >
-            {{
-              showShoppingList
-                ? "Disable Shopping Mode"
-                : "Enable Shopping Mode"
-            }}
-          </button>
-          <span
-            class="tooltip-hint"
-            data-tooltip="Shows only the cards you still need to buy for currently displayed missions based on completion or value strategy."
-            @mouseenter="onTooltipEnter('shopping-mode', $event)"
-            @mouseleave="onTooltipLeave"
-            @click.stop="onTooltipClick('shopping-mode', $event)"
-            >(?)</span
-          >
-        </div>
-        <div v-if="settingsStore.optimizedMode" class="discount-row">
+        <div
+          v-if="settingsStore.optimizedMode && !showShoppingList"
+          class="discount-row"
+        >
           <span class="discount-label"
             >Sell - Buy difference
             <span
@@ -360,9 +361,10 @@
     <!-- ─── MAIN AREA ─── -->
     <div class="main-area">
       <section
+        v-if="!showShoppingList"
         class="list-panel"
         :style="
-          (selectedMission || showShoppingList) && !isMobile
+          selectedMission && !isMobile
             ? { width: listPanelWidth + 'px', flex: 'none' }
             : {}
         "
@@ -461,11 +463,11 @@
             :remainingPriceText="remainingPriceText"
             :selectMission="selectMission"
             :selectedMission="selectedMission"
-            :isShoppingListMode="showShoppingList"
-            :shoppingListMissionIds="shoppingListMissionIds"
+            :isShoppingListMode="false"
+            :shoppingListMissionIds="emptyMissionIdSet"
             @calculateMission="missionStore.calculateMissionDetails"
             @calculateGroup="missionStore.calculateAllNotCalculatedMissions"
-            @includeMission="toggleMissionInShoppingList"
+            @includeMission="() => {}"
           />
         </template>
       </section>
@@ -475,11 +477,13 @@
         <aside class="detail-panel">
           <ShoppingList
             :missions="missions"
-            :includedMissionIds="shoppingListMissionIds"
+            :wizardConfig="wizardConfig"
             :packPrices="settingsStore.packPrices"
             :shopCardsById="cardStore.shopCardsById"
-            @removeMission="removeMissionFromShoppingList"
-            @clearMissions="clearShoppingListMissions"
+            :categories="missionCategories"
+            :chainMissions="chainRootMissions"
+            :rewardCards="allRewardCards"
+            @confirm="onWizardConfirm"
           />
         </aside>
       </template>
@@ -533,8 +537,11 @@ import ShoppingList from "./ShoppingList.vue";
 import type { UserMission } from "../models/UserMission";
 import { collectRewardItems } from "@/helpers/RewardItemsHelper";
 import type { RewardItem } from "@/helpers/RewardItemsHelper";
+import { type ShoppingWizardConfig } from "../models/ShoppingWizardConfig";
 
 defineOptions({ name: "MissionsView" });
+
+const emptyMissionIdSet = new Set<number>();
 
 const missionStore = useMissionStore();
 const cardStore = useCardStore();
@@ -714,27 +721,25 @@ function collectDescendantIds(
 
 const selectedMission = ref<UserMission | null>(null);
 const showShoppingList = ref(false);
-const shoppingListMissionIds = ref<Set<number>>(new Set());
+const wizardConfig = ref<ShoppingWizardConfig | null>(null);
 
-function toggleMissionInShoppingList(missionId: number) {
-  const next = new Set(shoppingListMissionIds.value);
-  if (next.has(missionId)) {
-    next.delete(missionId);
+function toggleShoppingMode() {
+  if (showShoppingList.value) {
+    disableShoppingMode();
   } else {
-    next.add(missionId);
+    showShoppingList.value = true;
   }
-  shoppingListMissionIds.value = next;
 }
 
-function removeMissionFromShoppingList(missionId: number) {
-  const next = new Set(shoppingListMissionIds.value);
-  next.delete(missionId);
-  shoppingListMissionIds.value = next;
+function onWizardConfirm(config: ShoppingWizardConfig) {
+  wizardConfig.value = config;
 }
 
-function clearShoppingListMissions() {
-  shoppingListMissionIds.value = new Set();
+function disableShoppingMode() {
+  showShoppingList.value = false;
+  wizardConfig.value = null;
 }
+
 const useSellPrice = ref(missionStore.selectedPriceType.sellPrice);
 const searchQuery = ref("");
 const selectedMissionFilter = ref<number | "">();
@@ -973,12 +978,12 @@ watch(showPositiveOnly, (v) =>
 
 const isLoading = computed(() => missionStore.loading);
 
-async function toggleOptimizedMode() {
+async function recalculateWithOptimizedMode(newValue: boolean) {
   const calculatedMissions = missionStore.userMissions.filter(
     (m) => m.progressText !== "Not Calculated",
   );
 
-  settingsStore.setOptimizedMode(!settingsStore.optimizedMode);
+  settingsStore.setOptimizedMode(newValue);
   missionStore.buildUserMissions();
 
   if (calculatedMissions.length === 0) return;
@@ -1001,6 +1006,10 @@ async function toggleOptimizedMode() {
   }
 
   missionStore.setLoading(false);
+}
+
+async function toggleOptimizedMode() {
+  await recalculateWithOptimizedMode(!settingsStore.optimizedMode);
 }
 
 const handleIncludeCardRewardsChange = (event: Event) => {
@@ -1368,6 +1377,18 @@ const missionCategories = computed(() => {
   });
   return Array.from(categories).sort(
     (a, b) => categoryPriority(a) - categoryPriority(b),
+  );
+});
+
+const chainRootMissions = computed(() => {
+  const allSubIds = new Set<number>();
+  for (const m of missions.value) {
+    if (m.rawMission.type === "missions" && m.rawMission.missionIds) {
+      m.rawMission.missionIds.forEach((id) => allSubIds.add(id));
+    }
+  }
+  return missions.value.filter(
+    (m) => m.rawMission.type === "missions" && !allSubIds.has(m.id),
   );
 });
 

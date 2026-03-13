@@ -1,349 +1,1205 @@
 <template>
-  <div class="shopping-list-panel">
-    <!-- ─── HEADER ─── -->
-    <div class="sl-header">
-      <h3 class="sl-title">Shopping List</h3>
-      <div class="sl-header-actions">
-        <button
-          v-if="shoppingItems.length > 0"
-          class="sl-export-btn"
-          @click="exportCsv"
-          title="Export as CSV"
-        >
-          CSV
+  <div class="sp-panel">
+    <!-- ─── CONFIGURE ACCORDION ─── -->
+    <div class="sp-configure">
+      <!-- Scope -->
+      <div class="sp-acc-item">
+        <button class="sp-acc-header" @click="toggleSection('scope')">
+          <div class="sp-acc-left">
+            <span class="sp-acc-title">Scope</span>
+            <span class="sp-acc-summary">{{ scopeSummary }}</span>
+          </div>
+          <span
+            class="sp-acc-chevron"
+            :class="{ 'sp-acc-chevron--open': openSection === 'scope' }"
+          ></span>
         </button>
-        <button
-          v-if="shoppingItems.length > 0"
-          class="sl-export-btn"
-          @click="exportHtml"
-          title="Export full report as HTML"
-        >
-          HTML
-        </button>
-        <button
-          class="sl-collapse-btn"
-          @click="isInputCollapsed = !isInputCollapsed"
-          :aria-expanded="!isInputCollapsed"
-        >
-          Settings {{ isInputCollapsed ? "▼" : "▲" }}
-        </button>
-      </div>
-    </div>
+        <div v-if="openSection === 'scope'" class="sp-acc-body">
+          <p class="sp-acc-desc">
+            Add filters to narrow scope. Leave empty to include all missions.
+          </p>
+          <div v-if="hasNoFilters" class="sp-empty-scope">
+            No filters selected — all missions will be included
+          </div>
 
-    <!-- ─── SETTINGS (collapsible) ─── -->
-    <div v-if="!isInputCollapsed" class="sl-settings">
-      <!-- Strategy -->
-      <div class="sl-setting-row">
-        <span class="sl-setting-label">Strategy</span>
-        <div class="sl-radio-group">
-          <label class="sl-radio-label">
-            <input type="radio" v-model="strategy" value="value" />
-            Mission Value
-          </label>
-          <label class="sl-radio-label">
-            <input type="radio" v-model="strategy" value="completion" />
-            Mission Completion
-          </label>
-        </div>
-      </div>
-
-      <!-- Available PP -->
-      <div class="sl-setting-row">
-        <span class="sl-setting-label">Available PP</span>
-        <div class="sl-pp-controls">
-          <input
-            type="text"
-            class="sl-pp-input"
-            v-model="ppInput"
-            placeholder="e.g. 200000"
-            inputmode="numeric"
-          />
-          <button
-            v-if="ppInput.trim()"
-            type="button"
-            class="sl-pp-clear-btn"
-            @click="clearBudget"
-            title="Clear budget (Unlimited)"
-          >
-            Clear
-          </button>
-          <span class="sl-pp-hint">Blank = Unlimited</span>
-        </div>
-      </div>
-
-      <!-- Included Missions -->
-      <div class="sl-setting-row sl-setting-row--missions">
-        <span class="sl-setting-label">Included Missions</span>
-        <div class="sl-missions-section">
-          <span v-if="includedMissions.length === 0" class="sl-missions-all">
-            All (use "Include" on missions to narrow scope)
-          </span>
-          <div v-else class="sl-missions-tags">
-            <span
-              v-for="mission in includedMissions"
-              :key="mission.id"
-              class="sl-mission-tag"
-            >
-              {{ mission.rawMission.name }}
-              <button
-                class="sl-tag-remove"
-                @click="$emit('removeMission', mission.id)"
-                title="Remove"
+          <div class="sp-field">
+            <span class="sp-field-label">Category</span>
+            <select class="sp-select" @change="addCategory($event)">
+              <option value="">Add a category...</option>
+              <option
+                v-for="cat in availableCategories"
+                :key="cat"
+                :value="cat"
               >
-                ×
-              </button>
-            </span>
-            <button class="sl-clear-btn" @click="$emit('clearMissions')">
-              Clear All
+                {{ cat }}
+              </option>
+            </select>
+            <div v-if="scope.categories.length > 0" class="sp-pills">
+              <span v-for="cat in scope.categories" :key="cat" class="sp-pill">
+                {{ cat }}
+                <button class="sp-pill-remove" @click="removeCategory(cat)">
+                  x
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="sp-field">
+            <span class="sp-field-label">Chain</span>
+            <div class="sp-combobox">
+              <input
+                type="text"
+                class="sp-input"
+                placeholder="Search chains..."
+                v-model="chainQuery"
+                @focus="chainOpen = true"
+                @blur="() => delayClose(() => (chainOpen = false))"
+              />
+              <div
+                v-if="chainOpen && filteredChains.length > 0"
+                class="sp-dropdown"
+              >
+                <div
+                  v-for="m in filteredChains"
+                  :key="m.id"
+                  class="sp-dropdown-item"
+                  @mousedown.prevent="addChain(m)"
+                >
+                  {{ m.rawMission.name }}
+                </div>
+              </div>
+            </div>
+            <div v-if="scope.chainIds.length > 0" class="sp-pills">
+              <span v-for="id in scope.chainIds" :key="id" class="sp-pill">
+                {{ chainNameById(id) }}
+                <button class="sp-pill-remove" @click="removeChain(id)">
+                  x
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="sp-field">
+            <span class="sp-field-label">Reward Card</span>
+            <div class="sp-combobox">
+              <input
+                type="text"
+                class="sp-input"
+                placeholder="Search reward cards..."
+                v-model="rewardCardQuery"
+                @focus="rewardCardOpen = true"
+                @blur="() => delayClose(() => (rewardCardOpen = false))"
+              />
+              <div
+                v-if="rewardCardOpen && filteredRewardCards.length > 0"
+                class="sp-dropdown"
+              >
+                <div
+                  v-for="card in filteredRewardCards"
+                  :key="card.cardId"
+                  class="sp-dropdown-item"
+                  @mousedown.prevent="addRewardCard(card)"
+                >
+                  {{ card.label }}
+                </div>
+              </div>
+            </div>
+            <div v-if="scope.rewardCardIds.length > 0" class="sp-pills">
+              <span v-for="id in scope.rewardCardIds" :key="id" class="sp-pill">
+                {{ rewardCardLabelById(id) }}
+                <button class="sp-pill-remove" @click="removeRewardCard(id)">
+                  x
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="sp-field">
+            <span class="sp-field-label">Mission</span>
+            <div class="sp-combobox">
+              <input
+                type="text"
+                class="sp-input"
+                placeholder="Search missions..."
+                v-model="missionQuery"
+                @focus="missionOpen = true"
+                @blur="() => delayClose(() => (missionOpen = false))"
+              />
+              <div
+                v-if="missionOpen && filteredMissionOptions.length > 0"
+                class="sp-dropdown"
+              >
+                <div
+                  v-for="m in filteredMissionOptions"
+                  :key="m.id"
+                  class="sp-dropdown-item"
+                  @mousedown.prevent="addMissionById(m)"
+                >
+                  {{ m.rawMission.name }}
+                </div>
+              </div>
+            </div>
+            <div v-if="scope.missionIds.length > 0" class="sp-pills">
+              <span v-for="id in scope.missionIds" :key="id" class="sp-pill">
+                {{ missionNameById(id) }}
+                <button class="sp-pill-remove" @click="removeMissionById(id)">
+                  x
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="sp-scope-footer">
+            <button
+              v-if="!hasNoFilters"
+              class="sp-clear-link"
+              @click="clearScope"
+            >
+              Clear all filters
             </button>
+            <span class="sp-scope-count"
+              >{{ resolvedMissionCount }} missions in scope</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy -->
+      <div class="sp-acc-item">
+        <button class="sp-acc-header" @click="toggleSection('strategy')">
+          <div class="sp-acc-left">
+            <span class="sp-acc-title">Strategy</span>
+            <span class="sp-acc-summary">{{ strategySummary }}</span>
+          </div>
+          <span
+            class="sp-acc-chevron"
+            :class="{ 'sp-acc-chevron--open': openSection === 'strategy' }"
+          ></span>
+        </button>
+        <div v-if="openSection === 'strategy'" class="sp-acc-body">
+          <div class="sp-strategy-cards">
+            <button
+              class="sp-strategy-card"
+              :class="{ 'sp-strategy-card--active': strategy === 'completion' }"
+              @click="strategy = 'completion'"
+            >
+              <div class="sp-strategy-name">Completion</div>
+              <div class="sp-strategy-desc">
+                Complete as many missions as possible, starting with the
+                cheapest
+              </div>
+            </button>
+            <button
+              class="sp-strategy-card"
+              :class="{ 'sp-strategy-card--active': strategy === 'value' }"
+              @click="strategy = 'value'"
+            >
+              <div class="sp-strategy-name">Value</div>
+              <div class="sp-strategy-desc">
+                Prioritize missions where rewards outweigh card costs
+              </div>
+            </button>
+            <button
+              class="sp-strategy-card"
+              :class="{
+                'sp-strategy-card--active': strategy === 'value-optimized',
+              }"
+              @click="strategy = 'value-optimized'"
+            >
+              <div class="sp-strategy-name">Value, optimized</div>
+              <div class="sp-strategy-desc">
+                Like Value, but accounts for locked cards and the opportunity
+                cost of selling unlocked owned cards
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="sp-acc-item">
+        <button class="sp-acc-header" @click="toggleSection('options')">
+          <div class="sp-acc-left">
+            <span class="sp-acc-title">Options</span>
+            <span class="sp-acc-summary">{{ optionsSummary }}</span>
+          </div>
+          <span
+            class="sp-acc-chevron"
+            :class="{ 'sp-acc-chevron--open': openSection === 'options' }"
+          ></span>
+        </button>
+        <div v-if="openSection === 'options'" class="sp-acc-body">
+          <div class="sp-option-group">
+            <label class="sp-option-label">Available PP</label>
+            <p class="sp-option-desc">
+              Budget for card purchases. Leave blank for unlimited.
+            </p>
+            <div class="sp-pp-row">
+              <input
+                type="text"
+                class="sp-pp-input"
+                v-model="ppInput"
+                placeholder="Unlimited"
+                inputmode="numeric"
+              />
+              <button
+                v-if="ppInput.trim()"
+                class="sp-pp-clear"
+                @click="ppInput = ''"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+          <div class="sp-option-group sp-option-group--last">
+            <label class="sp-toggle-row">
+              <input
+                type="checkbox"
+                class="sp-toggle-input"
+                v-model="completableOnly"
+              />
+              <span class="sp-toggle-label">Completable missions only</span>
+            </label>
+            <p class="sp-option-desc">
+              Only include missions where all required cards have market prices.
+              When off, cards toward non-completable missions are still listed.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ─── SUMMARY HEADER ─── -->
-    <div v-if="eligibleMissions.length > 0" class="sl-summary">
-      <p class="sl-summary-text">{{ summaryText }}</p>
+    <!-- ─── GENERATE BUTTON ─── -->
+    <button class="sp-generate-btn" @click="handleGenerate">
+      Generate Shopping Plan
+    </button>
+
+    <!-- ─── GENERATING SPINNER ─── -->
+    <div v-if="generating" class="sl-spinner-container">
+      <div class="sl-spinner"></div>
     </div>
 
-    <!-- ─── EXCLUSION WARNING ─── -->
-    <div v-if="exclusionText" class="sl-exclusion">
-      <p class="sl-exclusion-text">{{ exclusionText }}</p>
-    </div>
-
-    <!-- ─── NEGATIVE VALUE EXCLUSION WARNING ─── -->
-    <div v-if="negativeValueExclusionText" class="sl-exclusion">
-      <p class="sl-exclusion-text">{{ negativeValueExclusionText }}</p>
-    </div>
-
-    <!-- ─── OUT OF BUDGET WARNING ─── -->
-    <div v-if="outOfBudgetText" class="sl-exclusion">
-      <p class="sl-exclusion-text">{{ outOfBudgetText }}</p>
-    </div>
-
-    <!-- ─── EMPTY STATES ─── -->
-    <p v-if="eligibleMissions.length === 0" class="sl-empty">
-      No calculated missions found. Use the Calculate button on missions to get
-      started.
-    </p>
-    <p v-else-if="shoppingItems.length === 0" class="sl-empty">
-      No cards to buy — all missions are already completable with owned cards.
+    <!-- ─── NO RESULTS YET ─── -->
+    <p v-else-if="!props.wizardConfig" class="sp-no-results">
+      Configure settings above and click Generate to build your shopping plan.
     </p>
 
-    <!-- ─── CARD LIST ─── -->
-    <div
-      v-for="item in shoppingItems"
-      :key="item.cardId"
-      class="sl-item"
-      :class="{ 'sl-item--completing': item.completingMissions.length > 0 }"
-    >
-      <div class="sl-item-main">
-        <span class="sl-card-title">{{ item.title }}</span>
-        <span class="sl-price">{{ item.price.toLocaleString() }} PP</span>
+    <!-- ─── RESULTS ─── -->
+    <template v-else>
+      <!-- Results bar -->
+      <div class="sp-results-bar">
+        <span class="sp-results-title">Shopping List</span>
+        <div class="sp-results-actions">
+          <button
+            v-if="eligibleMissions.length > 0"
+            class="sp-export-btn"
+            @click="headerCollapsed = !headerCollapsed"
+          >
+            {{ headerCollapsed ? "Show summary" : "Hide summary" }}
+          </button>
+          <template v-if="shoppingItems.length > 0">
+            <button class="sp-export-btn" @click="exportCsv">CSV</button>
+            <button class="sp-export-btn" @click="exportHtml">HTML</button>
+          </template>
+        </div>
       </div>
-      <div class="sl-item-explanation">{{ item.explanation }}</div>
-    </div>
+
+      <!-- Structured summary header -->
+      <div
+        v-if="eligibleMissions.length > 0 && !headerCollapsed"
+        class="sl-structured-summary"
+      >
+        <!-- Scope -->
+        <div class="sl-struct-row">
+          <div class="sl-struct-label">Scope</div>
+          <div class="sl-scope-tags">
+            <span
+              v-if="scopeLabels.length === 0"
+              class="sl-scope-tag sl-scope-tag--all"
+              >All missions</span
+            >
+            <span
+              v-for="label in scopeLabels"
+              :key="label"
+              class="sl-scope-tag"
+            >
+              {{ label }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Missions -->
+        <div class="sl-struct-row">
+          <div class="sl-struct-label">
+            Missions
+            <span class="sl-missions-badge">{{
+              selectedLeafMissions.length
+            }}</span>
+          </div>
+          <div class="sl-missions-rows">
+            <div
+              v-if="selectedLeafMissions.length === 0"
+              class="sl-missions-empty"
+            >
+              None
+            </div>
+            <div
+              v-for="m in visibleMissions(selectedLeafMissions, 'missions')"
+              :key="m.id"
+              class="sl-mission-row"
+            >
+              <span class="sl-mission-row-name">{{ m.rawMission.name }}</span>
+              <span v-if="m.remainingPrice > 0" class="sl-mission-row-cost"
+                >{{ m.remainingPrice.toLocaleString() }} PP</span
+              >
+              <span v-else class="sl-mission-row-free">Free</span>
+            </div>
+            <button
+              v-if="selectedLeafMissions.length > COLLAPSE_THRESHOLD"
+              class="sl-missions-toggle"
+              @click="toggleExpand('missions')"
+            >
+              {{
+                expandedSections.has("missions")
+                  ? "Show less"
+                  : `+${selectedLeafMissions.length - COLLAPSE_SHOW} more`
+              }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Total cost (under missions) -->
+        <div class="sl-struct-row sl-total-row">
+          <span class="sl-total-label">Total cost</span>
+          <span class="sl-total-value"
+            >{{ totalCost.toLocaleString() }} PP</span
+          >
+        </div>
+
+        <!-- Excluded (no price data) -->
+        <div
+          v-if="
+            props.wizardConfig?.completableOnly && excludedMissions.length > 0
+          "
+          class="sl-struct-row"
+        >
+          <div class="sl-struct-label sl-struct-label--excluded">
+            Excluded
+            <span class="sl-missions-badge sl-missions-badge--excluded">{{
+              excludedMissions.length
+            }}</span>
+          </div>
+          <div class="sl-missions-rows">
+            <div
+              v-for="m in visibleMissions(excludedMissions, 'excluded')"
+              :key="m.id"
+              class="sl-mission-row"
+            >
+              <span class="sl-mission-row-name">{{ m.rawMission.name }}</span>
+              <span class="sl-mission-row-excluded-label">No price data</span>
+            </div>
+            <button
+              v-if="excludedMissions.length > COLLAPSE_THRESHOLD"
+              class="sl-missions-toggle"
+              @click="toggleExpand('excluded')"
+            >
+              {{
+                expandedSections.has("excluded")
+                  ? "Show less"
+                  : `+${excludedMissions.length - COLLAPSE_SHOW} more`
+              }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Over budget -->
+        <div v-if="outOfBudgetMissions.length > 0" class="sl-struct-row">
+          <div class="sl-struct-label sl-struct-label--excluded">
+            Over budget
+            <span class="sl-missions-badge sl-missions-badge--excluded">{{
+              outOfBudgetMissions.length
+            }}</span>
+          </div>
+          <div class="sl-missions-rows">
+            <div
+              v-for="m in visibleMissions(outOfBudgetMissions, 'overbudget')"
+              :key="m.id"
+              class="sl-mission-row"
+            >
+              <span class="sl-mission-row-name">{{ m.rawMission.name }}</span>
+              <span class="sl-mission-row-excluded-label"
+                >{{ m.remainingPrice.toLocaleString() }} PP</span
+              >
+            </div>
+            <button
+              v-if="outOfBudgetMissions.length > COLLAPSE_THRESHOLD"
+              class="sl-missions-toggle"
+              @click="toggleExpand('overbudget')"
+            >
+              {{
+                expandedSections.has("overbudget")
+                  ? "Show less"
+                  : `+${outOfBudgetMissions.length - COLLAPSE_SHOW} more`
+              }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Remaining cost (under over budget) -->
+        <div
+          v-if="outOfBudgetMissions.length > 0"
+          class="sl-struct-row sl-total-row"
+        >
+          <span class="sl-total-label">Remaining cost</span>
+          <span class="sl-total-value"
+            >{{ overBudgetTotalCost.toLocaleString() }} PP</span
+          >
+        </div>
+
+        <!-- Negative value -->
+        <div
+          v-if="negativeValueExcludedMissions.length > 0"
+          class="sl-struct-row"
+        >
+          <div class="sl-struct-label sl-struct-label--excluded">
+            Negative value
+            <span class="sl-missions-badge sl-missions-badge--excluded">{{
+              negativeValueExcludedMissions.length
+            }}</span>
+          </div>
+          <div class="sl-missions-rows">
+            <div
+              v-for="m in visibleMissions(
+                negativeValueExcludedMissions,
+                'negvalue',
+              )"
+              :key="m.id"
+              class="sl-mission-row"
+            >
+              <span class="sl-mission-row-name">{{ m.rawMission.name }}</span>
+            </div>
+            <button
+              v-if="negativeValueExcludedMissions.length > COLLAPSE_THRESHOLD"
+              class="sl-missions-toggle"
+              @click="toggleExpand('negvalue')"
+            >
+              {{
+                expandedSections.has("negvalue")
+                  ? "Show less"
+                  : `+${negativeValueExcludedMissions.length - COLLAPSE_SHOW} more`
+              }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Combined rewards -->
+        <div v-if="rewardChips.length > 0" class="sl-struct-row">
+          <div class="sl-struct-label">
+            Combined rewards
+            <span v-if="totalRewardValue > 0" class="sl-rewards-value-inline">
+              {{ totalRewardValue.toLocaleString() }} PP
+            </span>
+          </div>
+          <div class="sl-reward-chips">
+            <span
+              v-for="item in rewardChips"
+              :key="item.label"
+              class="sl-reward-chip"
+              :class="chipClass(item)"
+              >{{ item.count > 1 ? item.count + "x " : ""
+              }}{{ item.label }}</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty states -->
+      <p v-if="eligibleMissions.length === 0" class="sl-empty">
+        No calculated missions found. Use the Calculate button on missions to
+        get started.
+      </p>
+      <p
+        v-else-if="buyItemCount === 0 && shoppingItems.length === 0"
+        class="sl-empty"
+      >
+        No cards to buy — all missions are already completable with owned cards.
+      </p>
+
+      <!-- Card list -->
+      <div
+        v-for="item in shoppingItems"
+        :key="item.cardId"
+        class="sl-item"
+        :class="{
+          'sl-item--completing': item.completingMissions.length > 0,
+          'sl-item--reward': item.isRewardItem,
+        }"
+      >
+        <div class="sl-item-main">
+          <span class="sl-card-title">{{ item.title }}</span>
+          <span v-if="item.isRewardItem" class="sl-reward-label">
+            Reward from '{{ item.rewardFromMission!.rawMission.name }}'
+          </span>
+          <span v-else class="sl-price"
+            >{{ item.price.toLocaleString() }} PP</span
+          >
+        </div>
+        <div v-if="item.explanation" class="sl-item-explanation">
+          {{ item.explanation }}
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import type { UserMission } from "../models/UserMission";
 import type { ShopCard } from "../models/ShopCard";
 import {
+  type ShoppingWizardConfig,
+  type ShoppingScope,
+  emptyScopeIsAll,
+} from "../models/ShoppingWizardConfig";
+import {
   buildShoppingItems,
-  buildSummaryText,
-  buildExclusionText,
-  buildNegativeValueExclusionText,
-  buildOutOfBudgetText,
   buildMissionPriority,
   selectMissionsForBudget,
+  resolveScopedMissions,
   buildCsvContent,
   buildHtmlContent,
+  computeCompletedByList,
+  escapeHtml,
 } from "../helpers/ShoppingListHelper";
 import type { ShoppingItem } from "../helpers/ShoppingListHelper";
+import {
+  collectRewardItems,
+  chipClass,
+  type RewardItem,
+} from "../helpers/RewardItemsHelper";
+import { PACK_TYPE_LABELS, useSettingsStore } from "../stores/useSettingsStore";
+import {
+  useMissionStore,
+  computeMissionCostInfo,
+} from "../stores/useMissionStore";
+import { useCardStore } from "../stores/useCardStore";
 
 const props = defineProps<{
   missions: UserMission[];
-  includedMissionIds: Set<number>;
+  wizardConfig: ShoppingWizardConfig | null;
   packPrices: Map<string, number>;
   shopCardsById: Map<number, ShopCard>;
+  categories: string[];
+  chainMissions: UserMission[];
+  rewardCards: Array<{ cardId: number; label: string }>;
 }>();
 
-defineEmits<{
-  (e: "removeMission", id: number): void;
-  (e: "clearMissions"): void;
+const emit = defineEmits<{
+  (e: "confirm", config: ShoppingWizardConfig): void;
 }>();
 
-// ─── STATE ───
-const strategy = ref<"value" | "completion">("value");
-const ppInput = ref("");
-const isInputCollapsed = ref(false);
+// ─── ACCORDION STATE ───
+const openSection = ref<"scope" | "strategy" | "options" | null>(
+  props.wizardConfig ? null : "scope",
+);
+const headerCollapsed = ref(false);
+const generating = ref(false);
 
-// ─── HELPERS ───
-function collectDescendantIds(
-  rootId: number,
-  missionById: Map<number, UserMission>,
-): Set<number> {
-  const result = new Set<number>();
-  const queue = [rootId];
-  while (queue.length > 0) {
-    const id = queue.shift()!;
-    for (const subId of missionById.get(id)?.rawMission.missionIds ?? []) {
-      if (!result.has(subId)) {
-        result.add(subId);
-        queue.push(subId);
-      }
-    }
-  }
-  return result;
+function toggleSection(section: "scope" | "strategy" | "options") {
+  openSection.value = openSection.value === section ? null : section;
 }
 
-// ─── COMPUTED: Available PP ───
-const availablePP = computed((): number | null => {
-  const raw = ppInput.value.trim();
-  if (!raw) return null;
-
-  const normalized = raw.replace(/,/g, "");
-  const val = Number(normalized);
-  return Number.isFinite(val) && val > 0 ? val : null;
-});
-
-function clearBudget() {
-  ppInput.value = "";
+// ─── CONFIGURE DRAFT STATE ───
+function initScope(): ShoppingScope {
+  return props.wizardConfig
+    ? { ...props.wizardConfig.scope }
+    : { categories: [], chainIds: [], rewardCardIds: [], missionIds: [] };
 }
 
-// ─── COMPUTED: Missions explicitly added ───
-const includedMissions = computed(() =>
-  props.missions.filter((m) => props.includedMissionIds.has(m.id)),
+const scope = ref<ShoppingScope>(initScope());
+const strategy = ref<"completion" | "value" | "value-optimized">(
+  props.wizardConfig?.strategy ?? "completion",
+);
+const ppInput = ref(
+  props.wizardConfig?.availablePP != null
+    ? String(props.wizardConfig.availablePP)
+    : "",
+);
+const completableOnly = ref(props.wizardConfig?.completableOnly ?? true);
+
+// Search / dropdown state
+const chainQuery = ref("");
+const chainOpen = ref(false);
+const rewardCardQuery = ref("");
+const rewardCardOpen = ref(false);
+const missionQuery = ref("");
+const missionOpen = ref(false);
+
+function delayClose(fn: () => void) {
+  setTimeout(fn, 150);
+}
+
+// ─── CONFIGURE COMPUTED ───
+const hasNoFilters = computed(() => emptyScopeIsAll(scope.value));
+
+const resolvedMissionCount = computed(
+  () =>
+    resolveScopedMissions(props.missions, scope.value).filter(
+      (m) => !m.completed,
+    ).length,
 );
 
-// ─── COMPUTED: In-scope incomplete missions (before completability filter) ───
+const availableCategories = computed(() =>
+  props.categories.filter((c) => !scope.value.categories.includes(c)),
+);
+
+const filteredChains = computed(() => {
+  const q = chainQuery.value.trim().toLowerCase();
+  return props.chainMissions
+    .filter((m) => !scope.value.chainIds.includes(m.id))
+    .filter((m) => !q || m.rawMission.name.toLowerCase().includes(q));
+});
+
+const filteredRewardCards = computed(() => {
+  const q = rewardCardQuery.value.trim().toLowerCase();
+  return props.rewardCards
+    .filter((c) => !scope.value.rewardCardIds.includes(c.cardId))
+    .filter((c) => !q || c.label.toLowerCase().includes(q));
+});
+
+const filteredMissionOptions = computed(() => {
+  const q = missionQuery.value.trim().toLowerCase();
+  return props.missions
+    .filter((m) => !scope.value.missionIds.includes(m.id))
+    .filter((m) => !q || m.rawMission.name.toLowerCase().includes(q))
+    .slice(0, 50);
+});
+
+// ─── LABEL HELPERS ───
+function chainNameById(id: number): string {
+  return (
+    props.chainMissions.find((m) => m.id === id)?.rawMission.name ?? `#${id}`
+  );
+}
+
+function rewardCardLabelById(id: number): string {
+  const card = props.rewardCards.find((c) => c.cardId === id);
+  if (card) return card.label;
+  const shopCard = props.shopCardsById.get(id);
+  return shopCard ? shopCard.cardTitle : `Card #${id}`;
+}
+
+function missionNameById(id: number): string {
+  return props.missions.find((m) => m.id === id)?.rawMission.name ?? `#${id}`;
+}
+
+// ─── SECTION SUMMARIES ───
+const scopeSummary = computed(() => {
+  if (emptyScopeIsAll(scope.value)) return "All missions";
+  const count =
+    scope.value.categories.length +
+    scope.value.chainIds.length +
+    scope.value.rewardCardIds.length +
+    scope.value.missionIds.length;
+  return count === 1 ? "1 filter" : `${count} filters`;
+});
+
+const strategySummary = computed(() => {
+  if (strategy.value === "completion") return "Completion";
+  if (strategy.value === "value-optimized") return "Value, optimized";
+  return "Value";
+});
+
+const optionsSummary = computed(() => {
+  const pp = ppInput.value.trim() ? `${ppInput.value.trim()} PP` : "Unlimited";
+  return completableOnly.value ? `${pp}, completable only` : pp;
+});
+
+// ─── SCOPE MUTATORS ───
+function addCategory(event: Event) {
+  const val = (event.target as HTMLSelectElement).value;
+  if (!val || scope.value.categories.includes(val)) return;
+  scope.value = {
+    ...scope.value,
+    categories: [...scope.value.categories, val],
+  };
+  (event.target as HTMLSelectElement).value = "";
+}
+
+function removeCategory(cat: string) {
+  scope.value = {
+    ...scope.value,
+    categories: scope.value.categories.filter((c) => c !== cat),
+  };
+}
+
+function addChain(m: UserMission) {
+  if (scope.value.chainIds.includes(m.id)) return;
+  scope.value = { ...scope.value, chainIds: [...scope.value.chainIds, m.id] };
+  chainQuery.value = "";
+  chainOpen.value = false;
+}
+
+function removeChain(id: number) {
+  scope.value = {
+    ...scope.value,
+    chainIds: scope.value.chainIds.filter((c) => c !== id),
+  };
+}
+
+function addRewardCard(card: { cardId: number; label: string }) {
+  if (scope.value.rewardCardIds.includes(card.cardId)) return;
+  scope.value = {
+    ...scope.value,
+    rewardCardIds: [...scope.value.rewardCardIds, card.cardId],
+  };
+  rewardCardQuery.value = "";
+  rewardCardOpen.value = false;
+}
+
+function removeRewardCard(id: number) {
+  scope.value = {
+    ...scope.value,
+    rewardCardIds: scope.value.rewardCardIds.filter((c) => c !== id),
+  };
+}
+
+function addMissionById(m: UserMission) {
+  if (scope.value.missionIds.includes(m.id)) return;
+  scope.value = {
+    ...scope.value,
+    missionIds: [...scope.value.missionIds, m.id],
+  };
+  missionQuery.value = "";
+  missionOpen.value = false;
+}
+
+function removeMissionById(id: number) {
+  scope.value = {
+    ...scope.value,
+    missionIds: scope.value.missionIds.filter((m) => m !== id),
+  };
+}
+
+function clearScope() {
+  scope.value = {
+    categories: [],
+    chainIds: [],
+    rewardCardIds: [],
+    missionIds: [],
+  };
+}
+
+// ─── GENERATE ───
+async function handleGenerate() {
+  const raw = ppInput.value.trim().replace(/,/g, "");
+  const parsedPP = raw ? Number(raw) : null;
+  const availablePP =
+    parsedPP !== null && Number.isFinite(parsedPP) && parsedPP > 0
+      ? parsedPP
+      : null;
+  openSection.value = null;
+  generating.value = true;
+  await nextTick(); // let the spinner render before computation starts
+  emit("confirm", {
+    scope: scope.value,
+    strategy: strategy.value,
+    availablePP,
+    completableOnly: completableOnly.value,
+  });
+  await nextTick(); // let the results render before hiding the spinner
+  generating.value = false;
+}
+
+// ─── STORES (for independent optimize recompute) ───
+const settingsStore = useSettingsStore();
+const missionStore = useMissionStore();
+const cardStore = useCardStore();
+
+/**
+ * Returns missions with costs recomputed using the wizard's strategy setting,
+ * independent of the global optimizedMode. When strategy is "value-optimized",
+ * costs are recomputed with optimize=true regardless of the global setting.
+ */
+const effectiveMissionsForResults = computed((): UserMission[] => {
+  const wizardOptimize = props.wizardConfig?.strategy === "value-optimized";
+  const globalOptimize = settingsStore.optimizedMode;
+
+  if (wizardOptimize === globalOptimize) {
+    return props.missions;
+  }
+
+  const shopCardsById = cardStore.shopCardsById;
+  const sellPrice = missionStore.selectedPriceType.sellPrice;
+  const overrides = cardStore.cardPriceOverrides;
+  const discount = settingsStore.unlockedCardDiscount;
+
+  // Missions are in ascending ID order with children always before parents,
+  // so a single forward pass correctly propagates completed status up the chain.
+  const effectiveById = new Map<number, UserMission>();
+  const result: UserMission[] = [];
+
+  for (const m of props.missions) {
+    // Not-yet-calculated: pass through unchanged.
+    if (m.progressText === "Not Calculated") {
+      effectiveById.set(m.id, m);
+      result.push(m);
+      continue;
+    }
+
+    // Chain missions: recompute completed from effective sub-mission values.
+    if (m.rawMission.type === "missions") {
+      const subIds = m.rawMission.missionIds ?? [];
+      const completedCount = subIds.filter(
+        (id) => effectiveById.get(id)?.completed,
+      ).length;
+      const completed = completedCount >= m.rawMission.requiredCount;
+      const patched = completed !== m.completed ? { ...m, completed } : m;
+      effectiveById.set(m.id, patched);
+      result.push(patched);
+      continue;
+    }
+
+    // Leaf missions (count/points): recompute costs and completed.
+    const costInfo = computeMissionCostInfo(
+      m.rawMission,
+      shopCardsById,
+      sellPrice,
+      overrides,
+      wizardOptimize,
+      discount,
+    );
+    const patchedMissionCards = m.missionCards.map((mc) => ({
+      ...mc,
+      highlighted:
+        costInfo.remainingPrice > 0 && costInfo.highlightedIds.has(mc.cardId),
+    }));
+
+    let completed: boolean;
+    if (m.rawMission.type === "count") {
+      completed = wizardOptimize
+        ? patchedMissionCards.filter((c) => c.owned && c.locked).length >=
+          m.rawMission.requiredCount
+        : patchedMissionCards.filter((c) => c.owned).length >=
+          m.rawMission.requiredCount;
+    } else {
+      const pts = (
+        wizardOptimize
+          ? patchedMissionCards.filter((c) => c.owned && c.locked)
+          : patchedMissionCards.filter((c) => c.owned)
+      ).reduce((sum, c) => sum + (c.points ?? 0), 0);
+      completed = pts >= m.rawMission.requiredCount;
+    }
+
+    const unlockedDeduction = wizardOptimize ? costInfo.unlockedCardsPrice : 0;
+    const newMissionValue =
+      m.rewardValue !== undefined
+        ? m.rewardValue - costInfo.remainingPrice - unlockedDeduction
+        : undefined;
+
+    const patched: UserMission = {
+      ...m,
+      completed,
+      isCompletable: costInfo.isCompletable,
+      remainingPrice: costInfo.remainingPrice,
+      unlockedCardsPrice: costInfo.unlockedCardsPrice,
+      missionCards: patchedMissionCards,
+      missionValue: newMissionValue,
+    };
+    effectiveById.set(m.id, patched);
+    result.push(patched);
+  }
+
+  return result;
+});
+
+// ─── RESULTS COMPUTED (driven by committed wizardConfig prop) ───
+const resultStrategy = computed(
+  () => props.wizardConfig?.strategy ?? "completion",
+);
+const resultAvailablePP = computed(
+  () => props.wizardConfig?.availablePP ?? null,
+);
+
 const inScopeIncomplete = computed(() => {
-  const incomplete = props.missions.filter(
+  if (!props.wizardConfig) return [];
+  const incomplete = effectiveMissionsForResults.value.filter(
     (m) => !m.completed && m.progressText !== "Not Calculated",
   );
-
-  if (props.includedMissionIds.size === 0) return incomplete;
-
-  const missionById = new Map(props.missions.map((m) => [m.id, m]));
-  const expandedIds = new Set<number>();
-  for (const id of props.includedMissionIds) {
-    expandedIds.add(id);
-    collectDescendantIds(id, missionById).forEach((did) =>
-      expandedIds.add(did),
-    );
-  }
-  return incomplete.filter((m) => expandedIds.has(m.id));
+  const wScope = props.wizardConfig.scope;
+  if (emptyScopeIsAll(wScope)) return incomplete;
+  const scopedIds = new Set(
+    resolveScopedMissions(props.missions, wScope).map((m) => m.id),
+  );
+  return incomplete.filter((m) => scopedIds.has(m.id));
 });
 
-// ─── COMPUTED: Eligible missions for shopping list ───
-// Only completable missions enter the shopping list. Non-completable missions
-// (those requiring cards with no market price) are tracked separately.
-const eligibleMissions = computed(() =>
-  inScopeIncomplete.value.filter((m) => m.isCompletable),
-);
+const eligibleMissions = computed(() => {
+  if (!props.wizardConfig) return [];
+  if (props.wizardConfig.completableOnly) {
+    return inScopeIncomplete.value.filter((m) => m.isCompletable);
+  }
+  return inScopeIncomplete.value;
+});
 
-// ─── COMPUTED: Missions excluded due to unpurchasable cards ───
-// Leaf missions only — chain exclusions are implied by their sub-missions.
 const excludedMissions = computed(() =>
   inScopeIncomplete.value.filter(
     (m) => !m.isCompletable && m.rawMission.type !== "missions",
   ),
 );
 
-// ─── COMPUTED: Exclusion warning text ───
-const exclusionText = computed(() =>
-  buildExclusionText(excludedMissions.value),
-);
-
-// ─── COMPUTED: Greedy mission selection ───
 const missionSelection = computed(() => {
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
   );
   return selectMissionsForBudget(
     leafMissions,
-    strategy.value,
-    availablePP.value,
-    props.missions,
+    resultStrategy.value,
+    resultAvailablePP.value,
+    effectiveMissionsForResults.value,
   );
 });
 
-// ─── COMPUTED: Mission priority map for Phase 4 card ordering ───
 const missionPriority = computed(() =>
   buildMissionPriority(
     eligibleMissions.value,
     missionSelection.value.selectionOrder,
-    strategy.value,
+    resultStrategy.value,
     missionSelection.value.selectedIds,
   ),
 );
 
-// ─── COMPUTED: Negative value exclusion warning text ───
-const negativeValueExclusionText = computed(() => {
-  // Only show for value strategy
-  if (strategy.value !== "value") return "";
-
-  const excluded = missionSelection.value.negativeValueExcluded;
-
-  // Special case: all eligible missions excluded for negative value
-  const leafMissions = eligibleMissions.value.filter(
-    (m) => m.rawMission.type !== "missions",
-  );
-  if (excluded.length > 0 && excluded.length === leafMissions.length) {
-    return "No missions with positive net value found.";
-  }
-
-  return buildNegativeValueExclusionText(excluded);
-});
-
-// ─── COMPUTED: Missions excluded due to insufficient budget ───
 const outOfBudgetMissions = computed(() => {
-  // Only applicable when budget is limited
-  if (availablePP.value === null) return [];
-
+  if (resultAvailablePP.value === null) return [];
   const leafMissions = eligibleMissions.value.filter(
     (m) => m.rawMission.type !== "missions",
   );
   const excluded = missionSelection.value.negativeValueExcluded;
   const selectedIds = missionSelection.value.selectedIds;
-
-  // Out-of-budget = leaf missions that are eligible, not selected, and not negatively excluded
   return leafMissions.filter(
     (m) => !selectedIds.has(m.id) && !excluded.includes(m),
   );
 });
 
-// ─── COMPUTED: Out-of-budget exclusion warning text ───
-const outOfBudgetText = computed(() =>
-  buildOutOfBudgetText(outOfBudgetMissions.value),
+const negativeValueExcludedMissions = computed(() => {
+  if (resultStrategy.value === "completion") return [];
+  return missionSelection.value.negativeValueExcluded;
+});
+
+const overBudgetTotalCost = computed(() =>
+  outOfBudgetMissions.value.reduce((sum, m) => sum + m.remainingPrice, 0),
 );
 
-// ─── COMPUTED: Shopping items (final card list) ───
-const shoppingItems = computed((): ShoppingItem[] =>
-  buildShoppingItems(
+// ─── COLLAPSE STATE ───
+const COLLAPSE_THRESHOLD = 12;
+const COLLAPSE_SHOW = 10;
+const expandedSections = ref<Set<string>>(new Set());
+
+function toggleExpand(key: string) {
+  const next = new Set(expandedSections.value);
+  if (next.has(key)) {
+    next.delete(key);
+  } else {
+    next.add(key);
+  }
+  expandedSections.value = next;
+}
+
+function visibleMissions<T>(items: T[], key: string): T[] {
+  if (items.length <= COLLAPSE_THRESHOLD) return items;
+  if (expandedSections.value.has(key)) return items;
+  return items.slice(0, COLLAPSE_SHOW);
+}
+
+const shoppingItems = computed((): ShoppingItem[] => {
+  if (!props.wizardConfig) return [];
+  return buildShoppingItems(
     eligibleMissions.value,
     missionSelection.value.selectedIds,
-    props.missions,
+    effectiveMissionsForResults.value,
     props.shopCardsById,
     missionPriority.value,
-  ),
+  );
+});
+
+const buyItemCount = computed(
+  () => shoppingItems.value.filter((i) => !i.isRewardItem).length,
 );
 
-// ─── COMPUTED: Summary header text ───
-const summaryText = computed(() =>
-  buildSummaryText({
-    strategy: strategy.value,
-    availablePP: availablePP.value,
-    includedMissionIds: props.includedMissionIds,
-    eligibleMissions: eligibleMissions.value,
-    allMissions: props.missions,
-    shoppingItems: shoppingItems.value,
+// ─── HEADER DATA ───
+const scopeLabels = computed((): string[] => {
+  if (!props.wizardConfig) return [];
+  const wScope = props.wizardConfig.scope;
+  if (emptyScopeIsAll(wScope)) return [];
+  const missionById = new Map(props.missions.map((m) => [m.id, m]));
+  const labels: string[] = [];
+  for (const cat of wScope.categories) labels.push(cat);
+  for (const id of wScope.chainIds) {
+    labels.push(missionById.get(id)?.rawMission.name ?? `#${id}`);
+  }
+  for (const id of wScope.rewardCardIds) {
+    labels.push(props.shopCardsById.get(id)?.cardTitle ?? `Card #${id}`);
+  }
+  for (const id of wScope.missionIds) {
+    labels.push(missionById.get(id)?.rawMission.name ?? `#${id}`);
+  }
+  return labels;
+});
+
+const selectedLeafMissions = computed(
+  () => missionSelection.value.selectionOrder,
+);
+
+const totalCost = computed(() =>
+  shoppingItems.value
+    .filter((i) => !i.isRewardItem)
+    .reduce((sum, i) => sum + i.price, 0),
+);
+
+const completingMissions = computed(() => {
+  const shoppingCardIds = new Set(shoppingItems.value.map((i) => i.cardId));
+  return computeCompletedByList(
+    eligibleMissions.value,
+    effectiveMissionsForResults.value,
+    shoppingCardIds,
+  );
+});
+
+const rewardChips = computed((): RewardItem[] =>
+  collectRewardItems(completingMissions.value, {
     packPrices: props.packPrices,
+    packTypeLabels: PACK_TYPE_LABELS,
     shopCardsById: props.shopCardsById,
   }),
 );
+
+const totalRewardValue = computed(() =>
+  completingMissions.value.reduce((sum, m) => sum + (m.rewardValue ?? 0), 0),
+);
+
+// ─── HTML EXPORT HEADER ───
+function chipInlineStyle(item: RewardItem): string {
+  const lower = item.label.toLowerCase();
+  if (item.type === "park")
+    return "background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;";
+  if (item.type === "card")
+    return "background:#ede9fe;color:#4c1d95;border:1px solid #c4b5fd;";
+  if (lower.includes("rainbow"))
+    return "background:linear-gradient(90deg,#f87171,#fb923c,#fbbf24,#4ade80,#60a5fa,#a78bfa,#f472b6);color:#fff;border:1px solid transparent;";
+  if (lower.includes("perfect"))
+    return "background:#0f172a;color:#f8fafc;border:1px solid #334155;";
+  if (lower.includes("diamond"))
+    return "background:#bae6fd;color:#0c4a6e;border:1px solid #7dd3fc;";
+  if (lower.includes("gold"))
+    return "background:#fbbf24;color:#78350f;border:1px solid #f59e0b;";
+  if (lower.includes("silver"))
+    return "background:#cbd5e1;color:#1e293b;border:1px solid #94a3b8;";
+  if (lower.includes("standard"))
+    return "background:#3b82f6;color:#fff;border:1px solid #2563eb;";
+  return "background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;";
+}
+
+const structuredHeaderHtml = computed((): string => {
+  if (!props.wizardConfig || eligibleMissions.value.length === 0) return "";
+  const e = escapeHtml;
+  const rows: string[] = [];
+
+  // Scope
+  const scopeContent =
+    scopeLabels.value.length === 0
+      ? '<span class="hdr-scope-tag hdr-scope-tag--all">All missions</span>'
+      : scopeLabels.value
+          .map((l) => `<span class="hdr-scope-tag">${e(l)}</span>`)
+          .join("");
+  rows.push(
+    `<div class="hdr-row"><div class="hdr-label">Scope</div><div class="hdr-scope-tags">${scopeContent}</div></div>`,
+  );
+
+  // Missions
+  const missionRowsHtml =
+    selectedLeafMissions.value.length === 0
+      ? '<div class="hdr-none">None</div>'
+      : selectedLeafMissions.value
+          .map((m) => {
+            const cost =
+              m.remainingPrice > 0
+                ? `<span class="hdr-cost">${m.remainingPrice.toLocaleString()} PP</span>`
+                : '<span class="hdr-free">Free</span>';
+            return `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span>${cost}</div>`;
+          })
+          .join("");
+  rows.push(
+    `<div class="hdr-row"><div class="hdr-label">Missions <span class="hdr-badge">${selectedLeafMissions.value.length}</span></div><div class="hdr-mission-rows">${missionRowsHtml}</div></div>`,
+  );
+
+  // Total cost
+  rows.push(
+    `<div class="hdr-row hdr-total-row"><span class="hdr-total-label">Total cost</span><span class="hdr-total-value">${totalCost.value.toLocaleString()} PP</span></div>`,
+  );
+
+  // Excluded
+  if (props.wizardConfig.completableOnly && excludedMissions.value.length > 0) {
+    const mRows = excludedMissions.value
+      .map(
+        (m) =>
+          `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span><span class="hdr-excl-label">No price data</span></div>`,
+      )
+      .join("");
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label hdr-label--excl">Excluded <span class="hdr-badge hdr-badge--excl">${excludedMissions.value.length}</span></div><div class="hdr-mission-rows">${mRows}</div></div>`,
+    );
+  }
+
+  // Over budget
+  if (outOfBudgetMissions.value.length > 0) {
+    const mRows = outOfBudgetMissions.value
+      .map(
+        (m) =>
+          `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span><span class="hdr-excl-label">${m.remainingPrice.toLocaleString()} PP</span></div>`,
+      )
+      .join("");
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label hdr-label--excl">Over budget <span class="hdr-badge hdr-badge--excl">${outOfBudgetMissions.value.length}</span></div><div class="hdr-mission-rows">${mRows}</div></div>`,
+    );
+    rows.push(
+      `<div class="hdr-row hdr-total-row"><span class="hdr-total-label">Remaining cost</span><span class="hdr-total-value">${overBudgetTotalCost.value.toLocaleString()} PP</span></div>`,
+    );
+  }
+
+  // Negative value
+  if (negativeValueExcludedMissions.value.length > 0) {
+    const mRows = negativeValueExcludedMissions.value
+      .map(
+        (m) =>
+          `<div class="hdr-mission-row"><span class="hdr-mission-name">${e(m.rawMission.name)}</span></div>`,
+      )
+      .join("");
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label hdr-label--excl">Negative value <span class="hdr-badge hdr-badge--excl">${negativeValueExcludedMissions.value.length}</span></div><div class="hdr-mission-rows">${mRows}</div></div>`,
+    );
+  }
+
+  // Combined rewards
+  if (rewardChips.value.length > 0) {
+    const chipsHtml = rewardChips.value
+      .map((item) => {
+        const style = chipInlineStyle(item);
+        const label =
+          item.count > 1 ? `${item.count}x ${item.label}` : item.label;
+        return `<span class="hdr-chip" style="${style}">${e(label)}</span>`;
+      })
+      .join("");
+    const valueLabel =
+      totalRewardValue.value > 0
+        ? ` <span class="hdr-reward-value">${totalRewardValue.value.toLocaleString()} PP</span>`
+        : "";
+    rows.push(
+      `<div class="hdr-row"><div class="hdr-label">Combined rewards${valueLabel}</div><div class="hdr-chips">${chipsHtml}</div></div>`,
+    );
+  }
+
+  return rows.join("");
+});
 
 // ─── EXPORT ───
 function downloadFile(filename: string, content: string, mimeType: string) {
@@ -364,17 +1220,15 @@ function exportCsv() {
 function exportHtml() {
   const html = buildHtmlContent({
     items: shoppingItems.value,
-    summaryText: summaryText.value,
-    exclusionText: exclusionText.value,
-    negativeValueExclusionText: negativeValueExclusionText.value,
-    outOfBudgetText: outOfBudgetText.value,
+    headerHtml: structuredHeaderHtml.value,
   });
   downloadFile("ootp-shopping-list.html", html, "text/html;charset=utf-8;");
 }
 </script>
 
 <style scoped>
-.shopping-list-panel {
+/* ─── PANEL ─── */
+.sp-panel {
   height: 100%;
   overflow-y: auto;
   background: var(--detail-bg);
@@ -384,245 +1238,700 @@ function exportHtml() {
   gap: 0.75rem;
 }
 
-/* ─── HEADER ─── */
-.sl-header {
+/* ─── CONFIGURE ACCORDION ─── */
+.sp-configure {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sp-acc-item {
+  border-bottom: 1px solid var(--card-border);
+}
+
+.sp-acc-item:last-child {
+  border-bottom: none;
+}
+
+.sp-acc-header {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--card-border);
-  flex-shrink: 0;
+  padding: 0.65rem 0.9rem;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
   gap: 0.5rem;
 }
 
-.sl-title {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-primary, #1e293b);
+.sp-acc-header:hover {
+  background: #f8fafc;
 }
 
-.sl-header-actions {
+.sp-acc-left {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sp-acc-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+  flex-shrink: 0;
+}
+
+.sp-acc-summary {
+  font-size: 0.78rem;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-acc-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
+  justify-content: center;
 }
 
-.sl-export-btn {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 5px;
-  border: 1px solid var(--card-border);
-  background: var(--detail-bg);
-  color: #64748b;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
+.sp-acc-chevron::before {
+  content: "";
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #94a3b8;
+  transition: transform 0.2s;
 }
 
-.sl-export-btn:hover {
-  background: #6366f1;
-  border-color: #6366f1;
-  color: #fff;
+.sp-acc-chevron--open::before {
+  transform: rotate(180deg);
 }
 
-.sl-collapse-btn {
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 3px 9px;
-  border-radius: 5px;
-  border: 1px solid var(--card-border);
-  background: var(--detail-bg);
-  color: #64748b;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.sl-collapse-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-/* ─── SETTINGS ─── */
-.sl-settings {
-  background: #f8fafc;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 0.75rem;
+.sp-acc-body {
+  padding: 0.75rem 0.9rem;
+  background: #fafafa;
+  border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  flex-shrink: 0;
-}
-
-.sl-setting-row {
-  display: flex;
-  align-items: flex-start;
   gap: 0.75rem;
 }
 
-.sl-setting-row--missions {
+.sp-acc-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ─── SCOPE FIELDS ─── */
+.sp-empty-scope {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: #0369a1;
+}
+
+.sp-field {
+  display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.sl-setting-label {
-  font-size: 0.72rem;
-  font-weight: 600;
+.sp-field-label {
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   color: #64748b;
-  white-space: nowrap;
-  min-width: 90px;
-  padding-top: 2px;
 }
 
-.sl-setting-row--missions .sl-setting-label {
-  min-width: unset;
-  padding-top: 0;
-}
-
-.sl-radio-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
-}
-
-.sl-pp-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.sl-radio-label {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.82rem;
+.sp-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 0.8rem;
   color: #1e293b;
-  cursor: pointer;
-}
-
-.sl-pp-input {
-  width: 110px;
-  padding: 3px 7px;
-  border: 1px solid var(--card-border);
-  border-radius: 5px;
-  font-size: 0.82rem;
   background: #fff;
-  color: #1e293b;
+  cursor: pointer;
+  width: 100%;
 }
 
-.sl-pp-input:focus {
+.sp-select:focus {
   outline: none;
   border-color: #6366f1;
 }
 
-.sl-pp-clear-btn {
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 3px 9px;
-  border-radius: 5px;
-  border: 1px solid var(--card-border);
-  background: var(--detail-bg);
-  color: #64748b;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
+.sp-combobox {
+  position: relative;
 }
 
-.sl-pp-clear-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-.sl-pp-hint {
-  font-size: 0.72rem;
-  color: #64748b;
-}
-
-.sl-missions-section {
+.sp-input {
   width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 0.8rem;
+  color: #1e293b;
+  background: #fff;
+  box-sizing: border-box;
 }
 
-.sl-missions-all {
-  font-size: 0.82rem;
-  color: #64748b;
-  font-style: italic;
+.sp-input:focus {
+  outline: none;
+  border-color: #6366f1;
 }
 
-.sl-missions-tags {
+.sp-dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sp-dropdown-item {
+  padding: 6px 9px;
+  font-size: 0.8rem;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.sp-dropdown-item:hover {
+  background: #f1f5f9;
+}
+
+.sp-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  align-items: center;
+  gap: 0.3rem;
 }
 
-.sl-mission-tag {
+.sp-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  gap: 0.2rem;
   background: #e0e7ff;
   color: #3730a3;
   border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 500;
   padding: 2px 8px 2px 10px;
 }
 
-.sl-tag-remove {
+.sp-pill-remove {
   background: none;
   border: none;
   color: #3730a3;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
   line-height: 1;
   opacity: 0.6;
 }
 
-.sl-tag-remove:hover {
+.sp-pill-remove:hover {
   opacity: 1;
 }
 
-.sl-clear-btn {
-  font-size: 0.72rem;
-  padding: 2px 8px;
-  border-radius: 5px;
-  border: 1px solid #fca5a5;
-  background: transparent;
+.sp-scope-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.25rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.sp-clear-link {
+  background: none;
+  border: none;
   color: #dc2626;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: background 0.15s;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.sl-clear-btn:hover {
-  background: #fee2e2;
+.sp-scope-count {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
 }
 
-/* ─── SUMMARY ─── */
-.sl-summary {
-  background: #eff6ff;
-  border-left: 3px solid #6366f1;
-  border-radius: 4px;
-  padding: 0.6rem 0.75rem;
+/* ─── STRATEGY SECTION ─── */
+.sp-strategy-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sp-strategy-card {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.sp-strategy-card:hover {
+  border-color: #a5b4fc;
+  background: #f5f3ff;
+}
+
+.sp-strategy-card--active {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.sp-strategy-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.2rem;
+}
+
+.sp-strategy-card--active .sp-strategy-name {
+  color: #4338ca;
+}
+
+.sp-strategy-desc {
+  font-size: 0.77rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ─── OPTIONS SECTION ─── */
+.sp-option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sp-option-group--last {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sp-option-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sp-option-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.sp-pp-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sp-pp-input {
+  width: 130px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 7px;
+  font-size: 0.8rem;
+  color: #1e293b;
+  background: #fff;
+}
+
+.sp-pp-input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.sp-pp-clear {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.sp-pp-clear:hover {
+  background: #f1f5f9;
+}
+
+.sp-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.sp-toggle-input {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: #6366f1;
   flex-shrink: 0;
 }
 
-.sl-summary-text {
+.sp-toggle-label {
   font-size: 0.82rem;
+  font-weight: 600;
   color: #1e293b;
-  line-height: 1.55;
+  user-select: none;
+}
+
+/* ─── GENERATE BUTTON ─── */
+.sp-generate-btn {
+  width: 100%;
+  padding: 12px;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.sp-generate-btn:hover {
+  background: #4f46e5;
+}
+
+/* ─── SPINNER ─── */
+.sl-spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 1rem;
+}
+
+.sl-spinner {
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid var(--accent, #6366f1);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: sl-spin 0.8s linear infinite;
+}
+
+@keyframes sl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── NO RESULTS ─── */
+.sp-no-results {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: center;
+  padding: 1.5rem 1rem;
   margin: 0;
+}
+
+/* ─── RESULTS BAR ─── */
+.sp-results-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--card-border);
+  flex-shrink: 0;
+}
+
+.sp-results-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+}
+
+.sp-results-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.sp-export-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--card-border);
+  background: var(--detail-bg);
+  color: #64748b;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.sp-export-btn:hover {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+/* ─── STRUCTURED SUMMARY HEADER ─── */
+.sl-structured-summary {
+  background: #eff6ff;
+  border: 1px solid #c7d2fe;
+  border-left: 3px solid #6366f1;
+  border-radius: 6px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.sl-struct-row {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-bottom: 1px solid #dde4fb;
+}
+
+.sl-struct-row:last-child {
+  border-bottom: none;
+}
+
+.sl-struct-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sl-missions-badge {
+  background: #4338ca;
+  color: #fff;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  line-height: 1.4;
+}
+
+.sl-scope-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.sl-scope-tag {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 10px;
+}
+
+.sl-scope-tag--all {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.sl-missions-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sl-missions-toggle {
+  align-self: flex-start;
+  margin-top: 0.1rem;
+  background: none;
+  border: none;
+  color: #4338ca;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sl-missions-empty {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.sl-mission-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sl-mission-row-name {
+  font-size: 0.8rem;
+  color: #1e293b;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sl-mission-row-cost {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.sl-mission-row-free {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.sl-total-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sl-total-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sl-total-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sl-struct-label--excluded {
+  color: #92400e;
+}
+
+.sl-missions-badge--excluded {
+  background: #92400e;
+}
+
+.sl-mission-row-excluded-label {
+  font-size: 0.75rem;
+  color: #92400e;
+  flex-shrink: 0;
+  font-style: italic;
+}
+
+.sl-reward-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.sl-reward-chip {
+  font-size: 0.65rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+.sl-rewards-value-inline {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4338ca;
+}
+
+/* ─── CHIP COLOR VARIANTS ─── */
+.chip--standard {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.chip--silver {
+  background: #cbd5e1;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+.chip--gold {
+  background: #fbbf24;
+  color: #78350f;
+  border-color: #f59e0b;
+}
+
+.chip--diamond {
+  background: #bae6fd;
+  color: #0c4a6e;
+  border-color: #7dd3fc;
+}
+
+.chip--perfect {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.chip--rainbow {
+  background: linear-gradient(
+    90deg,
+    #f87171,
+    #fb923c,
+    #fbbf24,
+    #4ade80,
+    #60a5fa,
+    #a78bfa,
+    #f472b6
+  );
+  color: #fff;
+  border-color: transparent;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.55);
+}
+
+.chip--park {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.chip--card {
+  background: #ede9fe;
+  color: #4c1d95;
+  border-color: #c4b5fd;
 }
 
 /* ─── EMPTY STATE ─── */
@@ -655,6 +1964,11 @@ function exportHtml() {
   border-left: 3px solid #16a34a;
 }
 
+.sl-item--reward {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+}
+
 .sl-item-main {
   display: flex;
   align-items: center;
@@ -675,6 +1989,14 @@ function exportHtml() {
   font-weight: 600;
   color: #16a34a;
   flex-shrink: 0;
+}
+
+.sl-reward-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6366f1;
+  flex-shrink: 0;
+  font-style: italic;
 }
 
 .sl-item-explanation {
