@@ -83,7 +83,8 @@
             type="text"
             class="sidebar-input"
             placeholder="All Missions"
-            @focus="missionDropdownOpen = true"
+            @focus="onMissionInputFocus"
+            @click="onMissionInputFocus"
             @blur="onMissionDropdownBlur"
             @keydown="onMissionDropdownKeydown"
           />
@@ -136,7 +137,8 @@
             type="text"
             class="sidebar-input"
             placeholder="All Cards"
-            @focus="cardDropdownOpen = true"
+            @focus="onCardInputFocus"
+            @click="onCardInputFocus"
             @blur="onCardDropdownBlur"
             @keydown="onCardDropdownKeydown"
           />
@@ -867,6 +869,20 @@ function onMissionDropdownBlur() {
       }
     }
   }, 150);
+}
+
+function onMissionInputFocus(event: Event) {
+  missionDropdownOpen.value = true;
+  if (selectedMissionFilter.value) {
+    (event.target as HTMLInputElement).select();
+  }
+}
+
+function onCardInputFocus(event: Event) {
+  cardDropdownOpen.value = true;
+  if (selectedCardFilter.value !== undefined) {
+    (event.target as HTMLInputElement).select();
+  }
 }
 
 function onMissionDropdownKeydown(e: KeyboardEvent) {
