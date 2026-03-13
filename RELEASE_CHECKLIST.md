@@ -2,7 +2,32 @@
 
 Steps to complete once OOTP 27 is available and mission/card data can be exported.
 
+1. [Done] Export card shop data to csv
+2. Transform raw card shop data to shop_cards.csv
+    - Run `node scripts/import-shop-cards.mjs "C:\Users\seane\Documents\Out of the Park Developments\OOTP Baseball 26\online_data\pt_card_list.csv"` to produce `app/public/data/shop_cards.csv`
+3. Generate new missions.json (see details below)
+4. Test with new missions.json and shop_cards.csv
+5. Update release text (see details below)
+6. Deploy with a normal pr merge
+
+# Generate new missions.json
+- Load new shop_cards.csv into mission extractor
+- Generate live level 1 and live level 2 missions
+    - Insert rewards through the manage missions page, not OCR
+- Use OCR to capture live mission type missions
+- USE OCR to capture Launch Deck missions
+- Run transform and load clean to check for errors
+- Review mission title spelling
+- Save final format json
+
+# Update release text
+- Remove PreRelease modal
+- Update Mission Notes modal
+- Verify Help and Upload Help sections are accurate
+- Remove wip banner
+
 ---
+# Old checklist
 
 ## Data
 
