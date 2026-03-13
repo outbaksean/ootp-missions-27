@@ -199,6 +199,29 @@
                 Prioritize missions where rewards outweigh card costs
               </div>
             </button>
+            <button
+              class="sp-strategy-card"
+              :class="{
+                'sp-strategy-card--active': strategy === 'value-optimized',
+              }"
+              @click="strategy = 'value-optimized'"
+            >
+              <div class="sp-strategy-name">
+                Value, optimized
+                <span
+                  class="sp-tooltip-hint"
+                  data-tooltip="Like Value, but only locked cards count toward mission completion. The opportunity cost of selling unlocked owned cards is factored into each mission's cost. Only useful if you have uploaded your locked card data."
+                  @mouseenter="onTooltipEnter('value-optimized', $event)"
+                  @mouseleave="onTooltipLeave"
+                  @click.stop="onTooltipClick('value-optimized', $event)"
+                  >(?)</span
+                >
+              </div>
+              <div class="sp-strategy-desc">
+                Like Value, but accounts for locked cards and the opportunity
+                cost of selling unlocked owned cards
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -238,7 +261,7 @@
               </button>
             </div>
           </div>
-          <div class="sp-option-group">
+          <div class="sp-option-group sp-option-group--last">
             <label class="sp-toggle-row">
               <input
                 type="checkbox"
@@ -250,21 +273,6 @@
             <p class="sp-option-desc">
               Only include missions where all required cards have market prices.
               When off, cards toward non-completable missions are still listed.
-            </p>
-          </div>
-          <div class="sp-option-group sp-option-group--last">
-            <label class="sp-toggle-row">
-              <input
-                type="checkbox"
-                class="sp-toggle-input"
-                v-model="optimizeForLockedCards"
-              />
-              <span class="sp-toggle-label">Optimize for locked cards</span>
-            </label>
-            <p class="sp-option-desc">
-              Use optimized mode calculations — accounts for locked cards and
-              the opportunity cost of selling unlocked cards. Only useful if
-              you've uploaded your locked card data.
             </p>
           </div>
         </div>
@@ -552,6 +560,20 @@
       </div>
     </template>
   </div>
+
+  <!-- ─── TOOLTIP PORTAL ─── -->
+  <Teleport to="body">
+    <div
+      v-if="openTooltipId"
+      class="sp-tooltip-portal"
+      :style="{
+        top: tooltipAnchor.top + 'px',
+        left: tooltipAnchor.left + 'px',
+      }"
+    >
+      {{ tooltipContent }}
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -619,7 +641,7 @@ function initScope(): ShoppingScope {
 }
 
 const scope = ref<ShoppingScope>(initScope());
-const strategy = ref<"completion" | "value">(
+const strategy = ref<"completion" | "value" | "value-optimized">(
   props.wizardConfig?.strategy ?? "completion",
 );
 const ppInput = ref(
@@ -628,9 +650,6 @@ const ppInput = ref(
     : "",
 );
 const completableOnly = ref(props.wizardConfig?.completableOnly ?? true);
-const optimizeForLockedCards = ref(
-  props.wizardConfig?.optimizeForLockedCards ?? false,
-);
 
 // Search / dropdown state
 const chainQuery = ref("");
@@ -709,16 +728,15 @@ const scopeSummary = computed(() => {
   return count === 1 ? "1 filter" : `${count} filters`;
 });
 
-const strategySummary = computed(() =>
-  strategy.value === "completion" ? "Completion" : "Value",
-);
+const strategySummary = computed(() => {
+  if (strategy.value === "completion") return "Completion";
+  if (strategy.value === "value-optimized") return "Value, optimized";
+  return "Value";
+});
 
 const optionsSummary = computed(() => {
   const pp = ppInput.value.trim() ? `${ppInput.value.trim()} PP` : "Unlimited";
-  const parts: string[] = [];
-  if (completableOnly.value) parts.push("completable only");
-  if (optimizeForLockedCards.value) parts.push("optimized");
-  return parts.length > 0 ? `${pp}, ${parts.join(", ")}` : pp;
+  return completableOnly.value ? `${pp}, completable only` : pp;
 });
 
 // ─── SCOPE MUTATORS ───
@@ -812,10 +830,46 @@ async function handleGenerate() {
     strategy: strategy.value,
     availablePP,
     completableOnly: completableOnly.value,
-    optimizeForLockedCards: optimizeForLockedCards.value,
   });
   await nextTick(); // let the results render before hiding the spinner
   generating.value = false;
+}
+
+// ─── TOOLTIP ───
+const isMobile = ref(window.innerWidth < 768);
+const openTooltipId = ref<string | null>(null);
+const tooltipContent = ref("");
+const tooltipAnchor = ref({ top: 0, left: 0 });
+
+function getTooltipInfo(event: Event) {
+  const el = event.currentTarget as HTMLElement;
+  const rect = el.getBoundingClientRect();
+  return { top: rect.top, left: rect.left, text: el.dataset.tooltip ?? "" };
+}
+
+function onTooltipEnter(id: string, event: Event) {
+  if (isMobile.value) return;
+  const { top, left, text } = getTooltipInfo(event);
+  tooltipContent.value = text;
+  tooltipAnchor.value = { top, left };
+  openTooltipId.value = id;
+}
+
+function onTooltipLeave() {
+  if (isMobile.value) return;
+  openTooltipId.value = null;
+}
+
+function onTooltipClick(id: string, event: Event) {
+  if (!isMobile.value) return;
+  if (openTooltipId.value === id) {
+    openTooltipId.value = null;
+    return;
+  }
+  const { top, left, text } = getTooltipInfo(event);
+  tooltipContent.value = text;
+  tooltipAnchor.value = { top, left };
+  openTooltipId.value = id;
 }
 
 // ─── STORES (for independent optimize recompute) ───
@@ -829,19 +883,12 @@ const cardStore = useCardStore();
  * are patched — missions-type aggregates are left unchanged.
  */
 const effectiveMissionsForResults = computed((): UserMission[] => {
-  const wizardOptimize = props.wizardConfig?.optimizeForLockedCards ?? false;
+  const wizardOptimize = props.wizardConfig?.strategy === "value-optimized";
   const globalOptimize = settingsStore.optimizedMode;
 
   if (wizardOptimize === globalOptimize) {
-    console.log(
-      `[shopping] effectiveMissions: FAST PATH (both optimize=${wizardOptimize}), missions=${props.missions.length}`,
-    );
     return props.missions;
   }
-
-  console.log(
-    `[shopping] effectiveMissions: RECOMPUTE (wizard=${wizardOptimize}, global=${globalOptimize}), missions=${props.missions.length}`,
-  );
 
   const shopCardsById = cardStore.shopCardsById;
   const sellPrice = missionStore.selectedPriceType.sellPrice;
@@ -924,23 +971,6 @@ const effectiveMissionsForResults = computed((): UserMission[] => {
     result.push(patched);
   }
 
-  const sample = result.find(
-    (m) =>
-      m.rawMission.type !== "missions" && m.progressText !== "Not Calculated",
-  );
-  if (sample) {
-    const h = sample.missionCards.filter((c) => c.highlighted).length;
-    console.log(
-      `[shopping] effectiveMissions sample: "${sample.rawMission.name}" remainingPrice=${sample.remainingPrice} highlighted=${h} completed=${sample.completed}`,
-    );
-  }
-  const completedChains = result.filter(
-    (m) => m.rawMission.type === "missions" && m.completed,
-  ).length;
-  console.log(
-    `[shopping] effectiveMissions: completedChains=${completedChains}`,
-  );
-
   return result;
 });
 
@@ -957,7 +987,6 @@ const inScopeIncomplete = computed(() => {
   const incomplete = effectiveMissionsForResults.value.filter(
     (m) => !m.completed && m.progressText !== "Not Calculated",
   );
-  console.log(`[shopping] inScopeIncomplete: ${incomplete.length} missions`);
   const wScope = props.wizardConfig.scope;
   if (emptyScopeIsAll(wScope)) return incomplete;
   const scopedIds = new Set(
@@ -1014,7 +1043,7 @@ const outOfBudgetMissions = computed(() => {
 });
 
 const negativeValueExcludedMissions = computed(() => {
-  if (resultStrategy.value !== "value") return [];
+  if (resultStrategy.value === "completion") return [];
   return missionSelection.value.negativeValueExcluded;
 });
 
@@ -1045,17 +1074,13 @@ function visibleMissions<T>(items: T[], key: string): T[] {
 
 const shoppingItems = computed((): ShoppingItem[] => {
   if (!props.wizardConfig) return [];
-  const items = buildShoppingItems(
+  return buildShoppingItems(
     eligibleMissions.value,
     missionSelection.value.selectedIds,
     effectiveMissionsForResults.value,
     props.shopCardsById,
     missionPriority.value,
   );
-  console.log(
-    `[shopping] shoppingItems: ${items.length} cards, buyCount=${items.filter((i) => !i.isRewardItem).length}, totalCost=${items.filter((i) => !i.isRewardItem).reduce((s, i) => s + i.price, 0)}`,
-  );
-  return items;
 });
 
 const buyItemCount = computed(
@@ -1082,19 +1107,9 @@ const scopeLabels = computed((): string[] => {
   return labels;
 });
 
-const selectedLeafMissions = computed(() => {
-  const order = missionSelection.value.selectionOrder;
-  if (order.length > 0) {
-    const sample = order[0];
-    const highlightedCount = sample.missionCards.filter(
-      (c) => c.highlighted,
-    ).length;
-    console.log(
-      `[shopping] selectedLeafMissions[0]: "${sample.rawMission.name}" remainingPrice=${sample.remainingPrice} highlighted=${highlightedCount} (wizard=${props.wizardConfig?.optimizeForLockedCards}, global=${settingsStore.optimizedMode})`,
-    );
-  }
-  return order;
-});
+const selectedLeafMissions = computed(
+  () => missionSelection.value.selectionOrder,
+);
 
 const totalCost = computed(() =>
   shoppingItems.value
@@ -2051,6 +2066,15 @@ function exportHtml() {
   line-height: 1.45;
 }
 
+/* ─── TOOLTIP HINT ─── */
+.sp-tooltip-hint {
+  font-size: 0.75em;
+  color: #94a3b8;
+  cursor: help;
+  user-select: none;
+  margin-left: 0.2rem;
+}
+
 /* ─── EXCLUSION WARNING ─── */
 .sl-exclusion {
   background: #fefce8;
@@ -2065,5 +2089,23 @@ function exportHtml() {
   color: #713f12;
   line-height: 1.55;
   margin: 0;
+}
+</style>
+
+<style>
+.sp-tooltip-portal {
+  position: fixed;
+  z-index: 9999;
+  width: 280px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.8rem;
+  color: #374151;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  transform: translateY(calc(-100% - 8px));
 }
 </style>

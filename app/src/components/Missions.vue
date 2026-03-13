@@ -978,9 +978,6 @@ watch(showPositiveOnly, (v) =>
 const isLoading = computed(() => missionStore.loading);
 
 async function recalculateWithOptimizedMode(newValue: boolean) {
-  console.log(
-    `[missions] recalculateWithOptimizedMode: ${!newValue} -> ${newValue}, showShoppingList=${showShoppingList.value}, wizardOptimize=${wizardConfig.value?.optimizeForLockedCards}`,
-  );
   const calculatedMissions = missionStore.userMissions.filter(
     (m) => m.progressText !== "Not Calculated",
   );

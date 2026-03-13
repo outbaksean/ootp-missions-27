@@ -7,10 +7,9 @@ export interface ShoppingScope {
 
 export interface ShoppingWizardConfig {
   scope: ShoppingScope;
-  strategy: "value" | "completion";
+  strategy: "completion" | "value" | "value-optimized";
   availablePP: number | null;
   completableOnly: boolean;
-  optimizeForLockedCards: boolean;
 }
 
 export function emptyScopeIsAll(scope: ShoppingScope): boolean {
@@ -28,6 +27,5 @@ export function defaultWizardConfig(): ShoppingWizardConfig {
     strategy: "completion",
     availablePP: null,
     completableOnly: true,
-    optimizeForLockedCards: false,
   };
 }

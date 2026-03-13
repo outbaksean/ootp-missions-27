@@ -363,7 +363,7 @@ function collectLeafDescendants(
  */
 export function selectMissionsForBudget(
   leafMissions: UserMission[],
-  strategy: "value" | "completion",
+  strategy: "completion" | "value" | "value-optimized",
   availablePP: number | null,
   allMissions?: UserMission[],
 ): {
@@ -375,7 +375,7 @@ export function selectMissionsForBudget(
   let negativeValueExcluded: UserMission[] = [];
   let filteredMissions = leafMissions;
 
-  if (strategy === "value") {
+  if (strategy === "value" || strategy === "value-optimized") {
     // Build set of leaf missions that are descendants of positive-net chain missions
     const positiveChainDescendants = new Set<number>();
 
@@ -414,7 +414,7 @@ export function selectMissionsForBudget(
   }
 
   const sorted = [...filteredMissions].sort((a, b) => {
-    if (strategy === "completion") {
+    if (strategy !== "value" && strategy !== "value-optimized") {
       return a.remainingPrice - b.remainingPrice;
     }
     const aNet =
@@ -519,7 +519,7 @@ export function buildOutOfBudgetText(excluded: UserMission[]): string {
 export function buildMissionPriority(
   eligibleMissions: UserMission[],
   selectionOrder: UserMission[],
-  strategy: "value" | "completion",
+  strategy: "completion" | "value" | "value-optimized",
   selectedIds: Set<number>,
 ): Map<number, number> {
   const map = new Map<number, number>();
@@ -796,7 +796,7 @@ export function buildShoppingItems(
  * recomputing the card list when assembling the summary.
  */
 export function buildSummaryText(params: {
-  strategy: "value" | "completion";
+  strategy: "completion" | "value" | "value-optimized";
   availablePP: number | null;
   scopeText: string;
   eligibleMissions: UserMission[];
@@ -825,7 +825,7 @@ export function buildSummaryText(params: {
   const partial = computePartialByList(eligibleMissions, shoppingCardIds);
 
   const strategyStr =
-    strategy === "value" ? "maximize value" : "complete missions";
+    strategy === "completion" ? "complete missions" : "maximize value";
   const ppStr =
     availablePP === null
       ? "unlimited PP"
