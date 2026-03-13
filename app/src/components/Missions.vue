@@ -254,6 +254,25 @@
         <div class="mark-complete-row">
           <button
             class="btn-shopping-mode"
+            :class="{ 'btn-shopping-mode--active': showShoppingList }"
+            @click="toggleShoppingMode"
+          >
+            {{
+              showShoppingList ? "Exit Shopping Mode" : "Enter Shopping Mode"
+            }}
+          </button>
+          <span
+            class="tooltip-hint"
+            data-tooltip="Opens a wizard to configure a shopping list — choose scope, strategy, and budget to get an ordered card purchase plan."
+            @mouseenter="onTooltipEnter('shopping-mode', $event)"
+            @mouseleave="onTooltipLeave"
+            @click.stop="onTooltipClick('shopping-mode', $event)"
+            >(?)</span
+          >
+        </div>
+        <div v-if="!showShoppingList" class="mark-complete-row">
+          <button
+            class="btn-shopping-mode"
             :class="{
               'btn-shopping-mode--active': settingsStore.optimizedMode,
             }"
@@ -274,28 +293,10 @@
             >(?)</span
           >
         </div>
-        <div class="mark-complete-row">
-          <button
-            class="btn-shopping-mode"
-            :class="{ 'btn-shopping-mode--active': showShoppingList }"
-            @click="toggleShoppingMode"
-          >
-            {{
-              showShoppingList
-                ? "Disable Shopping Mode"
-                : "Enable Shopping Mode"
-            }}
-          </button>
-          <span
-            class="tooltip-hint"
-            data-tooltip="Opens a wizard to configure a shopping list — choose scope, strategy, and budget to get an ordered card purchase plan."
-            @mouseenter="onTooltipEnter('shopping-mode', $event)"
-            @mouseleave="onTooltipLeave"
-            @click.stop="onTooltipClick('shopping-mode', $event)"
-            >(?)</span
-          >
-        </div>
-        <div v-if="settingsStore.optimizedMode" class="discount-row">
+        <div
+          v-if="settingsStore.optimizedMode && !showShoppingList"
+          class="discount-row"
+        >
           <span class="discount-label"
             >Sell - Buy difference
             <span

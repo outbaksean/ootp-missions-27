@@ -206,17 +206,7 @@
               }"
               @click="strategy = 'value-optimized'"
             >
-              <div class="sw-strategy-name">
-                Value, optimized
-                <span
-                  class="sw-tooltip-hint"
-                  data-tooltip="Like Value, but only locked cards count toward mission completion. The opportunity cost of selling unlocked owned cards is factored into each mission's cost. Only useful if you have uploaded your locked card data."
-                  @mouseenter="onTooltipEnter('value-optimized', $event)"
-                  @mouseleave="onTooltipLeave"
-                  @click.stop="onTooltipClick('value-optimized', $event)"
-                  >(?)</span
-                >
-              </div>
+              <div class="sw-strategy-name">Value, optimized</div>
               <div class="sw-strategy-desc">
                 Like Value, but accounts for locked cards and the opportunity
                 cost of selling unlocked owned cards
@@ -278,20 +268,6 @@
           </button>
         </div>
       </div>
-    </div>
-  </Teleport>
-
-  <!-- ─── TOOLTIP PORTAL ─── -->
-  <Teleport to="body">
-    <div
-      v-if="openTooltipId"
-      class="sw-tooltip-portal"
-      :style="{
-        top: tooltipAnchor.top + 'px',
-        left: tooltipAnchor.left + 'px',
-      }"
-    >
-      {{ tooltipContent }}
     </div>
   </Teleport>
 </template>
@@ -512,43 +488,6 @@ function handleNext() {
     availablePP,
     completableOnly: completableOnly.value,
   });
-}
-
-// ─── TOOLTIP ───
-const isMobile = ref(window.innerWidth < 768);
-const openTooltipId = ref<string | null>(null);
-const tooltipContent = ref("");
-const tooltipAnchor = ref({ top: 0, left: 0 });
-
-function getTooltipInfo(event: Event) {
-  const el = event.currentTarget as HTMLElement;
-  const rect = el.getBoundingClientRect();
-  return { top: rect.top, left: rect.left, text: el.dataset.tooltip ?? "" };
-}
-
-function onTooltipEnter(id: string, event: Event) {
-  if (isMobile.value) return;
-  const { top, left, text } = getTooltipInfo(event);
-  tooltipContent.value = text;
-  tooltipAnchor.value = { top, left };
-  openTooltipId.value = id;
-}
-
-function onTooltipLeave() {
-  if (isMobile.value) return;
-  openTooltipId.value = null;
-}
-
-function onTooltipClick(id: string, event: Event) {
-  if (!isMobile.value) return;
-  if (openTooltipId.value === id) {
-    openTooltipId.value = null;
-    return;
-  }
-  const { top, left, text } = getTooltipInfo(event);
-  tooltipContent.value = text;
-  tooltipAnchor.value = { top, left };
-  openTooltipId.value = id;
 }
 
 // Keep unused import happy
@@ -905,15 +844,6 @@ void defaultWizardConfig;
   user-select: none;
 }
 
-/* ─── TOOLTIP HINT ─── */
-.sw-tooltip-hint {
-  font-size: 0.75em;
-  color: #94a3b8;
-  cursor: help;
-  user-select: none;
-  margin-left: 0.2rem;
-}
-
 /* ─── FOOTER ─── */
 .sw-footer {
   display: flex;
@@ -954,23 +884,5 @@ void defaultWizardConfig;
 
 .sw-btn--primary:hover {
   background: #4f46e5;
-}
-</style>
-
-<style>
-.sw-tooltip-portal {
-  position: fixed;
-  z-index: 9999;
-  width: 280px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.8rem;
-  color: #374151;
-  line-height: 1.5;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  pointer-events: none;
-  transform: translateY(calc(-100% - 8px));
 }
 </style>
