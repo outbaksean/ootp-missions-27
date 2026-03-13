@@ -817,9 +817,9 @@ const missionStore = useMissionStore();
 const cardStore = useCardStore();
 
 /**
- * Returns missions with costs recomputed using the wizard's optimizeForLockedCards
- * setting, independent of the global optimizedMode. Only leaf missions (count/points)
- * are patched — missions-type aggregates are left unchanged.
+ * Returns missions with costs recomputed using the wizard's strategy setting,
+ * independent of the global optimizedMode. When strategy is "value-optimized",
+ * costs are recomputed with optimize=true regardless of the global setting.
  */
 const effectiveMissionsForResults = computed((): UserMission[] => {
   const wizardOptimize = props.wizardConfig?.strategy === "value-optimized";
