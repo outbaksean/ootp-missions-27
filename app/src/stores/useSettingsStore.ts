@@ -25,6 +25,7 @@ export const PACK_TYPE_DEFAULTS: Record<string, number> = {
   PowerDiamond: 4500,
   DefensiveDiamond: 4500,
   SpotlightImmortals: 4500,
+  Artifact: 2000,
 };
 
 /** Human-readable label for each pack type key. */
@@ -49,6 +50,7 @@ export const PACK_TYPE_LABELS: Record<string, string> = {
   PowerDiamond: "Power Era Diamond",
   DefensiveDiamond: "Defensive Era Diamond",
   SpotlightImmortals: "Spotlight #Immortals",
+  Artifact: "Artifact",
 };
 
 /** Ordered list of pack type keys for display. */

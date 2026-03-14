@@ -911,6 +911,12 @@ const selectedMissionRewardItems = computed(() => {
   border-color: #c4b5fd;
 }
 
+.chip--artifact {
+  background: #fef3c7;
+  color: #78350f;
+  border-color: #fcd34d;
+}
+
 .unable-warning {
   display: flex;
   align-items: center;

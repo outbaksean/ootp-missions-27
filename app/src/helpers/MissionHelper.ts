@@ -203,6 +203,8 @@ export default class MissionHelper {
         if (!card) continue;
         // Always use lastPrice for rewards
         total += card.lastPrice * (r.count ?? 1);
+      } else if (type === "artifact") {
+        total += packPrices.get("Artifact") ?? 0;
       }
       // type:'park'/'other' → 0, no contribution
     }
