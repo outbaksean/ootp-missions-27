@@ -371,6 +371,15 @@
             'item-unavailable': !card.available,
           }"
         >
+          <svg
+            class="tier-icon"
+            viewBox="0 0 10 12"
+            xmlns="http://www.w3.org/2000/svg"
+            :style="{ fill: cardTierColor(card.cardId) }"
+            aria-hidden="true"
+          >
+            <polygon points="0,0 10,0 10,7 5,12 0,7" />
+          </svg>
           <span class="item-name">{{ missionCardTitle(card) }}</span>
           <div class="item-price-area">
             <template v-if="!card.owned">
@@ -703,6 +712,16 @@ const missionCardTitle = (card: MissionCard) => {
   }
   return card.title;
 };
+
+function cardTierColor(cardId: number): string {
+  const value = cardStore.shopCardsById.get(cardId)?.cardValue ?? 0;
+  if (value >= 100) return "#0f172a"; // Perfect
+  if (value >= 90) return "#7dd3fc"; // Diamond
+  if (value >= 80) return "#f59e0b"; // Gold
+  if (value >= 70) return "#94a3b8"; // Silver
+  if (value >= 60) return "#b45309"; // Bronze
+  return "#4b5563"; // Iron
+}
 
 const isMissionComplete = (mission: UserMission) => mission.completed;
 
@@ -1131,6 +1150,13 @@ const selectedMissionRewardItems = computed(() => {
   font-size: 0.7rem;
   color: #94a3b8;
   font-style: italic;
+}
+
+.tier-icon {
+  flex-shrink: 0;
+  width: 10px;
+  height: 12px;
+  margin-top: 1px;
 }
 
 .item-name {
