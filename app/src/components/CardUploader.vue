@@ -12,14 +12,6 @@
         >
           Help
         </button>
-        <button
-          class="link-btn"
-          type="button"
-          data-bs-toggle="modal"
-          data-bs-target="#prereleaseStatusModal"
-        >
-          PreRelease
-        </button>
       </div>
     </div>
 
@@ -51,7 +43,6 @@
       <CardUploaderModal />
       <UploadHelpModal />
       <AppHelpModal />
-      <PreReleaseStatusModal />
     </teleport>
   </div>
 </template>
@@ -59,7 +50,6 @@
 <script setup lang="ts">
 import AppHelpModal from "./AppHelpModal.vue";
 import CardUploaderModal from "./CardUploaderModal.vue";
-import PreReleaseStatusModal from "./PreReleaseStatusModal.vue";
 import UploadHelpModal from "./UploadHelpModal.vue";
 import { useCardStore } from "@/stores/useCardStore";
 import { computed } from "vue";

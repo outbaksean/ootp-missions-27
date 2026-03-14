@@ -6,7 +6,7 @@ Steps to complete once OOTP 27 is available and mission/card data can be exporte
 2. [Done] Transform raw card shop data to shop_cards.csv
     - Run `node scripts/import-shop-cards.mjs "C:\Users\seane\Documents\Out of the Park Developments\OOTP Baseball 26\online_data\pt_card_list.csv"` to produce `app/public/data/shop_cards.csv`
 3. [Done] Generate new missions.json (see details below)
-4. Add new release features (see details below)
+4. [Done] Add new release features (see details below)
 5. Test with new missions.json and shop_cards.csv
 6. Update release text (see details below)
 7. Deploy with a normal pr merge
@@ -38,14 +38,14 @@ Steps to complete once OOTP 27 is available and mission/card data can be exporte
 # Add new release features
 - [Done] Add Artifact pack type and default values
 - [Done] Add Artifact reward type and default value
-- When Use Sell Price is not selected and there is no last 10 price but there is a sell price, use the sell price
-- Update default pack prices. Double them?
+- [Done] When Use Sell Price is not selected and there is no last 10 price but there is a sell price, use the sell price
 
 # Update release text
-- Remove PreRelease modal
-- Update Mission Notes modal
-- Verify Help and Upload Help sections are accurate
-- Remove wip banner
+- [Done] Remove PreRelease modal
+- [Done] Update Mission Notes modal
+- [Done] Verify Help and Upload Help sections are accurate
+- [InProgress] Update default pack prices. Double them?
+- [Done] Remove wip banner
 
 ---
 # Old checklist
