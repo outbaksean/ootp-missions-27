@@ -55,7 +55,7 @@
               <li>User Cards: required for accurate prices and ownership.</li>
               <li>
                 Card Locks: optional, adds locked status and unlock cost, used
-                for "Optimzed" mode.
+                for "Optimized" mode.
               </li>
               <li>
                 Large inventories may be paginated by the game making the locked
