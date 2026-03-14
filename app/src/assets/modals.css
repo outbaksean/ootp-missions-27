@@ -1,22 +1,22 @@
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-content {
+:is(#uploadHelpModal, #appHelpModal) .modal-content {
   background: #1e293b;
   color: #e2e8f0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-header {
+:is(#uploadHelpModal, #appHelpModal) .modal-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 1rem 1.25rem;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-title {
+:is(#uploadHelpModal, #appHelpModal) .modal-title {
   font-size: 1.15rem;
   font-weight: 600;
   color: #f1f5f9;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body {
+:is(#uploadHelpModal, #appHelpModal) .modal-body {
   padding: 1.25rem;
   color: #cbd5e1;
   line-height: 1.6;
@@ -24,7 +24,7 @@
   overflow-y: auto;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body h3 {
+:is(#uploadHelpModal, #appHelpModal) .modal-body h3 {
   font-size: 1.1rem;
   font-weight: 600;
   color: #f1f5f9;
@@ -32,13 +32,11 @@
   margin-bottom: 0.75rem;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  h3:first-child {
+:is(#uploadHelpModal, #appHelpModal) .modal-body h3:first-child {
   margin-top: 0;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body h6 {
+:is(#uploadHelpModal, #appHelpModal) .modal-body h6 {
   font-size: 1rem;
   font-weight: 600;
   color: #f1f5f9;
@@ -46,84 +44,72 @@
   margin-bottom: 0.5rem;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  h6:first-child {
+:is(#uploadHelpModal, #appHelpModal) .modal-body h6:first-child {
   margin-top: 0;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body p {
+:is(#uploadHelpModal, #appHelpModal) .modal-body p {
   font-size: 0.9rem;
   color: #cbd5e1;
   margin-bottom: 0.75rem;
   line-height: 1.6;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body ul {
+:is(#uploadHelpModal, #appHelpModal) .modal-body ul {
   font-size: 0.9rem;
   color: #cbd5e1;
   margin-bottom: 1rem;
   padding-left: 1.5rem;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body ul li {
+:is(#uploadHelpModal, #appHelpModal) .modal-body ul li {
   margin-bottom: 0.5rem;
   line-height: 1.6;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-body ul ul {
+:is(#uploadHelpModal, #appHelpModal) .modal-body ul ul {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  strong {
+:is(#uploadHelpModal, #appHelpModal) .modal-body strong {
   color: #f1f5f9;
   font-weight: 600;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  .text-muted {
+:is(#uploadHelpModal, #appHelpModal) .modal-body .text-muted {
   color: #94a3b8 !important;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  .text-danger {
+:is(#uploadHelpModal, #appHelpModal) .modal-body .text-danger {
   color: #fca5a5 !important;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  .img-fluid {
+:is(#uploadHelpModal, #appHelpModal) .modal-body .img-fluid {
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .modal-body
-  .card-body {
+:is(#uploadHelpModal, #appHelpModal) .modal-body .card-body {
   background: transparent;
   padding: 0;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .modal-footer {
+:is(#uploadHelpModal, #appHelpModal) .modal-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   padding: 0.875rem 1.25rem;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .btn-close {
+:is(#uploadHelpModal, #appHelpModal) .btn-close {
   filter: invert(1) grayscale(100%) brightness(200%);
   opacity: 0.6;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .btn-close:hover {
+:is(#uploadHelpModal, #appHelpModal) .btn-close:hover {
   opacity: 1;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal) .btn-secondary {
+:is(#uploadHelpModal, #appHelpModal) .btn-secondary {
   background: rgba(255, 255, 255, 0.07);
   color: #e2e8f0;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -134,8 +120,7 @@
   transition: background 0.15s;
 }
 
-:is(#uploadHelpModal, #appHelpModal, #prereleaseStatusModal)
-  .btn-secondary:hover {
+:is(#uploadHelpModal, #appHelpModal) .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.13);
   border-color: rgba(255, 255, 255, 0.18);
   color: #f1f5f9;

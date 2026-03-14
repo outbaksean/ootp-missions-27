@@ -5,26 +5,27 @@ const STORAGE_KEY = "ootp-pack-prices";
 
 /** All pack types that appear in missions.json, with their default PP values. */
 export const PACK_TYPE_DEFAULTS: Record<string, number> = {
-  Standard: 100,
-  Silver: 250,
-  Gold: 1100,
-  Diamond: 4100,
-  Perfect: 21000,
-  Rainbow: 24100,
-  HistSilver: 500,
-  HistGold: 1200,
-  HistDiamond: 4500,
-  HistPerfect: 30000,
-  HistRainbow: 35000,
-  AllDiamond: 6000,
-  AllPerfect: 126000,
-  HistAllDiamond: 36000,
-  HistAllPerfect: 180000,
+  Standard: 500,
+  Silver: 750,
+  Gold: 2000,
+  Diamond: 8000,
+  Perfect: 30000,
+  Rainbow: 40000,
+  HistSilver: 1000,
+  HistGold: 3000,
+  HistDiamond: 10000,
+  HistPerfect: 40000,
+  HistRainbow: 60000,
+  AllDiamond: 48000,
+  AllPerfect: 200000,
+  HistAllDiamond: 60000,
+  HistAllPerfect: 24000000,
   MoneyballDiamond: 4500,
   AnalyticsDiamond: 4500,
   PowerDiamond: 4500,
   DefensiveDiamond: 4500,
   SpotlightImmortals: 4500,
+  Artifact: 2000,
 };
 
 /** Human-readable label for each pack type key. */
@@ -49,6 +50,7 @@ export const PACK_TYPE_LABELS: Record<string, string> = {
   PowerDiamond: "Power Era Diamond",
   DefensiveDiamond: "Defensive Era Diamond",
   SpotlightImmortals: "Spotlight #Immortals",
+  Artifact: "Artifact",
 };
 
 /** Ordered list of pack type keys for display. */

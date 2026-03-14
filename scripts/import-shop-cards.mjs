@@ -33,7 +33,7 @@ if (lines.length < 2) {
 
 // Parse header to find column indices for the fields we read from the source
 const header = parseCSVLine(lines[0])
-const SOURCE_COLUMNS = ['//Card Title', 'Card ID', 'Card Value', 'Card Type', 'Card Badge']
+const SOURCE_COLUMNS = ['//Card Title', 'Card ID', 'Card Value', 'Card Type', 'Card Badge', 'packs']
 
 const indices = {}
 for (const col of SOURCE_COLUMNS) {
@@ -49,7 +49,7 @@ for (const col of SOURCE_COLUMNS) {
 // Output columns match the app's expected CSV format.
 // Sell Order Low, Last 10 Price, and owned are zeroed out — the user's own
 // in-game export will overwrite these when uploaded through the app.
-const OUTPUT_HEADER = '//Card Title,Card ID,Card Value,Card Type,Card Badge,Sell Order Low,Last 10 Price,owned'
+const OUTPUT_HEADER = '//Card Title,Card ID,Card Value,Card Type,Card Badge,Sell Order Low,Last 10 Price,owned,packs'
 const outputLines = [OUTPUT_HEADER]
 
 for (let i = 1; i < lines.length; i++) {
@@ -61,11 +61,12 @@ for (let i = 1; i < lines.length; i++) {
   const cardValue = row[indices['Card Value']] ?? ''
   const cardType = row[indices['Card Type']] ?? ''
   const cardBadge = row[indices['Card Badge']] ?? ''
+  const packs = row[indices['packs']] ?? ''
 
   // Quote title if it contains a comma
   const safeTitle = title.includes(',') ? `"${title.replace(/"/g, '""')}"` : title
 
-  outputLines.push(`${safeTitle},${cardId},${cardValue},${cardType},${cardBadge},0,0,0`)
+  outputLines.push(`${safeTitle},${cardId},${cardValue},${cardType},${cardBadge},0,0,0,${packs}`)
 }
 
 const outputPath = resolve(__dirname, '../app/public/data/shop_cards.csv')

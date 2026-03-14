@@ -23,10 +23,10 @@
             <p>
               This app helps you plan the cheapest path to completing OOTP
               Perfect Team missions. Upload your card shop export (and optional
-              lock export), then calculate mission costs, compare rewards, and
-              decide which missions are worth finishing. The app can also
-              account for the opportunity cost of locking owned cards and can
-              optimize which cards to buy vs lock.
+              lock export), then view mission costs, compare rewards, and decide
+              which missions are worth finishing. The app can also account for
+              the opportunity cost of locking owned cards and can optimize which
+              cards to buy vs lock.
             </p>
             <p>
               All calculations are local to your browser. Data is stored in your
@@ -40,9 +40,11 @@
             <p>
               Start by exporting your card shop list with no filters and upload
               the CSV under User Cards. This provides prices and owned status.
-              If you want lock status displayed, also export your locked card
-              report with PT Card ID and PT Lock columns and upload it under
-              Card Locks.
+            </p>
+            <p>
+              Optionally you can export your locked cards by including PT Card
+              ID and PT Lock columns in the manage cards view and upload it
+              under Card Locks.
             </p>
             <p>
               You can manually set prices and owned and locked status in the
@@ -51,7 +53,10 @@
             </p>
             <ul>
               <li>User Cards: required for accurate prices and ownership.</li>
-              <li>Card Locks: optional, adds locked status and unlock cost.</li>
+              <li>
+                Card Locks: optional, adds locked status and unlock cost, used
+                for "Optimized" mode.
+              </li>
               <li>
                 Large inventories may be paginated by the game making the locked
                 cards export useless. In that case you can either quicksell
@@ -111,8 +116,9 @@
             </p>
             <ul>
               <li>
-                Group by: None (flat list), Chain (parent mission groups), or
-                Category (in-game category).
+                Group by: None (flat list), Chain (parent mission groups),
+                Category (in-game category), or Card Reward (groups by the card
+                awarded).
               </li>
               <li>
                 Target Mission: limits the list to missions that feed a selected
@@ -123,7 +129,9 @@
               </li>
               <li>
                 Use Sell Price: uses lowest active sell order instead of last 10
-                price.
+                price. The alternative price will always be used as a fallback
+                if a card has 0 price for the main price. In optimized mode, the
+                value of unlocked cards will always use last 10 price.
               </li>
               <li>Hide Completed: removes finished missions from the list.</li>
               <li>
@@ -133,6 +141,10 @@
                 Sell - Buy difference: only visible in Optimized mode. Adjusts
                 the opportunity cost of locking owned cards based on tax and
                 market spread.
+              </li>
+              <li>
+                Include card rewards in value: when enabled, the market price of
+                reward cards is included in Reward and Net calculations.
               </li>
               <li>Pack Values: set PP values for reward calculation.</li>
             </ul>

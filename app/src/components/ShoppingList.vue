@@ -1934,6 +1934,12 @@ function exportHtml() {
   border-color: #c4b5fd;
 }
 
+.chip--artifact {
+  background: #fef3c7;
+  color: #78350f;
+  border-color: #fcd34d;
+}
+
 /* ─── EMPTY STATE ─── */
 .sl-empty {
   color: #94a3b8;

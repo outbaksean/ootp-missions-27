@@ -13,12 +13,14 @@ type ShopCardRow = {
   owned: string;
   "Card Type": string;
   "Card Badge": string;
+  packs: string;
 };
 
 function parseCardType(row: ShopCardRow): CardType {
   if (parseInt(row["Card Type"], 10) === 1) return "live";
   if (row["Card Badge"] === "CS") return "clubhouse";
   if (row["Card Badge"] === "ME") return "nonpack";
+  if (row["packs"] === "0") return "nonpack";
   return "historical";
 }
 

@@ -19,13 +19,16 @@
         </div>
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
+          <p>All missions from release are included. All done on 3/13/2026.</p>
           <p>
-            All missions from OOTP26 are included. On or near release these will
-            be replaced with missions for OOTP27. After OOTP27 releases, I plan
-            to update missions soon after they come out, when I do I'll update
-            this text with the latest missions. If I ever add only a portion of
-            missions I'll note that here. The date missions were last added will
-            always be included on the bottom left.
+            For release I updated default pack values upwards, they're total
+            guesses. Artifact rewards use Artifact Pack value as I believe
+            they're equivalent.
+          </p>
+          <p>
+            Note: Many mission card rewards are variants, they're currently
+            being shown and valued as their base card. I plan to update that but
+            it's tricky both technically and from a user experience perspective.
           </p>
           <p>
             Adding missions is mostly a manual process, please be patient if I

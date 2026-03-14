@@ -130,7 +130,7 @@ export default class MissionHelper {
         const basePrice =
           useSellPrice && shopCard.sellOrderLow > 0
             ? shopCard.sellOrderLow
-            : shopCard.lastPrice;
+            : shopCard.lastPrice || shopCard.sellOrderLow;
         const price = overrides?.get(card.cardId) ?? basePrice;
 
         return { cardId: card.cardId, price };
@@ -203,6 +203,8 @@ export default class MissionHelper {
         if (!card) continue;
         // Always use lastPrice for rewards
         total += card.lastPrice * (r.count ?? 1);
+      } else if (type === "artifact") {
+        total += packPrices.get("Artifact") ?? 0;
       }
       // type:'park'/'other' → 0, no contribution
     }
@@ -233,7 +235,7 @@ export default class MissionHelper {
         const basePrice =
           useSellPrice && shopCard.sellOrderLow > 0
             ? shopCard.sellOrderLow
-            : shopCard.lastPrice;
+            : shopCard.lastPrice || shopCard.sellOrderLow;
         const rawPrice = overrides?.get(card.cardId) ?? basePrice;
         // Apply discount, but ensure price is at least 1 PP to prevent division by zero
         const price = Math.max(1, rawPrice * (1 - discount));
@@ -308,7 +310,7 @@ export default class MissionHelper {
       const base =
         useSellPrice && shopCard.sellOrderLow > 0
           ? shopCard.sellOrderLow
-          : shopCard.lastPrice;
+          : shopCard.lastPrice || shopCard.sellOrderLow;
       return overrides?.get(cardId) ?? base;
     };
 
