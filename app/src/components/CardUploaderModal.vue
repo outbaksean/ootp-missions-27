@@ -47,6 +47,13 @@
               >
                 Clear
               </button>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                type="button"
+                @click="clearOwnership"
+              >
+                Clear Ownership
+              </button>
             </div>
           </div>
 
@@ -190,6 +197,11 @@ async function clearShopCards() {
   await missionStore.initialize();
 }
 
+async function clearOwnership() {
+  await cardStore.clearOwnership();
+  await missionStore.initialize();
+}
+
 // Card Locks drop zone
 const lockFileInput = ref<HTMLInputElement | null>(null);
 const lockDragging = ref(false);
@@ -257,7 +269,9 @@ const helpExpanded = ref(false);
 }
 
 .clear-btn-row {
-  text-align: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
   margin-top: 0.5rem;
 }
 
