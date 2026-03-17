@@ -267,6 +267,22 @@ export const useCardStore = defineStore("card", () => {
     }
   }
 
+  async function clearOwnership() {
+    const toWrite: ShopCard[] = [];
+    for (const card of shopCards.value) {
+      if (card.owned || card.locked) {
+        card.owned = false;
+        card.locked = false;
+        toWrite.push(card);
+      }
+    }
+    if (toWrite.length > 0) {
+      await db.shopCards.bulkPut(toWrite.map((c) => ({ ...toRaw(c) })));
+    }
+    cardOwnedOverrides.value = new Set();
+    localStorage.removeItem(OWNED_OVERRIDES_KEY);
+  }
+
   async function toggleCardLocked(cardId: number) {
     const card = shopCardsById.value.get(cardId);
     if (!card) return;
@@ -304,6 +320,7 @@ export const useCardStore = defineStore("card", () => {
     cardPriceOverrides,
     cardOwnedOverrides,
     clearShopCards,
+    clearOwnership,
     uploadShopFile,
     uploadUserFile,
     toggleCardLocked,
