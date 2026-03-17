@@ -874,17 +874,39 @@ export function buildCsvContent(items: ShoppingItem[]): string {
  *
  * Includes a structured summary header and a table of cards.
  */
+function tierColor(
+  cardId: number,
+  shopCardsById?: Map<number, ShopCard>,
+): string {
+  const value = shopCardsById?.get(cardId)?.cardValue ?? 0;
+  if (value >= 100) return "#0f172a";
+  if (value >= 90) return "#7dd3fc";
+  if (value >= 80) return "#f59e0b";
+  if (value >= 70) return "#94a3b8";
+  if (value >= 60) return "#b45309";
+  return "#4b5563";
+}
+
+function tierSvg(
+  cardId: number,
+  shopCardsById?: Map<number, ShopCard>,
+): string {
+  const fill = tierColor(cardId, shopCardsById);
+  return `<svg style="width:10px;height:12px;fill:${fill};flex-shrink:0;margin-right:5px;vertical-align:middle;" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="0,0 10,0 10,7 5,12 0,7"/></svg>`;
+}
+
 export function buildHtmlContent(params: {
   items: ShoppingItem[];
   headerHtml: string;
+  shopCardsById?: Map<number, ShopCard>;
 }): string {
-  const { items, headerHtml } = params;
+  const { items, headerHtml, shopCardsById } = params;
 
   const rows = items
     .map(
       (item) => `
       <tr${item.isRewardItem ? ' class="reward-row"' : ""}>
-        <td>${escapeHtml(item.title)}</td>
+        <td>${tierSvg(item.cardId, shopCardsById)}${escapeHtml(item.title)}</td>
         <td class="${item.isRewardItem ? "reward" : "price"}">${item.isRewardItem ? "Reward" : item.price.toLocaleString()}</td>
         <td>${escapeHtml(item.explanation)}</td>
       </tr>`,
