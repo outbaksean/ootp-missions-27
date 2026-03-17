@@ -536,6 +536,15 @@
         }"
       >
         <div class="sl-item-main">
+          <svg
+            class="tier-icon"
+            viewBox="0 0 10 12"
+            xmlns="http://www.w3.org/2000/svg"
+            :style="{ fill: cardTierColor(item.cardId) }"
+            aria-hidden="true"
+          >
+            <polygon points="0,0 10,0 10,7 5,12 0,7" />
+          </svg>
           <span class="sl-card-title">{{ item.title }}</span>
           <span v-if="item.isRewardItem" class="sl-reward-label">
             Reward from '{{ item.rewardFromMission!.rawMission.name }}'
@@ -1221,8 +1230,19 @@ function exportHtml() {
   const html = buildHtmlContent({
     items: shoppingItems.value,
     headerHtml: structuredHeaderHtml.value,
+    shopCardsById: props.shopCardsById,
   });
   downloadFile("ootp-shopping-list.html", html, "text/html;charset=utf-8;");
+}
+
+function cardTierColor(cardId: number): string {
+  const value = props.shopCardsById.get(cardId)?.cardValue ?? 0;
+  if (value >= 100) return "#0f172a";
+  if (value >= 90) return "#7dd3fc";
+  if (value >= 80) return "#f59e0b";
+  if (value >= 70) return "#94a3b8";
+  if (value >= 60) return "#b45309";
+  return "#4b5563";
 }
 </script>
 
@@ -1947,6 +1967,14 @@ function exportHtml() {
   text-align: center;
   padding: 2rem 1rem;
   margin: 0;
+}
+
+/* ─── TIER ICON ─── */
+.tier-icon {
+  flex-shrink: 0;
+  width: 10px;
+  height: 12px;
+  margin-top: 1px;
 }
 
 /* ─── CARD ITEMS ─── */
