@@ -4,7 +4,7 @@ import type { ShopCard } from "@/models/ShopCard";
 export type RewardItem = {
   label: string;
   count: number;
-  type: "pack" | "card" | "park" | "artifact";
+  type: "pack" | "card" | "park" | "sticker";
   cardId?: number;
 };
 
@@ -40,7 +40,7 @@ function packChipClass(label: string): string {
 export function chipClass(item: RewardItem): string {
   if (item.type === "park") return "chip--park";
   if (item.type === "card") return "chip--card";
-  if (item.type === "artifact") return "chip--artifact";
+  if (item.type === "sticker") return "chip--sticker";
   return packChipClass(item.label);
 }
 
@@ -56,7 +56,7 @@ export function collectRewardItems(
     { count: number; value: number; cardId: number }
   >();
   const parkCounts = new Map<string, number>();
-  const artifactCounts = new Map<string, number>();
+  const stickerCounts = new Map<string, number>();
 
   for (const mission of missions) {
     for (const reward of mission.rawMission.rewards ?? []) {
@@ -87,11 +87,11 @@ export function collectRewardItems(
           parkReward.park,
           (parkCounts.get(parkReward.park) ?? 0) + 1,
         );
-      } else if (type === "artifact") {
-        const artifactReward = reward as { artifact: string };
-        artifactCounts.set(
-          artifactReward.artifact,
-          (artifactCounts.get(artifactReward.artifact) ?? 0) + 1,
+      } else if (type === "sticker") {
+        const stickerReward = reward as { name: string };
+        stickerCounts.set(
+          stickerReward.name,
+          (stickerCounts.get(stickerReward.name) ?? 0) + 1,
         );
       }
     }
@@ -134,16 +134,10 @@ export function collectRewardItems(
     parks.push({ label: park, count, type: "park" });
   }
 
-  const artifacts: RewardItem[] = [];
-  for (const [artifact, count] of artifactCounts) {
-    const price = packPrices.get("Artifact") ?? 0;
-    const totalPrice = price * count;
-    const label =
-      price > 0
-        ? `Artifact - ${artifact} - ${totalPrice.toLocaleString()} PP`
-        : `Artifact - ${artifact}`;
-    artifacts.push({ label, count, type: "artifact" });
+  const stickers: RewardItem[] = [];
+  for (const [sticker, count] of stickerCounts) {
+    stickers.push({ label: `Sticker: ${sticker}`, count, type: "sticker" });
   }
 
-  return [...cards, ...packs, ...parks, ...artifacts];
+  return [...cards, ...packs, ...parks, ...stickers];
 }

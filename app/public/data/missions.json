@@ -7164,7 +7164,7 @@
       "name": "LIVE LEVEL 1 COMPLETE",
       "type": "missions",
       "requiredCount": 6,
-      "reward": "Perfect Pack, Park: 1927 Yankee Stadium, Artifact: Live Mission Silver",
+      "reward": "Perfect Pack, Park: 1927 Yankee Stadium, Sticker: Live Mission Silver",
       "category": "Live Series",
       "cards": [],
       "missionIds": [62, 61, 63, 65, 64, 66],
@@ -7180,8 +7180,8 @@
           "park": "1927 Yankee Stadium"
         },
         {
-          "type": "Artifact",
-          "artifact": "Live Mission Silver"
+          "type": "Sticker",
+          "name": "Live Mission Silver"
         }
       ]
     },
@@ -7364,7 +7364,7 @@
       "name": "LIVE LEVEL 2 COMPLETE",
       "type": "missions",
       "requiredCount": 2,
-      "reward": "Live Full Collection - Snapshot CF Tris Speaker BOS 1910, Park: 1984 Fenway Park, Artifact: Live Mission Gold",
+      "reward": "Live Full Collection - Snapshot CF Tris Speaker BOS 1910, Park: 1984 Fenway Park, Sticker: Live Mission Gold",
       "category": "Live Series",
       "cards": [],
       "missionIds": [71, 75],
@@ -7379,8 +7379,8 @@
           "park": "1984 Fenway Park"
         },
         {
-          "type": "Artifact",
-          "artifact": "Live Mission Gold"
+          "type": "Sticker",
+          "name": "Live Mission Gold"
         }
       ]
     },
@@ -8163,15 +8163,15 @@
       "name": "Historical Launch Missions",
       "type": "missions",
       "requiredCount": 12,
-      "reward": "Artifact: Historical Mission, 2x Diamond Pack",
+      "reward": "Sticker: Historical Mission, 2x Diamond Pack",
       "category": "Launch Deck",
       "cards": [],
       "missionIds": [78, 77, 87, 86, 83, 79, 80, 88, 81, 85, 84, 82],
       "totalPoints": 12,
       "rewards": [
         {
-          "type": "Artifact",
-          "artifact": "Historical Mission"
+          "type": "Sticker",
+          "name": "Historical Mission"
         },
         {
           "type": "Pack",
