@@ -19,15 +19,18 @@
         </div>
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
-          <p>All missions from release are included. All done on 3/13/2026.</p>
           <p>
-            For release I updated default pack values upwards, they're total
-            guesses.
+            All missions from the first missions drop on 3/23/2026 are included.
+            All done on 3/28/2026.
+          </p>
+          <p>Added the 4 new "Packs" category missions.</p>
+          <p>
+            Updated the Phillies live missions to replace Johan Rojas with Bryse
+            Wilson to match the change in game.
           </p>
           <p>
-            Note: Many mission card rewards are variants, they're currently
-            being shown and valued as their base card. I plan to update that but
-            it's tricky both technically and from a user experience perspective.
+            Changed default artifact price to 0. Hid pack values that aren't
+            mission rewards yet. Fixed sticker rewards to match what's in game.
           </p>
           <p>
             Adding missions is mostly a manual process, please be patient if I
