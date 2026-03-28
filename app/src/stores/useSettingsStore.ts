@@ -25,7 +25,7 @@ export const PACK_TYPE_DEFAULTS: Record<string, number> = {
   PowerDiamond: 4500,
   DefensiveDiamond: 4500,
   SpotlightImmortals: 4500,
-  Artifact: 2000,
+  Artifact: 0,
 };
 
 /** Human-readable label for each pack type key. */
