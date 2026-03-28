@@ -12,7 +12,7 @@
         <button class="btn-reset" @click="handleReset">Reset</button>
       </div>
       <div
-        v-for="packType in PACK_TYPES"
+        v-for="packType in usedPackTypes"
         :key="packType"
         class="pack-price-row"
       >
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useMissionStore } from "../stores/useMissionStore";
 import {
   useSettingsStore,
@@ -43,6 +43,19 @@ import {
 const settingsStore = useSettingsStore();
 const missionStore = useMissionStore();
 const expanded = ref(false);
+
+const usedPackTypes = computed(() => {
+  const used = new Set<string>();
+  for (const um of missionStore.userMissions) {
+    for (const reward of um.rawMission.rewards ?? []) {
+      if ((reward.type as string).toLowerCase() === "pack") {
+        const r = reward as { packType: string };
+        used.add(r.packType);
+      }
+    }
+  }
+  return PACK_TYPES.filter((pt) => used.has(pt));
+});
 
 function handleChange(packType: string, event: Event) {
   const input = event.target as HTMLInputElement;
