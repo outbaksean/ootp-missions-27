@@ -22,8 +22,7 @@
           <p>All missions from release are included. All done on 3/13/2026.</p>
           <p>
             For release I updated default pack values upwards, they're total
-            guesses. Artifact rewards use Artifact Pack value as I believe
-            they're equivalent.
+            guesses.
           </p>
           <p>
             Note: Many mission card rewards are variants, they're currently

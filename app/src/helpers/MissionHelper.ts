@@ -206,7 +206,7 @@ export default class MissionHelper {
       } else if (type === "artifact") {
         total += packPrices.get("Artifact") ?? 0;
       }
-      // type:'park'/'other' → 0, no contribution
+      // type:'sticker'/'park'/'other' → 0, no contribution
     }
     return total;
   }

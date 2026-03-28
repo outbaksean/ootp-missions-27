@@ -1954,7 +1954,7 @@ function cardTierColor(cardId: number): string {
   border-color: #c4b5fd;
 }
 
-.chip--artifact {
+.chip--sticker {
   background: #fef3c7;
   color: #78350f;
   border-color: #fcd34d;
