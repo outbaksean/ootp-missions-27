@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-28",
+  "version": "2026-04-11",
   "missions": [
     {
       "id": 1,
@@ -7053,339 +7053,6 @@
     },
     {
       "id": 61,
-      "name": "Live Level 1 - AL Central",
-      "type": "missions",
-      "requiredCount": 5,
-      "reward": "2x Artifact pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [7, 9, 11, 13, 18],
-      "totalPoints": 5,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Artifact",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": 62,
-      "name": "Live Level 1 - AL East",
-      "type": "missions",
-      "requiredCount": 5,
-      "reward": "2x Artifact pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [4, 5, 20, 27, 29],
-      "totalPoints": 5,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Artifact",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": 63,
-      "name": "Live Level 1 - AL West",
-      "type": "missions",
-      "requiredCount": 5,
-      "reward": "2x Artifact pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [2, 12, 14, 25, 28],
-      "totalPoints": 5,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Artifact",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": 64,
-      "name": "Live Level 1 - NL Central",
-      "type": "missions",
-      "requiredCount": 5,
-      "reward": "2x Artifact pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [6, 8, 17, 22, 26],
-      "totalPoints": 5,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Artifact",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": 65,
-      "name": "Live Level 1 - NL East",
-      "type": "missions",
-      "requiredCount": 5,
-      "reward": "2x Artifact pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [3, 16, 19, 21, 30],
-      "totalPoints": 5,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Artifact",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": 66,
-      "name": "Live Level 1 - NL West",
-      "type": "missions",
-      "requiredCount": 5,
-      "reward": "2x Artifact pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [1, 10, 15, 23, 24],
-      "totalPoints": 5,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Artifact",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": 67,
-      "name": "LIVE LEVEL 1 COMPLETE",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Perfect Pack, Park: 1927 Yankee Stadium, Sticker: Live Mission Silver",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [62, 61, 63, 65, 64, 66],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Pack",
-          "packType": "Perfect",
-          "count": 1
-        },
-        {
-          "type": "Park",
-          "park": "1927 Yankee Stadium"
-        },
-        {
-          "type": "Sticker",
-          "name": "Live Mission Silver"
-        }
-      ]
-    },
-    {
-      "id": 68,
-      "name": "Live Level 2 - AL Central",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Live Collection Reward - Snapshot SP Red Faber CWS 1921, Diamond Pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [37, 39, 41, 43, 48, 61],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 84090
-        },
-        {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 69,
-      "name": "Live Level 2 - AL East",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Live Collection Reward - Historical All-Star SS Xander Bogaerts BOS 2019, Diamond Pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [34, 35, 50, 57, 59, 62],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 83961
-        },
-        {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 70,
-      "name": "Live Level 2 - AL West",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Live Collection Reward - Hardware Heroes 3B Home Run Baker PHA 1911, Diamond Pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [32, 42, 44, 55, 58, 63],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 82735
-        },
-        {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 71,
-      "name": "Live Level 2 - American League",
-      "type": "missions",
-      "requiredCount": 3,
-      "reward": "Live AL Collection - Hall of Fame C Joe Mauer MIN 2006, Park: 1992 SkyDome",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [69, 68, 70],
-      "totalPoints": 3,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 83804
-        },
-        {
-          "type": "Park",
-          "park": "1992 SkyDome"
-        }
-      ]
-    },
-    {
-      "id": 72,
-      "name": "Live Level 2 - NL Central",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Live Collection Reward - Historical All-Star SP Bob Friend PIT 1960, Diamond Pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [36, 38, 47, 52, 56, 64],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 84086
-        },
-        {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 73,
-      "name": "Live Level 2 - NL East",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Live Collection Reward - Hardware Heroes CF Lenny Dykstra PHI 1990, Diamond Pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [33, 46, 49, 51, 60, 65],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 82753
-        },
-        {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 74,
-      "name": "Live Level 2 - NL West",
-      "type": "missions",
-      "requiredCount": 6,
-      "reward": "Live Collection Reward - Hall of Fame 1B Fred McGriff SD 1992, Diamond Pack",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [31, 40, 45, 53, 54, 66],
-      "totalPoints": 6,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 83805
-        },
-        {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 75,
-      "name": "Live Level 2 - National League",
-      "type": "missions",
-      "requiredCount": 3,
-      "reward": "Live NL Collection - Historical All-Star SP Carl Hubbell NY1 1934, Park: 1949 Polo Grounds",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [73, 72, 74],
-      "totalPoints": 3,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 83325
-        },
-        {
-          "type": "Park",
-          "park": "1949 Polo Grounds"
-        }
-      ]
-    },
-    {
-      "id": 76,
-      "name": "LIVE LEVEL 2 COMPLETE",
-      "type": "missions",
-      "requiredCount": 2,
-      "reward": "Live Full Collection - Snapshot CF Tris Speaker BOS 1910, Park: 1984 Fenway Park, Sticker: Live Mission Gold",
-      "category": "Live Series",
-      "cards": [],
-      "missionIds": [71, 75],
-      "totalPoints": 2,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 83846
-        },
-        {
-          "type": "Park",
-          "park": "1984 Fenway Park"
-        },
-        {
-          "type": "Sticker",
-          "name": "Live Mission Gold"
-        }
-      ]
-    },
-    {
-      "id": 77,
       "name": "Charlie Sweeney Hitting",
       "type": "count",
       "requiredCount": 33,
@@ -7517,7 +7184,7 @@
       ]
     },
     {
-      "id": 78,
+      "id": 62,
       "name": "Charlie Sweeney Pitching",
       "type": "count",
       "requiredCount": 34,
@@ -7649,7 +7316,7 @@
       ]
     },
     {
-      "id": 79,
+      "id": 63,
       "name": "David Ross Catching Colleagues",
       "type": "count",
       "requiredCount": 10,
@@ -7700,7 +7367,7 @@
       ]
     },
     {
-      "id": 80,
+      "id": 64,
       "name": "David Ross Team Colleagues",
       "type": "count",
       "requiredCount": 14,
@@ -7763,7 +7430,7 @@
       ]
     },
     {
-      "id": 81,
+      "id": 65,
       "name": "Grandy Man Launch Mission",
       "type": "count",
       "requiredCount": 10,
@@ -7821,7 +7488,7 @@
       ]
     },
     {
-      "id": 82,
+      "id": 66,
       "name": "Low-Level BABIP Kings",
       "type": "count",
       "requiredCount": 10,
@@ -7869,7 +7536,7 @@
       ]
     },
     {
-      "id": 83,
+      "id": 67,
       "name": "Maz Launch Mission",
       "type": "count",
       "requiredCount": 10,
@@ -7927,7 +7594,7 @@
       ]
     },
     {
-      "id": 84,
+      "id": 68,
       "name": "Passeggiata",
       "type": "count",
       "requiredCount": 8,
@@ -7984,7 +7651,7 @@
       ]
     },
     {
-      "id": 85,
+      "id": 69,
       "name": "That\u0027s Gold Jerry. GOLD!!!",
       "type": "count",
       "requiredCount": 7,
@@ -8045,7 +7712,7 @@
       ]
     },
     {
-      "id": 86,
+      "id": 70,
       "name": "Yaz Launch Mission",
       "type": "count",
       "requiredCount": 14,
@@ -8115,63 +7782,92 @@
       ]
     },
     {
-      "id": 87,
-      "name": "Charlie Sweeney Complete",
-      "type": "missions",
-      "requiredCount": 2,
-      "reward": "Launch Deck Missions - Snapshot SP Charlie Sweeney SL5 1884, Diamond Pack",
-      "category": "Launch Deck",
-      "cards": [],
-      "missionIds": [78, 77],
-      "totalPoints": 2,
-      "rewards": [
+      "id": 71,
+      "name": "Baseball Reference 1",
+      "type": "count",
+      "requiredCount": 19,
+      "reward": "2x Artifact Pack, 2x Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": [
         {
-          "type": "Card",
-          "cardId": 83329
+          "cardId": 84834
         },
         {
-          "type": "Pack",
-          "packType": "Diamond",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": 88,
-      "name": "David Ross Complete",
-      "type": "missions",
-      "requiredCount": 2,
-      "reward": "Launch Deck Missions - Snapshot C David Ross ATL 2009, Gold Pack",
-      "category": "Launch Deck",
-      "cards": [],
-      "missionIds": [79, 80],
-      "totalPoints": 2,
-      "rewards": [
-        {
-          "type": "Card",
-          "cardId": 83574
+          "cardId": 84827
         },
         {
-          "type": "Pack",
-          "packType": "Gold",
-          "count": 1
+          "cardId": 84804
+        },
+        {
+          "cardId": 84808
+        },
+        {
+          "cardId": 84825
+        },
+        {
+          "cardId": 84793
+        },
+        {
+          "cardId": 84805
+        },
+        {
+          "cardId": 84802
+        },
+        {
+          "cardId": 84821
+        },
+        {
+          "cardId": 84819
+        },
+        {
+          "cardId": 84803
+        },
+        {
+          "cardId": 84816
+        },
+        {
+          "cardId": 84799
+        },
+        {
+          "cardId": 84822
+        },
+        {
+          "cardId": 84794
+        },
+        {
+          "cardId": 84831
+        },
+        {
+          "cardId": 84796
+        },
+        {
+          "cardId": 84790
+        },
+        {
+          "cardId": 84792
+        },
+        {
+          "cardId": 84813
+        },
+        {
+          "cardId": 83867
+        },
+        {
+          "cardId": 84801
+        },
+        {
+          "cardId": 84672
+        },
+        {
+          "cardId": 84789
         }
-      ]
-    },
-    {
-      "id": 89,
-      "name": "Historical Launch Missions",
-      "type": "missions",
-      "requiredCount": 12,
-      "reward": "Sticker: Historical Mission, 2x Diamond Pack",
-      "category": "Launch Deck",
-      "cards": [],
-      "missionIds": [78, 77, 87, 86, 83, 79, 80, 88, 81, 85, 84, 82],
-      "totalPoints": 12,
+      ],
+      "totalPoints": 24,
       "rewards": [
         {
-          "type": "Sticker",
-          "name": "Historical Mission"
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
         },
         {
           "type": "Pack",
@@ -8181,7 +7877,551 @@
       ]
     },
     {
-      "id": 90,
+      "id": 72,
+      "name": "Easter Egg Hunt",
+      "type": "count",
+      "requiredCount": 13,
+      "reward": "2x Artifact Pack, 5x Historical Silver Pack",
+      "category": "Bonus Rewards",
+      "cards": [
+        {
+          "cardId": 84687
+        },
+        {
+          "cardId": 84722
+        },
+        {
+          "cardId": 84681
+        },
+        {
+          "cardId": 84684
+        },
+        {
+          "cardId": 84677
+        },
+        {
+          "cardId": 84685
+        },
+        {
+          "cardId": 84686
+        },
+        {
+          "cardId": 84678
+        },
+        {
+          "cardId": 84143
+        },
+        {
+          "cardId": 84679
+        },
+        {
+          "cardId": 84683
+        },
+        {
+          "cardId": 84721
+        },
+        {
+          "cardId": 84676
+        }
+      ],
+      "totalPoints": 13,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        },
+        {
+          "type": "Pack",
+          "packType": "HistSilver",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "name": "Historic Angels",
+      "type": "count",
+      "requiredCount": 19,
+      "reward": "Artifact Pack, Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": [
+        {
+          "cardId": 84312
+        },
+        {
+          "cardId": 84224
+        },
+        {
+          "cardId": 83358
+        },
+        {
+          "cardId": 82999
+        },
+        {
+          "cardId": 82660
+        },
+        {
+          "cardId": 83055
+        },
+        {
+          "cardId": 83416
+        },
+        {
+          "cardId": 83468
+        },
+        {
+          "cardId": 83934
+        },
+        {
+          "cardId": 83508
+        },
+        {
+          "cardId": 83476
+        },
+        {
+          "cardId": 83108
+        },
+        {
+          "cardId": 83570
+        },
+        {
+          "cardId": 84262
+        },
+        {
+          "cardId": 83942
+        },
+        {
+          "cardId": 83663
+        },
+        {
+          "cardId": 83211
+        },
+        {
+          "cardId": 83816
+        },
+        {
+          "cardId": 84054
+        }
+      ],
+      "totalPoints": 19,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 1
+        },
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "name": "Iron Birds",
+      "type": "count",
+      "requiredCount": 28,
+      "reward": "2x Standard pack",
+      "category": "Bonus Rewards",
+      "cards": [
+        {
+          "cardId": 84305
+        },
+        {
+          "cardId": 84103
+        },
+        {
+          "cardId": 83909
+        },
+        {
+          "cardId": 84328
+        },
+        {
+          "cardId": 82953
+        },
+        {
+          "cardId": 84225
+        },
+        {
+          "cardId": 84015
+        },
+        {
+          "cardId": 84303
+        },
+        {
+          "cardId": 82792
+        },
+        {
+          "cardId": 84130
+        },
+        {
+          "cardId": 82832
+        },
+        {
+          "cardId": 84235
+        },
+        {
+          "cardId": 82848
+        },
+        {
+          "cardId": 82835
+        },
+        {
+          "cardId": 82995
+        },
+        {
+          "cardId": 83006
+        },
+        {
+          "cardId": 83364
+        },
+        {
+          "cardId": 83443
+        },
+        {
+          "cardId": 83391
+        },
+        {
+          "cardId": 83008
+        },
+        {
+          "cardId": 83030
+        },
+        {
+          "cardId": 83420
+        },
+        {
+          "cardId": 84323
+        },
+        {
+          "cardId": 83446
+        },
+        {
+          "cardId": 83038
+        },
+        {
+          "cardId": 83100
+        },
+        {
+          "cardId": 83915
+        },
+        {
+          "cardId": 83086
+        }
+      ],
+      "totalPoints": 28,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Standard",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "name": "April Fools",
+      "type": "points",
+      "requiredCount": 25,
+      "reward": "4x Gold Pack",
+      "category": "Bonus Rewards",
+      "cards": [
+        {
+          "cardId": 84708,
+          "points": 1
+        },
+        {
+          "cardId": 84699,
+          "points": 1
+        },
+        {
+          "cardId": 84713,
+          "points": 1
+        },
+        {
+          "cardId": 84718,
+          "points": 1
+        },
+        {
+          "cardId": 84701,
+          "points": 1
+        },
+        {
+          "cardId": 84720,
+          "points": 1
+        },
+        {
+          "cardId": 84691,
+          "points": 2
+        },
+        {
+          "cardId": 84715,
+          "points": 2
+        },
+        {
+          "cardId": 84695,
+          "points": 2
+        },
+        {
+          "cardId": 84716,
+          "points": 2
+        },
+        {
+          "cardId": 84696,
+          "points": 2
+        },
+        {
+          "cardId": 84698,
+          "points": 2
+        },
+        {
+          "cardId": 84690,
+          "points": 5
+        },
+        {
+          "cardId": 84697,
+          "points": 5
+        },
+        {
+          "cardId": 84714,
+          "points": 5
+        },
+        {
+          "cardId": 84707,
+          "points": 10
+        },
+        {
+          "cardId": 84705,
+          "points": 15
+        },
+        {
+          "cardId": 84706,
+          "points": 15
+        }
+      ],
+      "totalPoints": 73,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Gold",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "name": "Future Legends",
+      "type": "points",
+      "requiredCount": 660,
+      "reward": "Historical Rainbow Pack, 10X Standard Pack",
+      "category": "Bonus Rewards",
+      "cards": [
+        {
+          "cardId": 84635,
+          "points": 15
+        },
+        {
+          "cardId": 84645,
+          "points": 5
+        },
+        {
+          "cardId": 84755,
+          "points": 5
+        },
+        {
+          "cardId": 84640,
+          "points": 5
+        },
+        {
+          "cardId": 84770,
+          "points": 5
+        },
+        {
+          "cardId": 84753,
+          "points": 5
+        },
+        {
+          "cardId": 84636,
+          "points": 15
+        },
+        {
+          "cardId": 84631,
+          "points": 15
+        },
+        {
+          "cardId": 84644,
+          "points": 15
+        },
+        {
+          "cardId": 84638,
+          "points": 75
+        },
+        {
+          "cardId": 84632,
+          "points": 75
+        },
+        {
+          "cardId": 84649,
+          "points": 75
+        },
+        {
+          "cardId": 84725,
+          "points": 75
+        },
+        {
+          "cardId": 84674,
+          "points": 75
+        },
+        {
+          "cardId": 84634,
+          "points": 200
+        },
+        {
+          "cardId": 84637,
+          "points": 200
+        },
+        {
+          "cardId": 84630,
+          "points": 200
+        },
+        {
+          "cardId": 84782,
+          "points": 200
+        },
+        {
+          "cardId": 84625,
+          "points": 200
+        }
+      ],
+      "totalPoints": 1460,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistRainbow",
+          "count": 1
+        },
+        {
+          "type": "Pack",
+          "packType": "Standard",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "name": "WBC Set",
+      "type": "points",
+      "requiredCount": 165,
+      "reward": "Artifact Pack, 2x Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": [
+        {
+          "cardId": 84612,
+          "points": 1
+        },
+        {
+          "cardId": 84619,
+          "points": 1
+        },
+        {
+          "cardId": 84394,
+          "points": 1
+        },
+        {
+          "cardId": 84623,
+          "points": 2
+        },
+        {
+          "cardId": 82772,
+          "points": 5
+        },
+        {
+          "cardId": 82764,
+          "points": 1
+        },
+        {
+          "cardId": 84622,
+          "points": 2
+        },
+        {
+          "cardId": 82765,
+          "points": 2
+        },
+        {
+          "cardId": 82926,
+          "points": 5
+        },
+        {
+          "cardId": 84621,
+          "points": 5
+        },
+        {
+          "cardId": 84610,
+          "points": 10
+        },
+        {
+          "cardId": 84611,
+          "points": 15
+        },
+        {
+          "cardId": 82774,
+          "points": 15
+        },
+        {
+          "cardId": 84213,
+          "points": 50
+        },
+        {
+          "cardId": 84212,
+          "points": 50
+        },
+        {
+          "cardId": 82923,
+          "points": 75
+        },
+        {
+          "cardId": 84617,
+          "points": 75
+        },
+        {
+          "cardId": 82919,
+          "points": 75
+        },
+        {
+          "cardId": 84609,
+          "points": 200
+        },
+        {
+          "cardId": 84613,
+          "points": 200
+        },
+        {
+          "cardId": 84210,
+          "points": 200
+        },
+        {
+          "cardId": 82770,
+          "points": 200
+        }
+      ],
+      "totalPoints": 1190,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 1
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 78,
       "name": "Fishies",
       "type": "count",
       "requiredCount": 14,
@@ -8246,7 +8486,7 @@
       ]
     },
     {
-      "id": 91,
+      "id": 79,
       "name": "Name Game - Rich",
       "type": "count",
       "requiredCount": 11,
@@ -8302,7 +8542,7 @@
       ]
     },
     {
-      "id": 92,
+      "id": 80,
       "name": "Right-Handed 1B",
       "type": "count",
       "requiredCount": 19,
@@ -8391,7 +8631,7 @@
       ]
     },
     {
-      "id": 93,
+      "id": 81,
       "name": "Straight A\u0027s",
       "type": "count",
       "requiredCount": 20,
@@ -8482,6 +8722,550 @@
           "type": "Pack",
           "packType": "Standard",
           "count": 2
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "name": "Live Level 1 - AL Central",
+      "type": "missions",
+      "requiredCount": 5,
+      "reward": "2x Artifact pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        7,
+        9,
+        11,
+        13,
+        18
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "name": "Live Level 1 - NL West",
+      "type": "missions",
+      "requiredCount": 5,
+      "reward": "2x Artifact pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        1,
+        10,
+        15,
+        23,
+        24
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "name": "Live Level 1 - NL Central",
+      "type": "missions",
+      "requiredCount": 5,
+      "reward": "2x Artifact pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        6,
+        8,
+        17,
+        22,
+        26
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "name": "Live Level 1 - AL West",
+      "type": "missions",
+      "requiredCount": 5,
+      "reward": "2x Artifact pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        2,
+        12,
+        14,
+        25,
+        28
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "name": "Live Level 1 - AL East",
+      "type": "missions",
+      "requiredCount": 5,
+      "reward": "2x Artifact pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        4,
+        5,
+        20,
+        27,
+        29
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "name": "Live Level 1 - NL East",
+      "type": "missions",
+      "requiredCount": 5,
+      "reward": "2x Artifact pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        3,
+        16,
+        19,
+        21,
+        30
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "name": "Charlie Sweeney Complete",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "Launch Deck Missions - Snapshot SP Charlie Sweeney SL5 1884, Diamond Pack",
+      "category": "Launch Deck",
+      "cards": [],
+      "missionIds": [
+        62,
+        61
+      ],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83329
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "name": "David Ross Complete",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "Launch Deck Missions - Snapshot C David Ross ATL 2009, Gold Pack",
+      "category": "Launch Deck",
+      "cards": [],
+      "missionIds": [
+        63,
+        64
+      ],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83574
+        },
+        {
+          "type": "Pack",
+          "packType": "Gold",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "name": "Llaves de la Maquina",
+      "type": "missions",
+      "requiredCount": 7,
+      "reward": "Baseball Reference 1 3B Albert Pujols STL 2001, 3x Historical Diamond Pack",
+      "category": "Bonus Rewards",
+      "cards": [],
+      "missionIds": [
+        77,
+        76,
+        71,
+        72,
+        75,
+        74,
+        73
+      ],
+      "totalPoints": 7,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 84788
+        },
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "name": "Live Level 2 - AL Central",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Live Collection Reward - Snapshot SP Red Faber CWS 1921, Diamond Pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        37,
+        39,
+        41,
+        43,
+        48,
+        82
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 84090
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "name": "Live Level 2 - NL West",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Live Collection Reward - Hall of Fame 1B Fred McGriff SD 1992, Diamond Pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        31,
+        40,
+        45,
+        53,
+        54,
+        83
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83805
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "name": "Live Level 2 - NL Central",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Live Collection Reward - Historical All-Star SP Bob Friend PIT 1960, Diamond Pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        36,
+        38,
+        47,
+        52,
+        56,
+        84
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 84086
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "name": "Live Level 2 - AL West",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Live Collection Reward - Hardware Heroes 3B Home Run Baker PHA 1911, Diamond Pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        32,
+        42,
+        44,
+        55,
+        58,
+        85
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 82735
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "name": "Live Level 2 - AL East",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Live Collection Reward - Historical All-Star SS Xander Bogaerts BOS 2019, Diamond Pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        34,
+        35,
+        50,
+        57,
+        59,
+        86
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83961
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "name": "LIVE LEVEL 1 COMPLETE",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Perfect Pack, Park: 1927 Yankee Stadium, Sticker: Live Mission Silver",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        86,
+        82,
+        85,
+        87,
+        84,
+        83
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "Perfect",
+          "count": 1
+        },
+        {
+          "type": "Park",
+          "park": "1927 Yankee Stadium"
+        },
+        {
+          "type": "Sticker",
+          "name": "Live Mission Silver"
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "name": "Live Level 2 - NL East",
+      "type": "missions",
+      "requiredCount": 6,
+      "reward": "Live Collection Reward - Hardware Heroes CF Lenny Dykstra PHI 1990, Diamond Pack",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        33,
+        46,
+        49,
+        51,
+        60,
+        87
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 82753
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "name": "Historical Launch Missions",
+      "type": "missions",
+      "requiredCount": 12,
+      "reward": "Sticker: Historical Mission, 2x Diamond Pack",
+      "category": "Launch Deck",
+      "cards": [],
+      "missionIds": [
+        62,
+        61,
+        88,
+        70,
+        67,
+        63,
+        64,
+        89,
+        65,
+        69,
+        68,
+        66
+      ],
+      "totalPoints": 12,
+      "rewards": [
+        {
+          "type": "Sticker",
+          "name": "Historical Mission"
+        },
+        {
+          "type": "Pack",
+          "packType": "Diamond",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "name": "Live Level 2 - American League",
+      "type": "missions",
+      "requiredCount": 3,
+      "reward": "Live AL Collection - Hall of Fame C Joe Mauer MIN 2006, Park: 1992 SkyDome",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        95,
+        91,
+        94
+      ],
+      "totalPoints": 3,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83804
+        },
+        {
+          "type": "Park",
+          "park": "1992 SkyDome"
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "name": "Live Level 2 - National League",
+      "type": "missions",
+      "requiredCount": 3,
+      "reward": "Live NL Collection - Historical All-Star SP Carl Hubbell NY1 1934, Park: 1949 Polo Grounds",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        97,
+        93,
+        92
+      ],
+      "totalPoints": 3,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83325
+        },
+        {
+          "type": "Park",
+          "park": "1949 Polo Grounds"
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "name": "LIVE LEVEL 2 COMPLETE",
+      "type": "missions",
+      "requiredCount": 2,
+      "reward": "Live Full Collection - Snapshot CF Tris Speaker BOS 1910, Park: 1984 Fenway Park, Sticker: Live Mission Gold",
+      "category": "Live Series",
+      "cards": [],
+      "missionIds": [
+        99,
+        100
+      ],
+      "totalPoints": 2,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 83846
+        },
+        {
+          "type": "Park",
+          "park": "1984 Fenway Park"
+        },
+        {
+          "type": "Sticker",
+          "name": "Live Mission Gold"
         }
       ]
     }
