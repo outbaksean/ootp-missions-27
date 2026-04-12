@@ -20,17 +20,12 @@
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
           <p>
-            All missions from the first missions drop on 3/23/2026 are included.
-            All done on 3/28/2026.
-          </p>
-          <p>Added the 4 new "Packs" category missions.</p>
-          <p>
-            Updated the Phillies live missions to replace Johan Rojas with Bryse
-            Wilson to match the change in game.
+            All missions from the second missions drop on 4/9/2026 are included.
+            All done on 4/11/2026.
           </p>
           <p>
-            Changed default artifact price to 0. Hid pack values that aren't
-            mission rewards yet. Fixed sticker rewards to match what's in game.
+            Added the 8 new "Bonus Rewards" category missions in the Albert
+            Pujols Chain.
           </p>
           <p>
             Adding missions is mostly a manual process, please be patient if I

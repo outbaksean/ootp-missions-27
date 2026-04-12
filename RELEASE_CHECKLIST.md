@@ -4,7 +4,7 @@ Steps to complete once OOTP 27 is available and mission/card data can be exporte
 
 1. [Done] Export card shop data to csv
 2. [Done] Transform raw card shop data to shop_cards.csv
-    - Run `node scripts/import-shop-cards.mjs "C:\Users\seane\Documents\Out of the Park Developments\OOTP Baseball 26\online_data\pt_card_list.csv"` to produce `app/public/data/shop_cards.csv`
+    - Run `node ootp-missions-27/scripts/import-shop-cards.mjs "C:\Users\seane\Documents\Out of the Park Developments\OOTP Baseball 27\online_data\pt_card_list.csv"` to produce `app/public/data/shop_cards.csv`
 3. [Done] Generate new missions.json (see details below)
 4. [Done] Add new release features (see details below)
 5. [Done] Test with new missions.json and shop_cards.csv
