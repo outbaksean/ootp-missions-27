@@ -1,5 +1,5 @@
 {
-  "version": "2026-04-11",
+  "version": "2026-04-16",
   "missions": [
     {
       "id": 1,
@@ -8422,6 +8422,931 @@
     },
     {
       "id": 78,
+      "name": "A Satchel of Satchels",
+      "type": "count",
+      "requiredCount": 5,
+      "reward": "Historical Perfect Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84876
+        },
+        {
+          "cardId": 84839
+        },
+        {
+          "cardId": 84837
+        },
+        {
+          "cardId": 84841
+        },
+        {
+          "cardId": 84844
+        }
+      ],
+      "totalPoints": 5,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistPerfect",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "name": "All the Jackies",
+      "type": "count",
+      "requiredCount": 6,
+      "reward": "Historical Rainbow Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84390
+        },
+        {
+          "cardId": 84840
+        },
+        {
+          "cardId": 84842
+        },
+        {
+          "cardId": 83849
+        },
+        {
+          "cardId": 84392
+        },
+        {
+          "cardId": 84013
+        }
+      ],
+      "totalPoints": 6,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistRainbow",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "name": "Barnstorming Buddies",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "2x Historical Gold Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84876
+        },
+        {
+          "cardId": 84882
+        },
+        {
+          "cardId": 84390
+        },
+        {
+          "cardId": 84887
+        },
+        {
+          "cardId": 84840
+        },
+        {
+          "cardId": 84839
+        },
+        {
+          "cardId": 84883
+        },
+        {
+          "cardId": 84881
+        },
+        {
+          "cardId": 84884
+        }
+      ],
+      "totalPoints": 9,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistGold",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "name": "Negro League Keystones",
+      "type": "count",
+      "requiredCount": 20,
+      "reward": "5x Historical silver Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84399
+        },
+        {
+          "cardId": 84407
+        },
+        {
+          "cardId": 84403
+        },
+        {
+          "cardId": 84406
+        },
+        {
+          "cardId": 84417
+        },
+        {
+          "cardId": 84424
+        },
+        {
+          "cardId": 84415
+        },
+        {
+          "cardId": 84440
+        },
+        {
+          "cardId": 84444
+        },
+        {
+          "cardId": 84480
+        },
+        {
+          "cardId": 84468
+        },
+        {
+          "cardId": 84461
+        },
+        {
+          "cardId": 84526
+        },
+        {
+          "cardId": 84497
+        },
+        {
+          "cardId": 84871
+        },
+        {
+          "cardId": 84499
+        },
+        {
+          "cardId": 84531
+        },
+        {
+          "cardId": 84514
+        },
+        {
+          "cardId": 84549
+        },
+        {
+          "cardId": 84868
+        },
+        {
+          "cardId": 84558
+        },
+        {
+          "cardId": 84556
+        },
+        {
+          "cardId": 84553
+        },
+        {
+          "cardId": 84567
+        },
+        {
+          "cardId": 84574
+        }
+      ],
+      "totalPoints": 25,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistSilver",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "name": "No Sleep Till Brooklyn",
+      "type": "count",
+      "requiredCount": 16,
+      "reward": "3x Historical Gold Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 82991
+        },
+        {
+          "cardId": 83027
+        },
+        {
+          "cardId": 84241
+        },
+        {
+          "cardId": 83625
+        },
+        {
+          "cardId": 83520
+        },
+        {
+          "cardId": 83874
+        },
+        {
+          "cardId": 83651
+        },
+        {
+          "cardId": 83223
+        },
+        {
+          "cardId": 83709
+        },
+        {
+          "cardId": 83775
+        },
+        {
+          "cardId": 82910
+        },
+        {
+          "cardId": 83285
+        },
+        {
+          "cardId": 83894
+        },
+        {
+          "cardId": 84382
+        },
+        {
+          "cardId": 83744
+        },
+        {
+          "cardId": 83993
+        },
+        {
+          "cardId": 84202
+        }
+      ],
+      "totalPoints": 17,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistGold",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "name": "Satch\u0027s Buds",
+      "type": "count",
+      "requiredCount": 9,
+      "reward": "Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84402
+        },
+        {
+          "cardId": 84419
+        },
+        {
+          "cardId": 84471
+        },
+        {
+          "cardId": 84435
+        },
+        {
+          "cardId": 84498
+        },
+        {
+          "cardId": 84554
+        },
+        {
+          "cardId": 84490
+        },
+        {
+          "cardId": 84539
+        },
+        {
+          "cardId": 84528
+        },
+        {
+          "cardId": 84560
+        }
+      ],
+      "totalPoints": 10,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "name": "Satch\u0027s RHP Iron to Silver",
+      "type": "count",
+      "requiredCount": 25,
+      "reward": "Historical Gold Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84401
+        },
+        {
+          "cardId": 84404
+        },
+        {
+          "cardId": 84402
+        },
+        {
+          "cardId": 84862
+        },
+        {
+          "cardId": 84405
+        },
+        {
+          "cardId": 84408
+        },
+        {
+          "cardId": 84409
+        },
+        {
+          "cardId": 84426
+        },
+        {
+          "cardId": 84420
+        },
+        {
+          "cardId": 84428
+        },
+        {
+          "cardId": 84445
+        },
+        {
+          "cardId": 84421
+        },
+        {
+          "cardId": 84431
+        },
+        {
+          "cardId": 84436
+        },
+        {
+          "cardId": 84430
+        },
+        {
+          "cardId": 84434
+        },
+        {
+          "cardId": 84429
+        },
+        {
+          "cardId": 84437
+        },
+        {
+          "cardId": 84435
+        },
+        {
+          "cardId": 84442
+        },
+        {
+          "cardId": 84679
+        },
+        {
+          "cardId": 84447
+        },
+        {
+          "cardId": 84456
+        },
+        {
+          "cardId": 84446
+        },
+        {
+          "cardId": 84457
+        },
+        {
+          "cardId": 84458
+        },
+        {
+          "cardId": 84473
+        },
+        {
+          "cardId": 84466
+        }
+      ],
+      "totalPoints": 28,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistGold",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "name": "The Iconic Number",
+      "type": "count",
+      "requiredCount": 42,
+      "reward": "12x Historical Gold Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84476
+        },
+        {
+          "cardId": 84455
+        },
+        {
+          "cardId": 84477
+        },
+        {
+          "cardId": 84496
+        },
+        {
+          "cardId": 84475
+        },
+        {
+          "cardId": 84469
+        },
+        {
+          "cardId": 84470
+        },
+        {
+          "cardId": 84492
+        },
+        {
+          "cardId": 84479
+        },
+        {
+          "cardId": 84485
+        },
+        {
+          "cardId": 84481
+        },
+        {
+          "cardId": 84484
+        },
+        {
+          "cardId": 84504
+        },
+        {
+          "cardId": 84491
+        },
+        {
+          "cardId": 84516
+        },
+        {
+          "cardId": 84486
+        },
+        {
+          "cardId": 84495
+        },
+        {
+          "cardId": 84532
+        },
+        {
+          "cardId": 84483
+        },
+        {
+          "cardId": 84498
+        },
+        {
+          "cardId": 84513
+        },
+        {
+          "cardId": 84493
+        },
+        {
+          "cardId": 84510
+        },
+        {
+          "cardId": 84517
+        },
+        {
+          "cardId": 84505
+        },
+        {
+          "cardId": 84551
+        },
+        {
+          "cardId": 84508
+        },
+        {
+          "cardId": 84512
+        },
+        {
+          "cardId": 84511
+        },
+        {
+          "cardId": 84509
+        },
+        {
+          "cardId": 84525
+        },
+        {
+          "cardId": 84537
+        },
+        {
+          "cardId": 84522
+        },
+        {
+          "cardId": 84540
+        },
+        {
+          "cardId": 84530
+        },
+        {
+          "cardId": 84554
+        },
+        {
+          "cardId": 84533
+        },
+        {
+          "cardId": 84543
+        },
+        {
+          "cardId": 84552
+        },
+        {
+          "cardId": 84524
+        },
+        {
+          "cardId": 84544
+        },
+        {
+          "cardId": 84539
+        },
+        {
+          "cardId": 84541
+        },
+        {
+          "cardId": 84536
+        },
+        {
+          "cardId": 84545
+        }
+      ],
+      "totalPoints": 45,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistGold",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "name": "Celebrating 42",
+      "type": "points",
+      "requiredCount": 210,
+      "reward": "3x Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 85017,
+          "points": 5
+        },
+        {
+          "cardId": 85018,
+          "points": 5
+        },
+        {
+          "cardId": 84842,
+          "points": 5
+        },
+        {
+          "cardId": 85019,
+          "points": 10
+        },
+        {
+          "cardId": 84885,
+          "points": 15
+        },
+        {
+          "cardId": 84837,
+          "points": 15
+        },
+        {
+          "cardId": 83849,
+          "points": 15
+        },
+        {
+          "cardId": 84875,
+          "points": 15
+        },
+        {
+          "cardId": 84880,
+          "points": 50
+        },
+        {
+          "cardId": 84841,
+          "points": 50
+        },
+        {
+          "cardId": 84879,
+          "points": 75
+        },
+        {
+          "cardId": 84878,
+          "points": 75
+        },
+        {
+          "cardId": 84877,
+          "points": 200
+        },
+        {
+          "cardId": 84886,
+          "points": 200
+        }
+      ],
+      "totalPoints": 735,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "name": "Negro League Arms",
+      "type": "points",
+      "requiredCount": 300,
+      "reward": "5x Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84523,
+          "points": 50
+        },
+        {
+          "cardId": 84528,
+          "points": 50
+        },
+        {
+          "cardId": 84548,
+          "points": 50
+        },
+        {
+          "cardId": 84529,
+          "points": 75
+        },
+        {
+          "cardId": 84538,
+          "points": 75
+        },
+        {
+          "cardId": 84546,
+          "points": 75
+        },
+        {
+          "cardId": 84547,
+          "points": 75
+        },
+        {
+          "cardId": 84562,
+          "points": 200
+        },
+        {
+          "cardId": 84566,
+          "points": 200
+        },
+        {
+          "cardId": 84534,
+          "points": 200
+        }
+      ],
+      "totalPoints": 1050,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "name": "Negro League LHB and Switchies",
+      "type": "points",
+      "requiredCount": 300,
+      "reward": "5x Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84535,
+          "points": 50
+        },
+        {
+          "cardId": 84557,
+          "points": 50
+        },
+        {
+          "cardId": 84555,
+          "points": 50
+        },
+        {
+          "cardId": 84550,
+          "points": 50
+        },
+        {
+          "cardId": 84564,
+          "points": 50
+        },
+        {
+          "cardId": 84563,
+          "points": 50
+        },
+        {
+          "cardId": 84553,
+          "points": 50
+        },
+        {
+          "cardId": 84560,
+          "points": 50
+        },
+        {
+          "cardId": 84676,
+          "points": 75
+        },
+        {
+          "cardId": 84568,
+          "points": 75
+        },
+        {
+          "cardId": 84572,
+          "points": 75
+        },
+        {
+          "cardId": 84569,
+          "points": 200
+        }
+      ],
+      "totalPoints": 825,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "name": "Negro League RHB",
+      "type": "points",
+      "requiredCount": 300,
+      "reward": "5x Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84542,
+          "points": 50
+        },
+        {
+          "cardId": 84558,
+          "points": 50
+        },
+        {
+          "cardId": 84556,
+          "points": 50
+        },
+        {
+          "cardId": 84561,
+          "points": 50
+        },
+        {
+          "cardId": 84573,
+          "points": 50
+        },
+        {
+          "cardId": 84567,
+          "points": 75
+        },
+        {
+          "cardId": 84574,
+          "points": 75
+        },
+        {
+          "cardId": 84571,
+          "points": 75
+        },
+        {
+          "cardId": 84570,
+          "points": 75
+        },
+        {
+          "cardId": 84559,
+          "points": 200
+        }
+      ],
+      "totalPoints": 750,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "name": "Satch\u0027s RHP Gold and Up",
+      "type": "points",
+      "requiredCount": 220,
+      "reward": "2x Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [
+        {
+          "cardId": 84487,
+          "points": 10
+        },
+        {
+          "cardId": 84474,
+          "points": 10
+        },
+        {
+          "cardId": 84478,
+          "points": 10
+        },
+        {
+          "cardId": 84482,
+          "points": 10
+        },
+        {
+          "cardId": 84864,
+          "points": 10
+        },
+        {
+          "cardId": 84488,
+          "points": 10
+        },
+        {
+          "cardId": 84489,
+          "points": 10
+        },
+        {
+          "cardId": 84501,
+          "points": 15
+        },
+        {
+          "cardId": 84494,
+          "points": 15
+        },
+        {
+          "cardId": 84490,
+          "points": 15
+        },
+        {
+          "cardId": 84502,
+          "points": 15
+        },
+        {
+          "cardId": 84890,
+          "points": 15
+        },
+        {
+          "cardId": 84548,
+          "points": 50
+        },
+        {
+          "cardId": 84529,
+          "points": 75
+        },
+        {
+          "cardId": 84546,
+          "points": 75
+        },
+        {
+          "cardId": 84547,
+          "points": 75
+        },
+        {
+          "cardId": 84844,
+          "points": 200
+        },
+        {
+          "cardId": 84534,
+          "points": 200
+        }
+      ],
+      "totalPoints": 820,
+      "rewards": [
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 91,
       "name": "Fishies",
       "type": "count",
       "requiredCount": 14,
@@ -8486,7 +9411,7 @@
       ]
     },
     {
-      "id": 79,
+      "id": 92,
       "name": "Name Game - Rich",
       "type": "count",
       "requiredCount": 11,
@@ -8542,7 +9467,7 @@
       ]
     },
     {
-      "id": 80,
+      "id": 93,
       "name": "Right-Handed 1B",
       "type": "count",
       "requiredCount": 19,
@@ -8631,7 +9556,7 @@
       ]
     },
     {
-      "id": 81,
+      "id": 94,
       "name": "Straight A\u0027s",
       "type": "count",
       "requiredCount": 20,
@@ -8726,7 +9651,7 @@
       ]
     },
     {
-      "id": 82,
+      "id": 95,
       "name": "Live Level 1 - AL Central",
       "type": "missions",
       "requiredCount": 5,
@@ -8750,7 +9675,7 @@
       ]
     },
     {
-      "id": 83,
+      "id": 96,
       "name": "Live Level 1 - NL West",
       "type": "missions",
       "requiredCount": 5,
@@ -8774,7 +9699,7 @@
       ]
     },
     {
-      "id": 84,
+      "id": 97,
       "name": "Live Level 1 - NL Central",
       "type": "missions",
       "requiredCount": 5,
@@ -8798,7 +9723,7 @@
       ]
     },
     {
-      "id": 85,
+      "id": 98,
       "name": "Live Level 1 - AL West",
       "type": "missions",
       "requiredCount": 5,
@@ -8822,7 +9747,7 @@
       ]
     },
     {
-      "id": 86,
+      "id": 99,
       "name": "Live Level 1 - AL East",
       "type": "missions",
       "requiredCount": 5,
@@ -8846,7 +9771,7 @@
       ]
     },
     {
-      "id": 87,
+      "id": 100,
       "name": "Live Level 1 - NL East",
       "type": "missions",
       "requiredCount": 5,
@@ -8870,7 +9795,7 @@
       ]
     },
     {
-      "id": 88,
+      "id": 101,
       "name": "Charlie Sweeney Complete",
       "type": "missions",
       "requiredCount": 2,
@@ -8895,7 +9820,7 @@
       ]
     },
     {
-      "id": 89,
+      "id": 102,
       "name": "David Ross Complete",
       "type": "missions",
       "requiredCount": 2,
@@ -8920,7 +9845,7 @@
       ]
     },
     {
-      "id": 90,
+      "id": 103,
       "name": "Llaves de la Maquina",
       "type": "missions",
       "requiredCount": 7,
@@ -8950,7 +9875,39 @@
       ]
     },
     {
-      "id": 91,
+      "id": 104,
+      "name": "Unlock Leroy Robert Paige",
+      "type": "missions",
+      "requiredCount": 4,
+      "reward": "Celebrating 42 - Negro League Star SP Satchel Paige ClCu 1931, Artifact Pack, Historical Diamond Pack",
+      "category": "Negro Leagues",
+      "cards": [],
+      "missionIds": [
+        83,
+        84,
+        90,
+        80
+      ],
+      "totalPoints": 4,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 84837
+        },
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 1
+        },
+        {
+          "type": "Pack",
+          "packType": "HistDiamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": 105,
       "name": "Live Level 2 - AL Central",
       "type": "missions",
       "requiredCount": 6,
@@ -8963,7 +9920,7 @@
         41,
         43,
         48,
-        82
+        95
       ],
       "totalPoints": 6,
       "rewards": [
@@ -8979,7 +9936,7 @@
       ]
     },
     {
-      "id": 92,
+      "id": 106,
       "name": "Live Level 2 - NL West",
       "type": "missions",
       "requiredCount": 6,
@@ -8992,7 +9949,7 @@
         45,
         53,
         54,
-        83
+        96
       ],
       "totalPoints": 6,
       "rewards": [
@@ -9008,7 +9965,7 @@
       ]
     },
     {
-      "id": 93,
+      "id": 107,
       "name": "Live Level 2 - NL Central",
       "type": "missions",
       "requiredCount": 6,
@@ -9021,7 +9978,7 @@
         47,
         52,
         56,
-        84
+        97
       ],
       "totalPoints": 6,
       "rewards": [
@@ -9037,7 +9994,7 @@
       ]
     },
     {
-      "id": 94,
+      "id": 108,
       "name": "Live Level 2 - AL West",
       "type": "missions",
       "requiredCount": 6,
@@ -9050,7 +10007,7 @@
         44,
         55,
         58,
-        85
+        98
       ],
       "totalPoints": 6,
       "rewards": [
@@ -9066,7 +10023,7 @@
       ]
     },
     {
-      "id": 95,
+      "id": 109,
       "name": "Live Level 2 - AL East",
       "type": "missions",
       "requiredCount": 6,
@@ -9079,7 +10036,7 @@
         50,
         57,
         59,
-        86
+        99
       ],
       "totalPoints": 6,
       "rewards": [
@@ -9095,7 +10052,7 @@
       ]
     },
     {
-      "id": 96,
+      "id": 110,
       "name": "LIVE LEVEL 1 COMPLETE",
       "type": "missions",
       "requiredCount": 6,
@@ -9103,12 +10060,12 @@
       "category": "Live Series",
       "cards": [],
       "missionIds": [
-        86,
-        82,
-        85,
-        87,
-        84,
-        83
+        99,
+        95,
+        98,
+        100,
+        97,
+        96
       ],
       "totalPoints": 6,
       "rewards": [
@@ -9128,7 +10085,7 @@
       ]
     },
     {
-      "id": 97,
+      "id": 111,
       "name": "Live Level 2 - NL East",
       "type": "missions",
       "requiredCount": 6,
@@ -9141,7 +10098,7 @@
         49,
         51,
         60,
-        87
+        100
       ],
       "totalPoints": 6,
       "rewards": [
@@ -9157,7 +10114,7 @@
       ]
     },
     {
-      "id": 98,
+      "id": 112,
       "name": "Historical Launch Missions",
       "type": "missions",
       "requiredCount": 12,
@@ -9167,12 +10124,12 @@
       "missionIds": [
         62,
         61,
-        88,
+        101,
         70,
         67,
         63,
         64,
-        89,
+        102,
         65,
         69,
         68,
@@ -9192,7 +10149,42 @@
       ]
     },
     {
-      "id": 99,
+      "id": 113,
+      "name": "Change the Game Forever",
+      "type": "missions",
+      "requiredCount": 8,
+      "reward": "Celebrating 42 - Historical All-Star 2B Jackie Robinson BRO 1949, 4x Artifact Pack, Sticker: NeL Mis",
+      "category": "Negro Leagues",
+      "cards": [],
+      "missionIds": [
+        104,
+        82,
+        81,
+        86,
+        85,
+        87,
+        89,
+        88
+      ],
+      "totalPoints": 8,
+      "rewards": [
+        {
+          "type": "Card",
+          "cardId": 84013
+        },
+        {
+          "type": "Pack",
+          "packType": "Artifact",
+          "count": 4
+        },
+        {
+          "type": "Sticker",
+          "name": "NeL Mis"
+        }
+      ]
+    },
+    {
+      "id": 114,
       "name": "Live Level 2 - American League",
       "type": "missions",
       "requiredCount": 3,
@@ -9200,9 +10192,9 @@
       "category": "Live Series",
       "cards": [],
       "missionIds": [
-        95,
-        91,
-        94
+        109,
+        105,
+        108
       ],
       "totalPoints": 3,
       "rewards": [
@@ -9217,7 +10209,7 @@
       ]
     },
     {
-      "id": 100,
+      "id": 115,
       "name": "Live Level 2 - National League",
       "type": "missions",
       "requiredCount": 3,
@@ -9225,9 +10217,9 @@
       "category": "Live Series",
       "cards": [],
       "missionIds": [
-        97,
-        93,
-        92
+        111,
+        107,
+        106
       ],
       "totalPoints": 3,
       "rewards": [
@@ -9242,7 +10234,7 @@
       ]
     },
     {
-      "id": 101,
+      "id": 116,
       "name": "LIVE LEVEL 2 COMPLETE",
       "type": "missions",
       "requiredCount": 2,
@@ -9250,8 +10242,8 @@
       "category": "Live Series",
       "cards": [],
       "missionIds": [
-        99,
-        100
+        114,
+        115
       ],
       "totalPoints": 2,
       "rewards": [
