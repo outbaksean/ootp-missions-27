@@ -20,12 +20,12 @@
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
           <p>
-            All missions from the second missions drop on 4/9/2026 are included.
-            All done on 4/11/2026.
+            All missions from the third missions drop on 4/16/2026 are included.
+            All done on 4/16/2026.
           </p>
           <p>
-            Added the 8 new "Bonus Rewards" category missions in the Albert
-            Pujols Chain.
+            Added the 15 new "Negro Leagues" category missions in the Jackie
+            Robinson Chain.
           </p>
           <p>
             Adding missions is mostly a manual process, please be patient if I
