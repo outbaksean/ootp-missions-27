@@ -1,9 +1,14 @@
 <template>
   <div class="pack-prices">
-    <button class="pack-prices-toggle" @click="expanded = !expanded">
-      <span class="pack-prices-title">Pack Values</span>
-      <span class="pack-prices-chevron">{{ expanded ? "▲" : "▼" }}</span>
-    </button>
+    <div class="pack-prices-header">
+      <button class="pack-prices-toggle" @click="expanded = !expanded">
+        <span class="pack-prices-title">Pack Values</span>
+        <span class="pack-prices-chevron">{{ expanded ? "▲" : "▼" }}</span>
+      </button>
+      <button class="btn-calculate" @click="handleCalculateEV">
+        Calculate Pack Values
+      </button>
+    </div>
     <div v-if="expanded" class="pack-prices-body">
       <div class="pack-prices-hint-row">
         <p class="pack-prices-hint">
@@ -39,9 +44,12 @@ import {
   PACK_TYPES,
   PACK_TYPE_LABELS,
 } from "../stores/useSettingsStore";
+import { useCardStore } from "../stores/useCardStore";
+import { computePackEVs } from "../helpers/packEV";
 
 const settingsStore = useSettingsStore();
 const missionStore = useMissionStore();
+const cardStore = useCardStore();
 const expanded = ref(false);
 
 const usedPackTypes = computed(() => {
@@ -70,6 +78,14 @@ function handleChange(packType: string, event: Event) {
   missionStore.recomputeMissionValues();
 }
 
+function handleCalculateEV() {
+  const evs = computePackEVs(cardStore.shopCards);
+  for (const [packType, ev] of evs) {
+    settingsStore.setPackPrice(packType, ev);
+  }
+  missionStore.recomputeMissionValues();
+}
+
 function handleReset() {
   settingsStore.resetPackPrices();
   missionStore.recomputeMissionValues();
@@ -81,14 +97,21 @@ function handleReset() {
   border-top: 1px solid var(--sidebar-border);
 }
 
+.pack-prices-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-right: 0.75rem;
+}
+
 .pack-prices-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  flex: 1;
   background: none;
   border: none;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 0 0.6rem 1rem;
   cursor: pointer;
   color: var(--sidebar-text);
   transition: background 0.15s;
@@ -96,6 +119,25 @@ function handleReset() {
 
 .pack-prices-toggle:hover {
   background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-calculate {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--sidebar-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.btn-calculate:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--sidebar-text);
 }
 
 .pack-prices-title {
