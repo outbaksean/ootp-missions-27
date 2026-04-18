@@ -1,5 +1,5 @@
 {
-  "version": "2026-04-16",
+  "version": "2026-04-18",
   "missions": [
     {
       "id": 1,
@@ -222,9 +222,12 @@
         },
         {
           "cardId": 82270
+        },
+        {
+          "cardId": 84894
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Pack",
@@ -703,9 +706,12 @@
         },
         {
           "cardId": 81994
+        },
+        {
+          "cardId": 85013
         }
       ],
-      "totalPoints": 28,
+      "totalPoints": 29,
       "rewards": [
         {
           "type": "Pack",
@@ -821,9 +827,12 @@
         },
         {
           "cardId": 82473
+        },
+        {
+          "cardId": 84975
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -936,9 +945,15 @@
         },
         {
           "cardId": 81965
+        },
+        {
+          "cardId": 84990
+        },
+        {
+          "cardId": 84998
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -1051,9 +1066,12 @@
         },
         {
           "cardId": 82436
+        },
+        {
+          "cardId": 84992
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -1290,9 +1308,12 @@
         },
         {
           "cardId": 82394
+        },
+        {
+          "cardId": 85007
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -1529,9 +1550,12 @@
         },
         {
           "cardId": 82379
+        },
+        {
+          "cardId": 84925
         }
       ],
-      "totalPoints": 37,
+      "totalPoints": 38,
       "rewards": [
         {
           "type": "Pack",
@@ -1889,9 +1913,12 @@
         },
         {
           "cardId": 82108
+        },
+        {
+          "cardId": 84997
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -1998,9 +2025,12 @@
         },
         {
           "cardId": 81928
+        },
+        {
+          "cardId": 84941
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Pack",
@@ -2119,9 +2149,12 @@
         },
         {
           "cardId": 82326
+        },
+        {
+          "cardId": 84919
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Pack",
@@ -2234,9 +2267,12 @@
         },
         {
           "cardId": 82085
+        },
+        {
+          "cardId": 85009
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -2482,9 +2518,15 @@
         },
         {
           "cardId": 82056
+        },
+        {
+          "cardId": 84988
+        },
+        {
+          "cardId": 85008
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -2821,9 +2863,12 @@
         },
         {
           "cardId": 81720
+        },
+        {
+          "cardId": 84939
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Pack",
@@ -2936,9 +2981,12 @@
         },
         {
           "cardId": 82237
+        },
+        {
+          "cardId": 84965
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -3045,9 +3093,15 @@
         },
         {
           "cardId": 81878
+        },
+        {
+          "cardId": 85010
+        },
+        {
+          "cardId": 85001
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 31,
       "rewards": [
         {
           "type": "Pack",
@@ -3284,9 +3338,15 @@
         },
         {
           "cardId": 82208
+        },
+        {
+          "cardId": 84943
+        },
+        {
+          "cardId": 84911
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 35,
       "rewards": [
         {
           "type": "Pack",
@@ -3399,9 +3459,12 @@
         },
         {
           "cardId": 82508
+        },
+        {
+          "cardId": 84962
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -3511,9 +3574,15 @@
         },
         {
           "cardId": 82017
+        },
+        {
+          "cardId": 84926
+        },
+        {
+          "cardId": 84956
         }
       ],
-      "totalPoints": 30,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -3747,9 +3816,12 @@
         },
         {
           "cardId": 82270
+        },
+        {
+          "cardId": 84894
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Card",
@@ -4228,9 +4300,12 @@
         },
         {
           "cardId": 81994
+        },
+        {
+          "cardId": 85013
         }
       ],
-      "totalPoints": 28,
+      "totalPoints": 29,
       "rewards": [
         {
           "type": "Card",
@@ -4346,9 +4421,12 @@
         },
         {
           "cardId": 82473
+        },
+        {
+          "cardId": 84975
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -4461,9 +4539,15 @@
         },
         {
           "cardId": 81965
+        },
+        {
+          "cardId": 84990
+        },
+        {
+          "cardId": 84998
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -4576,9 +4660,12 @@
         },
         {
           "cardId": 82436
+        },
+        {
+          "cardId": 84992
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -4815,9 +4902,12 @@
         },
         {
           "cardId": 82394
+        },
+        {
+          "cardId": 85007
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -5054,9 +5144,12 @@
         },
         {
           "cardId": 82379
+        },
+        {
+          "cardId": 84925
         }
       ],
-      "totalPoints": 37,
+      "totalPoints": 38,
       "rewards": [
         {
           "type": "Card",
@@ -5414,9 +5507,12 @@
         },
         {
           "cardId": 82108
+        },
+        {
+          "cardId": 84997
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -5523,9 +5619,12 @@
         },
         {
           "cardId": 81928
+        },
+        {
+          "cardId": 84941
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Card",
@@ -5644,9 +5743,12 @@
         },
         {
           "cardId": 82326
+        },
+        {
+          "cardId": 84919
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Card",
@@ -5759,9 +5861,12 @@
         },
         {
           "cardId": 82085
+        },
+        {
+          "cardId": 85009
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -6007,9 +6112,15 @@
         },
         {
           "cardId": 82056
+        },
+        {
+          "cardId": 84988
+        },
+        {
+          "cardId": 85008
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -6346,9 +6457,12 @@
         },
         {
           "cardId": 81720
+        },
+        {
+          "cardId": 84939
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Card",
@@ -6461,9 +6575,12 @@
         },
         {
           "cardId": 82237
+        },
+        {
+          "cardId": 84965
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -6570,9 +6687,15 @@
         },
         {
           "cardId": 81878
+        },
+        {
+          "cardId": 85010
+        },
+        {
+          "cardId": 85001
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 31,
       "rewards": [
         {
           "type": "Card",
@@ -6809,9 +6932,15 @@
         },
         {
           "cardId": 82208
+        },
+        {
+          "cardId": 84943
+        },
+        {
+          "cardId": 84911
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 35,
       "rewards": [
         {
           "type": "Card",
@@ -6924,9 +7053,12 @@
         },
         {
           "cardId": 82508
+        },
+        {
+          "cardId": 84962
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -7036,9 +7168,15 @@
         },
         {
           "cardId": 82017
+        },
+        {
+          "cardId": 84926
+        },
+        {
+          "cardId": 84956
         }
       ],
-      "totalPoints": 30,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -7652,7 +7790,7 @@
     },
     {
       "id": 69,
-      "name": "That\u0027s Gold Jerry. GOLD!!!",
+      "name": "That's Gold Jerry. GOLD!!!",
       "type": "count",
       "requiredCount": 7,
       "reward": "Unsung Heroes RP Jerry Blevins ATH 2012, Gold Pack",
@@ -8698,7 +8836,7 @@
     },
     {
       "id": 83,
-      "name": "Satch\u0027s Buds",
+      "name": "Satch's Buds",
       "type": "count",
       "requiredCount": 9,
       "reward": "Historical Diamond Pack",
@@ -8746,7 +8884,7 @@
     },
     {
       "id": 84,
-      "name": "Satch\u0027s RHP Iron to Silver",
+      "name": "Satch's RHP Iron to Silver",
       "type": "count",
       "requiredCount": 25,
       "reward": "Historical Gold Pack",
@@ -9257,7 +9395,7 @@
     },
     {
       "id": 90,
-      "name": "Satch\u0027s RHP Gold and Up",
+      "name": "Satch's RHP Gold and Up",
       "type": "points",
       "requiredCount": 220,
       "reward": "2x Historical Diamond Pack",
@@ -9557,7 +9695,7 @@
     },
     {
       "id": 94,
-      "name": "Straight A\u0027s",
+      "name": "Straight A's",
       "type": "count",
       "requiredCount": 20,
       "reward": "Artifact Pack, 2x Standard Pack",
@@ -9658,13 +9796,7 @@
       "reward": "2x Artifact pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        7,
-        9,
-        11,
-        13,
-        18
-      ],
+      "missionIds": [7, 9, 11, 13, 18],
       "totalPoints": 5,
       "rewards": [
         {
@@ -9682,13 +9814,7 @@
       "reward": "2x Artifact pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        1,
-        10,
-        15,
-        23,
-        24
-      ],
+      "missionIds": [1, 10, 15, 23, 24],
       "totalPoints": 5,
       "rewards": [
         {
@@ -9706,13 +9832,7 @@
       "reward": "2x Artifact pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        6,
-        8,
-        17,
-        22,
-        26
-      ],
+      "missionIds": [6, 8, 17, 22, 26],
       "totalPoints": 5,
       "rewards": [
         {
@@ -9730,13 +9850,7 @@
       "reward": "2x Artifact pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        2,
-        12,
-        14,
-        25,
-        28
-      ],
+      "missionIds": [2, 12, 14, 25, 28],
       "totalPoints": 5,
       "rewards": [
         {
@@ -9754,13 +9868,7 @@
       "reward": "2x Artifact pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        4,
-        5,
-        20,
-        27,
-        29
-      ],
+      "missionIds": [4, 5, 20, 27, 29],
       "totalPoints": 5,
       "rewards": [
         {
@@ -9778,13 +9886,7 @@
       "reward": "2x Artifact pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        3,
-        16,
-        19,
-        21,
-        30
-      ],
+      "missionIds": [3, 16, 19, 21, 30],
       "totalPoints": 5,
       "rewards": [
         {
@@ -9802,10 +9904,7 @@
       "reward": "Launch Deck Missions - Snapshot SP Charlie Sweeney SL5 1884, Diamond Pack",
       "category": "Launch Deck",
       "cards": [],
-      "missionIds": [
-        62,
-        61
-      ],
+      "missionIds": [62, 61],
       "totalPoints": 2,
       "rewards": [
         {
@@ -9827,10 +9926,7 @@
       "reward": "Launch Deck Missions - Snapshot C David Ross ATL 2009, Gold Pack",
       "category": "Launch Deck",
       "cards": [],
-      "missionIds": [
-        63,
-        64
-      ],
+      "missionIds": [63, 64],
       "totalPoints": 2,
       "rewards": [
         {
@@ -9852,15 +9948,7 @@
       "reward": "Baseball Reference 1 3B Albert Pujols STL 2001, 3x Historical Diamond Pack",
       "category": "Bonus Rewards",
       "cards": [],
-      "missionIds": [
-        77,
-        76,
-        71,
-        72,
-        75,
-        74,
-        73
-      ],
+      "missionIds": [77, 76, 71, 72, 75, 74, 73],
       "totalPoints": 7,
       "rewards": [
         {
@@ -9882,12 +9970,7 @@
       "reward": "Celebrating 42 - Negro League Star SP Satchel Paige ClCu 1931, Artifact Pack, Historical Diamond Pack",
       "category": "Negro Leagues",
       "cards": [],
-      "missionIds": [
-        83,
-        84,
-        90,
-        80
-      ],
+      "missionIds": [83, 84, 90, 80],
       "totalPoints": 4,
       "rewards": [
         {
@@ -9914,14 +9997,7 @@
       "reward": "Live Collection Reward - Snapshot SP Red Faber CWS 1921, Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        37,
-        39,
-        41,
-        43,
-        48,
-        95
-      ],
+      "missionIds": [37, 39, 41, 43, 48, 95],
       "totalPoints": 6,
       "rewards": [
         {
@@ -9943,14 +10019,7 @@
       "reward": "Live Collection Reward - Hall of Fame 1B Fred McGriff SD 1992, Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        31,
-        40,
-        45,
-        53,
-        54,
-        96
-      ],
+      "missionIds": [31, 40, 45, 53, 54, 96],
       "totalPoints": 6,
       "rewards": [
         {
@@ -9972,14 +10041,7 @@
       "reward": "Live Collection Reward - Historical All-Star SP Bob Friend PIT 1960, Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        36,
-        38,
-        47,
-        52,
-        56,
-        97
-      ],
+      "missionIds": [36, 38, 47, 52, 56, 97],
       "totalPoints": 6,
       "rewards": [
         {
@@ -10001,14 +10063,7 @@
       "reward": "Live Collection Reward - Hardware Heroes 3B Home Run Baker PHA 1911, Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        32,
-        42,
-        44,
-        55,
-        58,
-        98
-      ],
+      "missionIds": [32, 42, 44, 55, 58, 98],
       "totalPoints": 6,
       "rewards": [
         {
@@ -10030,14 +10085,7 @@
       "reward": "Live Collection Reward - Historical All-Star SS Xander Bogaerts BOS 2019, Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        34,
-        35,
-        50,
-        57,
-        59,
-        99
-      ],
+      "missionIds": [34, 35, 50, 57, 59, 99],
       "totalPoints": 6,
       "rewards": [
         {
@@ -10059,14 +10107,7 @@
       "reward": "Perfect Pack, Park: 1927 Yankee Stadium, Sticker: Live Mission Silver",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        99,
-        95,
-        98,
-        100,
-        97,
-        96
-      ],
+      "missionIds": [99, 95, 98, 100, 97, 96],
       "totalPoints": 6,
       "rewards": [
         {
@@ -10092,14 +10133,7 @@
       "reward": "Live Collection Reward - Hardware Heroes CF Lenny Dykstra PHI 1990, Diamond Pack",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        33,
-        46,
-        49,
-        51,
-        60,
-        100
-      ],
+      "missionIds": [33, 46, 49, 51, 60, 100],
       "totalPoints": 6,
       "rewards": [
         {
@@ -10121,20 +10155,7 @@
       "reward": "Sticker: Historical Mission, 2x Diamond Pack",
       "category": "Launch Deck",
       "cards": [],
-      "missionIds": [
-        62,
-        61,
-        101,
-        70,
-        67,
-        63,
-        64,
-        102,
-        65,
-        69,
-        68,
-        66
-      ],
+      "missionIds": [62, 61, 101, 70, 67, 63, 64, 102, 65, 69, 68, 66],
       "totalPoints": 12,
       "rewards": [
         {
@@ -10156,16 +10177,7 @@
       "reward": "Celebrating 42 - Historical All-Star 2B Jackie Robinson BRO 1949, 4x Artifact Pack, Sticker: NeL Mis",
       "category": "Negro Leagues",
       "cards": [],
-      "missionIds": [
-        104,
-        82,
-        81,
-        86,
-        85,
-        87,
-        89,
-        88
-      ],
+      "missionIds": [104, 82, 81, 86, 85, 87, 89, 88],
       "totalPoints": 8,
       "rewards": [
         {
@@ -10191,11 +10203,7 @@
       "reward": "Live AL Collection - Hall of Fame C Joe Mauer MIN 2006, Park: 1992 SkyDome",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        109,
-        105,
-        108
-      ],
+      "missionIds": [109, 105, 108],
       "totalPoints": 3,
       "rewards": [
         {
@@ -10216,11 +10224,7 @@
       "reward": "Live NL Collection - Historical All-Star SP Carl Hubbell NY1 1934, Park: 1949 Polo Grounds",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        111,
-        107,
-        106
-      ],
+      "missionIds": [111, 107, 106],
       "totalPoints": 3,
       "rewards": [
         {
@@ -10241,10 +10245,7 @@
       "reward": "Live Full Collection - Snapshot CF Tris Speaker BOS 1910, Park: 1984 Fenway Park, Sticker: Live Mission Gold",
       "category": "Live Series",
       "cards": [],
-      "missionIds": [
-        114,
-        115
-      ],
+      "missionIds": [114, 115],
       "totalPoints": 2,
       "rewards": [
         {
