@@ -222,9 +222,12 @@
         },
         {
           "cardId": 82270
+        },
+        {
+          "cardId": 84894
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Pack",
@@ -703,9 +706,12 @@
         },
         {
           "cardId": 81994
+        },
+        {
+          "cardId": 85013
         }
       ],
-      "totalPoints": 28,
+      "totalPoints": 29,
       "rewards": [
         {
           "type": "Pack",
@@ -821,9 +827,12 @@
         },
         {
           "cardId": 82473
+        },
+        {
+          "cardId": 84975
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -936,9 +945,15 @@
         },
         {
           "cardId": 81965
+        },
+        {
+          "cardId": 84990
+        },
+        {
+          "cardId": 84998
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -1051,9 +1066,12 @@
         },
         {
           "cardId": 82436
+        },
+        {
+          "cardId": 84992
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -1290,9 +1308,12 @@
         },
         {
           "cardId": 82394
+        },
+        {
+          "cardId": 85007
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -1529,9 +1550,12 @@
         },
         {
           "cardId": 82379
+        },
+        {
+          "cardId": 84925
         }
       ],
-      "totalPoints": 37,
+      "totalPoints": 38,
       "rewards": [
         {
           "type": "Pack",
@@ -1889,9 +1913,12 @@
         },
         {
           "cardId": 82108
+        },
+        {
+          "cardId": 84997
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -1998,9 +2025,12 @@
         },
         {
           "cardId": 81928
+        },
+        {
+          "cardId": 84941
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Pack",
@@ -2119,9 +2149,12 @@
         },
         {
           "cardId": 82326
+        },
+        {
+          "cardId": 84919
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Pack",
@@ -2234,9 +2267,12 @@
         },
         {
           "cardId": 82085
+        },
+        {
+          "cardId": 85009
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -2482,9 +2518,15 @@
         },
         {
           "cardId": 82056
+        },
+        {
+          "cardId": 84988
+        },
+        {
+          "cardId": 85008
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Pack",
@@ -2821,9 +2863,12 @@
         },
         {
           "cardId": 81720
+        },
+        {
+          "cardId": 84939
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Pack",
@@ -2936,9 +2981,12 @@
         },
         {
           "cardId": 82237
+        },
+        {
+          "cardId": 84965
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -3045,9 +3093,15 @@
         },
         {
           "cardId": 81878
+        },
+        {
+          "cardId": 85010
+        },
+        {
+          "cardId": 85001
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 31,
       "rewards": [
         {
           "type": "Pack",
@@ -3284,9 +3338,15 @@
         },
         {
           "cardId": 82208
+        },
+        {
+          "cardId": 84943
+        },
+        {
+          "cardId": 84911
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 35,
       "rewards": [
         {
           "type": "Pack",
@@ -3399,9 +3459,12 @@
         },
         {
           "cardId": 82508
+        },
+        {
+          "cardId": 84962
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -3511,9 +3574,15 @@
         },
         {
           "cardId": 82017
+        },
+        {
+          "cardId": 84926
+        },
+        {
+          "cardId": 84956
         }
       ],
-      "totalPoints": 30,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Pack",
@@ -3747,9 +3816,12 @@
         },
         {
           "cardId": 82270
+        },
+        {
+          "cardId": 84894
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Card",
@@ -4228,9 +4300,12 @@
         },
         {
           "cardId": 81994
+        },
+        {
+          "cardId": 85013
         }
       ],
-      "totalPoints": 28,
+      "totalPoints": 29,
       "rewards": [
         {
           "type": "Card",
@@ -4346,9 +4421,12 @@
         },
         {
           "cardId": 82473
+        },
+        {
+          "cardId": 84975
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -4461,9 +4539,15 @@
         },
         {
           "cardId": 81965
+        },
+        {
+          "cardId": 84990
+        },
+        {
+          "cardId": 84998
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -4576,9 +4660,12 @@
         },
         {
           "cardId": 82436
+        },
+        {
+          "cardId": 84992
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -4815,9 +4902,12 @@
         },
         {
           "cardId": 82394
+        },
+        {
+          "cardId": 85007
         }
       ],
-      "totalPoints": 32,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -5054,9 +5144,12 @@
         },
         {
           "cardId": 82379
+        },
+        {
+          "cardId": 84925
         }
       ],
-      "totalPoints": 37,
+      "totalPoints": 38,
       "rewards": [
         {
           "type": "Card",
@@ -5414,9 +5507,12 @@
         },
         {
           "cardId": 82108
+        },
+        {
+          "cardId": 84997
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -5523,9 +5619,12 @@
         },
         {
           "cardId": 81928
+        },
+        {
+          "cardId": 84941
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Card",
@@ -5644,9 +5743,12 @@
         },
         {
           "cardId": 82326
+        },
+        {
+          "cardId": 84919
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 34,
       "rewards": [
         {
           "type": "Card",
@@ -5759,9 +5861,12 @@
         },
         {
           "cardId": 82085
+        },
+        {
+          "cardId": 85009
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -6007,9 +6112,15 @@
         },
         {
           "cardId": 82056
+        },
+        {
+          "cardId": 84988
+        },
+        {
+          "cardId": 85008
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 33,
       "rewards": [
         {
           "type": "Card",
@@ -6346,9 +6457,12 @@
         },
         {
           "cardId": 81720
+        },
+        {
+          "cardId": 84939
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 30,
       "rewards": [
         {
           "type": "Card",
@@ -6461,9 +6575,12 @@
         },
         {
           "cardId": 82237
+        },
+        {
+          "cardId": 84965
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -6570,9 +6687,15 @@
         },
         {
           "cardId": 81878
+        },
+        {
+          "cardId": 85010
+        },
+        {
+          "cardId": 85001
         }
       ],
-      "totalPoints": 29,
+      "totalPoints": 31,
       "rewards": [
         {
           "type": "Card",
@@ -6809,9 +6932,15 @@
         },
         {
           "cardId": 82208
+        },
+        {
+          "cardId": 84943
+        },
+        {
+          "cardId": 84911
         }
       ],
-      "totalPoints": 33,
+      "totalPoints": 35,
       "rewards": [
         {
           "type": "Card",
@@ -6924,9 +7053,12 @@
         },
         {
           "cardId": 82508
+        },
+        {
+          "cardId": 84962
         }
       ],
-      "totalPoints": 31,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -7036,9 +7168,15 @@
         },
         {
           "cardId": 82017
+        },
+        {
+          "cardId": 84926
+        },
+        {
+          "cardId": 84956
         }
       ],
-      "totalPoints": 30,
+      "totalPoints": 32,
       "rewards": [
         {
           "type": "Card",
@@ -7652,7 +7790,7 @@
     },
     {
       "id": 69,
-      "name": "That\u0027s Gold Jerry. GOLD!!!",
+      "name": "That's Gold Jerry. GOLD!!!",
       "type": "count",
       "requiredCount": 7,
       "reward": "Unsung Heroes RP Jerry Blevins ATH 2012, Gold Pack",
@@ -8698,7 +8836,7 @@
     },
     {
       "id": 83,
-      "name": "Satch\u0027s Buds",
+      "name": "Satch's Buds",
       "type": "count",
       "requiredCount": 9,
       "reward": "Historical Diamond Pack",
@@ -8746,7 +8884,7 @@
     },
     {
       "id": 84,
-      "name": "Satch\u0027s RHP Iron to Silver",
+      "name": "Satch's RHP Iron to Silver",
       "type": "count",
       "requiredCount": 25,
       "reward": "Historical Gold Pack",
@@ -9257,7 +9395,7 @@
     },
     {
       "id": 90,
-      "name": "Satch\u0027s RHP Gold and Up",
+      "name": "Satch's RHP Gold and Up",
       "type": "points",
       "requiredCount": 220,
       "reward": "2x Historical Diamond Pack",
@@ -9557,7 +9695,7 @@
     },
     {
       "id": 94,
-      "name": "Straight A\u0027s",
+      "name": "Straight A's",
       "type": "count",
       "requiredCount": 20,
       "reward": "Artifact Pack, 2x Standard Pack",

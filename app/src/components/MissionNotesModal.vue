@@ -20,12 +20,25 @@
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
           <p>
-            All missions from the third missions drop on 4/16/2026 are included.
-            All done on 4/16/2026.
+            4/17/2026 - Live Update 1. Added the new 23 live cards to live
+            missions. Done on 4/18/2026.
           </p>
           <p>
-            Added the 15 new "Negro Leagues" category missions in the Jackie
-            Robinson Chain.
+            4/16/2026 - Negro Leagues missions. Added the 15 new "Negro Leagues"
+            category missions in the Jackie Robinson and Satchel Paige Chains.
+            Done on 4/16/2026.
+          </p>
+          <p>
+            4/9/2026 - Albert Pujols missions. Added the 8 new "Bonus Rewards"
+            category missions in the Albert Pujols Chain. Done on 4/11/2026.
+          </p>
+          <p>
+            3/23/2026 - Packs missions. Added the 4 new "Packs" category
+            missions. Done on 3/28/2026.
+          </p>
+          <p>
+            3/5/2026 - Initial Release. All initial missions are included. Done
+            on 3/13/2026.
           </p>
           <p>
             Adding missions is mostly a manual process, please be patient if I
