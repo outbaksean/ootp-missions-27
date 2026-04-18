@@ -161,5 +161,8 @@ if (totalAdded === 0) {
   process.exit(0)
 }
 
+const today = new Date().toISOString().slice(0, 10)
+missionsData.version = today
+
 writeFileSync(MISSIONS_PATH, JSON.stringify(missionsData, null, 2) + '\n')
-console.log(`\nDone. Added ${totalAdded} card(s) across ${missionsUpdated} mission(s). missions.json updated.`)
+console.log(`\nDone. Added ${totalAdded} card(s) across ${missionsUpdated} mission(s). Version set to ${today}. missions.json updated.`)
