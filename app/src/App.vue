@@ -6,10 +6,15 @@ const moonSvgUrl = import.meta.env.BASE_URL + "moon.svg";
 
 <template>
   <nav class="app-nav">
-    <a href="https://cratervar.com" class="home-link">
-      <img :src="moonSvgUrl" alt="cratervar" class="home-icon" />
-      cratervar.com
-    </a>
+    <div class="nav-links">
+      <a href="https://cratervar.com" class="home-link">
+        <img :src="moonSvgUrl" alt="cratervar" class="home-icon" />
+        cratervar.com
+      </a>
+      <a href="https://cratervar.com/ootp-pack-sampler/" class="nav-link">
+        OOTP Pack Sampler
+      </a>
+    </div>
   </nav>
   <Missions />
   <footer>
@@ -49,6 +54,12 @@ footer a:hover {
   text-decoration: underline;
 }
 
+.nav-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
 .home-link {
   display: inline-flex;
   align-items: center;
@@ -61,5 +72,16 @@ footer a:hover {
 .home-icon {
   width: 16px;
   height: 16px;
+}
+
+.nav-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: #22c55e;
 }
 </style>
