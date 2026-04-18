@@ -146,7 +146,13 @@
                 Include card rewards in value: when enabled, the market price of
                 reward cards is included in Reward and Net calculations.
               </li>
-              <li>Pack Values: set PP values for reward calculation.</li>
+              <li>
+                Pack Values: set PP values for reward calculation. Use Calculate
+                Pack Values to automatically fill values based on current card
+                market prices using the same tier odds and live/historical mix
+                as the OOTP Pack Sampler. Use Reset to restore the built-in
+                defaults. Note: The calculation may be incorrect.
+              </li>
             </ul>
           </details>
 
