@@ -20,6 +20,11 @@
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
           <p>
+            4/22/2026 - Garret Anderson. Added the new 4 Garret Anderson
+            missions. These do not have a category in game, in the app I used
+            "Garret Anderson" as the category. Done on 4/22/2026.
+          </p>
+          <p>
             4/17/2026 - Live Update 1. Added the new 23 live cards to live
             missions. Done on 4/18/2026.
           </p>
