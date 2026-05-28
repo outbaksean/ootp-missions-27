@@ -20,6 +20,21 @@
         <div class="modal-body">
           <p class="text-muted">Updated {{ missionsVersion }}</p>
           <p>
+            5/28/2026 - Frank Robinson. Added the new 18 Frank Robinson
+            missions. Done on 5/28/2026.
+          </p>
+          <p>
+            5/21/2026 - Packs missions. Added the new 22 Packs missions. Done on
+            5/28/2026.
+          </p>
+          <p>
+            Bugfixes on 5/28/2026 - Fixed the live missions, the new live cards
+            had not been correctly added. Corrected the "Future Legends" mission
+            to include JJ Wetherholt. Updated the Garret Anderson missions to
+            category "Bonus Rewards", they were updated to that category in the
+            game.
+          </p>
+          <p>
             4/22/2026 - Garret Anderson. Added the new 4 Garret Anderson
             missions. These do not have a category in game, in the app I used
             "Garret Anderson" as the category. Done on 4/22/2026.
